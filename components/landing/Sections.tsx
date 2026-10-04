@@ -177,6 +177,12 @@ export function DailyTeaserSection({ teaser }: { teaser: DailyTeaser }) {
             <span className="font-display text-xl tracking-[0.18em] text-accent">DAILY DIVE #{teaser.number}</span>
             <span className="font-display text-sm text-muted">PROMPT 1 OF 7</span>
           </div>
+          {teaser.title && (
+            <p className="mt-1 font-display text-sm text-muted">
+              {teaser.title}
+              {teaser.theme && <span className="text-signal"> · {teaser.theme}</span>}
+            </p>
+          )}
           <p className="mt-5 font-display text-[clamp(26px,4vw,34px)] leading-tight text-text">{teaser.prompt}</p>
           <p className="mt-2 font-display text-sm tracking-[0.2em] text-signal">▼ rarer answers sink deeper ▼</p>
           <Link

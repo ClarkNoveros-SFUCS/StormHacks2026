@@ -3,6 +3,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { dailyNumber } from "@/components/landing/daily-teaser";
 import { SocialBackdrop } from "@/components/social/SocialBackdrop";
 import { requirePlayer } from "@/lib/auth";
+import { getDailyPuzzle } from "@/lib/daily/queries";
 import { today, weeklyXp } from "@/lib/social/leaderboards";
 import { ensureProfile } from "@/lib/social/profile";
 import type { DailyInfo } from "./daily";
@@ -21,8 +22,10 @@ export default async function LeaderboardPage({ searchParams }: PageProps<"/lead
   await ensureProfile(playerId, clerkUser ?? undefined);
 
   const day = today();
-  // TODO(F23 #36): set gameId to today's Daily Game once the Daily backend exists (see ./daily.ts).
-  const daily: DailyInfo = { gameId: null, day, number: dailyNumber(day) };
+  // Today's Daily puzzle (F23; claimed on first use if the midnight job hasn't run). With none,
+  // the Daily tab shows its "arrives soon" state.
+  const puzzle = await getDailyPuzzle(day).catch(() => null);
+  const daily: DailyInfo = { gameId: puzzle?.game_id ?? null, day, number: puzzle?.number ?? dailyNumber(day) };
 
   const [weekly, sp] = await Promise.all([weeklyXp(playerId, "global", 50), searchParams]);
   const asked = typeof sp.tab === "string" ? (sp.tab as BoardTab) : null;

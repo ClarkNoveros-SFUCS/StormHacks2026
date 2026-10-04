@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { currentUser } from "@clerk/nextjs/server";
 import { getDailyTeaser } from "@/components/landing/daily-teaser";
 import { requirePlayer } from "@/lib/auth";
+import { dailyToday } from "@/lib/daily/queries";
 import { listFriends } from "@/lib/social/friends";
 import { weeklyXp } from "@/lib/social/leaderboards";
 import { ensureProfile, profileCard } from "@/lib/social/profile";
@@ -21,7 +22,7 @@ export default async function HomePage() {
   const clerkUser = await currentUser().catch(() => null);
   await ensureProfile(playerId, clerkUser ?? undefined);
 
-  const [card, photo, games, modules, friends, friendsBoard, courses] = await Promise.all([
+  const [card, photo, games, modules, friends, friendsBoard, courses, daily] = await Promise.all([
     profileCard(playerId),
     photoSettings(playerId),
     recentGames(playerId, 5),
@@ -29,10 +30,12 @@ export default async function HomePage() {
     listFriends(playerId),
     weeklyXp(playerId, "friends", 5),
     coursesAvailable(),
+    // The Daily card falls back to the teaser if the Daily backend errors.
+    dailyToday(playerId).catch(() => null),
   ]);
   // Friends board with just you on it isn't much of a race: fall back to everyone.
   const board = friendsBoard.total > 1 ? friendsBoard : await weeklyXp(playerId, "global", 5);
-  const teaser = getDailyTeaser();
+  const teaser = getDailyTeaser(daily);
   const [latest, ...rest] = games;
 
   return (
@@ -54,7 +57,7 @@ export default async function HomePage() {
               Continue progress
             </h2>
             <div className="stagger grid gap-4 sm:grid-cols-2">
-              <DailyCard teaser={teaser} streak={card.streak} />
+              <DailyCard teaser={teaser} daily={daily} streak={card.streak} />
               {courses && <CourseProgressCard />}
               {rest.map((g, n) => (
                 <GameCard key={g.id} game={g} style={{ "--i": n + 2 } as React.CSSProperties} />

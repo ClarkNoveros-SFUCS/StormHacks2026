@@ -8,7 +8,7 @@ import { SoundToggle } from "@/components/ui/SoundToggle";
 import { BandTable } from "@/components/results/BandTable";
 import { DistributionChart } from "@/components/results/DistributionChart";
 import { ResultHeader } from "@/components/results/ResultHeader";
-import { ResultList } from "@/components/results/ResultList";
+import { ResultList, type FindRate } from "@/components/results/ResultList";
 import { DiveCamera } from "./depth";
 import { DiveLogChart } from "./DiveLogChart";
 import { OceanStage } from "./OceanStage";
@@ -19,8 +19,14 @@ type Props = {
   title: string;
   score: number;
   prompts: RevealPrompt[];
-  /** The curve: your own past Runs (private Games) or today's players (public Games). */
-  distribution: { values: number[]; caption: string; best?: number | null };
+  /** The curve: your own past Runs (private Games) or today's players (public Games; weighted buckets). */
+  distribution: { values: number[]; caption: string; best?: number | null; weights?: number[]; minValues?: number; subcaption?: string };
+  /** Shown right under the header (the Daily's share block). */
+  afterHeader?: ReactNode;
+  /** Replaces DIVE AGAIN (the Daily: "See today's leaderboard" + practice). */
+  actions?: ReactNode;
+  /** Public Games: "% of players found this" in THE CATCH. */
+  findRate?: FindRate;
   personalBest?: boolean;
   /** Mastery before → after this Run (percentages). The new Meter segments play `gild`. */
   mastery?: { before: number; after: number } | null;
@@ -59,6 +65,9 @@ export function DiveReveal({
   backLabel = "BACK",
   notice,
   camera: cameraProp,
+  afterHeader,
+  actions,
+  findRate,
 }: Props) {
   const [ownCamera] = useState(() => new DiveCamera());
   const camera = cameraProp ?? ownCamera;
@@ -98,7 +107,16 @@ export function DiveReveal({
     <div ref={scrollRef} className="absolute inset-0 overflow-y-auto overscroll-contain">
       <div className="mx-auto flex w-full max-w-[620px] flex-col gap-10 px-4 pt-8 pr-16 pb-24 sm:px-6 sm:pr-6">
         <ResultHeader title={title} score={score} secondary={formatDepth(score)} personalBest={personalBest} logo={<Logo size="sm" />} />
-        <DistributionChart values={distribution.values} you={score} best={distribution.best} caption={distribution.caption} />
+        {afterHeader}
+        <DistributionChart
+          values={distribution.values}
+          weights={distribution.weights}
+          minValues={distribution.minValues}
+          you={score}
+          best={distribution.best}
+          caption={distribution.caption}
+          subcaption={distribution.subcaption}
+        />
         <DiveLogChart prompts={log} />
         {mastery && (
           <section className="w-full">
@@ -120,22 +138,24 @@ export function DiveReveal({
           </section>
         )}
         <BandTable bands={bands} activeIndex={bearingIndex(score)} />
-        <ResultList prompts={prompts} evidenceHref={evidenceHref} />
+        <ResultList prompts={prompts} evidenceHref={evidenceHref} findRate={findRate} />
         <div className="flex flex-col items-center gap-4 pt-2">
           {notice}
-          <button
-            type="button"
-            onClick={onAgain}
-            disabled={againPending}
-            className="px-8 py-3 font-hud text-[24px] tracking-[0.25em] text-text transition hover:-translate-y-0.5 active:translate-y-[2px] disabled:opacity-60"
-            style={{
-              background: "color-mix(in srgb, var(--accent) 35%, #12081a)",
-              boxShadow: "inset 0 0 0 3px var(--accent), 0 0 22px color-mix(in srgb, var(--accent) 40%, transparent), 0 5px 0 #3b0f22",
-              animation: againPending ? undefined : "btn-bob 2.4s ease-in-out infinite",
-            }}
-          >
-            {againPending ? "▼ DIVING… ▼" : "▼ DIVE AGAIN ▼"}
-          </button>
+          {actions ?? (
+            <button
+              type="button"
+              onClick={onAgain}
+              disabled={againPending}
+              className="px-8 py-3 font-hud text-[24px] tracking-[0.25em] text-text transition hover:-translate-y-0.5 active:translate-y-[2px] disabled:opacity-60"
+              style={{
+                background: "color-mix(in srgb, var(--accent) 35%, #12081a)",
+                boxShadow: "inset 0 0 0 3px var(--accent), 0 0 22px color-mix(in srgb, var(--accent) 40%, transparent), 0 5px 0 #3b0f22",
+                animation: againPending ? undefined : "btn-bob 2.4s ease-in-out infinite",
+              }}
+            >
+              {againPending ? "▼ DIVING… ▼" : "▼ DIVE AGAIN ▼"}
+            </button>
+          )}
           <button type="button" onClick={onBack} className="font-hud text-[18px] tracking-[0.25em] text-muted underline-offset-4 hover:text-signal hover:underline">
             {backLabel}
           </button>

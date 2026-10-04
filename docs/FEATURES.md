@@ -37,7 +37,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F25 | Pairs and Blitz screens | Frontend | F10, F20 | #38 | planned |
 | F26 | Profile, Friends and Leaderboard pages | Frontend | F10, F21 | #39 | done |
 | F27 | Explore, Course and Topic pages | Frontend | F10, F22 | #40 | planned |
-| F28 | Daily Dive hub page | Frontend | F09, F23 | #41 | planned |
+| F28 | Daily Dive hub page | Frontend | F09, F23 | #41 | done |
 | F29 | Arena: three.js FPS study Mode (stretch) | Frontend | F20, F24 | #42 | planned |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
@@ -446,10 +446,19 @@ Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #40 (checklist live
 Entry points: — · Notes for others: —
 
 ## F28 Daily Dive hub page
-Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #41 (checklist lives on the issue until this feature ships)
-- [ ] See the issue checklist
+Spec: `docs/architecture/ui-map.md` § `/daily` and § Reveal, `docs/architecture/daily-dive.md` (API), decisions §7, Q9, Q23, Q24, §14 · Issue #41
+- [x] /daily: today's card, play or your result, flip-clock countdown, streak, leaderboard, share grid, archive (practice)
+- [x] Dive Reveal shows the crowd distribution for public Games
+- [x] Also: ocean-dawn hero with the day number in VT323 and Lumen commentary; Reveal Daily block (`DAILY #N COMPLETE`, counted/practice, share, "See today's leaderboard", practice replay) and "% found" per Answer; landing teaser and `/home` Daily card on real data; `/leaderboard` Daily tab live; 375 px, reduced motion
 
-Entry points: — · Notes for others: —
+Entry points: `app/daily/` (`page.tsx` server reads from `lib/daily`, `DailyHub`, `TodayCard`, `DailyBoard`, `Archive`, `play.ts` `usePlay`), `components/daily/` (`DawnScene`, `FlipClock` + `flip-clock.module.css`, `ShareButton` + `copyText`, `TierSquares`, `format.ts` `crowdCaption`/`findRateLookup`/`histogramPoints`/`lumenLine`/`metres`/`dayLabel`/`clockParts` + tests), Reveal: `components/modes/dive/DiveRevealScreen.tsx`
+
+Notes for others:
+- **Reuse:** `<ShareButton text look="site"|"dive">`, `<TierSquares tiers size? animate?>` (server-safe), `<FlipClock target serverNow onDone?>`, `<DawnScene>{hero}</DawnScene>`.
+- **Shared component additions (backwards compatible):** `DistributionChart` takes `weights?` (per value, e.g. players per bucket) and `subcaption?`; `DiveReveal` takes `afterHeader?`, `actions?` (replaces DIVE AGAIN) and `findRate?`; `ResultList` takes `findRate?: (position, answer?) => pct | null` ("% found" under each Answer).
+- **F19 integration edits:** `getDailyTeaser(daily?)` in `components/landing/daily-teaser.ts` now takes F23's `DailyToday` (`app/page.tsx` and `app/home/page.tsx` pass `dailyToday(...)`, falling back to the sample on error); `SHARE_SQUARES` match F23's share text; the landing teaser shows the puzzle's title and theme; `DailyCard` in `app/home/MainCards.tsx` takes `daily` and shows Dive in / Resume / your depth + squares.
+- **F26 integration edit:** `app/leaderboard/page.tsx` sets `daily.gameId` from `getDailyPuzzle(today)`.
+- The dev DB's only real player is Anton, so Daily #1's counted result (315 pts, −3,150 m) is on his account from the F28 verification.
 
 ## F29 Arena: three.js FPS study Mode (stretch)
 Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #42 (checklist lives on the issue until this feature ships)

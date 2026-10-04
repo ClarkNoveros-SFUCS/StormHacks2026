@@ -57,15 +57,17 @@ No invented stats or testimonials. In order:
 
 ## `/daily`: Daily Dive hub · F28 (#41)
 
-- Today's puzzle card: Daily number, play button (signed in, one counted Run per day) or your result with the share text (`SYLLABYSS Daily #12 · −1,400 m` + tier squares, copy to clipboard).
-- Flip-clock countdown to the next Daily (America/Vancouver midnight), your streak.
-- Today's leaderboard (Global / Friends): score desc, then finish time asc; rows animate rank changes.
-- Archive of past days, playable as practice (doesn't count).
+Built in F28 (`app/daily/`, shared pieces in `components/daily/`). Public: signed out it shows the puzzle, board and archive, and play buttons open Clerk's sign-in modal.
+- **Hero:** a pixel ocean at dawn (`DawnScene`: posterized sky, rising sun, drifting clouds, birds, the dive boat, a shimmering sun road, cursor parallax), the day number huge in VT323 with the chromatic shadow, theme and title, players today, and Lumen with a line for your state (`lumenLine`).
+- **Today's puzzle card** (Dive look): `PROMPT 1 OF 7` teaser, the Tier legend, then by status: `▼ DIVE IN ▼` (`POST /api/daily/today/run` → `/runs/[id]`), `▼ RESUME DIVE ▼`, or your counted result: depth (Odometer), tier squares, rank, "better than X%", score, the share text with **Share** (clipboard + toast + burst; on failure the toast shows the text), See your catch, Practice dive.
+- **Sidebar:** split-flap countdown to the next Vancouver midnight (`FlipClock`, server clock offset, refreshes the page at 0), your Daily streak with `StreakFlame`, how it works.
+- **Today's leaderboard** (Global / Friends, top 10 + your row, depth and finish time), link to `/leaderboard?tab=daily`.
+- **Archive:** every live day newest first with your counted squares and depth or best practice; past days play as practice (`POST /api/games/[gameId]/runs`).
 - Plays through the normal Dive Run and Reveal screens.
 
 ## `/leaderboard`, `/friends`, `/u/[username]`, `/profile` · F26 (#39)
 
-- **`/leaderboard`:** tabs **Daily Dive (today)**, **Weekly XP**, **Courses** (Topic passes), deep-linkable with `?tab=`; scope toggle **Global / Friends**. A pixel podium for the top 3 (trophies, confetti on hover), then rows (avatar, @username, Rank, Level, value) that FLIP to their new place on a scope switch; your row is highlighted, and pinned at the bottom when you're outside the top 50. Weekly shows the reset countdown (Monday 00:00 Vancouver), Daily the next-Daily countdown. Until F23 ships the Daily tab says "Daily Dive arrives soon" (`app/leaderboard/daily.ts`).
+- **`/leaderboard`:** tabs **Daily Dive (today)**, **Weekly XP**, **Courses** (Topic passes), deep-linkable with `?tab=`; scope toggle **Global / Friends**. A pixel podium for the top 3 (trophies, confetti on hover), then rows (avatar, @username, Rank, Level, value) that FLIP to their new place on a scope switch; your row is highlighted, and pinned at the bottom when you're outside the top 50. Weekly shows the reset countdown (Monday 00:00 Vancouver), Daily the next-Daily countdown. The Daily tab uses today's puzzle (`getDailyPuzzle`, wired in F28); with no puzzle today it says "Daily Dive arrives soon" (`app/leaderboard/daily.ts`).
 - **`/friends`:** tabs **Friends** (cards: avatar, Level, Rank, streak flame, unfriend), **Requests** (incoming Accept/Decline, sent Cancel), **Find** (debounced username search with Add buttons); `?tab=` deep links. No chat. Lumen empty states.
 - **`/u/[username]`:** animated pixel banner (ocean / space / sky, chosen in Edit profile, default from the username), round avatar overlapping it (`PixelAvatar` or the Clerk photo, Q17), display name, Level, Rank, `@username`, joined date, friend / run / topic counts and a Modules **count**; the friend button (or **Edit profile** on your own: display name, username with live availability, bio, avatar picker, photo toggle, banner). Main column: activity **Heatmap** (53 weeks, tooltips, streaks), **Bests** per Mode on public Games, **Courses** progress with Topic badges, **Recent activity**. Sidebar: the stats card (Total XP, Rank, Badges, Day streak, Level bar) and the **Badges** grid (earned glow and flip; locked show how to earn). Never Module content (Modules, files and Module Games stay private).
 - **`/profile`:** redirects to `/u/[your username]` (after `ensureProfile`).
@@ -129,6 +131,7 @@ A results column scrolling over the sea from your final depth (`dive.md` §7):
   - **Open Prompts:** every Answer grouped by Tier (rarest first), found ones ticked, tier filters and search, each with "📄 Week 9 slides · p.41" and the Evidence quote (links into the file viewer)
   - **Single-answer Prompts:** the correct Answer, the explanation and the Evidence page
 - Buttons: Dive again, Back to Game.
+- **Daily Dive Runs** (`reveal.daily` / `reveal.crowd`, F28): title `DAILY #N COMPLETE`; a Daily block under the header (title, `✓ COUNTED` or `PRACTICE`, tier squares, Share); the distribution is today's counted players (histogram buckets, YOU marked, "BETTER THAN X% OF TODAY'S PLAYERS", players and median); each Answer in The Catch shows "% found" by today's players; buttons become "See today's leaderboard" (`/daily#leaderboard`; a past day: back to the archive) and "Practice dive"; Back goes to `/daily`. No Personal Best or Mastery block; Evidence is plain text (the fact sheet's Module is the system's). Confetti once on a fresh counted Reveal.
 - **Course practice Games:** when `reveal.topic` is set, Back goes to the Topic page, and `topic.passedNow` triggers the Topic-pass moment (pixel burst, +150 XP, the Topic Badge, then the next Topic's unlock animation when `topic.unlockedNext`; Course Badge when `topic.courseFinished`) (Q27).
 
 ## `/explore`, `/explore/[course]`, `/explore/[course]/[topic]`: Courses (F22 backend, F27 UI)

@@ -6,6 +6,8 @@ import tile from "@/components/ui/ModeTile.module.css";
 import { formatDepth } from "@/components/modes/dive/tiers";
 import { NextDailyCountdown } from "@/components/landing/Countdown";
 import type { DailyTeaser } from "@/components/landing/daily-teaser";
+import { TierSquares } from "@/components/daily/TierSquares";
+import type { DailyToday } from "@/lib/daily/types";
 import type { Streak } from "@/lib/social/types";
 import { modeUi } from "@/lib/ui/modes";
 import { CourseProgress } from "./CourseProgress";
@@ -121,34 +123,52 @@ export function GameCard({ game, style }: { game: HomeGame; style?: CSSPropertie
 }
 
 /**
- * Today's Daily Dive. TODO(F23 #36 / F28 #41): show "played · your result" once the Daily
- * backend exists; until then it links to /daily with the countdown.
+ * Today's Daily Dive (F28): the first Prompt and Dive in, Resume, or your counted result
+ * (depth + share grid). Falls back to the teaser when there's no puzzle today.
  */
-export function DailyCard({ teaser, streak, style }: { teaser: DailyTeaser; streak: Streak; style?: CSSProperties }) {
+export function DailyCard({ teaser, daily, streak, style }: { teaser: DailyTeaser; daily: DailyToday | null; streak: Streak; style?: CSSProperties }) {
+  const me = daily?.me ?? null;
+  const result = me?.result ?? null;
+  const dailyStreak = me?.dailyStreak ?? streak;
+  const cta =
+    me?.status === "counted"
+      ? { href: "/daily", label: "Your dive" }
+      : me?.status === "in_progress" && me.runId
+        ? { href: `/runs/${me.runId}`, label: "Resume" }
+        : { href: "/daily", label: "Dive in" };
   return (
     <TiltCard max={6} className="sm:col-span-2">
       <div style={style} data-theme="dive" className="relative flex flex-col gap-4 overflow-hidden bg-surface p-5 sm:flex-row sm:items-center">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 opacity-60"
-          style={{ background: "radial-gradient(ellipse at 85% 120%, rgba(77,227,255,.25), transparent 60%), linear-gradient(180deg, transparent, rgba(5,10,20,.6))" }}
+          style={{ background: "radial-gradient(ellipse at 85% 120%, rgba(77,227,255,.25), transparent 60%), radial-gradient(ellipse at 100% -20%, rgba(255,138,106,.22), transparent 55%), linear-gradient(180deg, transparent, rgba(5,10,20,.6))" }}
         />
         <div className="relative min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-display text-lg tracking-[0.16em] text-accent">DAILY DIVE #{teaser.number}</span>
-            <Chip tone="signal">Today</Chip>
+            <span className="font-display text-lg tracking-[0.16em] text-accent">DAILY DIVE #{daily?.number ?? teaser.number}</span>
+            {me?.status === "counted" ? <Chip tone="success">Done today</Chip> : me?.status === "in_progress" ? <Chip tone="caution">In progress</Chip> : <Chip tone="signal">Today</Chip>}
+            {daily && <span className="text-xs text-muted">{daily.theme}</span>}
           </div>
-          <p className="mt-2 line-clamp-2 font-display text-2xl leading-tight text-text">
-            {teaser.isSample ? "Seven prompts, one counted dive, the same puzzle for everyone." : teaser.prompt}
-          </p>
-          <p className="mt-2 flex items-center gap-2 text-sm text-muted">
-            <StreakFlame days={streak.current} active={streak.playedToday} size={18} showCount={false} />
+          {result ? (
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+              <span className="font-hud text-4xl leading-none text-reward">{formatDepth(result.score)}</span>
+              <TierSquares tiers={result.tiers} size={16} animate={false} className="gap-1" />
+            </div>
+          ) : (
+            <p className="mt-2 line-clamp-2 font-display text-2xl leading-tight text-text">
+              {daily ? daily.teaser : teaser.isSample ? "Seven prompts, one counted dive, the same puzzle for everyone." : teaser.prompt}
+            </p>
+          )}
+          <p className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
+            <StreakFlame days={dailyStreak.current} active={dailyStreak.playedToday} size={18} showCount={false} />
+            {me && dailyStreak.current > 0 && <span>{dailyStreak.current}-day Daily streak ·</span>}
             Next puzzle in <NextDailyCountdown className="text-xl text-reward" />
           </p>
         </div>
         <div className="relative shrink-0">
-          <Button href="/daily" variant="primary" iconRight="▼">
-            Dive in
+          <Button href={cta.href} variant="primary" iconRight="▼">
+            {cta.label}
           </Button>
         </div>
       </div>

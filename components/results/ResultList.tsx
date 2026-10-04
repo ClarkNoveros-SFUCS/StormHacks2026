@@ -18,14 +18,30 @@ const KIND_LABEL: Record<PromptKind, string> = {
 };
 
 type EvidenceHref = (evidence: NonNullable<Evidence>) => string | null;
+/** Daily Dive (F28): % of today's players who found an Answer of the Prompt at `position`, or null. */
+export type FindRate = (position: number, answer?: string | null) => number | null;
 
 type Props = {
   prompts: RevealPrompt[];
   title?: string;
   /** Link each Evidence line (the Module's file viewer). */
   evidenceHref?: EvidenceHref;
+  /** Public Games: "% of players found this" next to each Answer. */
+  findRate?: FindRate;
   className?: string;
 };
+
+/** "38% found this" with a tiny bar (the Daily crowd). */
+function FoundBy({ pct, className = "" }: { pct: number; className?: string }) {
+  return (
+    <span className={`inline-flex items-center gap-1.5 font-hud text-[14px] tracking-[0.08em] text-signal ${className}`} title={`${pct}% of today's players found this`}>
+      <span aria-hidden="true" className="relative inline-block h-[6px] w-10 bg-white/10">
+        <span className="absolute inset-y-0 left-0 bg-signal" style={{ width: `${Math.max(2, pct)}%` }} />
+      </span>
+      {pct}% found
+    </span>
+  );
+}
 
 function TierIcon({ tier, size = 16 }: { tier: TierKey; size?: number }) {
   const ui = TIER_UI[tier];
@@ -33,7 +49,7 @@ function TierIcon({ tier, size = 16 }: { tier: TierKey; size?: number }) {
 }
 
 /** THE CATCH: one row per Prompt, expandable. Open Prompts list every Answer with filters and search. */
-export function ResultList({ prompts, title = "THE CATCH · tap a prompt for every answer", evidenceHref, className = "" }: Props) {
+export function ResultList({ prompts, title = "THE CATCH · tap a prompt for every answer", evidenceHref, findRate, className = "" }: Props) {
   const [open, setOpen] = useState<number | null>(prompts[0]?.position ?? null);
   return (
     <section className={`w-full ${className}`}>
@@ -74,7 +90,11 @@ export function ResultList({ prompts, title = "THE CATCH · tap a prompt for eve
               </button>
               {isOpen && (
                 <div className="border-t border-white/10 px-3 pt-3 pb-4 sm:px-4" style={{ animation: "rise-in .35s var(--ease-out) both" }}>
-                  {p.kind === "open" && p.answers ? <OpenAnswers answers={p.answers} evidenceHref={evidenceHref} /> : <SingleAnswer p={p} evidenceHref={evidenceHref} />}
+                  {p.kind === "open" && p.answers ? (
+                    <OpenAnswers answers={p.answers} evidenceHref={evidenceHref} findRate={findRate && ((answer) => findRate(p.position, answer))} />
+                  ) : (
+                    <SingleAnswer p={p} evidenceHref={evidenceHref} pct={findRate?.(p.position, p.correctAnswer) ?? null} />
+                  )}
                 </div>
               )}
             </li>
@@ -85,7 +105,15 @@ export function ResultList({ prompts, title = "THE CATCH · tap a prompt for eve
   );
 }
 
-function OpenAnswers({ answers, evidenceHref }: { answers: NonNullable<RevealPrompt["answers"]>; evidenceHref?: EvidenceHref }) {
+function OpenAnswers({
+  answers,
+  evidenceHref,
+  findRate,
+}: {
+  answers: NonNullable<RevealPrompt["answers"]>;
+  evidenceHref?: EvidenceHref;
+  findRate?: (answer: string) => number | null;
+}) {
   const [filter, setFilter] = useState<Tier | "all">("all");
   const [q, setQ] = useState("");
   const counts = Object.fromEntries(TIER_ORDER.map((t) => [t, answers.filter((a) => a.tier === t).length])) as Record<Tier, number>;
@@ -134,6 +162,10 @@ function OpenAnswers({ answers, evidenceHref }: { answers: NonNullable<RevealPro
                 +{TIER_POINTS[a.tier]}
               </span>
             </div>
+            {(() => {
+              const pct = findRate?.(a.answer);
+              return pct == null ? null : <FoundBy pct={pct} className="pl-6" />;
+            })()}
             <EvidenceLine evidence={a.evidence} href={a.evidence && evidenceHref?.(a.evidence)} className="pl-6" />
           </li>
         ))}
@@ -143,7 +175,7 @@ function OpenAnswers({ answers, evidenceHref }: { answers: NonNullable<RevealPro
   );
 }
 
-function SingleAnswer({ p, evidenceHref }: { p: RevealPrompt; evidenceHref?: EvidenceHref }) {
+function SingleAnswer({ p, evidenceHref, pct = null }: { p: RevealPrompt; evidenceHref?: EvidenceHref; pct?: number | null }) {
   return (
     <div className="flex flex-col gap-2">
       <p className="font-hud text-[19px] text-text">
@@ -155,6 +187,7 @@ function SingleAnswer({ p, evidenceHref }: { p: RevealPrompt; evidenceHref?: Evi
           </span>
         )}
       </p>
+      {pct != null && <FoundBy pct={pct} />}
       {p.explanation && <p className="font-sans text-[14px] leading-relaxed text-muted">{p.explanation}</p>}
       <EvidenceLine evidence={p.evidence ?? null} href={p.evidence && evidenceHref?.(p.evidence)} />
     </div>

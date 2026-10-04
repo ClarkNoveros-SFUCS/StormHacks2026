@@ -330,14 +330,18 @@ Shared by every typed-answer Mode (Dive, Apogee) and reusable by others.
 | Component | What |
 |---|---|
 | `ResultHeader` | Big counting score, the Mode's secondary metric (Dive: depth), optional `★ NEW PERSONAL BEST` banner (`banner-in` + `gold-breathe`) |
-| `DistributionChart` | A smooth curve of scores with a `YOU` marker and caption: for private Games, your own past Run scores (+ Personal Best); for public Games (Daily, Course), today's players ("better than X% of today's players") |
+| `DistributionChart` | A smooth curve of scores with a `YOU` marker and caption: for private Games, your own past Run scores (+ Personal Best); for public Games (Daily, Course), today's players ("better than X% of today's players"; `weights` for bucketed counts, `subcaption`) |
 | `BandTable` | Score ranges with icon and one-line verdict; the Player's row is lit |
-| `ResultList` | One row per round (band icon, prompt, your answer, tags, points), expandable: Open Prompts get tier filter chips with counts, search and every Answer with Evidence; single-answer Prompts get the Answer, explanation and Evidence |
+| `ResultList` | One row per round (band icon, prompt, your answer, tags, points), expandable: Open Prompts get tier filter chips with counts, search and every Answer with Evidence; single-answer Prompts get the Answer, explanation and Evidence; optional `findRate` adds "% found" by today's players (Daily) |
 | `EvidenceLine` | Mulish text, pixel doc icon, `Week 9 slides · p.41 — "…"`; links into the file viewer (`?doc=&page=`) |
 
 ### 6.4 Dive (`components/modes/dive/`)
 
 `tiers.ts` (`TIER_UI`), `depth.ts` (`DiveCamera`, metres ↔ screen mapping), `OceanStage` (canvas depth world with a camera; `setDepth(metres)`), `DepthRuler` (+ `YOU ◀` marker), `DiveHud` (three-plate HUD row), `TierLines` (its `sink` prop drops the sinking chip), `CatchScreen`, `DiveLogChart`, `DiveReveal`, `DivePlayground` (the fake 7-Prompt Dive on `/styleguide/dive`). Spec: `modes/dive.md`.
+
+### 6.5 Daily (`components/daily/`, F28)
+
+`DawnScene` (pixel ocean-at-dawn hero, parallax), `FlipClock` (split-flap countdown), `ShareButton` (copy share text, site or Dive look), `TierSquares` (the share grid as pixel squares), `format.ts` helpers.
 
 ## 7. Screens per world
 

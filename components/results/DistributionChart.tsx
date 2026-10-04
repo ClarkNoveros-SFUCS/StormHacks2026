@@ -7,8 +7,12 @@ type Props = {
   caption: string;
   /** Personal Best, marked on the axis in reward. */
   best?: number | null;
-  /** Below this many values the curve is skipped and only the caption shows (default 3). */
+  /** Optional weight per value (e.g. players per histogram bucket). Default 1 each. */
+  weights?: number[];
+  /** Below this many values (total weight) the curve is skipped and only the caption shows (default 3). */
   minValues?: number;
+  /** A second, quieter line under the caption. */
+  subcaption?: string;
   className?: string;
 };
 
@@ -17,31 +21,34 @@ const H = 150;
 const PAD_B = 22;
 
 /** Smoothed (Gaussian KDE) distribution of scores with YOU marked. Pure, exported for tests. */
-export function kde(values: number[], max: number, samples = 100): number[] {
+export function kde(values: number[], max: number, samples = 100, weights?: number[]): number[] {
   const bw = Math.max(12, max / 14);
   const out: number[] = [];
   for (let i = 0; i <= samples; i++) {
     const x = (i / samples) * max;
     let s = 0;
-    for (const v of values) {
+    values.forEach((v, j) => {
       const z = (x - v) / bw;
-      s += Math.exp(-0.5 * z * z);
-    }
+      s += (weights?.[j] ?? 1) * Math.exp(-0.5 * z * z);
+    });
     out.push(s);
   }
   return out;
 }
 
 /** Krillion's distribution curve: where your score falls among others. */
-export function DistributionChart({ values, you, max = 700, caption, best, minValues = 3, className = "" }: Props) {
-  if (values.length < minValues) {
+export function DistributionChart({ values, you, max = 700, caption, best, weights, minValues = 3, subcaption, className = "" }: Props) {
+  const total = weights ? weights.reduce((a, b) => a + b, 0) : values.length;
+  const sub = subcaption && <p className="mt-1 font-hud text-[13px] tracking-[0.2em] text-muted uppercase sm:text-[14px]">{subcaption}</p>;
+  if (total < minValues) {
     return (
       <figure className={`w-full ${className}`}>
         <figcaption className="font-hud text-[14px] tracking-[0.25em] text-signal uppercase sm:text-[16px]">{caption}</figcaption>
+        {sub}
       </figure>
     );
   }
-  const ys = kde(values, max);
+  const ys = kde(values, max, 100, weights);
   const peak = Math.max(1e-6, ...ys);
   const plotH = H - PAD_B - 8;
   const pts = ys.map((y, i) => [(i / (ys.length - 1)) * W, H - PAD_B - (y / peak) * plotH] as const);
@@ -81,6 +88,7 @@ export function DistributionChart({ values, you, max = 700, caption, best, minVa
         </text>
       </svg>
       <figcaption className="mt-2 font-hud text-[14px] tracking-[0.25em] text-signal uppercase sm:text-[16px]">{caption}</figcaption>
+      {sub}
       <style>{`@keyframes dist-draw { to { stroke-dashoffset: 0 } }`}</style>
     </figure>
   );
