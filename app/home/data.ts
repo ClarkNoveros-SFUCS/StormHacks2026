@@ -75,15 +75,6 @@ export async function photoSettings(playerId: string): Promise<{ usePhoto: boole
   return { usePhoto: row?.use_photo ?? false, clerkImageUrl: row?.image_url ?? null };
 }
 
-/**
- * Whether F22's Courses tables exist yet. TODO(F22 #35): drop this check once Courses are
- * merged; it only stops the dashboard asking a Courses API that isn't there (a 404 in the console).
- */
-export async function coursesAvailable(): Promise<boolean> {
-  const [row] = await sql<{ ok: boolean }[]>`select to_regclass('public.courses') is not null as ok`;
-  return row.ok;
-}
-
 export async function moduleCount(playerId: string): Promise<number> {
   const [row] = await sql<{ n: number }[]>`select count(*)::int as n from modules where player_id = ${playerId}`;
   return row.n;

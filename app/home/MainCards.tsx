@@ -7,6 +7,7 @@ import { formatDepth } from "@/components/modes/dive/tiers";
 import { NextDailyCountdown } from "@/components/landing/Countdown";
 import type { DailyTeaser } from "@/components/landing/daily-teaser";
 import { TierSquares } from "@/components/daily/TierSquares";
+import type { CourseSummary } from "@/lib/courses/types";
 import type { DailyToday } from "@/lib/daily/types";
 import type { Streak } from "@/lib/social/types";
 import { modeUi } from "@/lib/ui/modes";
@@ -176,8 +177,8 @@ export function DailyCard({ teaser, daily, streak, style }: { teaser: DailyTease
   );
 }
 
-/** Course progress (F22). Hidden until the Courses API answers; see CourseProgress. */
-export function CourseProgressCard() {
-  return <CourseProgress />;
+/** Course progress (F22): one card per Course, from listCourses. */
+export function CourseProgressCard({ course }: { course: CourseSummary }) {
+  return <CourseProgress course={course} />;
 }
 

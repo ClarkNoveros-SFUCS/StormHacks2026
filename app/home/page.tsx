@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { currentUser } from "@clerk/nextjs/server";
 import { getDailyTeaser } from "@/components/landing/daily-teaser";
 import { requirePlayer } from "@/lib/auth";
+import { listCourses } from "@/lib/courses/queries";
 import { dailyToday } from "@/lib/daily/queries";
 import { listFriends } from "@/lib/social/friends";
 import { weeklyXp } from "@/lib/social/leaderboards";
 import { ensureProfile, profileCard } from "@/lib/social/profile";
-import { coursesAvailable, moduleCount, photoSettings, recentGames } from "./data";
+import { moduleCount, photoSettings, recentGames } from "./data";
 import { HomeBackdrop } from "./HomeBackdrop";
 import { CourseProgressCard, DailyCard, GameCard, JumpBackIn } from "./MainCards";
 import { Greeting } from "./Greeting";
@@ -29,7 +30,8 @@ export default async function HomePage() {
     moduleCount(playerId),
     listFriends(playerId),
     weeklyXp(playerId, "friends", 5),
-    coursesAvailable(),
+    // Course cards (F22): hidden if the Courses query fails.
+    listCourses(playerId).catch(() => []),
     // The Daily card falls back to the teaser if the Daily backend errors.
     dailyToday(playerId).catch(() => null),
   ]);
@@ -58,7 +60,9 @@ export default async function HomePage() {
             </h2>
             <div className="stagger grid gap-4 sm:grid-cols-2">
               <DailyCard teaser={teaser} daily={daily} streak={card.streak} />
-              {courses && <CourseProgressCard />}
+              {courses.map((c) => (
+                <CourseProgressCard key={c.slug} course={c} />
+              ))}
               {rest.map((g, n) => (
                 <GameCard key={g.id} game={g} style={{ "--i": n + 2 } as React.CSSProperties} />
               ))}
