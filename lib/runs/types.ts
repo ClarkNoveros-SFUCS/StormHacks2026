@@ -26,8 +26,11 @@ export type { DiveFamilyModeId, ModeId, PromptKind, Tier };
 export type RunStatus = "in_progress" | "finished" | "abandoned";
 export type PromptOutcome = "correct" | "wrong" | "timeout";
 
-/** The page in a Source Document that backs an Answer. Null if the page is gone. */
-export type Evidence = { documentTitle: string; pageNumber: number; quote: string | null } | null;
+/**
+ * The page in a Source Document that backs an Answer. Null if the page is gone.
+ * `documentId` lets the Reveal link into the Module's file viewer (`/modules/[moduleId]?doc=<id>&page=<n>`).
+ */
+export type Evidence = { documentId: string; documentTitle: string; pageNumber: number; quote: string | null } | null;
 
 /** Fields every RunState has. */
 type RunStateBase = {
@@ -49,6 +52,8 @@ export type DiveRunState = RunStateBase & {
   prompt: {
     kind: PromptKind;
     text: string;
+    /** Single-answer kinds only: the Tier this Prompt scores on (before a Hint drop). Never on open. */
+    tier?: Tier;
     options?: string[]; //           odd_one_out, shuffled
     items?: string[]; //             ordered_recall, shuffled, never already in the correct order
     hintAvailable: boolean;
