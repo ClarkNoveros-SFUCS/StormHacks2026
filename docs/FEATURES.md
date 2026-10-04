@@ -43,6 +43,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F31 | Faster Gemini fallback: fewer retries on 503, fall back on timeout | Pipelines | F04 | #66 | done |
 | F32 | Sonar: AI study coach (LangGraph) over a per-concept learner model | Gameplay | F22 | #73 | done |
 | F33 | Dive matches Krillion: continuous descent, catch and miss screens, intro pan | Frontend | F09 | #72 | done |
+| F34 | Clerk sign-in and sign-up match the site style | Frontend | F10, F19 | #77 | done |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -595,6 +596,7 @@ Notes for others:
 - **AI never during a Run.** Sonar runs between Runs only; the buddy hides on `/runs/[runId]`. The numbers come from deterministic code (`lib/sonar/{model,diagnose,plan}.ts`); Gemini only explains and picks among checked options.
 - **No migration.** The model is computed on read by replaying `guess_events` (plus `run_prompts` timeouts) on the Course Module's Games, about 80 ms.
 - **Changing Python Basics content:** run `npm run sonar:tag` afterwards. Tags are keyed by a hash of the Prompt text; an untagged Prompt falls back to its Topic's weakest Concept at half weight.
+- **The coach is Claude Sonnet 5.5** (`ANTHROPIC_API_KEY`, `SONAR_MODEL`), traced in LangSmith. Gemini is the fallback, and is used alone without that key.
 - **Agent memory** is an in-process `MemorySaver` (per Player, lost on restart).
 - `npm run sonar:demo` **deletes** the target's Python Basics Runs, guesses and Topic progress before seeding.
 
@@ -615,3 +617,19 @@ Notes for others:
 - **No scoring or API change.** Tiers, points and the start-prompt clock are untouched; the clock still starts only after the next card has come up (`ENTER_MS` is now 1.1 s).
 - `TierLines` and `DepthRuler` are no longer on the Run screen but stay exported.
 - Krillion's "did you mean X? submit again to confirm" typo flow is **not** copied: it's matching logic (F05), not animation.
+
+## F34 Clerk sign-in and sign-up match the site style
+Issue #77
+- [x] `appearance` on `ClerkProvider`: the :root palette, Pixelify for headings and buttons, Mulish body
+- [x] Clerk elements reuse the site recipes: yellow `.px-btn` primary action, `.px-btn` social buttons, `.px-frame` card with a hard drop, 2px input border that turns signal-cyan on focus
+- [x] `cssLayerName: "clerk"` and `@layer theme, base, clerk, components, utilities` so Tailwind preflight can't break Clerk and our classes win
+- [x] Checked in a production build: `/sign-in` page and the nav's sign-in modal
+- [ ] Application name in the Clerk dashboard set to SYLLABYSS (the title says "Sign in to StormHacks 2026" until then; dashboard only, needs human)
+
+Entry points: `clerkAppearance` in `lib/ui/clerk-appearance.ts`; the `.cl-*` rules next to `.px-frame` in `app/globals.css`
+
+Notes for others:
+- Applies to every Clerk component (SignIn, SignUp, the modals from `SignInButton`/`SignUpButton`, UserButton, UserProfile). Style a new one by adding its element key to `elements`, or a `.cl-<element>` rule in globals.css.
+- Colours are hex copies of the :root tokens: Clerk derives shades from them and can't read CSS variables. Change both if the palette changes.
+- "Secured by Clerk" stays (removing it needs a paid Clerk plan).
+

@@ -4,7 +4,7 @@ Start here. Read `CONTEXT.md` (repo root) first for vocabulary: every capitalise
 
 ## What we're building
 
-A Krillion-style study game. A Player uploads course files into a **Module**, picks some of those files to generate a **Game**, then plays **Runs** of that Game: 7 timed Prompts where less obvious correct Answers score more. Study is private and progress on a Game is measured against yourself (Personal Best, Mastery). Since ADR-0005 there is a social layer on top: a public Profile (Level, XP, Rank, Streak, Badges, activity heatmap), Friends, and Leaderboards on public Games (Daily Dive, Course Topics) and weekly XP; see [`social.md`](./social.md). There is still no live multiplayer, and Rarity never comes from the crowd (ADR-0001).
+A Krillion-style study game. A Player uploads course files into a **Module**, picks some of those files to generate a **Game**, then plays **Runs** of that Game: 7 timed Prompts where less obvious correct Answers score more. Study is private and progress on a Game is measured against yourself (Personal Best, Mastery). Since ADR-0005 there is a social layer on top: a public Profile (Level, XP, Rank, Streak, Badges, activity heatmap), Friends, and Leaderboards on public Games (Daily Dive, Course Topics) and weekly XP; see [`social.md`](./social.md). There is still no live multiplayer, and Rarity never comes from the crowd (ADR-0001). Since F32, **Sonar** coaches the Player between Runs: deterministic code turns their guesses on Python Basics into a mastery score per Concept, and an LLM agent explains it and recommends the next Game; see [`sonar.md`](./sonar.md).
 
 ## Stack
 
@@ -31,10 +31,17 @@ See `docs/adr/0002-snowflake-parse-gemini-generate-tiger-store.md` for why the w
                 │  Run engine ──guess──▶ answer matching (SQL) ──▶ scoring ──▶  Tiger Data   │
                 │                                                              (Postgres +   │
                 │  Progress (Personal Best, Mastery) ◀──────── queries ─────── hypertable)  │
+                │                                                                  │         │
+                │  Sonar: learner model ◀── replays guess_events ──────────────────┘         │
+                │   (no AI) ──▶ agent (LangGraph + LLM, between Runs) ──▶ buddy, /sonar      │
                 └────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Nothing talks to Gemini during a Run. A Run touches only Tiger Data, so play stays fast and doesn't depend on an AI service being up.
+Nothing talks to Gemini or any other LLM during a Run. A Run touches only Tiger Data, so play stays fast and doesn't depend on an AI service being up.
+
+Sonar's pipeline in detail (source: `docs/img/sonar-pipeline.excalidraw`):
+
+![Sonar pipeline: guesses → learner model (deterministic) → Sonar agent (LLM) → buddy, bubbles and /sonar map → a new Run](../img/sonar-pipeline.png)
 
 ## Feature pipelines (one doc each)
 
@@ -47,10 +54,11 @@ Nothing talks to Gemini during a Run. A Run touches only Tiger Data, so play sta
 7. [`game-modes.md`](./game-modes.md): what a Game Mode owns vs. shares, `games.mode`, and how to add a Mode. Docs 2 and 3 describe the first Mode, **Dive**.
 8. [`social.md`](./social.md): Profiles, XP, Levels, Ranks, Streaks, Badges, Friends, Leaderboards, and the hooks other features call.
 9. [`courses.md`](./courses.md): Courses and Topics (seeded learning paths), public Games, the unlock rule and Pass, what happens when a Run finishes, the Courses API and seed.
+10. [`sonar.md`](./sonar.md): Sonar, the study coach: Concepts, the learner model (BKT, blame, root cause, planner), the LangGraph agent and its tools, the buddy and `/sonar`.
 
 ## Rules every agent should keep
 
-- **AI only at generation time.** Gemini runs when a Game is created, never during a Run. Hints are pre-generated.
+- **AI never during a Run.** AI runs at generation time (Gemini builds the Game; Hints are pre-generated) and in Sonar between Runs, never during a Run. Sonar's numbers (mastery, root cause, ranked actions) come from deterministic code; the LLM only explains them and picks among checked options.
 - **Doc-only Answers.** Every Answer must have Evidence (a page in a Source Document). Off-syllabus guesses are not accepted.
 - **Rarity is fixed.** It's set at generation and never changes from play (ADR-0001).
 - **Games are immutable.** No regeneration and no adding files later. A change means a new Game.

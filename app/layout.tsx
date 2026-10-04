@@ -4,6 +4,7 @@ import { Mulish, Pixelify_Sans, VT323 } from "next/font/google";
 import { ToastProvider } from "@/components/ui/Toast";
 import { KonamiFishing } from "@/components/site/KonamiFishing";
 import { getNavState } from "@/components/site/nav-data";
+import { clerkAppearance } from "@/lib/ui/clerk-appearance";
 import { RouteTransition } from "@/components/site/RouteTransition";
 import { FriendNotices } from "@/components/social/FriendNotices";
 import { SiteFooter } from "@/components/site/SiteFooter";
@@ -28,7 +29,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${pixelify.variable} ${mulish.variable} ${vt323.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <ClerkProvider>
+        <ClerkProvider appearance={clerkAppearance}>
           <ToastProvider>
             <a
               href="#main"

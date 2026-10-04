@@ -7,6 +7,20 @@ Sonar is a coach and buddy that knows where a Player stands in their material. I
 
 Terms: `CONTEXT.md` (Player, Course, Topic, Practice Game, Run, Prompt, Game Mode). New terms: **Concept**, **Concept mastery**, **Root cause** (below).
 
+![Sonar pipeline: guesses → learner model (deterministic) → Sonar agent (LLM) → buddy, bubbles and /sonar map → a new Run](../img/sonar-pipeline.png)
+
+Source: `docs/img/sonar-pipeline.excalidraw` (open it at excalidraw.com; `.svg` beside it).
+
+## What was built (v0 vs. this plan)
+
+The rest of this doc is the plan. Where v0 differs:
+
+- **The drawer replaced the chat page.** Chat lives in the floating buddy's drawer on every page (hidden during a Run); `/sonar` is the mastery map and its action cards (Decisions Q4, Q9).
+- **Root cause counts every Concept a missed Prompt tested,** not only the Concept the miss was on: a Concept qualifies when it is a prerequisite of any of them.
+- **The demo story is `range()` boundaries, not comparisons.** The Loops Prompts don't test comparison operators (their tags say so), so tags weren't bent to fit the plan. `npm run sonar:demo` gives the Loops Topic misses on `range()`'s stop, start and step, including for-loop Prompts tagged `[range_fn, for_loops]`. The root cause Sonar names is **`range()`** (about 11%, about 89% of the recent blame, for the misses on for loops). Topic 3 has comparison misses too, so the map shows "Course: passed, Sonar: 57%" on Operators & Expressions.
+- **The planner ranks on `p`; the UI and the card text show `pEff`.** Forgetting changes what is displayed, not the order of the ranked actions (except the fading-Concept review).
+- **The coach is Claude Sonnet 5.5** (`SONAR_MODEL` default `claude-sonnet-5-5`, `ANTHROPIC_API_KEY`), traced in LangSmith. `anthropic/<model>` would route it through the LangSmith LLM Gateway instead, but that beta isn't enabled on the free plan (403). Thinking is set to `between_tools` (off), for speed and so the trimmed history never replays thinking blocks. Gemini (`GEMINI_MODEL`, then `GEMINI_FALLBACK_MODEL`) is the fallback, and is used alone when no Anthropic key is set. The agent also has `read_source_page` and `propose_game` for Module pages.
+
 ## v0 scope (hackathon, ~2.5 h)
 
 Python Basics only, because its content is known, hand-checked and already has a Practice Game per Mode for every Topic.
@@ -148,7 +162,7 @@ Shared, written by the lead (change only via the lead): `lib/sonar/types.ts` (ev
 
 ## Demo setup
 
-A seed script (`scripts/sonar-demo.mts -- <playerId>`) plays fake Runs for a demo Player by writing `guess_events` directly. It gives them strong Topics 1–2, Topic 3 passed but with misses on comparisons, and Loops misses that trace back to comparisons. Running it again resets that Player's Course guesses first.
+A seed script (`scripts/sonar-demo.mts -- <playerId>`) plays fake Runs for a demo Player by writing `guess_events` directly. It gives them strong Topics 1–2, Topic 3 passed but with misses on comparisons, and Loops misses on range() boundaries (the root cause, see § What was built). Running it again resets that Player's Course guesses first.
 
 ## Time plan (2.5 h)
 
