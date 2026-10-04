@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AskSonarButton } from "@/components/sonar/AskSonarButton";
 import { Button } from "@/components/ui/Button";
 import { Mascot, type MascotHandle } from "@/components/ui/Mascot";
@@ -20,6 +20,7 @@ import { FilesPanel } from "./FilesPanel";
 import { GamesPanel, isGenerating } from "./GamesPanel";
 import { moduleTint } from "./ModuleBanner";
 import { NewGameDialog, type NewGameInput } from "./NewGameDialog";
+import { SONAR_GAME_CREATED_EVENT, type SonarGameCreatedDetail } from "@/lib/sonar/client";
 import { Portal } from "./Portal";
 
 type Props = {
@@ -29,6 +30,8 @@ type Props = {
   progress: Record<string, CardProgress>;
   /** The URL asked for a file (`?doc=`) that isn't in this Module. */
   missingDoc: boolean;
+  /** The page map (#90), rendered on the server; shown under the header. */
+  map?: ReactNode;
 };
 
 type Confirm = { kind: "doc"; doc: DocRow } | { kind: "game"; game: GameRow } | null;
@@ -42,7 +45,7 @@ const toRow = (g: GameSummary | GameRow): GameRow => ({
   created_at: new Date(g.created_at).toISOString(),
 });
 
-export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, progress, missingDoc }: Props) {
+export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, progress, missingDoc, map }: Props) {
   const [docs, setDocs] = useState(initialDocuments);
   const [games, setGames] = useState(initialGames);
   const [uploads, setUploads] = useState<UploadItem[]>([]);
@@ -86,6 +89,19 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
     return map;
   }, [games]);
   const readyDocs = docs.filter((d) => d.status === "parsed");
+
+  // A Game made from Sonar's card (F32): add it as Generating; the polling below takes it to Ready.
+  useEffect(() => {
+    const onCreated = (e: Event) => {
+      const { game } = (e as CustomEvent<SonarGameCreatedDetail>).detail;
+      if (game.module_id !== mod.id) return;
+      setGames((gs) => (gs.some((g) => g.id === game.id) ? gs : [toRow(game), ...gs]));
+      markFresh(game.id);
+      mascot.current?.say(`Writing your ${MODES[game.mode].name} Game…`, 3000);
+    };
+    window.addEventListener(SONAR_GAME_CREATED_EVENT, onCreated);
+    return () => window.removeEventListener(SONAR_GAME_CREATED_EVENT, onCreated);
+  }, [mod.id, markFresh]);
 
   // ---- Polling -------------------------------------------------------------------------------
   const docsBusy = docs.some((d) => d.status === "uploaded" || d.status === "parsing");
@@ -323,6 +339,8 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
           </Button>
         </div>
       </header>
+
+      {map}
 
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         <FilesPanel

@@ -115,6 +115,23 @@ describe("generateGame", () => {
       expect(await tx`select 1 from prompts where game_id = ${gameId}`).toHaveLength(0);
     }));
 
+  it("tops up: too few Prompts after the checks asks once more for different ones, then is ready", () =>
+    withFixture(async ({ tx, gameId }) => {
+      const all = fixture.game.prompts;
+      const contents: string[] = [];
+      const result = await generateGame(gameId, {
+        db: tx,
+        generate: async (title, pages, request) => {
+          contents.push(request.contents(title, pages));
+          return { response: { prompts: contents.length === 1 ? all.slice(0, 6) : all } };
+        },
+      });
+      expect(contents).toHaveLength(2);
+      expect(contents[1]).toContain("already written");
+      expect(contents[1]).toContain(all[0].text);
+      expect(result).toMatchObject({ status: "ready", promptCount: all.length });
+    }));
+
   it("fails with a user-facing message when Gemini fails", () =>
     withFixture(async ({ tx, gameId }) => {
       const result = await generateGame(gameId, {

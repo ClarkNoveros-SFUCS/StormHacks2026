@@ -7,6 +7,8 @@ import { Chip } from "@/components/ui/Chip";
 import { ModeBadge } from "@/components/ui/ModeTile";
 import { useToast } from "@/components/ui/Toast";
 import { MODES } from "@/lib/modes";
+import type { GameSummary } from "@/lib/games/types";
+import { announceGameCreated, createdGameFor } from "@/lib/sonar/client";
 import type { Action } from "@/lib/sonar/types";
 import { sfx } from "@/lib/ui/sfx";
 
@@ -26,7 +28,8 @@ export function ActionCard({ action, index, onNavigate }: { action: Action; /** 
   const router = useRouter();
   const toast = useToast();
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(false);
+  const key = action.kind === "create_game" ? `${action.moduleId}:${action.mode}:${action.title}:${action.sourceDocumentIds.join(",")}` : "";
+  const [done, setDone] = useState(() => !!key && !!createdGameFor(key));
   const [problem, setProblem] = useState<string | null>(null);
   const label = pickLabel(action, index);
 
@@ -62,14 +65,12 @@ export function ActionCard({ action, index, onNavigate }: { action: Action; /** 
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ title: action.title, mode: action.mode, sourceDocumentIds: action.sourceDocumentIds }),
       });
-      if (!res.ok) {
-        const body = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(body.error ?? "Couldn't make that Game.");
-      }
+      const body = (await res.json().catch(() => ({}))) as { game?: GameSummary; error?: string };
+      if (!res.ok || !body.game) throw new Error(body.error ?? "Couldn't make that Game.");
       setDone(true);
+      announceGameCreated(key, body.game);
       sfx.reward();
-      toast({ title: `Generating ${action.title}…`, body: "About a minute.", tone: "info", icon: "sparkle" });
-      router.refresh();
+      toast({ title: `Generating ${action.title}…`, body: "About a minute. It's in this Module's Games, and you'll get a note when it's ready.", tone: "info", icon: "sparkle" });
     } catch (e) {
       sfx.error();
       setProblem(e instanceof Error ? e.message : "Couldn't make that Game.");
@@ -90,6 +91,9 @@ export function ActionCard({ action, index, onNavigate }: { action: Action; /** 
         <p className="mt-1 text-[13px] text-faint">
           {MODES[action.mode].name} · {action.sourceDocumentIds.length} file{action.sourceDocumentIds.length === 1 ? "" : "s"}
         </p>
+      )}
+      {action.kind === "create_game" && done && (
+        <p className="mt-2 text-[13px] text-signal">Building in the background. It shows up in this Module&apos;s Games, ready in about a minute.</p>
       )}
       <div className="mt-3 flex items-center gap-3">
         {action.kind === "play" && (

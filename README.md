@@ -125,6 +125,18 @@ Your Clerk user id is in the Clerk dashboard → Users (it looks like `user_…`
 | `npm run sonar:demo` | Seed the Sonar demo history (Python Basics guesses) for the demo account. **Deletes** that Player's Python Basics Runs first |
 | `npm run sonar:tag` | Re-tag Python Basics Prompts with Concepts (Gemini), after the course content changes |
 
+## How we built it with parallel agents
+
+Several of us built this at once, each with our own AI coding agent. The agents never talk directly. They coordinate through shared state in GitHub and the repo:
+
+- **GitHub Issues are the claim board.** An issue labelled `in-progress` with an assignee means "someone is building this". An agent that finds its feature already claimed stops instead of duplicating it. Cross-agent messages (a schema or API change) are comments on the issue, posted before the change merges.
+- **`scripts/agent-sync.sh` runs at the start of every session** (a Claude Code `SessionStart` hook). It reports what merged into `main`, the feature board, who claimed what, open PRs, and your own unfinished work.
+- **`docs/FEATURES.md` is the board of what's built**, with entry points and notes for the next person. It's updated in the same PR as the feature.
+- **`docs/worklog/<github-login>/` holds resumable notes**, one folder per person so they never conflict. Any agent on any machine can pick up where the last one stopped.
+- **Humans stay in the loop.** By default agents hand work over for review before opening a PR, never merge, and never add AI attribution.
+
+Walkthrough with a diagram: [`docs/multi-agent-workflow.md`](docs/multi-agent-workflow.md). The exact rules agents follow: [`docs/agents/coordination.md`](docs/agents/coordination.md).
+
 ## Deploying
 
 See [`docs/deploy.md`](docs/deploy.md): which host to use, the upload body-size limit, every production env var, migration and seed order for a fresh database, the Daily job, and keeping the Daily pool full.

@@ -59,6 +59,18 @@ export type GenerateResult =
 
 class UserFacingError extends Error {}
 
+/** The same request, asking for Prompts other than the ones already kept (the top-up round). */
+export function topUp(request: GenerationRequest, written: string[]): GenerationRequest {
+  const avoid = written.length
+    ? `\n\nThese were already written; write different ones, on other facts or pages:\n${written.map((t) => `- ${t}`).join("\n")}`
+    : "";
+  return {
+    ...request,
+    temperature: Math.min(1, request.temperature + 0.2),
+    contents: (title, pages) => `${request.contents(title, pages)}${avoid}\nCover pages the earlier questions didn't use.`,
+  };
+}
+
 /**
  * Generates a queued Game's Prompts. `db`, `generate` and `verify` are seams for tests: pass a
  * transaction to roll everything back, and fakes instead of Gemini. With a fake `generate` and
@@ -104,30 +116,46 @@ export async function generateGame(
       order by source_document_id, page_index`;
     const pageId = new Map(pageRows.map((p) => [`${p.source_document_id}:${p.page_number}`, p.id]));
 
-    const results = await Promise.all(
-      docs.map(async (doc) => {
-        const pages = pageRows
-          .filter((p) => p.source_document_id === doc.id)
-          .map((p) => ({ pageNumber: p.page_number, contentMd: p.content_md }));
-        if (!pages.length) return { doc, prompts: [] as GeneratedPrompt[], dropped: 0 };
-        const { response, failed } = await generateSplit(requests, (request) => generate(doc.filename, pages, request));
-        for (const err of failed) console.warn(`generateGame ${gameId}: one of ${requests.length} calls failed, keeping the others' Prompts: ${err instanceof Error ? err.message : err}`);
-        // c. The Mode's per-document checks (Dive: 1-6, and Tiers for Open Prompts, step d),
-        //    then the verification pass (F16), which re-runs check 4 and Tiers on what it changes,
-        //    then (F17, overgenerating) the best 15-20 of what's left
-        const result = generator.validate(response, pages);
-        const verified = await verifyPass(doc.filename, pages, result.prompts);
-        const selected = select ? select(verified.prompts, verified.statuses) : { prompts: verified.prompts, dropped: [] };
-        if (select) console.log(`select: kept ${selected.prompts.length} of ${verified.prompts.length} Prompts`);
-        return { doc, prompts: selected.prompts, dropped: result.dropped.length + verified.dropped.length + selected.dropped.length };
-      }),
-    );
+    const pagesOf = (docId: string) =>
+      pageRows.filter((p) => p.source_document_id === docId).map((p) => ({ pageNumber: p.page_number, contentMd: p.content_md }));
+    // One round: every document's Gemini call(s) in parallel, then its checks
+    const round = (reqs: GenerationRequest[]) =>
+      Promise.all(
+        docs.map(async (doc) => {
+          const pages = pagesOf(doc.id);
+          if (!pages.length) return { doc, prompts: [] as GeneratedPrompt[], dropped: 0 };
+          const { response, failed } = await generateSplit(reqs, (request) => generate(doc.filename, pages, request));
+          for (const err of failed) console.warn(`generateGame ${gameId}: one of ${reqs.length} calls failed, keeping the others' Prompts: ${err instanceof Error ? err.message : err}`);
+          // c. The Mode's per-document checks (Dive: 1-6, and Tiers for Open Prompts, step d),
+          //    then the verification pass (F16), which re-runs check 4 and Tiers on what it changes,
+          //    then (F17, overgenerating) the best 15-20 of what's left
+          const result = generator.validate(response, pages);
+          const verified = await verifyPass(doc.filename, pages, result.prompts);
+          const selected = select ? select(verified.prompts, verified.statuses) : { prompts: verified.prompts, dropped: [] };
+          if (select) console.log(`select: kept ${selected.prompts.length} of ${verified.prompts.length} Prompts`);
+          return { doc, prompts: selected.prompts, dropped: result.dropped.length + verified.dropped.length + selected.dropped.length };
+        }),
+      );
     // c. Check 7 across documents, then the Mode's Game-level checks (Pairs: one per term;
     //    Blitz: true/false balance)
-    const deduped = dedupeAcrossDocuments(results);
-    const { kept, dropped: gameLevel } = generator.finalize(deduped.kept);
-    const dropped = results.reduce((n, r) => n + r.dropped, deduped.dropped.length + gameLevel.length);
+    const check = (results: Awaited<ReturnType<typeof round>>) => {
+      const deduped = dedupeAcrossDocuments(results);
+      const { kept, dropped: gameLevel } = generator.finalize(deduped.kept);
+      return { kept, dropped: results.reduce((n, r) => n + r.dropped, deduped.dropped.length + gameLevel.length) };
+    };
+
+    let results = await round(requests);
+    let { kept, dropped } = check(results);
     console.log(`generateGame ${gameId}: ${kept.length} Prompts kept, ${dropped} items dropped`);
+
+    // e'. Too few survived the checks: one top-up round asking for new Prompts (not the kept ones),
+    //     merged with the first round's and checked again, before giving up
+    if (kept.length < generator.minPrompts) {
+      const extra = await round(requests.map((r) => topUp(r, kept.map((k) => k.prompt.text))));
+      results = results.map((r, i) => ({ doc: r.doc, prompts: [...r.prompts, ...extra[i].prompts], dropped: r.dropped + extra[i].dropped }));
+      ({ kept, dropped } = check(results));
+      console.log(`generateGame ${gameId}: after a top-up round, ${kept.length} Prompts kept, ${dropped} items dropped`);
+    }
 
     // e. Too few Prompts for a Run of this Mode
     if (kept.length < generator.minPrompts) throw new UserFacingError(generator.notEnough(kept.length));

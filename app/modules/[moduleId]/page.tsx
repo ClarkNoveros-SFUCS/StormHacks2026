@@ -3,7 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { requirePlayer } from "@/lib/auth";
 import { listModuleGames } from "@/lib/games/queries";
 import { studyHref } from "../_lib/files";
-import { cardProgress, getModule, listModuleDocuments } from "../_lib/queries";
+import { cardProgress, getModule, listModuleDocuments, moduleMap } from "../_lib/queries";
+import { ModuleMapPanel } from "../_components/ModuleMapPanel";
 import { ModuleWorkspace } from "../_components/ModuleWorkspace";
 
 export async function generateMetadata(props: PageProps<"/modules/[moduleId]">): Promise<Metadata> {
@@ -19,9 +20,10 @@ export default async function ModulePage(props: PageProps<"/modules/[moduleId]">
   const mod = await getModule(playerId, moduleId);
   if (!mod) notFound();
 
-  const [documents, games, search] = await Promise.all([
+  const [documents, games, map, search] = await Promise.all([
     listModuleDocuments(playerId, mod.id),
     listModuleGames(playerId, mod.id),
+    moduleMap(playerId, mod.id),
     props.searchParams,
   ]);
   const progress = await cardProgress(
@@ -44,6 +46,7 @@ export default async function ModulePage(props: PageProps<"/modules/[moduleId]">
       }))}
       progress={progress}
       missingDoc={!!doc}
+      map={<ModuleMapPanel moduleId={mod.id} map={map} />}
     />
   );
 }

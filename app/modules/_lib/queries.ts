@@ -4,6 +4,7 @@ import { documentColumns, isUuid } from "@/lib/documents/queries";
 import { progressForGames } from "@/lib/progress";
 import type { ModeId } from "@/lib/modes";
 import { sortModes } from "./mode-words";
+import { buildModuleMap, type MapObservation, type MapSourcePage, type ModuleMap } from "./page-map";
 import type { CardProgress, DocRow, ModuleCardData } from "./types";
 
 // Reads for the Modules pages. Every query filters by playerId.
@@ -101,4 +102,37 @@ export async function documentModule(playerId: string, documentId: string): Prom
   const [row] = await sql<{ module_id: string }[]>`
     select module_id from source_documents where id = ${documentId} and player_id = ${playerId}`;
   return row?.module_id;
+}
+
+/**
+ * The Module page map (#90): every page of the Module's Ready files, and every guess and timeout on
+ * the Module's Games, each placed on its Prompt's Evidence page (the top Answer's, else the Prompt's).
+ */
+export async function moduleMap(playerId: string, moduleId: string): Promise<ModuleMap> {
+  const [pages, obs] = await Promise.all([
+    sql<MapSourcePage[]>`
+      select d.id as "documentId", d.filename, sp.page_number as "pageNumber", left(sp.content_md, 600) as "contentMd"
+        from source_documents d join source_pages sp on sp.source_document_id = d.id
+       where d.module_id = ${moduleId} and d.player_id = ${playerId} and d.status = 'parsed'
+       order by d.created_at, sp.page_index`,
+    sql<MapObservation[]>`
+      with g as (select id from games where module_id = ${moduleId} and player_id = ${playerId}),
+      pp as (
+        select p.id as prompt_id, sp.source_document_id as document_id, sp.page_number
+          from prompts p
+          join g on g.id = p.game_id
+          left join lateral (select evidence_page_id from answers a where a.prompt_id = p.id and a.evidence_page_id is not null
+                              order by a.rarity_rank nulls last limit 1) a on true
+          join source_pages sp on sp.id = coalesce(a.evidence_page_id, p.evidence_page_id)
+      )
+      select pp.document_id as "documentId", pp.page_number as "pageNumber", e.is_correct as correct, false as timeout, e.created_at as at
+        from guess_events e join pp on pp.prompt_id = e.prompt_id
+       where e.player_id = ${playerId} and e.game_id in (select id from g)
+      union all
+      select pp.document_id, pp.page_number, false, true, coalesce(rp.ended_at, rp.deadline_at, r.started_at)
+        from runs r join run_prompts rp on rp.run_id = r.id join pp on pp.prompt_id = rp.prompt_id
+       where r.player_id = ${playerId} and r.game_id in (select id from g) and rp.outcome = 'timeout'
+         and not exists (select 1 from guess_events e where e.player_id = ${playerId} and e.run_id = r.id and e.position = rp.position)`,
+  ]);
+  return buildModuleMap(pages, obs.map((o) => ({ ...o, at: new Date(o.at) })), new Date());
 }
