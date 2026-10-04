@@ -1,6 +1,6 @@
 # #5 F05 Answer matching
 
-Status: in-review
+Status: done
 Branch: feat/5-answer-matching
 Updated: 2026-10-03
 
