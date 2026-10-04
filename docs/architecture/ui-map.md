@@ -74,8 +74,8 @@ Built in F28 (`app/daily/`, shared pieces in `components/daily/`). Public: signe
 
 ## `/modules`: Modules list · F08
 
-- One card per Module: name, file count, Game count, last played.
-- "New Module" asks for a name, creates the Module, and opens it.
+- One card per Module: a pixel banner (page stack grows with its files, a flag per Mode), name, file count, Game count, Mode badges, best result (in that Game's Mode's words), last played.
+- "+ New Module" unfolds a name field in place, creates the Module (server action), and opens it.
 - Empty state: the mascot and "Create a Module for each subject you're studying."
 
 ## `/modules/[moduleId]`: Module page · F08
@@ -86,11 +86,11 @@ Two panels side by side; stacked on mobile.
 - Drop zone and file picker: PDF, PPTX, DOCX, ≤ 25 MB, ≤ 100 pages.
 - One row per Source Document: filename, page count, a `StatusPill` (`Uploading`, `Parsing…`, `Ready`, `Failed` with its error message; the Player deletes it and uploads again), and **"Used by N Games"**.
 - Delete is disabled while the file is used, with a tooltip: "Used by Graphs Midterm, Week 9 Drill. Delete those Games first."
-- **File viewer:** clicking a Ready file opens a drawer (full screen on mobile) labelled **"Parsed text of your file"**: a page list on the left, the selected page's rendered markdown on the right, and a search box that filters pages and highlights matches. The original file isn't stored (ADR-0003), so it shows the parsed text. Data: `GET /api/documents/[documentId]/pages` (owner only) → `{ pageNumber, contentMd }[]`. Evidence links in the Reveal deep-link here with `?doc=<documentId>&page=<n>`, which opens the viewer on that page.
+- **File viewer:** clicking a Ready file (or a Game's file chip) opens a large panel (full screen on mobile) labelled **"Parsed text of your file (the original isn't stored)"**: a page list on the left (page number + first heading; a scrolling strip on mobile), the selected page's rendered markdown on the right, a search box that highlights matches, counts them per page and jumps between matching pages (Enter / Shift+Enter), and ←/→ between pages. The original file isn't stored (ADR-0003), so it shows the parsed text. Data: `GET /api/documents/[documentId]/pages` (owner only) → `{ document: { id, filename, pageCount }, pages: { pageNumber, contentMd }[] }`. Deep link: `/modules/[moduleId]?doc=<documentId>&page=<n>` opens the viewer on that page (the URL follows the open page); `/modules/files/<documentId>?page=<n>` redirects there when only the file is known (Evidence).
 
 **Games panel**
 - One card per Game: title, a `ModeBadge`, status (`Generating…`, `Ready`, `Failed`), **chips naming the files it was built from**, Personal Best, a Mastery bar, and a **Play** button in the Mode's wording.
-- "New Game" opens a dialog: first the **Game Mode tiles** (Dive, Apogee, Leap, Pairs, Blitz; Dive preselected; each with icon, name, tagline, kinds, rules one-liner), then a title field, a checkbox list of this Module's **Ready** files (at least one), and Create. The Game appears immediately as `Generating…`.
+- "New Game" opens a dialog: first the **Game Mode tiles** (Dive, Apogee, Leap, Pairs, Blitz; Arena locked "coming soon"; Dive preselected; each with its mini-scene, name, tagline and rules one-liner, plus the selected Mode's rules and Prompt kinds), then a title field (defaults to "Module · Mode"), a checkbox list of this Module's **Ready** files (at least one; a gentle hint when the pages look too few for the Mode, never blocking), and Create. The Game appears immediately as `Generating…`.
 - Hovering a file chip highlights that file in the Files panel, and the reverse.
 
 ## `/games/[gameId]`: Game page · F11 (#11)

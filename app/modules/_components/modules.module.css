@@ -1,0 +1,244 @@
+/* Feature styles for the Modules pages (F08). Tokens and keyframes come from app/globals.css. */
+
+/* ---------- Skeletons ---------- */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--surface-2) 85%, transparent);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--signal) 10%, transparent), transparent);
+  animation: skeleton-sweep 1.4s var(--ease-io) infinite;
+}
+@keyframes skeleton-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ---------- Module cards ---------- */
+.banner {
+  image-rendering: pixelated;
+}
+.waves {
+  animation: waves 2.4s steps(8) infinite;
+}
+@keyframes waves {
+  to {
+    transform: translateX(8px);
+  }
+}
+.cardEnter {
+  animation: rise-in 0.55s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+/* The "+ New Module" card morphs into the name form. */
+.newCard {
+  transition:
+    transform 0.35s var(--ease-snap),
+    border-color 0.2s,
+    background 0.3s;
+  background:
+    repeating-linear-gradient(-45deg, color-mix(in srgb, var(--primary) 5%, transparent) 0 10px, transparent 10px 20px),
+    color-mix(in srgb, var(--surface) 70%, transparent);
+}
+.newCard:hover {
+  transform: translateY(-3px) rotate(-0.4deg);
+  border-color: var(--primary);
+}
+.plus {
+  transition: transform 0.4s var(--ease-bounce);
+}
+.newCard:hover .plus {
+  transform: rotate(90deg) scale(1.15);
+}
+.formIn {
+  animation: create-unfold 0.45s var(--ease-snap) both;
+}
+@keyframes create-unfold {
+  from {
+    opacity: 0;
+    transform: perspective(600px) rotateX(-70deg) scale(0.9);
+    transform-origin: top;
+  }
+}
+.creating {
+  animation: gold-breathe 1.2s ease-in-out infinite;
+}
+
+/* ---------- Drop zone ---------- */
+.drop {
+  --ant: color-mix(in srgb, var(--signal) 55%, transparent);
+  background-image:
+    linear-gradient(90deg, var(--ant) 50%, transparent 50%), linear-gradient(90deg, var(--ant) 50%, transparent 50%),
+    linear-gradient(0deg, var(--ant) 50%, transparent 50%), linear-gradient(0deg, var(--ant) 50%, transparent 50%);
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size:
+    14px 2px,
+    14px 2px,
+    2px 14px,
+    2px 14px;
+  background-position:
+    0 0,
+    0 100%,
+    0 0,
+    100% 0;
+  transition:
+    transform 0.3s var(--ease-snap),
+    box-shadow 0.3s,
+    background-color 0.3s;
+}
+.drop:hover,
+.drop:focus-visible {
+  animation: ants 0.8s linear infinite;
+  background-color: color-mix(in srgb, var(--signal) 5%, transparent);
+}
+.drop[data-over="true"] {
+  --ant: var(--primary);
+  animation: ants 0.4s linear infinite;
+  transform: scale(1.02);
+  background-color: color-mix(in srgb, var(--primary) 8%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--primary) 40%, transparent),
+    0 18px 40px -18px var(--primary);
+}
+@keyframes ants {
+  to {
+    background-position:
+      14px 0,
+      -14px 100%,
+      0 -14px,
+      100% 14px;
+  }
+}
+.dropDoc {
+  animation: float 3.2s ease-in-out infinite;
+}
+.drop[data-over="true"] .dropDoc {
+  animation: bob 0.6s ease-in-out infinite;
+}
+
+/* ---------- File rows and Game cards: hover linking ---------- */
+.lit {
+  border-color: var(--signal) !important;
+  box-shadow:
+    0 0 0 1px var(--signal),
+    0 10px 30px -14px var(--signal);
+  background-color: color-mix(in srgb, var(--signal) 7%, var(--surface));
+}
+.chipLit {
+  box-shadow: 0 0 0 1px var(--signal);
+  background: color-mix(in srgb, var(--signal) 22%, transparent) !important;
+  color: var(--text) !important;
+}
+.rowIn {
+  animation: rise-in 0.45s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+.rowOut {
+  animation: row-out 0.35s var(--ease-io) forwards;
+}
+@keyframes row-out {
+  to {
+    opacity: 0;
+    transform: translateX(30px) scale(0.96);
+    filter: blur(2px);
+  }
+}
+.uploadBar {
+  background: linear-gradient(90deg, var(--signal), var(--violet));
+  transition: width 0.25s var(--ease-out);
+}
+
+/* Mode mini-scenes inside Game cards: run while the card is hovered or generating. */
+.scene svg * {
+  animation-play-state: paused !important;
+}
+.gameCard:hover .scene svg *,
+.gameCard:focus-within .scene svg *,
+.gameCard[data-live="true"] .scene svg * {
+  animation-play-state: running !important;
+}
+.gameNew {
+  animation: game-born 0.7s var(--ease-snap) both;
+}
+@keyframes game-born {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.85) rotate(-1.5deg);
+  }
+}
+.generating {
+  position: relative;
+  overflow: hidden;
+}
+.generating::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--spin, 0deg), transparent 0 70%, var(--violet), var(--signal), transparent);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin-border 2.4s linear infinite;
+  pointer-events: none;
+}
+@property --spin {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes spin-border {
+  to {
+    --spin: 360deg;
+  }
+}
+.writing span {
+  display: inline-block;
+  animation: dot-pulse 1.2s ease-in-out infinite;
+}
+.writing span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.writing span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* ---------- File viewer ---------- */
+.viewer {
+  animation: viewer-in 0.4s var(--ease-out) both;
+}
+@keyframes viewer-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+}
+.pageIn {
+  animation: page-in 0.3s var(--ease-out) both;
+}
+.md mark {
+  background: color-mix(in srgb, var(--primary) 85%, transparent);
+  color: var(--primary-text);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.md mark[data-current="true"] {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ---------- New Game dialog ---------- */
+.summary {
+  animation: pop-in 0.35s var(--ease-snap) both;
+}
