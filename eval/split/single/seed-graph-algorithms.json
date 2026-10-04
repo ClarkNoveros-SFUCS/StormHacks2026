@@ -1,0 +1,524 @@
+{
+  "deck": "seed-graph-algorithms",
+  "createdAt": "2026-10-04T14:33:23.335Z",
+  "promptVersion": "a6b826d6",
+  "run": {
+    "model": "gemini-3.5-flash",
+    "seconds": 53.884,
+    "usage": {
+      "inputTokens": 3732,
+      "outputTokens": 4307,
+      "thinkingTokens": 12018
+    },
+    "costUsd": null
+  },
+  "response": {
+    "prompts": [
+      {
+        "kind": "open",
+        "text": "Name an algorithm used to find a minimum spanning tree.",
+        "answers": [
+          {
+            "canonical": "Kruskal's algorithm",
+            "aliases": [
+              "Kruskal"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Kruskal's algorithm adds edges from cheapest to most expensive, skipping any edge that would create a cycle"
+          },
+          {
+            "canonical": "Prim's algorithm",
+            "aliases": [
+              "Prim"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Prim's algorithm grows one tree from a start vertex, always adding the cheapest edge that leaves the tree."
+          },
+          {
+            "canonical": "Borũvka's algorithm",
+            "aliases": [
+              "Boruvka's algorithm",
+              "Boruvka",
+              "Borũvka"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Borũvka's algorithm: every component adds its cheapest outgoing edge at once, and the rounds repeat until one tree is left."
+          },
+          {
+            "canonical": "Reverse-delete",
+            "aliases": [
+              "Reverse-delete algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Reverse-delete: start with every edge and delete the heaviest edge that does not disconnect the graph."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an algorithm used to find shortest paths.",
+        "answers": [
+          {
+            "canonical": "Dijkstra's algorithm",
+            "aliases": [
+              "Dijkstra"
+            ],
+            "exact_only": false,
+            "evidence_page": 5,
+            "evidence_quote": "Finds shortest paths from one source in a graph with non-negative edge weights."
+          },
+          {
+            "canonical": "BFS",
+            "aliases": [
+              "breadth-first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 2,
+            "evidence_quote": "On an unweighted graph, BFS finds the shortest path (fewest edges) from the source to every vertex."
+          },
+          {
+            "canonical": "Bellman-Ford",
+            "aliases": [
+              "Bellman-Ford algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "Finds shortest paths from one source, and works with negative edge weights."
+          },
+          {
+            "canonical": "Floyd-Warshall",
+            "aliases": [
+              "Floyd-Warshall algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 7,
+            "evidence_quote": "Finds the shortest paths between every pair of vertices (all-pairs shortest paths)."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a graph algorithm with a running time of O(V + E).",
+        "answers": [
+          {
+            "canonical": "BFS",
+            "aliases": [
+              "breadth-first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 2,
+            "evidence_quote": "Running time: O(V + E)."
+          },
+          {
+            "canonical": "DFS",
+            "aliases": [
+              "depth-first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 3,
+            "evidence_quote": "Running time: O(V + E)."
+          },
+          {
+            "canonical": "Topological sort",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 4,
+            "evidence_quote": "A topological sort is a linear ordering of the vertices of a DAG"
+          },
+          {
+            "canonical": "Kosaraju's algorithm",
+            "aliases": [
+              "Kosaraju"
+            ],
+            "exact_only": false,
+            "evidence_page": 10,
+            "evidence_quote": "Both run in O(V + E)."
+          },
+          {
+            "canonical": "Tarjan's algorithm",
+            "aliases": [
+              "Tarjan"
+            ],
+            "exact_only": false,
+            "evidence_page": 10,
+            "evidence_quote": "Both run in O(V + E)."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a graph algorithm that uses a queue or stack in its standard implementation.",
+        "answers": [
+          {
+            "canonical": "BFS",
+            "aliases": [
+              "breadth-first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 2,
+            "evidence_quote": "It uses a queue: take the vertex at the front"
+          },
+          {
+            "canonical": "DFS",
+            "aliases": [
+              "depth-first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 3,
+            "evidence_quote": "It uses a stack, or recursion"
+          },
+          {
+            "canonical": "Dijkstra's algorithm",
+            "aliases": [
+              "Dijkstra"
+            ],
+            "exact_only": false,
+            "evidence_page": 5,
+            "evidence_quote": "Uses a priority queue (min-heap)."
+          },
+          {
+            "canonical": "Tarjan's algorithm",
+            "aliases": [
+              "Tarjan"
+            ],
+            "exact_only": false,
+            "evidence_page": 10,
+            "evidence_quote": "Tarjan's algorithm finds every SCC in a single DFS, using low-link values and a stack."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a property that graph edges can have.",
+        "answers": [
+          {
+            "canonical": "Directed",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Edges can be directed or undirected, and weighted or unweighted."
+          },
+          {
+            "canonical": "Undirected",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Edges can be directed or undirected, and weighted or unweighted."
+          },
+          {
+            "canonical": "Weighted",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Edges can be directed or undirected, and weighted or unweighted."
+          },
+          {
+            "canonical": "Unweighted",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Edges can be directed or undirected, and weighted or unweighted."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a graph algorithm that has a running time containing a logarithm in its standard complexity.",
+        "answers": [
+          {
+            "canonical": "Dijkstra's algorithm",
+            "aliases": [
+              "Dijkstra"
+            ],
+            "exact_only": false,
+            "evidence_page": 5,
+            "evidence_quote": "Running time: O((V + E) log V) with a binary heap."
+          },
+          {
+            "canonical": "Kruskal's algorithm",
+            "aliases": [
+              "Kruskal"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "| Minimum spanning tree | Kruskal, Prim, Borũvka | O(E log V) |"
+          },
+          {
+            "canonical": "Prim's algorithm",
+            "aliases": [
+              "Prim"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "| Minimum spanning tree | Kruskal, Prim, Borũvka | O(E log V) |"
+          },
+          {
+            "canonical": "Borũvka's algorithm",
+            "aliases": [
+              "Boruvka's algorithm",
+              "Boruvka",
+              "Borũvka"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "| Minimum spanning tree | Kruskal, Prim, Borũvka | O(E log V) |"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a type of graph.",
+        "answers": [
+          {
+            "canonical": "DAG",
+            "aliases": [
+              "directed acyclic graph"
+            ],
+            "exact_only": true,
+            "evidence_page": 1,
+            "evidence_quote": "A DAG is a directed acyclic graph: a directed graph with no cycles."
+          },
+          {
+            "canonical": "Bipartite graph",
+            "aliases": [
+              "bipartite"
+            ],
+            "exact_only": false,
+            "evidence_page": 11,
+            "evidence_quote": "A bipartite graph splits its vertices into two sides, and every edge goes between the sides."
+          },
+          {
+            "canonical": "Directed graph",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Edges can be directed or undirected, and weighted or unweighted."
+          },
+          {
+            "canonical": "Undirected graph",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "A minimum spanning tree connects every vertex of a weighted, undirected graph"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a major topic or problem in graph algorithms.",
+        "answers": [
+          {
+            "canonical": "shortest paths",
+            "aliases": [
+              "shortest path"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "This week: traversals, shortest paths, minimum spanning trees, strongly connected components and matching."
+          },
+          {
+            "canonical": "minimum spanning trees",
+            "aliases": [
+              "minimum spanning tree",
+              "MST"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "This week: traversals, shortest paths, minimum spanning trees, strongly connected components and matching."
+          },
+          {
+            "canonical": "strongly connected components",
+            "aliases": [
+              "strongly connected component",
+              "SCC"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "This week: traversals, shortest paths, minimum spanning trees, strongly connected components and matching."
+          },
+          {
+            "canonical": "traversals",
+            "aliases": [
+              "traversal"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "This week: traversals, shortest paths, minimum spanning trees, strongly connected components and matching."
+          },
+          {
+            "canonical": "matching",
+            "aliases": [
+              "bipartite matching"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "This week: traversals, shortest paths, minimum spanning trees, strongly connected components and matching."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "cloze",
+        "text": "Kruskal's algorithm uses ______ to check whether an edge would create a cycle.",
+        "answers": [
+          {
+            "canonical": "union-find",
+            "aliases": [
+              "disjoint set"
+            ],
+            "exact_only": false,
+            "evidence_page": 9,
+            "evidence_quote": "Kruskal uses union-find to check whether an edge would create a cycle."
+          }
+        ],
+        "tier": "solid",
+        "hint": "A data structure that merges sets and finds representatives.",
+        "explanation": "Union-find efficiently tracks connected components to prevent cycle formation in Kruskal's algorithm."
+      },
+      {
+        "kind": "cloze",
+        "text": "On an unweighted graph, ______ finds the shortest path from the source to every vertex.",
+        "answers": [
+          {
+            "canonical": "BFS",
+            "aliases": [
+              "breadth-first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 2,
+            "evidence_quote": "On an unweighted graph, BFS finds the shortest path (fewest edges) from the source to every vertex."
+          }
+        ],
+        "tier": "common",
+        "hint": "This traversal explores level by level using a queue.",
+        "explanation": "Breadth-first search naturally finds the fewest-edge path in unweighted graphs because it explores nodes in order of their distance from the source."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is the term for a directed graph that contains no cycles?",
+        "answers": [
+          {
+            "canonical": "DAG",
+            "aliases": [
+              "directed acyclic graph"
+            ],
+            "exact_only": true,
+            "evidence_page": 1,
+            "evidence_quote": "A DAG is a directed acyclic graph: a directed graph with no cycles."
+          }
+        ],
+        "tier": "common",
+        "hint": "Topological sort can only be performed on this kind of graph.",
+        "explanation": "A DAG stands for a directed acyclic graph, which has directed edges and no cycles."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is the term for a maximal set of vertices in a directed graph where every vertex can reach every other vertex?",
+        "answers": [
+          {
+            "canonical": "strongly connected component",
+            "aliases": [
+              "SCC",
+              "strongly connected components"
+            ],
+            "exact_only": false,
+            "evidence_page": 10,
+            "evidence_quote": "An SCC is a maximal set of vertices in which every vertex can reach every other vertex."
+          }
+        ],
+        "tier": "solid",
+        "hint": "Kosaraju's and Tarjan's algorithms are used to find these.",
+        "explanation": "A strongly connected component (SCC) is a subgraph where mutual reachability exists between all pairs of its vertices."
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of Kruskal's algorithm in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "The algorithm begins by ordering all available edges from smallest to largest weight.",
+        "explanation": "Kruskal's algorithm sorts all edges first, then greedily adds the cheapest edge that doesn't form a cycle until V-1 edges are selected.",
+        "items": [
+          "Sort the edges by weight",
+          "Take the cheapest edge that is left",
+          "Skip that edge if it would create a cycle",
+          "Stop once the tree has V - 1 edges"
+        ],
+        "evidence_page": 8
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of Dijkstra's algorithm in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "You must initialize the distances before picking any nodes.",
+        "explanation": "Dijkstra's algorithm initializes distances, then repeatedly selects the closest unvisited node, relaxes its outgoing edges, and marks it visited.",
+        "items": [
+          "Set the source distance to 0 and every other distance to infinity",
+          "Pick the unvisited node with the smallest known distance",
+          "Relax the edges leaving that node",
+          "Mark the node visited and repeat until all nodes are done"
+        ],
+        "evidence_page": 5
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which of the following algorithms does not find a minimum spanning tree?",
+        "answers": [],
+        "tier": "common",
+        "hint": "Three of these algorithms are designed to connect all vertices with the minimum total edge weight.",
+        "explanation": "Dijkstra's algorithm computes single-source shortest paths, whereas Kruskal, Prim, and Borũvka find minimum spanning trees.",
+        "options": [
+          "Kruskal",
+          "Prim",
+          "Borũvka",
+          "Dijkstra"
+        ],
+        "correct_option": "Dijkstra",
+        "evidence_page": 8
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which of the following algorithms has a different asymptotic running time complexity from the other three?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Three of these algorithms run in linear time O(V + E).",
+        "explanation": "BFS, DFS, and Kosaraju's algorithm all run in O(V + E) time, while Bellman-Ford runs in O(V * E) time.",
+        "options": [
+          "BFS",
+          "DFS",
+          "Kosaraju",
+          "Bellman-Ford"
+        ],
+        "correct_option": "Bellman-Ford",
+        "evidence_page": 12
+      }
+    ]
+  }
+}

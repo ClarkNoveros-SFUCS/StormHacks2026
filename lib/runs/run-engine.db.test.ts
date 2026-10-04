@@ -6,10 +6,17 @@ import type postgres from "postgres";
 import { afterAll, describe, expect, it } from "vitest";
 import { sql } from "@/lib/db";
 import { normalize } from "@/lib/matching/normalize";
-import {
-  createRun, getReveal, getRunState, guess, PENALTY_MS, PROMPT_MS, revealHint, RunError, startPrompt, timeoutPrompt,
-} from "./run-engine";
-import type { PromptKind, RevealPrompt, RunState } from "./types";
+import * as engine from "./run-engine";
+import { createRun, guess, PENALTY_MS, PROMPT_MS, revealHint, RunError } from "./run-engine";
+import type { DiveReveal, DiveRunState as RunState, PromptKind, RevealPrompt } from "./types";
+
+// These tests drive Dive Games, so narrow the Mode-generic results to Dive's shapes
+// (per-Mode tests: lib/runs/modes.db.test.ts).
+type Args<F extends (...a: never[]) => unknown> = Parameters<F>;
+const getRunState = (...a: Args<typeof engine.getRunState>) => engine.getRunState(...a) as Promise<RunState>;
+const startPrompt = (...a: Args<typeof engine.startPrompt>) => engine.startPrompt(...a) as Promise<RunState>;
+const timeoutPrompt = (...a: Args<typeof engine.timeoutPrompt>) => engine.timeoutPrompt(...a) as Promise<RunState>;
+const getReveal = (...a: Args<typeof engine.getReveal>) => engine.getReveal(...a) as Promise<DiveReveal>;
 
 type Tx = postgres.TransactionSql;
 type Tier = "common" | "solid" | "deep" | "rare";
@@ -307,12 +314,13 @@ describe.skipIf(!process.env.DATABASE_URL)("run engine", () => {
   it("a Hint drops the Prompt one Tier; Open Prompts and hintless ones have none", () =>
     withGame(async (f) => {
       const runId = await newRun(f);
-      await skipTo(f, runId, "open");
+      const open = await skipTo(f, runId, "open");
+      expect(open.prompt).not.toHaveProperty("tier"); // only single-answer Prompts carry their Tier
       await rejects(revealHint(f.tx, f.playerId, runId, f.clock.now()), 409);
       await timeoutPrompt(f.tx, f.playerId, runId, f.clock.tick(PROMPT_MS));
 
       const s = await skipTo(f, runId, "cloze");
-      expect(s.prompt).toMatchObject({ hintAvailable: true, hintUsed: false });
+      expect(s.prompt).toMatchObject({ hintAvailable: true, hintUsed: false, tier: "deep" });
       const h = await revealHint(f.tx, f.playerId, runId, f.clock.tick(1000));
       expect(h.hint).toBe("It connects two vertices");
       expect(h.state.prompt).toMatchObject({ hintUsed: true, hint: "It connects two vertices" });
@@ -367,7 +375,7 @@ describe.skipIf(!process.env.DATABASE_URL)("run engine", () => {
       expect(byKey.open.answers!.map((a) => [a.answer, a.tier, a.found])).toEqual([
         ["BFS", "common", true], ["DFS", "solid", false], ["Dijkstra", "deep", false], ["Bellman-Ford", "rare", false],
       ]);
-      expect(byKey.open.answers![0].evidence).toEqual({ documentTitle: "graphs.pdf", pageNumber: 3, quote: "quote for BFS" });
+      expect(byKey.open.answers![0].evidence).toEqual({ documentId: expect.any(String), documentTitle: "graphs.pdf", pageNumber: 3, quote: "quote for BFS" });
       expect(byKey.open).toMatchObject({ yourAnswer: "BFS", outcome: "correct", stale: false });
       expect(byKey.cloze).toMatchObject({ correctAnswer: "edge", explanation: "Relaxation assumes weights only grow.", tier: "deep" });
       expect(byKey.cloze2).toMatchObject({ outcome: "timeout", points: 0, yourAnswer: null, correctAnswer: "acyclic" });

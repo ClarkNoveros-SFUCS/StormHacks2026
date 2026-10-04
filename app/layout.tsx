@@ -1,37 +1,46 @@
 import type { Metadata } from "next";
-import { ClerkProvider, Show, UserButton } from "@clerk/nextjs";
-import { Geist, Geist_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { Mulish, Pixelify_Sans, VT323 } from "next/font/google";
+import { ToastProvider } from "@/components/ui/Toast";
+import { KonamiFishing } from "@/components/site/KonamiFishing";
+import { getNavState } from "@/components/site/nav-data";
+import { RouteTransition } from "@/components/site/RouteTransition";
+import { SiteFooter } from "@/components/site/SiteFooter";
+import { SiteNav } from "@/components/site/SiteNav";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// Site type: Pixelify Sans (headings, buttons), Mulish (body). VT323 is Dive's HUD font.
+const pixelify = Pixelify_Sans({ variable: "--font-pixelify", subsets: ["latin"] });
+const mulish = Mulish({ variable: "--font-mulish", subsets: ["latin"] });
+const vt323 = VT323({ variable: "--font-vt323", subsets: ["latin"], weight: "400" });
 
 export const metadata: Metadata = {
-  title: "StormHacks 2026",
+  title: "SYLLABYSS",
+  description: "Turn your notes into games. Rarer answers sink deeper.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+// The site shell (F19 #32): nav, route transitions, footer and the Konami easter egg.
+// Mode screens (/runs/*) hide the nav and footer themselves.
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const nav = await getNavState();
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
+    <html lang="en" className={`${pixelify.variable} ${mulish.variable} ${vt323.variable} h-full antialiased`}>
+      <body className="flex min-h-full flex-col">
         <ClerkProvider>
-          {/* Signed-out visitors get Sign in / Sign up on the landing page */}
-          <Show when="signed-in">
-            <header className="flex justify-end p-4">
-              <UserButton />
-            </header>
-          </Show>
-          {children}
+          <ToastProvider>
+            <a
+              href="#main"
+              className="sr-only z-50 rounded-sm bg-primary px-3 py-2 font-display text-primary-text focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+            >
+              Skip to content
+            </a>
+            <SiteNav initial={nav} />
+            <div id="main" className="flex flex-1 flex-col">
+              <RouteTransition>{children}</RouteTransition>
+            </div>
+            <SiteFooter />
+            <KonamiFishing />
+          </ToastProvider>
         </ClerkProvider>
       </body>
     </html>

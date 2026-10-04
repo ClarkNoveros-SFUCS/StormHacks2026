@@ -1,0 +1,233 @@
+/* The Game page's hero band per Mode (Apogee, Leap, Pairs, Blitz; Dive uses OceanStage).
+   Cheap SVG + CSS loops. Everything stops under prefers-reduced-motion. */
+
+.svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  shape-rendering: crispEdges;
+}
+
+/* ---------- Apogee: launch pad sky ---------- */
+.twinkle {
+  animation: twinkle 2.6s ease-in-out infinite;
+}
+@keyframes twinkle {
+  50% {
+    opacity: 0.2;
+  }
+}
+.rocket {
+  transform-box: fill-box;
+  transition: transform 1.6s cubic-bezier(0.55, 0, 0.8, 0.2);
+}
+.rocketIdle {
+  animation: rumble 0.18s steps(2) infinite;
+  animation-play-state: paused;
+}
+.hero:hover .rocketIdle {
+  animation-play-state: running;
+}
+.launching .rocket {
+  transform: translateY(-140px);
+}
+@keyframes rumble {
+  50% {
+    transform: translateX(0.6px);
+  }
+}
+.steam {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: steam 2.4s ease-out infinite;
+}
+@keyframes steam {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  30% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx, -10px), -8px) scale(1.6);
+  }
+}
+.flame {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: flame 0.16s steps(2) infinite;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.hero:hover .flame,
+.launching .flame {
+  opacity: 1;
+}
+.launching .flame {
+  transform: scaleY(2.4);
+}
+@keyframes flame {
+  50% {
+    transform: scaleY(1.4);
+  }
+}
+
+/* ---------- Leap: sky islands ---------- */
+.cloud {
+  animation: drift var(--t, 40s) linear infinite;
+}
+@keyframes drift {
+  from {
+    transform: translateX(-80px);
+  }
+  to {
+    transform: translateX(400px);
+  }
+}
+.island {
+  transform-box: fill-box;
+  animation: bob 4s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+@keyframes bob {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+.hopper {
+  transform-box: fill-box;
+  animation: hop 1.4s cubic-bezier(0.3, 0, 0.4, 1) infinite;
+  transition: transform 0.7s cubic-bezier(0.3, -0.4, 0.4, 1.3);
+}
+@keyframes hop {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-7px);
+  }
+}
+.launching .hopper {
+  animation: none;
+  transform: translate(40px, -16px);
+}
+
+/* ---------- Pairs: card table ---------- */
+.card {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: flip 6s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+@keyframes flip {
+  0%,
+  40%,
+  100% {
+    transform: scaleX(1);
+  }
+  45% {
+    transform: scaleX(0.05);
+  }
+  50%,
+  85% {
+    transform: scaleX(1);
+  }
+}
+.cardFace {
+  animation: face 6s steps(1) infinite;
+  animation-delay: var(--d, 0s);
+  opacity: 0;
+}
+@keyframes face {
+  0%,
+  45% {
+    opacity: 0;
+  }
+  45.01%,
+  90% {
+    opacity: 1;
+  }
+}
+.hero:hover .card {
+  animation-duration: 2.4s;
+}
+.hero:hover .cardFace {
+  animation-duration: 2.4s;
+}
+.launching .cardFace {
+  animation: none;
+  opacity: 1;
+}
+
+/* ---------- Blitz: neon ---------- */
+.beat {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: beat 0.5s ease-out infinite;
+}
+@keyframes beat {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.45;
+  }
+}
+.eq {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: eq 0.5s ease-in-out infinite alternate;
+  animation-delay: var(--d, 0s);
+}
+@keyframes eq {
+  from {
+    transform: scaleY(0.25);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+.flashT {
+  animation: flash 1s steps(1) infinite;
+}
+.flashF {
+  animation: flash 1s steps(1) infinite 0.5s;
+}
+@keyframes flash {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.2;
+  }
+}
+.hero:hover .beat,
+.hero:hover .eq,
+.launching .beat,
+.launching .eq {
+  animation-duration: 0.25s;
+}
+.floor {
+  animation: floor 1s linear infinite;
+}
+@keyframes floor {
+  to {
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero *,
+  .hero *::before,
+  .hero *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

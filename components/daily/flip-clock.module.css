@@ -1,0 +1,138 @@
+/* The Daily countdown's split-flap digits. Each digit is two halves; on change a top flap
+   (old value) falls and a bottom flap (new value) lands. Reduced motion: the global rule in
+   globals.css cuts the flaps to an instant swap. */
+
+.clock {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.35em;
+  font-family: var(--f-hud);
+  line-height: 1;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35em;
+}
+
+.pair {
+  display: flex;
+  gap: 0.12em;
+}
+
+.unit {
+  font-family: var(--f-display);
+  font-size: 0.17em;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+}
+
+.colon {
+  padding-bottom: 0.95em;
+  font-size: 0.7em;
+  color: var(--accent);
+  animation: blink 1s steps(1) infinite;
+}
+
+.digit {
+  --h: 1.3em;
+  --w: 0.82em;
+  --face: #141b38;
+  --face-2: #1b2347;
+  position: relative;
+  width: var(--w);
+  height: var(--h);
+  perspective: 3em;
+  color: var(--reward);
+  text-shadow: 0 0 0.25em color-mix(in srgb, var(--reward) 45%, transparent);
+  border-radius: 0.08em;
+  box-shadow:
+    0 0.06em 0 #050811,
+    0 0 0 2px #2a3358,
+    0 0.12em 0.3em rgba(0, 0, 0, 0.45);
+}
+
+.half {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  overflow: hidden;
+  backface-visibility: hidden;
+}
+
+.half > span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.top {
+  top: 0;
+  background: linear-gradient(var(--face-2), var(--face));
+  border-radius: 0.08em 0.08em 0 0;
+}
+
+.top > span {
+  top: 0;
+}
+
+.bottom {
+  bottom: 0;
+  background: linear-gradient(#11172f, var(--face));
+  border-radius: 0 0 0.08em 0.08em;
+}
+
+.bottom > span {
+  bottom: 0;
+}
+
+/* the hinge line */
+.digit::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% - 1px);
+  height: 2px;
+  background: #050811;
+  z-index: 3;
+}
+
+.flapTop {
+  z-index: 2;
+  transform-origin: 50% 100%;
+  animation: flap-top 0.32s ease-in both;
+}
+
+.flapBottom {
+  z-index: 2;
+  transform-origin: 50% 0%;
+  animation: flap-bottom 0.32s 0.3s ease-out both;
+}
+
+@keyframes flap-top {
+  to {
+    transform: rotateX(-90deg);
+    filter: brightness(0.6);
+  }
+}
+
+@keyframes flap-bottom {
+  from {
+    transform: rotateX(90deg);
+    filter: brightness(1.4);
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.25;
+  }
+}

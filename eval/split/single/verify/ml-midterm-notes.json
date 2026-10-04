@@ -1,0 +1,291 @@
+{
+  "deck": "ml-midterm-notes",
+  "createdAt": "2026-10-04T14:35:59.487Z",
+  "verifyVersion": "28c4606d",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 4.688,
+    "usage": {
+      "inputTokens": 5007,
+      "outputTokens": 1835,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.006089600000000001
+  },
+  "prompts": [
+    "Name an evaluation metric used to measure model performance.",
+    "Name a machine learning algorithm or model.",
+    "Name a component, signal, or function in the anatomy of a neural network node.",
+    "A* search combines uniform cost search (UCS) and a ______.",
+    "The ______ of a zero-one loss function is 0, meaning it cannot be used with gradient descent.",
+    "The ______ activation function compares the input value to 0 and returns the larger value.",
+    "In cross-validation, the training data is split such that for each fold, the training and test data are ______.",
+    "What is the term for the average of the absolute differences between actual outcomes and predicted values?",
+    "What is the term for the probability that an actual positive outcome is predicted correctly?",
+    "What is the term for the difference or error between the predicted output and the true output?",
+    "What is the term for the process of updating weights by working backwards using chain rules to determine each weight's contribution to the error?",
+    "Put the phases of the K-means clustering algorithm in order.",
+    "Put the steps of a decision tree classification process in order.",
+    "Which of the following evaluation metrics is specifically used for regression rather than classification?",
+    "Which of the following is NOT a component or function directly listed under the anatomy of a node?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "Listed as an evaluation metric on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "Listed as an evaluation metric on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "Listed as an evaluation metric on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "Listed as an evaluation metric on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P1.A5",
+            "reason": "Listed as an evaluation metric on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P1.A6",
+            "reason": "Listed as an evaluation metric on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P1.A7",
+            "reason": "Listed as an evaluation metric on page 1.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "Listed as a machine learning algorithm on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "Listed as a machine learning algorithm/model on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "Listed on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "Listed on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P2.A5",
+            "reason": "Listed on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P2.A6",
+            "reason": "Listed on page 1.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "Listed as part of the node anatomy on page 2.",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "Listed as part of the node input on page 2.",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "Listed as part of the node on page 2.",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "Listed as part of the node on page 2.",
+            "supports": true
+          },
+          {
+            "id": "P3.A5",
+            "reason": "Listed as part of the node anatomy on page 2.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "Page 1 states A* combines UCS and heuristic.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "Page 2 states gradient of a zero-one loss function is 0.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "Page 2 describes ReLU as comparing bigger value between 0 and u.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "Page 1 states training and test data is disjoint.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "Page 1 definition matches Mean Absolute Error.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "Page 1 definition matches recall.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "Page 2 definition matches loss function.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "Page 3 definition matches backpropagation.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "Steps match the K-means algorithm list on page 1.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "Steps match the decision tree steps on page 1.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "Mean Absolute Error is listed under regression/errors on page 1, while the others are classification metrics.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P15",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P15.A1",
+            "reason": "Loss function is listed in a separate section rather than under the node anatomy on page 2.",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}

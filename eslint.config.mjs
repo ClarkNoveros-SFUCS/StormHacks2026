@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Plain-JS design references, never imported by the app:
+    "docs/design/mock/**",
+    "inspo/**",
+    // Agent worktrees (each has its own .next output):
+    ".claude/**",
   ]),
 ]);
 

@@ -1,0 +1,28 @@
+{
+  "about": "Eval decks for npm run generate:eval (F14). Course files are not in git: put them in eval/decks/ (gitignored) or point EVAL_DECKS_DIR at their folder. sha256 tells you whether you have the same file the baseline was made from. Saved Gemini responses live in eval/responses/<id>.json.",
+  "decks": [
+    {
+      "id": "seed-graph-algorithms",
+      "seed": true,
+      "about": "Seed fixture db/seed/graph-algorithms.json: 12 short pages, in the repo"
+    },
+    {
+      "id": "cmpt354-sql-basics",
+      "file": "01-354-SQLBasics.pdf",
+      "sha256": "5694d87cc865310079cd488a0ee7dd13f1cedb61c8dde4d5bb8c7489c384c5a8",
+      "about": "SFU CMPT 354 lecture slides, SQL basics: PDF, 94 pages"
+    },
+    {
+      "id": "cmpt225-avl-trees",
+      "file": "CMPT225-Week07.pptx",
+      "sha256": "fa94bf9106c1397db81e275d67a68e90904519839f3980c554123e671d00a235",
+      "about": "SFU CMPT 225 week 7 slides, AVL trees: PPTX, 73 slides, many diagram-only"
+    },
+    {
+      "id": "ml-midterm-notes",
+      "file": "Midterm.docx",
+      "sha256": "b71b206641f5292c470de9faf86d0b63da6e7e14b4c4c27f969f136bef35b0ea",
+      "about": "A student's own machine-learning midterm notes: DOCX, 3 sections, informal"
+    }
+  ]
+}

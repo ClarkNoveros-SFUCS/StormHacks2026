@@ -1,0 +1,442 @@
+{
+  "deck": "ml-midterm-notes",
+  "createdAt": "2026-10-04T14:36:01.045Z",
+  "verifyVersion": "28c4606d",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 6.975,
+    "usage": {
+      "inputTokens": 6436,
+      "outputTokens": 2904,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.009190799999999999
+  },
+  "prompts": [
+    "Name a machine learning algorithm, model, or search method.",
+    "Name an evaluation metric used in machine learning.",
+    "Name an evaluation metric that measures classification performance.",
+    "Name a component, input, or function associated with the anatomy of a neural network node.",
+    "Name a function (such as an activation or loss function) mentioned in the neural networks section.",
+    "Name a mathematical concept or rule used in computation graphs and backpropagation.",
+    "Name a variable or function component used in the mathematical representation of a single perceptron's backpropagation.",
+    "Name a term, cost, or property associated with A* search.",
+    "Name an example of a neighbor label or target value mentioned in the K-nearest neighbors (KNN) section.",
+    "Put the steps of the K-means clustering algorithm in order.",
+    "What metric is defined as the harmonic mean of precision and recall?",
+    "Since its slope is constant, ______ avoids the vanishing gradient problem that the logistic sigmoid function faces.",
+    "Which of the following evaluation metrics is used specifically for regression rather than classification?",
+    "What algorithm updates neural network weights by working backwards using chain rules to figure out how much each weight contributed to the error?",
+    "Put the steps of building a decision tree in order.",
+    "In ______, the training data is split such that for each fold, the training and test data are disjoint.",
+    "Which of the following functions is used as a loss function rather than an activation function?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "Listed under section 1.",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "Listed under section 3.",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "Listed under section 5.",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "Listed under section 8.",
+            "supports": true
+          },
+          {
+            "id": "P1.A5",
+            "reason": "Listed under section 10.",
+            "supports": true
+          },
+          {
+            "id": "P1.A6",
+            "reason": "Listed under section 7.",
+            "supports": true
+          },
+          {
+            "id": "P1.A7",
+            "reason": "Listed under section 9.",
+            "supports": true
+          },
+          {
+            "id": "P1.A8",
+            "reason": "Listed under section 2.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "Listed as an evaluation metric.",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "Listed as an evaluation metric.",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "Listed as an evaluation metric.",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "Listed as an evaluation metric.",
+            "supports": true
+          },
+          {
+            "id": "P2.A5",
+            "reason": "Listed as an evaluation metric.",
+            "supports": true
+          },
+          {
+            "id": "P2.A6",
+            "reason": "Listed as an evaluation metric.",
+            "supports": true
+          },
+          {
+            "id": "P2.A7",
+            "reason": "Listed as an evaluation metric.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "Page 1 lists accuracy for general predictions, but it is a classification metric.",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "Page 1 defines precision in terms of predicted positives.",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "Page 1 defines recall for actual positives.",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "Page 1 defines specificity for actual negatives.",
+            "supports": true
+          },
+          {
+            "id": "P3.A5",
+            "reason": "Page 1 defines F1 score as a combination of precision and recall.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "Page 2 lists Input as a component.",
+            "supports": true
+          },
+          {
+            "id": "P4.A2",
+            "reason": "Page 2 lists bias as part of the input.",
+            "supports": true
+          },
+          {
+            "id": "P4.A3",
+            "reason": "Page 2 lists input function.",
+            "supports": true
+          },
+          {
+            "id": "P4.A4",
+            "reason": "Page 2 lists activation function.",
+            "supports": true
+          },
+          {
+            "id": "P4.A5",
+            "reason": "Page 2 lists Output.",
+            "supports": true
+          },
+          {
+            "id": "P4.A6",
+            "reason": "Page 2 mentions weights under input function.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "Page 2 lists Logistic sigmoid.",
+            "supports": true
+          },
+          {
+            "id": "P5.A2",
+            "reason": "Page 2 lists Rectified Linear Unit.",
+            "supports": true
+          },
+          {
+            "id": "P5.A3",
+            "reason": "Page 2 lists Mean Squared Error.",
+            "supports": true
+          },
+          {
+            "id": "P5.A4",
+            "reason": "Page 2 mentions zero-one loss function.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "Page 2 discusses partial derivative.",
+            "supports": true
+          },
+          {
+            "id": "P6.A2",
+            "reason": "Page 2 discusses gradient.",
+            "supports": true
+          },
+          {
+            "id": "P6.A3",
+            "reason": "Page 2 discusses chain rule.",
+            "supports": true
+          },
+          {
+            "id": "P6.A4",
+            "reason": "Page 2 defines gradient as a vector function.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "Page 3 uses loss function L.",
+            "supports": true
+          },
+          {
+            "id": "P7.A2",
+            "reason": "Page 3 uses predicted output y-hat.",
+            "supports": true
+          },
+          {
+            "id": "P7.A3",
+            "reason": "Page 3 uses actual output y.",
+            "supports": true
+          },
+          {
+            "id": "P7.A4",
+            "reason": "Page 3 uses activation function sigma.",
+            "supports": true
+          },
+          {
+            "id": "P7.A5",
+            "reason": "Page 3 uses weights w.",
+            "supports": true
+          },
+          {
+            "id": "P7.A6",
+            "reason": "Page 3 uses bias.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "Page 1 mentions heuristic.",
+            "supports": true
+          },
+          {
+            "id": "P8.A2",
+            "reason": "Page 1 mentions UCS.",
+            "supports": true
+          },
+          {
+            "id": "P8.A3",
+            "reason": "Page 1 mentions backward cost.",
+            "supports": true
+          },
+          {
+            "id": "P8.A4",
+            "reason": "Page 1 lists Admissible.",
+            "supports": true
+          },
+          {
+            "id": "P8.A5",
+            "reason": "Page 1 lists Relaxed.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "Page 1 gives cancerous as an example label.",
+            "supports": true
+          },
+          {
+            "id": "P9.A2",
+            "reason": "Page 1 gives noncancerous as an example label.",
+            "supports": true
+          },
+          {
+            "id": "P9.A3",
+            "reason": "Page 1 gives temp as an example target value.",
+            "supports": true
+          },
+          {
+            "id": "P9.A4",
+            "reason": "Page 1 gives cost as an example target value.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "The items match the exact steps listed on page 1.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "Page 1 defines F1 score as the harmonic mean of precision and recall.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "Page 2 states ReLU avoids the vanishing gradient problem.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "Page 1 lists MAE as an error metric, while accuracy, precision, and recall are classification metrics.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "Page 3 defines backpropagation this way.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P15",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P15.A1",
+            "reason": "The items accurately reflect the decision tree steps on page 1.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P16",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P16.A1",
+            "reason": "Page 1 defines cross-validation with disjoint training and test folds.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P17",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P17.A1",
+            "reason": "Page 2 specifies Mean Squared Error is used for regression, unlike the activation functions.",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}

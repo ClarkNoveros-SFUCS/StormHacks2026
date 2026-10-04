@@ -1,4 +1,4 @@
-/* Dive theme (docs/design/modes/dive.md §2): the house palette plus the four tier bands. */
+/* Dive theme (docs/design/modes/dive.md §2): the Krillion recipes plus the four tier bands. */
 [data-theme="dive"] {
   --band-1: #8fa3c4;   /* Shallows (common) */
   --band-2: #4de3ff;   /* Reef (solid) */
@@ -7,9 +7,9 @@
   --band-miss: #3d4f6e;
 }
 
-/* <TierLines>: Dive's play area (dive.md §5) */
-.tl { position: absolute; left: 8px; right: 8px; height: 0; border-top: 2px dashed color-mix(in srgb, var(--muted) 36%, transparent); transition: border-color .3s, opacity .3s; }
-.tl .tag { position: absolute; right: 0; top: -24px; display: flex; gap: 6px; align-items: center; color: color-mix(in srgb, var(--muted) 80%, transparent); letter-spacing: .12em; font-size: 14px; }
+/* <TierLines>: the chip sinks past them before the descent (dive.md §5) */
+.tl { position: absolute; left: 8px; right: 8px; height: 0; border-top: 2px dashed color-mix(in srgb, var(--muted) 30%, transparent); transition: border-color .3s, opacity .3s; }
+.tl .tag { position: absolute; right: 0; top: -22px; display: flex; gap: 6px; align-items: center; color: color-mix(in srgb, var(--muted) 75%, transparent); letter-spacing: .14em; font-size: 14px; }
 .tl .tag .pxi { opacity: .55; }
 .tl .tag .m { opacity: .6; }
 .tl.target { border-top-color: color-mix(in srgb, var(--text) 50%, transparent); }
@@ -19,3 +19,59 @@
 .tl.passed .tag { color: var(--tc); text-shadow: 0 0 9px var(--tc); }
 .tl.passed .tag .pxi { opacity: 1; }
 .rchip::after { content: "▼"; margin-left: 9px; font-size: 18px; opacity: .8; }   /* Dive's chips sink */
+
+/* Depth ruler (right edge) with the YOU marker. --ppm = CSS px per metre, set by dive.js each frame. */
+.ruler { position: fixed; top: 0; bottom: 0; right: 0; width: 96px; overflow: hidden; z-index: 2; --ppm: 1.5;
+  mask-image: linear-gradient(180deg, transparent 0, #000 90px, #000 calc(100% - 60px), transparent); -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 90px, #000 calc(100% - 60px), transparent); }
+.ruler-strip { position: absolute; top: 0; right: 30px; width: 2px; height: 0; will-change: transform; }
+.ruler-strip::before { content: ""; position: absolute; right: 0; top: 0; width: 1px; height: calc(7600px * var(--ppm)); background: color-mix(in srgb, var(--muted) 35%, transparent); }
+.ruler-strip i { font-style: normal; position: absolute; right: 0; top: calc(var(--d) * var(--ppm) * 1px); width: 6px; height: 1px; background: color-mix(in srgb, var(--muted) 45%, transparent); }
+.ruler-strip i.mj { width: 14px; background: color-mix(in srgb, var(--muted) 75%, transparent); }
+.ruler-strip b { position: absolute; right: 18px; top: -7px; font-weight: 400; font-size: 13px; letter-spacing: .06em; color: color-mix(in srgb, var(--muted) 85%, transparent); white-space: nowrap; }
+.ruler-strip em { position: absolute; right: 64px; top: calc(var(--d) * var(--ppm) * 1px + 10px); font-style: normal; font-size: 11px; letter-spacing: .22em; color: color-mix(in srgb, var(--signal) 55%, transparent); white-space: nowrap; writing-mode: vertical-rl; }
+.you { position: absolute; top: 0; right: 4px; display: flex; align-items: center; gap: 4px; color: var(--accent); will-change: transform; margin-top: -9px; }
+.you span { font-size: 14px; letter-spacing: .14em; text-shadow: 0 0 8px var(--accent); }
+.you span::after { content: ""; display: inline-block; width: 22px; height: 2px; background: var(--accent); vertical-align: middle; margin-left: 4px; }
+.you i { font-style: normal; font-size: 16px; text-shadow: 0 0 8px var(--accent); }
+@media (max-width: 600px) { .ruler { width: 58px; } .ruler-strip { right: 18px; } .ruler-strip b { font-size: 11px; right: 14px; } .ruler-strip em { display: none; } .you span { font-size: 11px; } .you span::after { width: 10px; } }
+
+/* The mascot wanders (positioned by dive.js) */
+body[data-theme=dive] .mascot { left: 0; top: 0; transition: none; }
+
+/* Catch screen (Krillion image 3): centred on the dark water, DESCEND at the bottom */
+.catch { position: absolute; inset: calc(25vh - 70px) 0 0; z-index: 3; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 16px; }
+.catch.on, .catch.off { display: flex; }
+.catch.off { animation: fade-out .3s ease-in forwards; }
+.catch-body { display: grid; justify-items: center; gap: 10px; margin-top: -40px; }
+.c-icon { color: var(--tc); filter: drop-shadow(0 0 10px var(--tc)) drop-shadow(0 0 22px color-mix(in srgb, var(--tc) 50%, transparent)); animation: banner-in .6s var(--ease-snap) backwards, bob 3s var(--ease-io) .6s infinite; }
+.c-tier { font-size: clamp(54px, 9vw, 76px); line-height: .9; letter-spacing: .14em; color: var(--tc); text-shadow: 0 0 18px color-mix(in srgb, var(--tc) 60%, transparent), 3px 0 color-mix(in srgb, var(--accent) 30%, transparent);
+  animation: score-slam .6s var(--ease-snap) .15s backwards; }
+.c-ans { font-size: 30px; letter-spacing: .08em; color: var(--text); animation: rise-in .5s var(--ease-out) .25s backwards; }
+.c-pts { font-size: 28px; letter-spacing: .08em; color: var(--text); animation: rise-in .5s var(--ease-out) .35s backwards; }
+.c-pts span { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+.c-verdict { color: var(--muted); letter-spacing: .2em; font-size: 17px; max-width: 520px; animation: rise-in .5s var(--ease-out) .45s backwards; }
+.c-go { position: absolute; bottom: 30px; display: grid; justify-items: center; gap: 8px; animation: rise-in .5s var(--ease-out) .5s backwards; }
+.descend-btn { padding: 14px 30px 12px; font-size: 24px; letter-spacing: .3em; color: var(--text); background: #0c1628;
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent), 0 6px 0 4px #3a0f22, 0 0 26px color-mix(in srgb, var(--accent) 35%, transparent); }
+.descend-btn span { display: inline-block; animation: bob 1.6s var(--ease-io) infinite; }
+.descend-btn:hover { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent), 0 6px 0 4px #3a0f22, 0 0 36px color-mix(in srgb, var(--accent) 55%, transparent); color: var(--text); }
+.descend-btn.big { flex: 1; font-size: 26px; }
+.c-auto { width: 220px; height: 3px; background: color-mix(in srgb, var(--muted) 20%, transparent); }
+.c-auto i { display: block; width: 100%; height: 100%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+/* Reveal: Krillion's centred results column over the sea (image 4) */
+.kr-col { position: relative; z-index: 3; max-width: 580px; margin: 0 auto; padding: 56px 16px 140px; }
+.kr-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.logo.tiny { font-size: 30px; text-shadow: 2px 0 var(--accent), -2px 0 var(--signal); }
+.kr-score { display: flex; align-items: flex-end; gap: 16px; margin-top: 26px; }
+.kr-score #rvScore { font-size: 110px; line-height: .8; font-variant-numeric: tabular-nums; }
+.kr-score #rvDepth { font-size: 22px; padding-bottom: 6px; }
+.kr-sub { color: var(--muted); letter-spacing: .3em; font-size: 14px; margin-top: 10px; }
+.dist-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin: 24px 0 10px; }
+.dist svg { width: 100%; height: auto; display: block; overflow: visible; }
+.dist-line { stroke-dasharray: 1400; animation: draw 1.4s var(--ease-out) backwards; }
+.dist-cap { letter-spacing: .26em; font-size: 15px; margin-top: 8px; }
+.rv-tiles { position: fixed; top: 16px; right: max(16px, calc(50% - 470px)); z-index: 4; display: grid; gap: 14px; }
+.kr-col .sect .label { letter-spacing: .3em; }
+@keyframes draw { from { stroke-dashoffset: 1400; } }
+@media (max-width: 600px) { .kr-score #rvScore { font-size: 80px; } .rv-tiles { grid-auto-flow: column; top: 10px; } .kr-col { padding-top: 64px; } }

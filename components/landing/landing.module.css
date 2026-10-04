@@ -1,0 +1,103 @@
+/* Landing scroll story: sections "surface like catches" as they scroll into view. */
+
+/* Waiting below the fold (only set by JS, so without JS everything is simply visible). */
+.surface[data-surface="waiting"] {
+  opacity: 0;
+  transform: translateY(70px) scale(0.94);
+}
+.surface[data-surface="waiting"] [data-catch] {
+  opacity: 0;
+}
+.surface[data-surface="up"] {
+  animation: surface-up 0.9s var(--ease-bounce) both;
+}
+.surface[data-surface="up"] [data-catch] {
+  animation: catch-in 0.7s var(--ease-snap) both;
+  animation-delay: calc(0.15s + var(--i, 0) * 90ms);
+}
+
+@keyframes surface-up {
+  0% {
+    opacity: 0;
+    transform: translateY(70px) scale(0.94);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-6px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes catch-in {
+  from {
+    opacity: 0;
+    transform: translateY(26px) rotate(-1.5deg) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The fishing-line tag that names each section's zone. */
+.tag {
+  position: relative;
+}
+.tag::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 1px;
+  height: 28px;
+  background: linear-gradient(transparent, color-mix(in srgb, var(--muted) 70%, transparent));
+}
+
+/* Hero: content shifts slightly against the cursor (CSS vars written by JS). */
+.parallax {
+  transform: translate3d(calc(var(--px, 0) * -10px), calc(var(--py, 0) * -6px), 0);
+  transition: transform 0.4s var(--ease-out);
+}
+.parallaxDeep {
+  transform: translate3d(calc(var(--px, 0) * 18px), calc(var(--py, 0) * 10px), 0);
+  transition: transform 0.6s var(--ease-out);
+}
+
+.scrollCue {
+  animation: btn-bob 1.6s ease-in-out infinite;
+}
+
+/* How-it-works illustrations */
+.bob {
+  animation: bob 3s ease-in-out infinite;
+}
+.blink {
+  animation: dot-pulse 1.4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.arrow {
+  animation: arrow-nudge 1.2s ease-in-out infinite;
+}
+@keyframes arrow-nudge {
+  50% {
+    transform: translateX(3px);
+  }
+}
+.floatUp {
+  animation: float-up 1.8s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .surface[data-surface="waiting"],
+  .surface[data-surface="waiting"] [data-catch] {
+    opacity: 1;
+    transform: none;
+  }
+  .parallax,
+  .parallaxDeep {
+    transform: none;
+  }
+}

@@ -1,0 +1,525 @@
+{
+  "deck": "cmpt225-avl-trees",
+  "createdAt": "2026-10-04T14:35:08.163Z",
+  "promptVersion": "a6b826d6",
+  "run": {
+    "model": "gemini-3.5-flash",
+    "seconds": 49.681,
+    "usage": {
+      "inputTokens": 9814,
+      "outputTokens": 4140,
+      "thinkingTokens": 10285
+    },
+    "costUsd": null
+  },
+  "response": {
+    "prompts": [
+      {
+        "kind": "open",
+        "text": "Name a field stored in an AVLNode.",
+        "answers": [
+          {
+            "canonical": "data",
+            "aliases": [
+              "private T data"
+            ],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private T data;"
+          },
+          {
+            "canonical": "height",
+            "aliases": [
+              "private int height"
+            ],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private int height;"
+          },
+          {
+            "canonical": "leftChild",
+            "aliases": [
+              "private AVLNode<T> leftChild"
+            ],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private AVLNode<T> leftChild;"
+          },
+          {
+            "canonical": "rightChild",
+            "aliases": [
+              "private AVLNode<T> rightChild"
+            ],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private AVLNode<T> rightChild;"
+          },
+          {
+            "canonical": "parent",
+            "aliases": [
+              "private AVLNode<T> parent"
+            ],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private AVLNode<T> parent;"
+          },
+          {
+            "canonical": "balance",
+            "aliases": [
+              "private byte balance"
+            ],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private byte balance; = leftChild.height – rightChild.height OPTIONAL"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a public method of a min-heap.",
+        "answers": [
+          {
+            "canonical": "addElement",
+            "aliases": [
+              "addElement(element)"
+            ],
+            "exact_only": false,
+            "evidence_page": 48,
+            "evidence_quote": "addElement(element)"
+          },
+          {
+            "canonical": "getMin",
+            "aliases": [
+              "getMin()"
+            ],
+            "exact_only": false,
+            "evidence_page": 48,
+            "evidence_quote": "getMin()"
+          },
+          {
+            "canonical": "removeMin",
+            "aliases": [
+              "removeMin()"
+            ],
+            "exact_only": false,
+            "evidence_page": 48,
+            "evidence_quote": "removeMin()"
+          },
+          {
+            "canonical": "getSize",
+            "aliases": [
+              "getSize()"
+            ],
+            "exact_only": false,
+            "evidence_page": 48,
+            "evidence_quote": "getSize()"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an operation supported by a priority queue.",
+        "answers": [
+          {
+            "canonical": "add item",
+            "aliases": [
+              "add item(item)"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "add item(item): add an item to the queue"
+          },
+          {
+            "canonical": "removeTop",
+            "aliases": [
+              "removeTop()"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "removeTop(): remove the item with highest priority, and return it"
+          },
+          {
+            "canonical": "getTop",
+            "aliases": [
+              "getTop()"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "getTop(): return the item with highest priority without removing it from the queue"
+          },
+          {
+            "canonical": "getSize",
+            "aliases": [
+              "getSize()"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "getSize() / isEmpty()"
+          },
+          {
+            "canonical": "isEmpty",
+            "aliases": [
+              "isEmpty()"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "getSize() / isEmpty()"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a suggested meaning for the 'B' in B-trees.",
+        "answers": [
+          {
+            "canonical": "Bayer",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          },
+          {
+            "canonical": "Boeing",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          },
+          {
+            "canonical": "balanced",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          },
+          {
+            "canonical": "broad",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          },
+          {
+            "canonical": "bushy",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a tree structure that maintains logarithmic height.",
+        "answers": [
+          {
+            "canonical": "AVL tree",
+            "aliases": [
+              "AVL trees"
+            ],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "AVL tree is a Binary Search Tree, with the following property"
+          },
+          {
+            "canonical": "B-tree",
+            "aliases": [
+              "B-trees"
+            ],
+            "exact_only": false,
+            "evidence_page": 36,
+            "evidence_quote": "B-tree or order m"
+          },
+          {
+            "canonical": "2-3 tree",
+            "aliases": [
+              "2-3 trees"
+            ],
+            "exact_only": false,
+            "evidence_page": 34,
+            "evidence_quote": "2-3 tree properties"
+          },
+          {
+            "canonical": "BST",
+            "aliases": [
+              "Binary Search Tree",
+              "balanced BST"
+            ],
+            "exact_only": true,
+            "evidence_page": 4,
+            "evidence_quote": "We saw that if BST is balanced, then operations cost O(log(n)) time."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a system or application where B-trees are commonly used.",
+        "answers": [
+          {
+            "canonical": "databases",
+            "aliases": [
+              "database systems"
+            ],
+            "exact_only": false,
+            "evidence_page": 43,
+            "evidence_quote": "B-trees are often used in databases"
+          },
+          {
+            "canonical": "file systems",
+            "aliases": [
+              "filesystems"
+            ],
+            "exact_only": false,
+            "evidence_page": 43,
+            "evidence_quote": "B-trees are commonly used in file systems"
+          },
+          {
+            "canonical": "NTFS",
+            "aliases": [
+              "Microsoft's NTFS"
+            ],
+            "exact_only": true,
+            "evidence_page": 43,
+            "evidence_quote": "Microsoft's NTFS"
+          },
+          {
+            "canonical": "HFS+",
+            "aliases": [
+              "Apple's filesystem HFS+"
+            ],
+            "exact_only": false,
+            "evidence_page": 43,
+            "evidence_quote": "Apple's filesystem HFS+"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a step taken during B-tree insertion when a leaf is overfilled with 3 values.",
+        "answers": [
+          {
+            "canonical": "split it into two nodes",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 38,
+            "evidence_quote": "We split it into two nodes:"
+          },
+          {
+            "canonical": "Take the median to be the parent",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 38,
+            "evidence_quote": "Take the median to be the parent"
+          },
+          {
+            "canonical": "Push the median up to the parent",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 38,
+            "evidence_quote": "Push the median up to the parent"
+          },
+          {
+            "canonical": "Values < than the median are put in the new left node",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 38,
+            "evidence_quote": "Values < than the median are put in the new left node"
+          },
+          {
+            "canonical": "Values > than the median are put in the new right node",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 38,
+            "evidence_quote": "Values > than the median are put in the new right node"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an operation or method used to establish or restore a heap's structure.",
+        "answers": [
+          {
+            "canonical": "heapifyDown",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 52,
+            "evidence_quote": "This propagation is called heapifyDown"
+          },
+          {
+            "canonical": "heapifyUp",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 51,
+            "evidence_quote": "This propagation is sometimes called heapifyUp"
+          },
+          {
+            "canonical": "buildHeap",
+            "aliases": [
+              "buildMaxHeap"
+            ],
+            "exact_only": false,
+            "evidence_page": 71,
+            "evidence_quote": "Apply buildHeap(A)"
+          },
+          {
+            "canonical": "heapify",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 61,
+            "evidence_quote": "heapify(7)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "cloze",
+        "text": "An AVL tree is a Binary Search Tree where the difference in height between the left and right subtrees of any vertex is at most ______.",
+        "answers": [
+          {
+            "canonical": "1",
+            "aliases": [
+              "one"
+            ],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "|height(v.leftSubtree) - height(v.rightSubtree)| ≤ 1"
+          }
+        ],
+        "tier": "common",
+        "hint": "It is the maximum allowable absolute difference in height.",
+        "explanation": "By definition, the absolute difference between the heights of the left and right subtrees of any node in an AVL tree must be less than or equal to 1."
+      },
+      {
+        "kind": "cloze",
+        "text": "When deleting a node from a B-tree leaf, the leaf can become empty, which is a condition called ______.",
+        "answers": [
+          {
+            "canonical": "underflow",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 40,
+            "evidence_quote": "This sometimes called “underflow”"
+          }
+        ],
+        "tier": "solid",
+        "hint": "It is the opposite of overflow.",
+        "explanation": "An underflow occurs in a B-tree when a node becomes empty after deletion and requires rebalancing."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is the name of the propagation process that pushes a newly added element up the heap to satisfy the min-heap condition?",
+        "answers": [
+          {
+            "canonical": "heapifyUp",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 51,
+            "evidence_quote": "This propagation is sometimes called heapifyUp"
+          }
+        ],
+        "tier": "solid",
+        "hint": "It moves an element upward to restore heap order.",
+        "explanation": "heapifyUp is the process of propagating a newly inserted leaf node upward until the heap property is satisfied."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is the name of the propagation process that pushes the root element down the heap to satisfy the min-heap condition after a removal?",
+        "answers": [
+          {
+            "canonical": "heapifyDown",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 52,
+            "evidence_quote": "This propagation is called heapifyDown"
+          }
+        ],
+        "tier": "solid",
+        "hint": "It moves an element downward to restore heap order.",
+        "explanation": "heapifyDown is the process of propagating the new root element downward until the heap property is restored."
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of inserting a new element into an AVL tree in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Start by placing the node in its standard BST position before correcting heights and rotating.",
+        "explanation": "AVL insertion first performs a standard BST insert, then updates ancestor heights bottom-up, and finally performs rotations if any node is unbalanced.",
+        "items": [
+          "Insert a new node as usual, i.e., add as a leaf in BST",
+          "Go up the tree, update the heights of ancestors of the added node",
+          "Apply rotation to fix the balance in this node"
+        ],
+        "evidence_page": 23
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of removing the minimum element from a min-heap in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Begin by saving the root value, then replace it with the last element before restoring the heap property.",
+        "explanation": "Removing the minimum element involves saving the root, replacing it with the last leaf, and then calling heapifyDown to restore the heap property.",
+        "items": [
+          "Retrieve the value at the root",
+          "Move the last element in the tree to be the root",
+          "Propagate the root down using heapifyDown"
+        ],
+        "evidence_page": 52
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which of the following is NOT a suggested meaning for the 'B' in B-trees?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Three of these are explicitly mentioned as possible origins of the name, while one is a common tree term that is not suggested for the B-tree's name.",
+        "explanation": "Boeing, Bayer, and balanced are all suggested meanings for the 'B' in B-trees, but 'binary' is not one of them.",
+        "options": [
+          "Boeing",
+          "Bayer",
+          "balanced",
+          "binary"
+        ],
+        "correct_option": "binary",
+        "evidence_page": 37
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which of the following is NOT a field in the AVLNode class?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "The class stores references to its children and its parent, but not directly to its sibling.",
+        "explanation": "An AVLNode contains references to its leftChild, rightChild, and parent, but does not have a sibling field.",
+        "options": [
+          "leftChild",
+          "rightChild",
+          "parent",
+          "sibling"
+        ],
+        "correct_option": "sibling",
+        "evidence_page": 17
+      }
+    ]
+  }
+}

@@ -1,0 +1,389 @@
+{
+  "deck": "ml-midterm-notes",
+  "createdAt": "2026-10-04T12:56:57.717Z",
+  "verifyVersion": "28c4606d",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 6.073,
+    "usage": {
+      "inputTokens": 5913,
+      "outputTokens": 2368,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.0076939
+  },
+  "prompts": [
+    "Name an evaluation metric in machine learning",
+    "Name a performance metric used for classification models",
+    "Name a machine learning model or search algorithm",
+    "Name a component in the anatomy of a neural network node",
+    "Name a variable or parameter used in gradient descent weight updating",
+    "Name a supervised learning model or classifier",
+    "Name a metric that measures error or distance between predicted and actual values",
+    "Name a classification performance metric defined as a probability or proportion",
+    "The F1 score is the ______ mean of precision and recall.",
+    "Rectified Linear Unit avoids the ______ gradient problem faced by the logistic sigmoid function.",
+    "The evaluation metric defined as the proportion of all correct predictions.",
+    "The error measure representing the difference between predicted output and true output.",
+    "Put the steps of K-means clustering in order.",
+    "Put the steps of KNN classification in order.",
+    "Put the steps for building a decision tree in order.",
+    "Which metric evaluates regression models rather than classification predictions?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "Listed as evaluation metric",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "Listed as evaluation metric",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "Listed as evaluation metric",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "Listed as evaluation metric",
+            "supports": true
+          },
+          {
+            "id": "P1.A5",
+            "reason": "Listed as evaluation metric",
+            "supports": true
+          },
+          {
+            "id": "P1.A6",
+            "reason": "Listed as evaluation metric",
+            "supports": true
+          },
+          {
+            "id": "P1.A7",
+            "reason": "Listed as evaluation metric",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "Metric for classification predictions",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "Metric for classification predictions",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "Metric for classification predictions",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "Metric for classification predictions",
+            "supports": true
+          },
+          {
+            "id": "P2.A5",
+            "reason": "Metric for classification predictions",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "Machine learning model",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "Machine learning model",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "Machine learning model",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "Machine learning model",
+            "supports": true
+          },
+          {
+            "id": "P3.A5",
+            "reason": "Machine learning model",
+            "supports": true
+          },
+          {
+            "id": "P3.A6",
+            "reason": "Machine learning model",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "Component of node anatomy",
+            "supports": true
+          },
+          {
+            "id": "P4.A2",
+            "reason": "Component of node anatomy",
+            "supports": true
+          },
+          {
+            "id": "P4.A3",
+            "reason": "Component of node anatomy",
+            "supports": true
+          },
+          {
+            "id": "P4.A4",
+            "reason": "Component of node anatomy",
+            "supports": true
+          },
+          {
+            "id": "P4.A5",
+            "reason": "Component of input part of node",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "Parameter in weight update formula",
+            "supports": true
+          },
+          {
+            "id": "P5.A2",
+            "reason": "Variable in weight update",
+            "supports": true
+          },
+          {
+            "id": "P5.A3",
+            "reason": "Variable in weight update",
+            "supports": true
+          },
+          {
+            "id": "P5.A4",
+            "reason": "Loss function is part of gradient calculation",
+            "supports": true
+          },
+          {
+            "id": "P5.A5",
+            "reason": "Bias is part of the perceptron inputs used in gradient descent derivation",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "Supervised model/classifier",
+            "supports": true
+          },
+          {
+            "id": "P6.A2",
+            "reason": "Supervised model/classifier",
+            "supports": true
+          },
+          {
+            "id": "P6.A3",
+            "reason": "Supervised model/classifier",
+            "supports": true
+          },
+          {
+            "id": "P6.A4",
+            "reason": "Supervised model/classifier",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "Measures error",
+            "supports": true
+          },
+          {
+            "id": "P7.A2",
+            "reason": "Measures error or difference",
+            "supports": true
+          },
+          {
+            "id": "P7.A3",
+            "reason": "Measures error or distance",
+            "supports": true
+          },
+          {
+            "id": "P7.A4",
+            "reason": "Measures error between predicted and true output",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "Defined as proportion",
+            "supports": true
+          },
+          {
+            "id": "P8.A2",
+            "reason": "Defined as probability",
+            "supports": true
+          },
+          {
+            "id": "P8.A3",
+            "reason": "Defined as probability",
+            "supports": true
+          },
+          {
+            "id": "P8.A4",
+            "reason": "Defined as probability",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "Text states harmonic mean",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "Text states vanishing gradient problem",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "Accuracy is defined as proportion of all correct predictions",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "Loss function is defined as difference/error between predicted and true output",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "Matches steps in text",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "Matches table steps for KNN classification",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P15",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P15.A1",
+            "reason": "Matches decision tree steps",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P16",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P16.A1",
+            "reason": "Mean Absolute Error evaluates regression while others are classification metrics",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}

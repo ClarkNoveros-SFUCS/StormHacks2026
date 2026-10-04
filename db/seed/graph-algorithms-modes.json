@@ -1,0 +1,328 @@
+{
+  "_comment": "Hand-written Games in the other Modes for the demo Graph Algorithms Module, built on the pages of graph-algorithms.json. Each list uses its Mode's Gemini response shape and must pass that Mode's generation checks (npm run db:seed -- --check). Apogee reuses graph-algorithms.json's Dive Prompts; Arena reuses the Leap Game's questions (\"prompts_from\": \"leap\").",
+  "games": [
+    {
+      "mode": "apogee",
+      "title": "Graph Algorithms (Week 9) · Apogee",
+      "prompts_from": "graph-algorithms.json"
+    },
+    {
+      "mode": "leap",
+      "title": "Graph Algorithms (Week 9) · Leap",
+      "prompts": [
+        {
+          "kind": "multiple_choice",
+          "text": "Which data structure does BFS use to decide which vertex to visit next?",
+          "options": ["A queue", "A stack", "A min-heap", "Union-find"],
+          "correct_option": "A queue",
+          "explanation": "BFS takes the vertex at the front of a queue and adds its unvisited neighbors to the back, so it explores level by level.",
+          "tier": "common",
+          "evidence_page": 2,
+          "evidence_quote": "It uses a queue: take the vertex at the front, then add its unvisited neighbors to the back."
+        },
+        {
+          "kind": "multiple_choice",
+          "text": "Which algorithm finds single-source shortest paths and still works with negative edge weights?",
+          "options": ["Dijkstra's algorithm", "Bellman-Ford", "Prim's algorithm", "Kosaraju's algorithm"],
+          "correct_option": "Bellman-Ford",
+          "explanation": "Bellman-Ford relaxes every edge V - 1 times, which stays correct with negative edge weights; Dijkstra breaks on them.",
+          "tier": "solid",
+          "evidence_page": 6,
+          "evidence_quote": "Finds shortest paths from one source, and works with negative edge weights."
+        },
+        {
+          "kind": "multiple_choice",
+          "text": "What is the running time of Floyd-Warshall?",
+          "options": ["O(V + E)", "O(V^2)", "O(V^3)", "O(E log V)"],
+          "correct_option": "O(V^3)",
+          "explanation": "Floyd-Warshall runs a dynamic program over a V x V table once for each of the V intermediate vertices.",
+          "tier": "solid",
+          "evidence_page": 7,
+          "evidence_quote": "Running time: O(V^3)."
+        },
+        {
+          "kind": "multiple_choice",
+          "text": "Which algorithm finds every strongly connected component in a single DFS using low-link values?",
+          "options": ["Kosaraju's algorithm", "Hopcroft-Karp", "Tarjan's algorithm", "Borůvka's algorithm"],
+          "correct_option": "Tarjan's algorithm",
+          "explanation": "Tarjan's algorithm needs one DFS with low-link values and a stack; Kosaraju's needs two passes.",
+          "tier": "deep",
+          "evidence_page": 10,
+          "evidence_quote": "Tarjan's algorithm finds every SCC in a single DFS, using low-link values and a stack."
+        },
+        {
+          "kind": "multiple_choice",
+          "text": "How many times does Bellman-Ford relax every edge?",
+          "options": ["Once", "V - 1 times", "V times", "E - 1 times"],
+          "correct_option": "V - 1 times",
+          "explanation": "A shortest path has at most V - 1 edges, so V - 1 rounds of relaxing every edge are enough.",
+          "tier": "deep",
+          "evidence_page": 6,
+          "evidence_quote": "Relaxes every edge V - 1 times."
+        },
+        {
+          "kind": "multiple_choice",
+          "text": "When does a topological sort of a graph exist?",
+          "options": ["When it has no directed cycle", "When its edge weights are non-negative", "When it is undirected", "When it is bipartite"],
+          "correct_option": "When it has no directed cycle",
+          "explanation": "A topological order needs every edge to point forward, which is impossible around a directed cycle.",
+          "tier": "common",
+          "evidence_page": 4,
+          "evidence_quote": "It only exists when the graph has no directed cycle."
+        },
+        {
+          "kind": "multiple_choice",
+          "text": "Which structure does Kruskal's algorithm use to check whether an edge would create a cycle?",
+          "options": ["A priority queue", "Union-find", "A stack", "An adjacency matrix"],
+          "correct_option": "Union-find",
+          "explanation": "Union-find tracks which vertices are already in the same component, so an edge inside one component would close a cycle.",
+          "tier": "solid",
+          "evidence_page": 9,
+          "evidence_quote": "Kruskal uses union-find to check whether an edge would create a cycle."
+        },
+        {
+          "kind": "multiple_choice",
+          "text": "How much space does an adjacency list use?",
+          "options": ["O(V^2)", "O(V + E)", "O(E log V)", "O(V^3)"],
+          "correct_option": "O(V + E)",
+          "explanation": "Each vertex stores only its own neighbors, so the space grows with the vertices plus the edges; a matrix needs O(V^2).",
+          "tier": "solid",
+          "evidence_page": 1,
+          "evidence_quote": "Adjacency list: each vertex stores a list of its neighbors. Uses O(V + E) space."
+        },
+        {
+          "kind": "multiple_choice",
+          "text": "Which algorithm finds a maximum matching in a bipartite graph in O(E sqrt(V)) time?",
+          "options": ["Floyd-Warshall", "Bellman-Ford", "Kosaraju's algorithm", "Hopcroft-Karp"],
+          "correct_option": "Hopcroft-Karp",
+          "explanation": "Hopcroft-Karp beats the basic augmenting path method, which takes O(V * E).",
+          "tier": "rare",
+          "evidence_page": 11,
+          "evidence_quote": "Hopcroft-Karp finds a maximum matching in a bipartite graph faster than the basic augmenting path method: O(E sqrt(V))."
+        },
+        {
+          "kind": "multiple_choice",
+          "text": "Why does Dijkstra's algorithm break on graphs with negative edge weights?",
+          "options": [
+            "It only works on unweighted graphs",
+            "It relaxes each edge just V - 1 times",
+            "It assumes a settled node can't get a shorter path later",
+            "It needs a graph with no directed cycle"
+          ],
+          "correct_option": "It assumes a settled node can't get a shorter path later",
+          "explanation": "With a negative edge, a shorter path to an already settled node can appear later, and Dijkstra never revisits it.",
+          "tier": "deep",
+          "evidence_page": 5,
+          "evidence_quote": "Dijkstra breaks on graphs that have negative edge weights: once a node is settled, it assumes no shorter path to it can appear later."
+        },
+        {
+          "kind": "multiple_choice",
+          "text": "Which minimum spanning tree algorithm grows one tree outward from a start vertex?",
+          "options": ["Kruskal's algorithm", "Borůvka's algorithm", "Reverse-delete", "Prim's algorithm"],
+          "correct_option": "Prim's algorithm",
+          "explanation": "Prim's algorithm always adds the cheapest edge leaving its single growing tree; Kruskal's joins many pieces.",
+          "tier": "solid",
+          "evidence_page": 8,
+          "evidence_quote": "Prim's algorithm grows one tree from a start vertex, always adding the cheapest edge that leaves the tree."
+        },
+        {
+          "kind": "multiple_choice",
+          "text": "What does DFS use to go as deep as possible before backtracking?",
+          "options": ["A queue", "A stack or recursion", "A min-heap", "Union-find"],
+          "correct_option": "A stack or recursion",
+          "explanation": "DFS keeps its path on a stack, either an explicit one or the call stack when written recursively.",
+          "tier": "common",
+          "evidence_page": 3,
+          "evidence_quote": "It uses a stack, or recursion, which uses the call stack."
+        },
+        {
+          "kind": "multiple_choice",
+          "text": "On an unweighted graph, which algorithm finds the shortest path with the fewest edges?",
+          "options": ["DFS", "Topological sort", "BFS", "Floyd-Warshall"],
+          "correct_option": "BFS",
+          "explanation": "BFS reaches vertices in order of how many edges away they are, so the first time it reaches a vertex is by a shortest path.",
+          "tier": "common",
+          "evidence_page": 2,
+          "evidence_quote": "On an unweighted graph, BFS finds the shortest path (fewest edges) from the source to every vertex."
+        },
+        {
+          "kind": "multiple_choice",
+          "text": "Which data structure does Dijkstra's algorithm use to pick the next node?",
+          "options": ["A plain queue", "A stack", "A priority queue (min-heap)", "Union-find"],
+          "correct_option": "A priority queue (min-heap)",
+          "explanation": "Dijkstra always takes the unvisited node with the smallest known distance, which a min-heap returns quickly.",
+          "tier": "solid",
+          "evidence_page": 5,
+          "evidence_quote": "Uses a priority queue (min-heap)."
+        }
+      ]
+    },
+    {
+      "mode": "pairs",
+      "title": "Graph Algorithms (Week 9) · Pairs",
+      "prompts": [
+        {
+          "kind": "definition_to_term",
+          "text": "Traversal that explores a graph level by level, using a queue",
+          "answers": [{ "canonical": "BFS", "aliases": ["breadth-first search", "breadth first search"], "exact_only": true, "evidence_page": 2, "evidence_quote": "BFS visits every neighbor at the current depth before moving one level deeper." }],
+          "tier": "common",
+          "explanation": "On an unweighted graph it also finds the shortest path (fewest edges)."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "Traversal that goes as far down one branch as possible before backtracking",
+          "answers": [{ "canonical": "DFS", "aliases": ["depth-first search", "depth first search"], "exact_only": true, "evidence_page": 3, "evidence_quote": "DFS explores as far down one branch as possible before backtracking." }],
+          "tier": "common",
+          "explanation": "It is the building block for cycle detection, topological sort and SCCs."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "A linear ordering of a DAG's vertices in which every edge points forward",
+          "answers": [{ "canonical": "Topological sort", "aliases": ["topological ordering"], "exact_only": false, "evidence_page": 4, "evidence_quote": "A topological sort is a linear ordering of the vertices of a DAG such that for every edge (u, v), u comes before v." }],
+          "tier": "solid",
+          "explanation": "One way to get it: run DFS and list vertices in reverse order of finishing time."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "A directed graph that contains no cycles",
+          "answers": [{ "canonical": "DAG", "aliases": ["directed acyclic graph"], "exact_only": true, "evidence_page": 1, "evidence_quote": "A DAG is a directed acyclic graph: a directed graph with no cycles." }],
+          "tier": "common",
+          "explanation": "Only these graphs have a topological order."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "Single-source shortest paths with a min-heap, for non-negative edge weights only",
+          "answers": [{ "canonical": "Dijkstra's algorithm", "aliases": ["Dijkstra"], "exact_only": false, "evidence_page": 5, "evidence_quote": "Finds shortest paths from one source in a graph with non-negative edge weights." }],
+          "tier": "common",
+          "explanation": "It runs in O((V + E) log V) with a binary heap."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "Single-source shortest paths that relaxes every edge V - 1 times and copes with negative weights",
+          "answers": [{ "canonical": "Bellman-Ford", "aliases": ["Bellman Ford"], "exact_only": false, "evidence_page": 6, "evidence_quote": "Finds shortest paths from one source, and works with negative edge weights." }],
+          "tier": "solid",
+          "explanation": "One more pass over the edges detects a negative cycle."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "Dynamic program that finds the shortest path between every pair of vertices",
+          "answers": [{ "canonical": "Floyd-Warshall", "aliases": ["Floyd Warshall"], "exact_only": false, "evidence_page": 7, "evidence_quote": "Finds the shortest paths between every pair of vertices (all-pairs shortest paths)." }],
+          "tier": "solid",
+          "explanation": "It runs in O(V^3) and handles negative edges but not negative cycles."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "Edges that connect every vertex of a weighted, undirected graph with the least total weight",
+          "answers": [{ "canonical": "Minimum spanning tree", "aliases": ["MST"], "exact_only": false, "evidence_page": 8, "evidence_quote": "A minimum spanning tree connects every vertex of a weighted, undirected graph using the least total edge weight." }],
+          "tier": "common",
+          "explanation": "Kruskal, Prim and Borůvka all build one."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "Adds edges from cheapest to most expensive, skipping any edge that would close a cycle",
+          "answers": [{ "canonical": "Kruskal's algorithm", "aliases": ["Kruskal"], "exact_only": false, "evidence_page": 8, "evidence_quote": "Kruskal's algorithm adds edges from cheapest to most expensive, skipping any edge that would create a cycle" }],
+          "tier": "solid",
+          "explanation": "It stops once the tree has V - 1 edges, and uses union-find to spot cycles."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "Grows a single tree from a start vertex, always taking the cheapest edge leaving it",
+          "answers": [{ "canonical": "Prim's algorithm", "aliases": ["Prim"], "exact_only": false, "evidence_page": 8, "evidence_quote": "Prim's algorithm grows one tree from a start vertex, always adding the cheapest edge that leaves the tree." }],
+          "tier": "solid",
+          "explanation": "Unlike Kruskal's, it only ever has one tree."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "Structure that tracks which vertices are already in the same component",
+          "answers": [{ "canonical": "Union-find", "aliases": ["disjoint set", "union find"], "exact_only": false, "evidence_page": 9, "evidence_quote": "Keeps track of which vertices are already in the same component." }],
+          "tier": "deep",
+          "explanation": "With union by rank and path compression, each operation is almost O(1)."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "A maximal set of vertices in which every vertex can reach every other one",
+          "answers": [{ "canonical": "SCC", "aliases": ["strongly connected component"], "exact_only": true, "evidence_page": 10, "evidence_quote": "An SCC is a maximal set of vertices in which every vertex can reach every other vertex." }],
+          "tier": "deep",
+          "explanation": "Kosaraju's and Tarjan's algorithms find them in O(V + E)."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "Runs DFS twice, the second time on the graph with every edge reversed",
+          "answers": [{ "canonical": "Kosaraju's algorithm", "aliases": ["Kosaraju"], "exact_only": false, "evidence_page": 10, "evidence_quote": "Kosaraju's algorithm runs DFS to get finishing times, reverses every edge, then runs DFS again in decreasing finishing time." }],
+          "tier": "rare",
+          "explanation": "Each tree in the second pass is one strongly connected component."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "Finds a maximum bipartite matching faster than the basic augmenting path method",
+          "answers": [{ "canonical": "Hopcroft-Karp", "aliases": ["Hopcroft Karp"], "exact_only": false, "evidence_page": 11, "evidence_quote": "Hopcroft-Karp finds a maximum matching in a bipartite graph faster than the basic augmenting path method" }],
+          "tier": "rare",
+          "explanation": "It runs in O(E sqrt(V))."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "A set of edges in which no two edges share a vertex",
+          "answers": [{ "canonical": "Matching", "aliases": [], "exact_only": false, "evidence_page": 11, "evidence_quote": "A matching is a set of edges in which no two edges share a vertex." }],
+          "tier": "solid",
+          "explanation": "Augmenting paths grow a matching one edge at a time."
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "A V x V table recording the edge between each pair of vertices",
+          "answers": [{ "canonical": "Adjacency matrix", "aliases": [], "exact_only": false, "evidence_page": 1, "evidence_quote": "Adjacency matrix: a V x V table where entry (u, v) records the edge from u to v." }],
+          "tier": "common",
+          "explanation": "It uses O(V^2) space, more than an adjacency list's O(V + E)."
+        }
+      ]
+    },
+    {
+      "mode": "blitz",
+      "title": "Graph Algorithms (Week 9) · Blitz",
+      "prompts": [
+        { "kind": "true_false", "text": "BFS uses a queue to pick the next vertex.", "is_true": true, "tier": "common", "evidence_page": 2, "evidence_quote": "It uses a queue: take the vertex at the front, then add its unvisited neighbors to the back.", "explanation": "BFS takes vertices from the front of a queue." },
+        { "kind": "true_false", "text": "BFS uses a stack to pick the next vertex.", "is_true": false, "tier": "common", "evidence_page": 2, "evidence_quote": "It uses a queue: take the vertex at the front, then add its unvisited neighbors to the back.", "explanation": "BFS uses a queue; DFS is the one that uses a stack." },
+        { "kind": "true_false", "text": "DFS can be written with recursion.", "is_true": true, "tier": "common", "evidence_page": 3, "evidence_quote": "It uses a stack, or recursion, which uses the call stack.", "explanation": "Recursion uses the call stack as DFS's stack." },
+        { "kind": "true_false", "text": "DFS runs in O(V^2) time.", "is_true": false, "tier": "solid", "evidence_page": 3, "evidence_quote": "Running time: O(V + E).", "explanation": "DFS runs in O(V + E)." },
+        { "kind": "true_false", "text": "BFS runs in O(V + E) time.", "is_true": true, "tier": "solid", "evidence_page": 2, "evidence_quote": "Running time: O(V + E).", "explanation": "Every vertex and edge is handled once." },
+        { "kind": "true_false", "text": "On an unweighted graph, DFS finds the path with the fewest edges.", "is_true": false, "tier": "solid", "evidence_page": 2, "evidence_quote": "On an unweighted graph, BFS finds the shortest path (fewest edges) from the source to every vertex.", "explanation": "That's BFS, which explores level by level." },
+        { "kind": "true_false", "text": "A topological sort exists only if the graph has no directed cycle.", "is_true": true, "tier": "common", "evidence_page": 4, "evidence_quote": "It only exists when the graph has no directed cycle.", "explanation": "Around a directed cycle no order can put every edge forward." },
+        { "kind": "true_false", "text": "Any directed graph with a cycle still has a topological sort.", "is_true": false, "tier": "common", "evidence_page": 4, "evidence_quote": "It only exists when the graph has no directed cycle.", "explanation": "A topological sort only exists for a DAG." },
+        { "kind": "true_false", "text": "Dijkstra's algorithm uses a priority queue.", "is_true": true, "tier": "common", "evidence_page": 5, "evidence_quote": "Uses a priority queue (min-heap).", "explanation": "A min-heap gives the closest unvisited node." },
+        { "kind": "true_false", "text": "Dijkstra's algorithm works correctly with negative edge weights.", "is_true": false, "tier": "common", "evidence_page": 5, "evidence_quote": "Dijkstra breaks on graphs that have negative edge weights", "explanation": "Dijkstra breaks on negative edge weights; use Bellman-Ford." },
+        { "kind": "true_false", "text": "Bellman-Ford can detect a negative cycle.", "is_true": true, "tier": "solid", "evidence_page": 6, "evidence_quote": "One more pass over the edges detects a negative cycle", "explanation": "If any distance still improves after V - 1 rounds, there's a negative cycle." },
+        { "kind": "true_false", "text": "Bellman-Ford relaxes every edge exactly once.", "is_true": false, "tier": "deep", "evidence_page": 6, "evidence_quote": "Relaxes every edge V - 1 times.", "explanation": "It relaxes every edge V - 1 times." },
+        { "kind": "true_false", "text": "Bellman-Ford runs in O(V^3) time.", "is_true": false, "tier": "deep", "evidence_page": 6, "evidence_quote": "Running time: O(V * E), slower than Dijkstra.", "explanation": "Bellman-Ford runs in O(V * E); Floyd-Warshall is the O(V^3) one." },
+        { "kind": "true_false", "text": "Floyd-Warshall finds shortest paths between every pair of vertices.", "is_true": true, "tier": "solid", "evidence_page": 7, "evidence_quote": "Finds the shortest paths between every pair of vertices (all-pairs shortest paths).", "explanation": "It solves all-pairs shortest paths." },
+        { "kind": "true_false", "text": "Floyd-Warshall only finds paths from a single source.", "is_true": false, "tier": "solid", "evidence_page": 7, "evidence_quote": "Finds the shortest paths between every pair of vertices (all-pairs shortest paths).", "explanation": "It finds paths between every pair of vertices." },
+        { "kind": "true_false", "text": "Floyd-Warshall handles negative edge weights.", "is_true": true, "tier": "deep", "evidence_page": 7, "evidence_quote": "Handles negative edge weights, but not negative cycles.", "explanation": "Negative edges are fine; negative cycles are not." },
+        { "kind": "true_false", "text": "Floyd-Warshall handles negative cycles.", "is_true": false, "tier": "deep", "evidence_page": 7, "evidence_quote": "Handles negative edge weights, but not negative cycles.", "explanation": "It handles negative edges but not negative cycles." },
+        { "kind": "true_false", "text": "Kruskal's algorithm adds edges from cheapest to most expensive.", "is_true": true, "tier": "common", "evidence_page": 8, "evidence_quote": "Kruskal's algorithm adds edges from cheapest to most expensive", "explanation": "It skips any edge that would create a cycle." },
+        { "kind": "true_false", "text": "Prim's algorithm grows a single tree from a start vertex.", "is_true": true, "tier": "solid", "evidence_page": 8, "evidence_quote": "Prim's algorithm grows one tree from a start vertex, always adding the cheapest edge that leaves the tree.", "explanation": "It always adds the cheapest edge leaving its tree." },
+        { "kind": "true_false", "text": "Prim's algorithm starts by sorting every edge by weight.", "is_true": false, "tier": "solid", "evidence_page": 8, "evidence_quote": "Prim's algorithm grows one tree from a start vertex, always adding the cheapest edge that leaves the tree.", "explanation": "Sorting the edges first is Kruskal's algorithm." },
+        { "kind": "true_false", "text": "Dijkstra's algorithm builds minimum spanning trees.", "is_true": false, "tier": "common", "evidence_page": 8, "evidence_quote": "Dijkstra is not an MST algorithm: it computes shortest paths.", "explanation": "Dijkstra computes shortest paths, not MSTs." },
+        { "kind": "true_false", "text": "Borůvka's algorithm builds a minimum spanning tree.", "is_true": true, "tier": "rare", "evidence_page": 8, "evidence_quote": "Kruskal, Prim and Borůvka all build minimum spanning trees.", "explanation": "Every component adds its cheapest outgoing edge each round." },
+        { "kind": "true_false", "text": "Reverse-delete starts with no edges and adds the cheapest one each round.", "is_true": false, "tier": "rare", "evidence_page": 8, "evidence_quote": "Reverse-delete: start with every edge and delete the heaviest edge that does not disconnect the graph.", "explanation": "It starts with every edge and deletes the heaviest one that keeps the graph connected." },
+        { "kind": "true_false", "text": "Kruskal uses union-find to detect cycles.", "is_true": true, "tier": "solid", "evidence_page": 9, "evidence_quote": "Kruskal uses union-find to check whether an edge would create a cycle.", "explanation": "An edge inside one component would close a cycle." },
+        { "kind": "true_false", "text": "Kruskal uses a priority queue to detect cycles.", "is_true": false, "tier": "solid", "evidence_page": 9, "evidence_quote": "Kruskal uses union-find to check whether an edge would create a cycle.", "explanation": "It uses union-find for that." },
+        { "kind": "true_false", "text": "Path compression makes union-find operations almost O(1).", "is_true": true, "tier": "deep", "evidence_page": 9, "evidence_quote": "With union by rank and path compression, each operation is almost O(1).", "explanation": "Together with union by rank." },
+        { "kind": "true_false", "text": "Tarjan's algorithm finds every SCC in a single DFS.", "is_true": true, "tier": "deep", "evidence_page": 10, "evidence_quote": "Tarjan's algorithm finds every SCC in a single DFS, using low-link values and a stack.", "explanation": "It uses low-link values and a stack." },
+        { "kind": "true_false", "text": "Tarjan's algorithm needs two DFS passes to find SCCs.", "is_true": false, "tier": "deep", "evidence_page": 10, "evidence_quote": "Tarjan's algorithm finds every SCC in a single DFS, using low-link values and a stack.", "explanation": "Tarjan's uses one DFS; Kosaraju's uses two." },
+        { "kind": "true_false", "text": "Kosaraju's algorithm reverses every edge between its two DFS passes.", "is_true": true, "tier": "rare", "evidence_page": 10, "evidence_quote": "Kosaraju's algorithm runs DFS to get finishing times, reverses every edge, then runs DFS again in decreasing finishing time.", "explanation": "Each tree of the second pass is one SCC." },
+        { "kind": "true_false", "text": "Kosaraju's algorithm finds a maximum bipartite matching.", "is_true": false, "tier": "rare", "evidence_page": 10, "evidence_quote": "Kosaraju's algorithm runs DFS to get finishing times, reverses every edge, then runs DFS again in decreasing finishing time.", "explanation": "Kosaraju's finds strongly connected components." },
+        { "kind": "true_false", "text": "In a matching, no two edges share a vertex.", "is_true": true, "tier": "solid", "evidence_page": 11, "evidence_quote": "A matching is a set of edges in which no two edges share a vertex.", "explanation": "That's the definition of a matching." },
+        { "kind": "true_false", "text": "In a bipartite graph, edges stay within one side.", "is_true": false, "tier": "solid", "evidence_page": 11, "evidence_quote": "A bipartite graph splits its vertices into two sides, and every edge goes between the sides.", "explanation": "Every edge goes between the two sides." },
+        { "kind": "true_false", "text": "Hopcroft-Karp is faster than the basic augmenting path method.", "is_true": true, "tier": "rare", "evidence_page": 11, "evidence_quote": "Hopcroft-Karp finds a maximum matching in a bipartite graph faster than the basic augmenting path method", "explanation": "O(E sqrt(V)) against O(V * E)." },
+        { "kind": "true_false", "text": "Hopcroft-Karp finds shortest paths in weighted graphs.", "is_true": false, "tier": "rare", "evidence_page": 11, "evidence_quote": "Hopcroft-Karp finds a maximum matching in a bipartite graph", "explanation": "Hopcroft-Karp finds maximum bipartite matchings." },
+        { "kind": "true_false", "text": "An adjacency matrix uses O(V^2) space.", "is_true": true, "tier": "solid", "evidence_page": 1, "evidence_quote": "Uses O(V^2) space.", "explanation": "It is a V x V table." },
+        { "kind": "true_false", "text": "An adjacency list uses O(V^2) space.", "is_true": false, "tier": "solid", "evidence_page": 1, "evidence_quote": "Adjacency list: each vertex stores a list of its neighbors. Uses O(V + E) space.", "explanation": "An adjacency list uses O(V + E) space." },
+        { "kind": "true_false", "text": "A DAG is a directed graph with no cycles.", "is_true": true, "tier": "common", "evidence_page": 1, "evidence_quote": "A DAG is a directed acyclic graph: a directed graph with no cycles.", "explanation": "DAG stands for directed acyclic graph." },
+        { "kind": "true_false", "text": "A DAG is an undirected graph with no cycles.", "is_true": false, "tier": "common", "evidence_page": 1, "evidence_quote": "A DAG is a directed acyclic graph: a directed graph with no cycles.", "explanation": "A DAG is directed: a directed acyclic graph." }
+      ]
+    },
+    {
+      "mode": "arena",
+      "title": "Graph Algorithms (Week 9) · Arena",
+      "prompts_from": "leap"
+    }
+  ]
+}

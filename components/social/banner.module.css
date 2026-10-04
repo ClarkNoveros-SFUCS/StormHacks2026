@@ -1,0 +1,184 @@
+/* Profile banner scenes (F26). SVG elements: px in transforms are user units. */
+
+.anim {
+  transform-box: fill-box;
+  animation-duration: var(--dur, 12s);
+  animation-delay: var(--delay, 0s);
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.scroll {
+  animation-name: scroll;
+}
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-240px);
+  }
+}
+
+.swimRight {
+  animation-name: swim-right;
+}
+@keyframes swim-right {
+  from {
+    transform: translateX(-40px);
+  }
+  to {
+    transform: translateX(280px);
+  }
+}
+
+.swimLeft {
+  animation-name: swim-left;
+}
+@keyframes swim-left {
+  from {
+    transform: translateX(280px);
+  }
+  to {
+    transform: translateX(-40px);
+  }
+}
+
+.rise {
+  animation-name: rise;
+  animation-timing-function: ease-in;
+}
+@keyframes rise {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate(2px, -30px);
+  }
+  100% {
+    transform: translate(-1px, -64px);
+    opacity: 0;
+  }
+}
+
+.sway {
+  animation-name: sway;
+  animation-timing-function: ease-in-out;
+  transform-origin: 50% 100%;
+}
+@keyframes sway {
+  0%,
+  100% {
+    transform: skewX(-8deg);
+  }
+  50% {
+    transform: skewX(8deg);
+  }
+}
+
+.twinkle {
+  animation-name: twinkle;
+  animation-timing-function: steps(2, end);
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.15;
+  }
+}
+
+.bob {
+  animation-name: bob;
+  animation-timing-function: ease-in-out;
+}
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.shimmer {
+  animation-name: shimmer;
+  animation-timing-function: ease-in-out;
+}
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.05;
+  }
+  50% {
+    opacity: 0.22;
+  }
+}
+
+.shoot {
+  animation-name: shoot;
+  animation-timing-function: ease-in;
+}
+@keyframes shoot {
+  0%,
+  80% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  82% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-90px, 30px);
+    opacity: 0;
+  }
+}
+
+.flap {
+  animation-name: flap;
+  animation-timing-function: steps(1, end);
+  transform-origin: 50% 50%;
+}
+@keyframes flap {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(-0.6);
+  }
+}
+
+.pulse {
+  animation-name: pulse;
+  animation-timing-function: ease-in-out;
+  transform-origin: 50% 50%;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 0.15;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim {
+    animation: none !important;
+  }
+  .rise,
+  .shoot {
+    opacity: 0;
+  }
+}

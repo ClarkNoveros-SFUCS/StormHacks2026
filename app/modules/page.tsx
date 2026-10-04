@@ -1,13 +1,12 @@
+import type { Metadata } from "next";
 import { requirePlayer } from "@/lib/auth";
+import { listModules } from "./_lib/queries";
+import { ModulesList } from "./_components/ModulesList";
 
-// Placeholder from F01 that proves auth + DB work end to end. F08 replaces this page.
+export const metadata: Metadata = { title: "My Modules · SYLLABYSS" };
+
 export default async function ModulesPage() {
   const playerId = await requirePlayer();
-
-  return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-4">
-      <h1 className="text-2xl font-semibold">Modules</h1>
-      <p className="text-sm text-gray-500">Signed in as Player {playerId}</p>
-    </main>
-  );
+  const modules = await listModules(playerId);
+  return <ModulesList modules={modules} />;
 }

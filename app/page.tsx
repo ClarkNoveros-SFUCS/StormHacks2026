@@ -1,23 +1,14 @@
-import { SignInButton, SignUpButton } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { Landing } from "@/components/landing/Landing";
+import { getDailyTeaser } from "@/components/landing/daily-teaser";
+import { getApiPlayer } from "@/lib/auth";
+import { dailyToday } from "@/lib/daily/queries";
 
-// The only public page. Signed-in Players go straight to their Modules.
-export default async function Home() {
-  const { userId } = await auth();
-  if (userId) redirect("/modules");
-
-  return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-6">
-      <h1 className="text-3xl font-semibold">StormHacks 2026</h1>
-      <div className="flex gap-3">
-        <SignInButton mode="modal" forceRedirectUrl="/modules">
-          <button className="rounded-md bg-black px-4 py-2 text-white">Sign in</button>
-        </SignInButton>
-        <SignUpButton mode="modal" forceRedirectUrl="/modules">
-          <button className="rounded-md border px-4 py-2">Sign up</button>
-        </SignUpButton>
-      </div>
-    </main>
-  );
+// The landing page for signed-out visitors (F19 #32). Signed-in Players go to their dashboard.
+// getApiPlayer() returns null when signed out (and honours the dev bypass under `next dev`).
+export default async function LandingPage() {
+  if (await getApiPlayer()) redirect("/home");
+  // Today's real puzzle (signed out: no `me`); the sample if the Daily is unavailable.
+  const daily = await dailyToday(null).catch(() => null);
+  return <Landing teaser={getDailyTeaser(daily)} />;
 }

@@ -1,0 +1,254 @@
+/*
+  Arena's theme (F29). A neon training arena at night: the site's navy, glassy HUD plates with
+  hard neon edges, the hot-red crosshair accent with cyan/violet/gold/pink trims (the target
+  colours), Pixelify Sans for titles and buttons, VT323 for HUD numbers, Mulish for reading.
+  Scoped to .ar-root so it wins over the placeholder block in app/globals.css.
+*/
+[data-theme="arena"].ar-root {
+  --bg: #070914;
+  --bg-2: #0a0d1c;
+  --surface: rgba(10, 13, 32, 0.86);
+  --surface-2: #141a33;
+  --border: rgba(77, 227, 255, 0.28);
+  --border-strong: rgba(77, 227, 255, 0.55);
+  --text: #eef2ff;
+  --muted: #9aa6c8;
+  --faint: #6b7699;
+  --primary: #ff4d6d;
+  --primary-text: #1a0309;
+  --primary-drop: #9c1f38;
+  --accent: #ff4d6d;
+  --signal: #4de3ff;
+  --reward: #ffd84d;
+  --violet: #9d7bff;
+  --pink: #ff5d8f;
+  --danger: #ff5c5c;
+  --success: #3ddc97;
+  --r: 10px;
+  background: var(--bg);
+  color: var(--text);
+  /* Pixelify Sans draws "fi" as a broken ligature */
+  font-variant-ligatures: none;
+}
+
+.ar-root .ar-plate {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 0 18px -6px rgba(77, 227, 255, 0.45), inset 0 0 22px -12px rgba(77, 227, 255, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.ar-root .ar-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(20, 26, 51, 0.94), rgba(10, 13, 32, 0.94));
+  border: 2px solid var(--border-strong);
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px #000, 0 0 40px -10px rgba(77, 227, 255, 0.5), 0 24px 60px -20px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+/* hot-red corner brackets, like the holo-board */
+.ar-root .ar-card::before,
+.ar-root .ar-card::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--accent);
+  pointer-events: none;
+}
+.ar-root .ar-card::before {
+  top: -6px;
+  left: -6px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.ar-root .ar-card::after {
+  right: -6px;
+  bottom: -6px;
+  border-left: 0;
+  border-top: 0;
+}
+.ar-root .ar-chip {
+  font-family: var(--f-hud);
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px 10px 3px;
+  border-radius: 6px;
+  background: rgba(10, 13, 32, 0.82);
+  border: 2px solid var(--border);
+}
+.ar-root .ar-btn {
+  font-family: var(--f-display);
+  letter-spacing: 0.06em;
+  border-radius: 8px;
+  padding: 10px 18px;
+  background: rgba(77, 227, 255, 0.08);
+  border: 2px solid var(--border-strong);
+  color: var(--text);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.6);
+  transition: transform 0.12s var(--ease-snap), box-shadow 0.12s, background 0.15s;
+}
+.ar-root .ar-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: rgba(77, 227, 255, 0.16);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.6), 0 0 18px rgba(77, 227, 255, 0.35);
+}
+.ar-root .ar-btn:active:not(:disabled) {
+  transform: translateY(3px) scale(0.98);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+}
+.ar-root .ar-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.ar-root .ar-btn-primary {
+  background: var(--primary);
+  border-color: #ff9aac;
+  color: var(--primary-text);
+  box-shadow: 0 5px 0 var(--primary-drop), 0 0 24px rgba(255, 77, 109, 0.35);
+}
+.ar-root .ar-btn-primary:hover:not(:disabled) {
+  background: #ff6682;
+  box-shadow: 0 7px 0 var(--primary-drop), 0 0 30px rgba(255, 77, 109, 0.55);
+}
+.ar-root .ar-btn-primary:active:not(:disabled) {
+  box-shadow: 0 1px 0 var(--primary-drop);
+}
+.ar-root .ar-key {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 6px;
+  font-family: var(--f-hud);
+  font-size: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid var(--border);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.6);
+}
+.ar-root .ar-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  text-align: left;
+  padding: 8px 12px 8px 8px;
+  border-radius: 10px;
+  background: rgba(10, 13, 32, 0.9);
+  border: 2px solid var(--c, var(--border));
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.3;
+}
+.ar-root .ar-option:disabled {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+
+/* the crosshair (locked mouse) */
+.ar-root .ar-crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34px;
+  height: 34px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.ar-root .ar-crosshair i {
+  position: absolute;
+  background: #ff4d6d;
+  box-shadow: 0 0 6px rgba(255, 77, 109, 0.9), 0 0 0 1px rgba(0, 0, 0, 0.6);
+}
+.ar-root .ar-crosshair i:nth-child(1) { left: 16px; top: 0; width: 2px; height: 10px; }
+.ar-root .ar-crosshair i:nth-child(2) { left: 16px; bottom: 0; width: 2px; height: 10px; }
+.ar-root .ar-crosshair i:nth-child(3) { top: 16px; left: 0; width: 10px; height: 2px; }
+.ar-root .ar-crosshair i:nth-child(4) { top: 16px; right: 0; width: 10px; height: 2px; }
+.ar-root .ar-crosshair b {
+  position: absolute;
+  left: 15px;
+  top: 15px;
+  width: 4px;
+  height: 4px;
+  background: #fff;
+}
+.ar-root .ar-hitmark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  pointer-events: none;
+  animation: ar-hitmark 0.35s ease-out forwards;
+}
+.ar-root .ar-hitmark::before,
+.ar-root .ar-hitmark::after {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: -2px;
+  width: 3px;
+  height: 34px;
+  background: var(--hm, #fff);
+  transform: rotate(45deg);
+}
+.ar-root .ar-hitmark::after {
+  transform: rotate(-45deg);
+}
+
+@keyframes ar-hitmark {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(0.6); }
+  to { opacity: 0; transform: translate(-50%, -50%) scale(1.3); }
+}
+@keyframes ar-pop {
+  0% { opacity: 0; transform: translate(-50%, -30%) scale(0.4); }
+  15% { opacity: 1; transform: translate(-50%, -90%) scale(1.25); }
+  70% { opacity: 1; transform: translate(-50%, -120%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -160%) scale(0.95); }
+}
+@keyframes ar-penalty {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.6); }
+  20% { opacity: 1; transform: translate(-50%, 6px) scale(1.2); }
+  100% { opacity: 0; transform: translate(-50%, 34px) scale(1); }
+}
+@keyframes ar-card-in {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+}
+@keyframes ar-fade-in {
+  from { opacity: 0; }
+}
+@keyframes ar-banner {
+  0% { opacity: 0; transform: scale(0.6); letter-spacing: 0.5em; filter: blur(6px); }
+  60% { opacity: 1; transform: scale(1.06); filter: none; }
+  100% { transform: scale(1); }
+}
+@keyframes ar-count {
+  0% { opacity: 0; transform: scale(1.8); }
+  25% { opacity: 1; transform: scale(1); }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: scale(0.85); }
+}
+@keyframes ar-streak {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25) rotate(-3deg); }
+  100% { transform: scale(1); }
+}
+@keyframes ar-hot {
+  50% { color: #ffffff; text-shadow: 0 0 18px #ff5c5c; }
+}
+@keyframes ar-vignette {
+  0% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ar-root *, .ar-root *::before, .ar-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

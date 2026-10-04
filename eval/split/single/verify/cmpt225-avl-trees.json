@@ -1,0 +1,374 @@
+{
+  "deck": "cmpt225-avl-trees",
+  "createdAt": "2026-10-04T14:35:13.858Z",
+  "verifyVersion": "28c4606d",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 5.682,
+    "usage": {
+      "inputTokens": 6120,
+      "outputTokens": 2350,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.007711
+  },
+  "prompts": [
+    "Name a field stored in an AVLNode.",
+    "Name a public method of a min-heap.",
+    "Name an operation supported by a priority queue.",
+    "Name a suggested meaning for the 'B' in B-trees.",
+    "Name a tree structure that maintains logarithmic height.",
+    "Name a system or application where B-trees are commonly used.",
+    "Name a step taken during B-tree insertion when a leaf is overfilled with 3 values.",
+    "Name an operation or method used to establish or restore a heap's structure.",
+    "An AVL tree is a Binary Search Tree where the difference in height between the left and right subtrees of any vertex is at most ______.",
+    "When deleting a node from a B-tree leaf, the leaf can become empty, which is a condition called ______.",
+    "What is the name of the propagation process that pushes a newly added element up the heap to satisfy the min-heap condition?",
+    "What is the name of the propagation process that pushes the root element down the heap to satisfy the min-heap condition after a removal?",
+    "Put the steps of inserting a new element into an AVL tree in order.",
+    "Put the steps of removing the minimum element from a min-heap in order.",
+    "Which of the following is NOT a suggested meaning for the 'B' in B-trees?",
+    "Which of the following is NOT a field in the AVLNode class?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "Explicitly listed as private T data",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "Explicitly listed as private int height",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "Explicitly listed as private AVLNode<T> leftChild",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "Explicitly listed as private AVLNode<T> rightChild",
+            "supports": true
+          },
+          {
+            "id": "P1.A5",
+            "reason": "Explicitly listed as private AVLNode<T> parent",
+            "supports": true
+          },
+          {
+            "id": "P1.A6",
+            "reason": "Explicitly listed as private byte balance",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "Listed as public method addElement",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "Listed as public method getMin",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "Listed as public method removeMin",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "Listed as public method getSize",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "Operation add item(item) is listed",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "Operation removeTop is listed",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "Operation getTop is listed",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "Operation getSize is listed",
+            "supports": true
+          },
+          {
+            "id": "P3.A5",
+            "reason": "Operation isEmpty is listed",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "Suggested meaning Bayer",
+            "supports": true
+          },
+          {
+            "id": "P4.A2",
+            "reason": "Suggested meaning Boeing",
+            "supports": true
+          },
+          {
+            "id": "P4.A3",
+            "reason": "Suggested meaning balanced",
+            "supports": true
+          },
+          {
+            "id": "P4.A4",
+            "reason": "Suggested meaning broad",
+            "supports": true
+          },
+          {
+            "id": "P4.A5",
+            "reason": "Suggested meaning bushy",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "AVL tree is a balanced BST with logarithmic height",
+            "supports": true
+          },
+          {
+            "id": "P5.A2",
+            "reason": "B-trees maintain logarithmic height",
+            "supports": true
+          },
+          {
+            "id": "P5.A3",
+            "reason": "2-3 trees maintain logarithmic height",
+            "supports": true
+          },
+          {
+            "id": "P5.A4",
+            "reason": "Balanced BST operations cost O(log n) time",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "Used in databases",
+            "supports": true
+          },
+          {
+            "id": "P6.A2",
+            "reason": "Used in file systems",
+            "supports": true
+          },
+          {
+            "id": "P6.A3",
+            "reason": "NTFS is mentioned",
+            "supports": true
+          },
+          {
+            "id": "P6.A4",
+            "reason": "HFS+ is mentioned",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "Split into two nodes step is listed",
+            "supports": true
+          },
+          {
+            "id": "P7.A2",
+            "reason": "Take median to be parent step is listed",
+            "supports": true
+          },
+          {
+            "id": "P7.A3",
+            "reason": "Push median up to parent step is listed",
+            "supports": true
+          },
+          {
+            "id": "P7.A4",
+            "reason": "Values < than median to left node step is listed",
+            "supports": true
+          },
+          {
+            "id": "P7.A5",
+            "reason": "Values > than median to right node step is listed",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "heapifyDown restores heap structure",
+            "supports": true
+          },
+          {
+            "id": "P8.A2",
+            "reason": "heapifyUp restores heap structure",
+            "supports": true
+          },
+          {
+            "id": "P8.A3",
+            "reason": "buildHeap establishes heap structure",
+            "supports": true
+          },
+          {
+            "id": "P8.A4",
+            "reason": "heapify establishes/restores heap structure",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "Height difference is at most 1",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "Empty leaf condition is called underflow",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "Propagation up is called heapifyUp",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "Propagation down is called heapifyDown",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "Order matches the insertion steps on page 23",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "Order matches the remove min steps on page 52",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P15",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P15.A1",
+            "reason": "binary is not a suggested meaning for the B in B-trees",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P16",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P16.A1",
+            "reason": "sibling is not listed as a field in AVLNode",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}

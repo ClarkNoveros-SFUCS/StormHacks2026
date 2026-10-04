@@ -14,7 +14,7 @@ export const KINDS = ["open", "cloze", "definition_to_term", "ordered_recall", "
 export type Kind = (typeof KINDS)[number];
 
 export const MAX_OPEN_ANSWERS = 15;
-const MIN_OPEN_ANSWERS = 4;
+export const MIN_OPEN_ANSWERS = 4;
 const MAX_QUOTE = 200;
 
 // ---------- Response schema (the flat shape Gemini returns) ----------
@@ -302,9 +302,9 @@ export function validateDocument(response: unknown, pages: DocumentPage[]): Docu
  * Check 7: the same Prompt text (normalized) in two places keeps the first. Takes each
  * document's result in document order; returns the kept Prompts tagged with their document.
  */
-export function dedupeAcrossDocuments<D>(docs: { doc: D; prompts: ValidPrompt[] }[]) {
+export function dedupeAcrossDocuments<D, P extends { text: string } = ValidPrompt>(docs: { doc: D; prompts: P[] }[]) {
   const seen = new Set<string>();
-  const kept: { doc: D; prompt: ValidPrompt }[] = [];
+  const kept: { doc: D; prompt: P }[] = [];
   const dropped: Drop[] = [];
   for (const { doc, prompts } of docs) {
     for (const prompt of prompts) {

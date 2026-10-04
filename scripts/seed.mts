@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 // Seeds the demo "Graph Algorithms" Module for one Player: a parsed Source Document
-// (one page per slide) and a ready Game built from db/seed/graph-algorithms.json.
+// (one page per slide), a ready Dive Game built from db/seed/graph-algorithms.json, and a
+// ready Game in every other Mode (Apogee, Leap, Pairs, Blitz, Arena) from
+// db/seed/graph-algorithms-modes.json (Arena reuses the Leap questions), so each Mode can be
+// played without Gemini.
 // Needs Node 22.18+ (runs this .mts file directly with built-in type stripping).
 // Usage: npm run db:seed -- <clerkUserId>     (or SEED_PLAYER_ID=<clerkUserId> npm run db:seed)
 //        npm run db:seed -- --check           validate the fixture only, no database
@@ -14,7 +17,11 @@ import { createHash, randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import postgres from "postgres";
+import { dedupeAcrossDocuments } from "../lib/games/validate.ts";
 import { normalize } from "../lib/matching/normalize.ts";
+import type { GeneratedPrompt } from "../lib/modes/generation.ts";
+import { generatorFor } from "../lib/modes/generators.ts";
+import { MODES, type ModeId } from "../lib/modes/index.ts";
 import { assignOpenTiers, TIERS, type Tier } from "../lib/scoring/tiers.ts";
 
 type Kind = "open" | "cloze" | "definition_to_term" | "ordered_recall" | "odd_one_out";
@@ -55,8 +62,19 @@ const KINDS: Kind[] = ["open", "cloze", "definition_to_term", "ordered_recall", 
 const TYPED: Kind[] = ["open", "cloze", "definition_to_term"];
 const SEED_LOCK_ID = 727_002; // arbitrary; migrate.mjs uses 727_001
 
+// The other Modes' Games: each uses its Mode's Gemini response shape and must pass that
+// Mode's generation checks. `prompts_from` reuses graph-algorithms.json's Prompts (Apogee), or
+// another Mode Game's list in this file by its mode (Arena takes Leap's questions).
+interface ModeGameFixture {
+  mode: ModeId;
+  title: string;
+  prompts?: unknown[];
+  prompts_from?: "graph-algorithms.json" | ModeId;
+}
+
 const root = path.resolve(import.meta.dirname, "..");
 const fixturePath = path.join(root, "db", "seed", "graph-algorithms.json");
+const modesFixturePath = path.join(root, "db", "seed", "graph-algorithms-modes.json");
 
 for (const file of [".env.local", ".env"]) {
   try {
@@ -74,8 +92,16 @@ if (errors.length) {
   console.error(`Fixture ${path.relative(root, fixturePath)} is invalid:\n- ${errors.join("\n- ")}`);
   process.exit(1);
 }
+const modeGames: ModeGameFixture[] = JSON.parse(await readFile(modesFixturePath, "utf8")).games;
+const checkedModeGames = modeGames.map((g) => checkModeGame(g, fixture, modeGames));
+const modeErrors = checkedModeGames.flatMap((g) => g.errors);
+if (modeErrors.length) {
+  console.error(`Fixture ${path.relative(root, modesFixturePath)} is invalid:\n- ${modeErrors.join("\n- ")}`);
+  process.exit(1);
+}
 if (checkOnly) {
   console.log(`Fixture OK: ${fixture.document.pages.length} pages, ${fixture.game.prompts.length} Prompts.`);
+  for (const g of checkedModeGames) console.log(`  ${MODES[g.mode].name}: ${g.prompts.length} Prompts`);
   process.exit(0);
 }
 
@@ -90,6 +116,7 @@ if (!process.env.DATABASE_URL) {
 }
 
 const rows = buildRows(fixture, playerId);
+const modeRows = checkedModeGames.map((g) => buildModeRows(g, rows));
 const sql = postgres(process.env.DATABASE_URL, { max: 1, onnotice: () => {} });
 
 try {
@@ -122,6 +149,22 @@ try {
     await tx`insert into answers ${tx(rows.answers)}`;
     await tx`insert into answer_keys ${tx(rows.keys)}`;
 
+    // One ready Game per other Mode, on the same document
+    for (const g of modeRows) {
+      await tx`insert into games ${tx(g.game)}`;
+      await tx`insert into game_sources (game_id, source_document_id) values (${g.game.id}, ${rows.document.id})`;
+      for (const p of g.prompts) {
+        await tx`
+          insert into prompts (id, game_id, source_document_id, kind, text, tier, hint, explanation,
+                               items, options, evidence_page_id, is_true)
+          values (${p.id}, ${p.game_id}, ${p.source_document_id}, ${p.kind}, ${p.text}, ${p.tier},
+                  ${p.hint}, ${p.explanation}, ${p.items && tx.json(p.items)}, ${p.options && tx.json(p.options)},
+                  ${p.evidence_page_id}, ${p.is_true})`;
+      }
+      await tx`insert into answers ${tx(g.answers)}`;
+      if (g.keys.length) await tx`insert into answer_keys ${tx(g.keys)}`;
+    }
+
     console.log(replaced ? "Replaced the existing demo Module." : "Created the demo Module.");
   });
 
@@ -133,6 +176,9 @@ try {
   console.log(`Game:     ${rows.game.id}  "${fixture.game.title}"`);
   console.log(`Prompts:  ${rows.prompts.length} (${byKind})`);
   console.log(`Answers:  ${rows.answers.length} (${byTier}); answer_keys: ${rows.keys.length}`);
+  for (const g of modeRows) {
+    console.log(`${(MODES[g.game.mode].name + ":").padEnd(9)} ${g.game.id}  "${g.game.title}" (${g.prompts.length} Prompts)`);
+  }
 } catch (err) {
   console.error("\nSeed failed:", (err as Error).message);
   process.exitCode = 1;
@@ -185,6 +231,7 @@ function buildRows(f: Fixture, player: string) {
     module_id: moduleId,
     player_id: player,
     title: f.game.title,
+    mode: "dive",
     status: "ready",
     prompt_count: f.game.prompts.length,
   };
@@ -243,6 +290,83 @@ function buildRows(f: Fixture, player: string) {
     });
   }
   return { moduleId, document, pages, game, prompts, answers, keys };
+}
+
+type CheckedModeGame = { mode: ModeId; title: string; prompts: GeneratedPrompt[]; errors: string[] };
+
+/**
+ * Runs a Mode Game's Prompts through that Mode's own generation checks (lib/modes/<mode>/
+ * generate.ts), exactly as a generated Game would be. Any drop, cleared quote or shortfall is an error.
+ */
+function checkModeGame(g: ModeGameFixture, f: Fixture, all: ModeGameFixture[]): CheckedModeGame {
+  const at = `${g.mode} "${g.title}"`;
+  const generator = generatorFor(g.mode);
+  if (!generator) return { mode: g.mode, title: g.title, prompts: [], errors: [`${at}: unknown or unavailable Mode`] };
+  const raw =
+    g.prompts_from === "graph-algorithms.json"
+      ? f.game.prompts
+      : g.prompts_from
+        ? (all.find((o) => o.mode === g.prompts_from && o.prompts)?.prompts ?? [])
+        : (g.prompts ?? []);
+  const pages = f.document.pages.map((p) => ({ pageNumber: p.page_number, contentMd: p.content_md }));
+  const result = generator.validate({ prompts: raw }, pages);
+  const deduped = dedupeAcrossDocuments([{ doc: null, prompts: result.prompts }]);
+  const final = generator.finalize(deduped.kept);
+  const errors = [...result.dropped, ...deduped.dropped, ...final.dropped].map((d) => `${at}: "${d.prompt}" · ${d.what}: ${d.reason}`);
+  if (result.quotesCleared) errors.push(`${at}: ${result.quotesCleared} evidence quotes aren't verbatim on their page`);
+  const prompts = final.kept.map((k) => k.prompt);
+  if (prompts.length < generator.minPrompts) errors.push(`${at}: ${prompts.length} Prompts, needs ${generator.minPrompts}`);
+  return { mode: g.mode, title: g.title, prompts, errors };
+}
+
+/** Rows for one Mode Game on the demo document (same shape generate-game.ts writes). */
+function buildModeRows(g: CheckedModeGame, base: ReturnType<typeof buildRows>) {
+  const gameId = randomUUID();
+  const pageId = new Map(base.pages.map((p) => [p.page_number, p.id]));
+  const game = {
+    id: gameId,
+    module_id: base.moduleId,
+    player_id: base.document.player_id,
+    title: g.title,
+    mode: g.mode,
+    status: "ready",
+    prompt_count: g.prompts.length,
+  };
+  const prompts = [];
+  const answers: Record<string, string | number | boolean | null>[] = [];
+  const keys: { prompt_id: string; normalized: string; answer_id: string; exact_only: boolean }[] = [];
+  for (const p of g.prompts) {
+    const promptId = randomUUID();
+    prompts.push({
+      id: promptId,
+      game_id: gameId,
+      source_document_id: base.document.id,
+      kind: p.kind,
+      text: p.text,
+      tier: p.tier,
+      hint: p.hint,
+      explanation: p.explanation,
+      items: p.items,
+      options: p.options,
+      evidence_page_id: p.evidencePage === null ? null : pageId.get(p.evidencePage)!,
+      is_true: p.isTrue,
+    });
+    for (const a of p.answers) {
+      const answerId = randomUUID();
+      answers.push({
+        id: answerId,
+        prompt_id: promptId,
+        canonical: a.canonical,
+        tier: a.tier,
+        rarity_rank: a.rarityRank,
+        exact_only: a.exactOnly,
+        evidence_page_id: pageId.get(a.evidencePage)!,
+        evidence_quote: a.evidenceQuote,
+      });
+      for (const normalized of a.keys) keys.push({ prompt_id: promptId, normalized, answer_id: answerId, exact_only: a.exactOnly });
+    }
+  }
+  return { game, prompts, answers, keys };
 }
 
 /** The fixture must pass the same checks a generated Game does (game-generation-pipeline.md). */

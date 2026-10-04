@@ -1,0 +1,373 @@
+{
+  "deck": "cmpt354-sql-basics",
+  "createdAt": "2026-10-04T12:56:45.836Z",
+  "verifyVersion": "28c4606d",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 6.688,
+    "usage": {
+      "inputTokens": 5746,
+      "outputTokens": 2607,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.0082413
+  },
+  "prompts": [
+    "Name a primitive data type supported in SQL",
+    "Name an aggregate function in SQL",
+    "Name an operator or keyword used with subqueries in SQL conditions",
+    "Name a type of join supported in SQL",
+    "Name a set operation keyword in SQL",
+    "Name a basic SQL statement used to query or modify data",
+    "Name a constraint keyword or declaration used in SQL table definitions",
+    "Name a clause keyword used in a SQL query",
+    "In SQL, arithmetic operations involving a NULL value evaluate to ______.",
+    "In SQL, comparisons with NULL evaluate to ______.",
+    "What is the sublanguage of SQL used for declaring database schemas?",
+    "What is the sublanguage of SQL used for querying and modifying databases?",
+    "Put the steps of evaluating a SQL query with HAVING in order.",
+    "Which operation is NOT one of the standard set operations in SQL?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "Listed as an integer primitive data type on page 3",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "Listed as a character string primitive data type on page 3",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "Listed as a character string primitive data type on page 3",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "Listed as a boolean primitive data type on page 3",
+            "supports": true
+          },
+          {
+            "id": "P1.A5",
+            "reason": "Listed as a floating-point primitive data type on page 3",
+            "supports": true
+          },
+          {
+            "id": "P1.A6",
+            "reason": "Listed as a date and time primitive data type on page 3",
+            "supports": true
+          },
+          {
+            "id": "P1.A7",
+            "reason": "Listed as a floating-point primitive data type on page 3",
+            "supports": true
+          },
+          {
+            "id": "P1.A8",
+            "reason": "Listed as a floating-point primitive data type on page 3",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "Listed as an aggregate function on page 73",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "Listed as an aggregate function on page 73",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "Listed as an aggregate function on page 73",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "Listed as an aggregate function on page 73",
+            "supports": true
+          },
+          {
+            "id": "P2.A5",
+            "reason": "Listed as an aggregate function on page 73",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "Listed as a condition involving relations on page 89",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "Listed as a condition involving relations on page 89",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "Listed as a condition involving relations on page 89",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "Listed as a condition involving relations on page 89",
+            "supports": true
+          },
+          {
+            "id": "P3.A5",
+            "reason": "Listed as a condition involving relations on page 89",
+            "supports": true
+          },
+          {
+            "id": "P3.A6",
+            "reason": "Listed as a condition involving relations on page 89",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "Shown as a join type on page 71",
+            "supports": true
+          },
+          {
+            "id": "P4.A2",
+            "reason": "Shown as a join type on page 71",
+            "supports": true
+          },
+          {
+            "id": "P4.A3",
+            "reason": "Shown as a join type on page 71",
+            "supports": true
+          },
+          {
+            "id": "P4.A4",
+            "reason": "Shown as a join type on page 71",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "Listed as a set operation on page 59",
+            "supports": true
+          },
+          {
+            "id": "P5.A2",
+            "reason": "Listed as a set operation on page 59",
+            "supports": true
+          },
+          {
+            "id": "P5.A3",
+            "reason": "Listed as a set operation on page 59",
+            "supports": true
+          },
+          {
+            "id": "P5.A4",
+            "reason": "Mentioned as an implementation of EXCEPT on page 59",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "Described as a basic query statement on page 16",
+            "supports": true
+          },
+          {
+            "id": "P6.A2",
+            "reason": "Described as a statement to insert records on page 11",
+            "supports": true
+          },
+          {
+            "id": "P6.A3",
+            "reason": "Described as a statement to modify records on page 12",
+            "supports": true
+          },
+          {
+            "id": "P6.A4",
+            "reason": "Described as a statement to delete records on page 13",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "Listed as a key declaration on page 8",
+            "supports": true
+          },
+          {
+            "id": "P7.A2",
+            "reason": "Listed as a foreign key declaration on page 41",
+            "supports": true
+          },
+          {
+            "id": "P7.A3",
+            "reason": "Listed as a key declaration on page 8",
+            "supports": true
+          },
+          {
+            "id": "P7.A4",
+            "reason": "Shown as a constraint in table definition on page 31",
+            "supports": true
+          },
+          {
+            "id": "P7.A5",
+            "reason": "Listed as a default keyword on page 7",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "Listed as a query component on page 16",
+            "supports": true
+          },
+          {
+            "id": "P8.A2",
+            "reason": "Listed as a query component on page 16",
+            "supports": true
+          },
+          {
+            "id": "P8.A3",
+            "reason": "Listed as a query component on page 16",
+            "supports": true
+          },
+          {
+            "id": "P8.A4",
+            "reason": "Listed as a grouping clause on page 77",
+            "supports": true
+          },
+          {
+            "id": "P8.A5",
+            "reason": "Listed as a having clause on page 80",
+            "supports": true
+          },
+          {
+            "id": "P8.A6",
+            "reason": "Listed as a sorting clause on page 27",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "Arithmetic operations on nulls return NULL according to page 33",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "Comparisons with nulls evaluate to UNKNOWN according to page 33",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "Defined as the sublanguage for declaring database schemas on page 2",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "Defined as the sublanguage for querying and modifying databases on page 2",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "The items match the order of evaluation given on page 82",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "JOIN is a join operation, whereas UNION, INTERSECT, and EXCEPT are standard set operations listed on page 59",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}

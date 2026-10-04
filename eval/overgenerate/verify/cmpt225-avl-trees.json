@@ -1,0 +1,582 @@
+{
+  "deck": "cmpt225-avl-trees",
+  "createdAt": "2026-10-04T13:25:05.021Z",
+  "verifyVersion": "28c4606d",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 8.224,
+    "usage": {
+      "inputTokens": 8725,
+      "outputTokens": 3613,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.01165
+  },
+  "prompts": [
+    "Name a field in an AVLNode class implementation.",
+    "Name an application scenario for a priority queue.",
+    "Name a public method provided by a min-heap implementation.",
+    "Name a method defined on a priority queue.",
+    "Name a suggested meaning for the letter B in B-tree.",
+    "Name a balanced search tree or heap data structure.",
+    "Name an inventor associated with AVL trees or B-trees.",
+    "Name an internal operation or procedure used in min-heap or heap sort algorithms.",
+    "Name an organization or operating system associated with B-tree history or usage.",
+    "Name a structural role or relative of a node in a binary tree.",
+    "Name a quantitative node property or measurement defined for trees.",
+    "Name an asymptotic time complexity bound associated with heap or tree operations.",
+    "In an AVL tree node v, the balance condition requires that |height(v.leftSubtree) - height(v.rightSubtree)| is less than or equal to ______.",
+    "In a B-tree, when a leaf node contains 3 values after insertion, it is described as ______.",
+    "When deleting a node from a B-tree leaf leaves it empty, this condition is called ______.",
+    "Heaps are complete binary trees where vertices in the last row are added from ______ to right.",
+    "Building a max heap from an array in-place using BuildMaxHeap takes ______ time.",
+    "The operation in a min-heap that restores the heap property by moving an inserted node up toward the root.",
+    "The operation in a min-heap that moves the new root node down to restore the min-heap condition after removing the minimum.",
+    "A balanced search structure where every non-leaf vertex has 2 or 3 children and all leaves are at the same depth.",
+    "A priority queue implementation structured as a complete binary tree satisfying the order property where parent values are smaller than or equal to their children.",
+    "Put the steps for adding an element to an AVL tree in order.",
+    "Put the steps of removing the minimum element from a min-heap in order.",
+    "Put the steps of HeapSort in order.",
+    "Which of the following operations on a min-heap runs in O(1) time instead of O(log(n)) time?",
+    "Which item is an abstract data type interface rather than a specific balanced search tree implementation?",
+    "Which node class field is listed as optional in the AVL tree node implementation?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "Explicitly listed as private T data",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "Explicitly listed as private AVLNode leftChild",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "Explicitly listed as private AVLNode rightChild",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "Explicitly listed as private AVLNode parent",
+            "supports": true
+          },
+          {
+            "id": "P1.A5",
+            "reason": "Explicitly listed as private int height",
+            "supports": true
+          },
+          {
+            "id": "P1.A6",
+            "reason": "Explicitly listed as optional private byte balance",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "Listed as priority queue example",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "Listed as priority queue example",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "Listed as priority queue example",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "Listed as priority queue example",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "Listed as public method",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "Listed as public method",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "Listed as public method",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "Listed as public method",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "Listed as priority queue operation",
+            "supports": true
+          },
+          {
+            "id": "P4.A2",
+            "reason": "Listed as priority queue operation",
+            "supports": true
+          },
+          {
+            "id": "P4.A3",
+            "reason": "Listed as priority queue operation",
+            "supports": true
+          },
+          {
+            "id": "P4.A4",
+            "reason": "Listed as priority queue operation",
+            "supports": true
+          },
+          {
+            "id": "P4.A5",
+            "reason": "Listed as priority queue operation",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "Suggested meaning for B",
+            "supports": true
+          },
+          {
+            "id": "P5.A2",
+            "reason": "Suggested meaning for B",
+            "supports": true
+          },
+          {
+            "id": "P5.A3",
+            "reason": "Suggested meaning for B",
+            "supports": true
+          },
+          {
+            "id": "P5.A4",
+            "reason": "Suggested meaning for B",
+            "supports": true
+          },
+          {
+            "id": "P5.A5",
+            "reason": "Suggested meaning for B",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "Balanced search tree",
+            "supports": true
+          },
+          {
+            "id": "P6.A2",
+            "reason": "Balanced search tree",
+            "supports": true
+          },
+          {
+            "id": "P6.A3",
+            "reason": "Balanced search tree",
+            "supports": true
+          },
+          {
+            "id": "P6.A4",
+            "reason": "Heap data structure",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "Inventor of AVL trees",
+            "supports": true
+          },
+          {
+            "id": "P7.A2",
+            "reason": "Inventor of AVL trees",
+            "supports": true
+          },
+          {
+            "id": "P7.A3",
+            "reason": "Inventor of B-trees",
+            "supports": true
+          },
+          {
+            "id": "P7.A4",
+            "reason": "Inventor of B-trees",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "Internal operation in heap",
+            "supports": true
+          },
+          {
+            "id": "P8.A2",
+            "reason": "Internal operation in heap",
+            "supports": true
+          },
+          {
+            "id": "P8.A3",
+            "reason": "Internal procedure in heap sort",
+            "supports": true
+          },
+          {
+            "id": "P8.A4",
+            "reason": "Internal operation step in heap",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "Associated with B-tree history",
+            "supports": true
+          },
+          {
+            "id": "P9.A2",
+            "reason": "Associated with B-tree usage",
+            "supports": true
+          },
+          {
+            "id": "P9.A3",
+            "reason": "Associated with B-tree usage",
+            "supports": true
+          },
+          {
+            "id": "P9.A4",
+            "reason": "Associated with B-tree usage",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "Structural role in tree",
+            "supports": true
+          },
+          {
+            "id": "P10.A2",
+            "reason": "Structural role in tree",
+            "supports": true
+          },
+          {
+            "id": "P10.A3",
+            "reason": "Relative role in tree node",
+            "supports": true
+          },
+          {
+            "id": "P10.A4",
+            "reason": "Relative role in tree",
+            "supports": true
+          },
+          {
+            "id": "P10.A5",
+            "reason": "Relative role in tree",
+            "supports": true
+          },
+          {
+            "id": "P10.A6",
+            "reason": "Relative role in tree",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "Quantitative node property",
+            "supports": true
+          },
+          {
+            "id": "P11.A2",
+            "reason": "Quantitative node property",
+            "supports": true
+          },
+          {
+            "id": "P11.A3",
+            "reason": "Quantitative node property",
+            "supports": true
+          },
+          {
+            "id": "P11.A4",
+            "reason": "Quantitative node property",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "Time complexity bound",
+            "supports": true
+          },
+          {
+            "id": "P12.A2",
+            "reason": "Time complexity bound",
+            "supports": true
+          },
+          {
+            "id": "P12.A3",
+            "reason": "Time complexity bound",
+            "supports": true
+          },
+          {
+            "id": "P12.A4",
+            "reason": "Time complexity bound",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "Balance condition value is <= 1",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "Described as overfilled",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P15",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P15.A1",
+            "reason": "Condition is called underflow",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P16",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P16.A1",
+            "reason": "Added left to right",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P17",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P17.A1",
+            "reason": "Takes O(n) time",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P18",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P18.A1",
+            "reason": "Operation is heapifyUp",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P19",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P19.A1",
+            "reason": "Operation is heapifyDown",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P20",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P20.A1",
+            "reason": "Matches 2-3 tree properties",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P21",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P21.A1",
+            "reason": "Matches min-heap definition",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P22",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P22.A1",
+            "reason": "Steps match slide 23 insertion algorithm",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P23",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P23.A1",
+            "reason": "Steps match slide 52 remove min algorithm",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P24",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P24.A1",
+            "reason": "Steps match slide 59 and 70 heapsort algorithm",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P25",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P25.A1",
+            "reason": "getMin runs in O(1), others run in O(log n)",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P26",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P26.A1",
+            "reason": "Priority Queue is an ADT interface, others are implementations",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P27",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P27.A1",
+            "reason": "balance is marked optional on slide 17",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}
