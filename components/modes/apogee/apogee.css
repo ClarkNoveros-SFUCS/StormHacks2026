@@ -1,0 +1,211 @@
+/*
+  Apogee's theme (F24). Space: a near-black void, frosted-glass panels, the flame orange as the
+  accent, stencil display type and mono telemetry. Ported from inspo/krillion-space-variant/apogee.html.
+  Scoped to .ap-root so it wins over the placeholder block in app/globals.css.
+*/
+[data-theme="apogee"].ap-root {
+  --bg: #04050c;
+  --bg-2: #070914;
+  --surface: rgba(9, 12, 28, 0.66);
+  --surface-2: #0b0f22;
+  --border: rgba(196, 210, 255, 0.12);
+  --border-strong: rgba(196, 210, 255, 0.28);
+  --text: #ece6d8;
+  --muted: #8b93b3;
+  --faint: #5f6789;
+  --primary: #ff6a2b;
+  --primary-text: #1a0800;
+  --accent: #ff6a2b;
+  --signal: #8fd3ff;
+  --reward: #ffcf4a;
+  --danger: #ff5468;
+  --success: #3ddc97;
+  --band-1: #a9b8d6;
+  --band-2: #4fd6e8;
+  --band-3: #a98bff;
+  --band-4: #ffcf4a;
+  --band-miss: #4a3040;
+  --dive-rim: rgba(196, 210, 255, 0.16);
+  --dive-drop: #05060f;
+  --r: 14px;
+  --f-display: var(--font-apogee-display), "Arial Narrow", Impact, sans-serif;
+  --f-hud: var(--font-apogee-data), ui-monospace, monospace;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.ap-root .ap-glass {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border-radius: 14px;
+}
+.ap-root .ap-eyebrow {
+  font-family: var(--f-hud);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.ap-root .ap-btn {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 14px;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+.ap-root .ap-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+.ap-root .ap-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.ap-root .ap-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.ap-root .ap-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1a0800;
+}
+.ap-root .ap-btn-primary:hover:not(:disabled) {
+  background: #ff8550;
+}
+.ap-root .ap-btn-big {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: 24px;
+  letter-spacing: 0.08em;
+  padding: 12px 28px;
+}
+.ap-root .ap-chip {
+  font-family: var(--f-hud);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  border: 1px solid currentColor;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.ap-root .ap-input {
+  flex: 1;
+  min-width: 0;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text);
+  font: 500 17px var(--f-body);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.ap-root .ap-input:focus {
+  border-color: rgba(255, 106, 43, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 106, 43, 0.16);
+}
+.ap-root :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.ap-root .ap-blank {
+  display: inline-block;
+  min-width: 4.5em;
+  border-bottom: 2px solid var(--accent);
+  margin: 0 2px;
+  transform: translateY(-3px);
+}
+.ap-root .ap-shake {
+  animation: ap-shake 0.38s;
+}
+.ap-root .label-line {
+  font-family: var(--f-hud);
+}
+/* The shared round blocks (OptionGrid, OrderList) were drawn for Dive: glass rows, body type. */
+.ap-root ol[aria-label="Put these in order"] li,
+.ap-root [role="group"][aria-label="Options"] button {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px var(--border) !important;
+}
+.ap-root ol[aria-label="Put these in order"] button,
+.ap-root [role="group"][aria-label="Options"] button {
+  font-family: var(--f-body);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.ap-root ol[aria-label="Put these in order"] { gap: 6px; }
+.ap-root ol[aria-label="Put these in order"] button { min-height: 40px; }
+.ap-root [role="group"][aria-label="Options"] button { min-height: 46px; }
+.ap-root ol[aria-label="Put these in order"] li[style*="--success"],
+.ap-root [role="group"][aria-label="Options"] button[style*="--success"] {
+  box-shadow: inset 0 0 0 2px var(--success), 0 0 18px color-mix(in srgb, var(--success) 35%, transparent) !important;
+}
+.ap-root ol[aria-label="Put these in order"] li[style*="--danger"],
+.ap-root [role="group"][aria-label="Options"] button[style*="--danger"] {
+  box-shadow: inset 0 0 0 2px var(--danger) !important;
+}
+.ap-root ol[aria-label="Put these in order"] li[style*="--signal"] {
+  box-shadow: inset 0 0 0 2px var(--accent), 0 10px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* The shared results blocks were drawn for Dive; soften them into glass here. */
+.ap-root .dv-panel {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: none;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+@keyframes ap-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-9px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(3px); }
+}
+@keyframes ap-tick {
+  0% { opacity: 0; transform: scale(1.5); }
+  20% { opacity: 1; transform: scale(1); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: scale(0.9); }
+}
+@keyframes ap-pop {
+  0% { opacity: 0; transform: translate(-50%, -60%) scale(0.6); }
+  18% { opacity: 1; transform: translate(-50%, -100%) scale(1.08); }
+  70% { opacity: 1; transform: translate(-50%, -120%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -150%) scale(0.96); }
+}
+@keyframes ap-reveal-in {
+  from { opacity: 0; transform: translateY(26px) scale(0.92); letter-spacing: 0.4em; }
+}
+@keyframes ap-console-in {
+  from { opacity: 0; transform: translate(-50%, 130%); }
+}
+@keyframes ap-panel-in {
+  from { transform: translateX(105%); }
+}
+@keyframes ap-sheet-in {
+  from { transform: translateY(105%); }
+}
+@keyframes ap-fade-in {
+  from { opacity: 0; }
+}
+@keyframes ap-toast {
+  0% { opacity: 0; transform: translate(-50%, -12px); }
+  12%, 85% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -12px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ap-root .ap-shake { animation: none; }
+  .ap-root *, .ap-root *::before, .ap-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

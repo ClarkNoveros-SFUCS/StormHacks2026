@@ -26,6 +26,7 @@
   "dependencies": {
     "@clerk/nextjs": "^7.9.10",
     "@google/genai": "^2.27.0",
+    "@types/three": "^0.186.0",
     "jszip": "^3.10.2",
     "mammoth": "^1.13.0",
     "next": "16.3.8",
@@ -33,6 +34,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",
+    "three": "^0.186.1",
     "unpdf": "^1.8.1",
     "zod": "^4.6.5"
   },

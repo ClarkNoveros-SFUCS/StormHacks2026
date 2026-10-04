@@ -2,6 +2,7 @@
 // Spec: docs/architecture/run-and-scoring.md § API. Errors come back as RunApiError with the
 // HTTP status and the server's `{ error }` message.
 import type { GuessBody, GuessResponse, HintResponse, Reveal, RunState } from "./types";
+import type { AnswerBody, AnswerResponse, BlitzAnswerBody, BlitzAnswerResponse, LeapAnswerBody, LeapAnswerResponse, LifelineResponse } from "./types";
 
 export class RunApiError extends Error {
   constructor(
@@ -38,6 +39,12 @@ async function call<T>(path: string, init?: RequestInit, clock?: Clock): Promise
 
 const post = (body?: unknown): RequestInit => ({ method: "POST", body: body === undefined ? undefined : JSON.stringify(body) });
 
+function answerCall(runId: string, body: LeapAnswerBody, clock?: Clock): Promise<LeapAnswerResponse>;
+function answerCall(runId: string, body: BlitzAnswerBody, clock?: Clock): Promise<BlitzAnswerResponse>;
+function answerCall(runId: string, body: AnswerBody, clock?: Clock): Promise<AnswerResponse> {
+  return call<AnswerResponse>(`/api/runs/${runId}/answer`, post(body), clock);
+}
+
 export const runApi = {
   /** POST /api/games/[gameId]/runs → { runId } (abandons your other in-progress Runs). */
   create: (gameId: string) => call<{ runId: string }>(`/api/games/${gameId}/runs`, post()),
@@ -46,6 +53,10 @@ export const runApi = {
   timeout: <S extends RunState = RunState>(runId: string, clock?: Clock) => call<S>(`/api/runs/${runId}/timeout`, post(), clock),
   guess: (runId: string, body: GuessBody, clock?: Clock) => call<GuessResponse>(`/api/runs/${runId}/guess`, post(body), clock),
   hint: (runId: string, clock?: Clock) => call<HintResponse>(`/api/runs/${runId}/hint`, post(), clock),
+  /** Leap `{ optionId }` → LeapAnswerResponse; Blitz `{ value }` → BlitzAnswerResponse. */
+  answer: answerCall,
+  /** Leap's one 50/50 on the current question → { hiddenOptionIds, state }. */
+  lifeline: (runId: string, clock?: Clock, position?: number) => call<LifelineResponse>(`/api/runs/${runId}/lifeline`, post(position === undefined ? undefined : { position }), clock),
   reveal: <R extends Reveal = Reveal>(runId: string) => call<R>(`/api/runs/${runId}/reveal`),
 };
 

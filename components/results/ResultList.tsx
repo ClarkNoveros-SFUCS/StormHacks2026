@@ -1,10 +1,10 @@
 "use client";
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
 import type { Evidence, PromptKind, RevealPrompt } from "@/lib/runs/types";
 import { TIER_POINTS, type Tier } from "@/lib/scoring/tiers";
 import { sfx } from "@/lib/ui/sfx";
-import { PixelIcon } from "@/components/ui/PixelIcon";
-import { promptTier, TIER_ORDER, TIER_UI, type TierKey } from "@/components/modes/dive/tiers";
+import { PixelIcon, type PixelIconName } from "@/components/ui/PixelIcon";
+import { promptTier, TIER_ORDER, TIER_UI as DIVE_TIERS, type TierKey } from "@/components/modes/dive/tiers";
 import { EvidenceLine } from "./EvidenceLine";
 
 const KIND_LABEL: Record<PromptKind, string> = {
@@ -28,8 +28,13 @@ type Props = {
   evidenceHref?: EvidenceHref;
   /** Public Games: "% of players found this" next to each Answer. */
   findRate?: FindRate;
+  /** Tier names, colours and icons (default: Dive's Shallows/Reef/Abyss/Trench; Apogee passes its own). */
+  tiers?: ResultTiers;
   className?: string;
 };
+
+export type ResultTiers = Record<TierKey, { label: string; color: string; hex: string; icon: PixelIconName }>;
+const TiersContext = createContext<ResultTiers>(DIVE_TIERS);
 
 /** "38% found this" with a tiny bar (the Daily crowd). */
 function FoundBy({ pct, className = "" }: { pct: number; className?: string }) {
@@ -44,12 +49,22 @@ function FoundBy({ pct, className = "" }: { pct: number; className?: string }) {
 }
 
 function TierIcon({ tier, size = 16 }: { tier: TierKey; size?: number }) {
+  const TIER_UI = useContext(TiersContext);
   const ui = TIER_UI[tier];
   return <PixelIcon name={ui.icon} size={size} palette={{ c: ui.hex, b: ui.hex, v: ui.hex, y: ui.hex }} title={ui.label} />;
 }
 
 /** THE CATCH: one row per Prompt, expandable. Open Prompts list every Answer with filters and search. */
-export function ResultList({ prompts, title = "THE CATCH · tap a prompt for every answer", evidenceHref, findRate, className = "" }: Props) {
+export function ResultList({ tiers = DIVE_TIERS, ...props }: Props) {
+  return (
+    <TiersContext value={tiers}>
+      <List {...props} />
+    </TiersContext>
+  );
+}
+
+function List({ prompts, title = "THE CATCH · tap a prompt for every answer", evidenceHref, findRate, className = "" }: Props) {
+  const TIER_UI = useContext(TiersContext);
   const [open, setOpen] = useState<number | null>(prompts[0]?.position ?? null);
   return (
     <section className={`w-full ${className}`}>
@@ -114,6 +129,7 @@ function OpenAnswers({
   evidenceHref?: EvidenceHref;
   findRate?: (answer: string) => number | null;
 }) {
+  const TIER_UI = useContext(TiersContext);
   const [filter, setFilter] = useState<Tier | "all">("all");
   const [q, setQ] = useState("");
   const counts = Object.fromEntries(TIER_ORDER.map((t) => [t, answers.filter((a) => a.tier === t).length])) as Record<Tier, number>;
@@ -176,6 +192,7 @@ function OpenAnswers({
 }
 
 function SingleAnswer({ p, evidenceHref, pct = null }: { p: RevealPrompt; evidenceHref?: EvidenceHref; pct?: number | null }) {
+  const TIER_UI = useContext(TiersContext);
   return (
     <div className="flex flex-col gap-2">
       <p className="font-hud text-[19px] text-text">
