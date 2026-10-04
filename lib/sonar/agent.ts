@@ -1,5 +1,6 @@
 import "server-only";
 import { AIMessage, HumanMessage, SystemMessage, type BaseMessage } from "@langchain/core/messages";
+import { ChatAnthropic } from "@langchain/anthropic";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { Annotation, END, MemorySaver, MessagesAnnotation, START, StateGraph } from "@langchain/langgraph";
 import { ToolNode, toolsCondition } from "@langchain/langgraph/prebuilt";
@@ -9,7 +10,7 @@ import { loadSonarModel } from "./queries";
 import { buildTools, scopeFor } from "./tools";
 import type { Action, ChatResponse, PageContext, SonarModel } from "./types";
 
-// Sonar (F32): the coach agent. observe (no LLM: fresh numbers) → coach (Gemini + tools) ⇄ tools → END.
+// Sonar (F32): the coach agent. observe (no LLM: fresh numbers) → coach (Claude Sonnet 5.5, Gemini as fallback; + tools) ⇄ tools → END.
 // Memory: MemorySaver keyed by the Player id, on globalThis so dev reloads keep it. The snapshot
 // is a separate state field, rebuilt every turn and never added to the message history.
 // Spec: docs/architecture/sonar.md § The Sonar agent.
@@ -68,7 +69,30 @@ const store = globalThis as unknown as { sonarMemory?: Store };
 const memory = (store.sonarMemory ??= {});
 const checkpointer = (memory.saver ??= new MemorySaver());
 
-function chatModel(model: string) {
+// The coach model. SONAR_MODEL "anthropic/<model>" goes through the LangSmith LLM Gateway, authenticated with
+// LANGSMITH_API_KEY (the Anthropic key is a Provider Secret in the LangSmith workspace); "claude-…" calls
+// Anthropic directly with ANTHROPIC_API_KEY. Gemini (GEMINI_MODEL, then GEMINI_FALLBACK_MODEL) is the fallback.
+export const DEFAULT_SONAR_MODEL = "anthropic/claude-sonnet-5-5";
+const LANGSMITH_GATEWAY = "https://gateway.smith.langchain.com";
+const isClaude = (model: string) => /^(anthropic\/|claude-)/.test(model);
+
+function claudeModel(model: string) {
+  const viaGateway = model.startsWith("anthropic/");
+  const apiKey = viaGateway ? process.env.LANGSMITH_API_KEY : process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return null;
+  return new ChatAnthropic({
+    model,
+    apiKey,
+    ...(viaGateway ? { anthropicApiUrl: LANGSMITH_GATEWAY } : {}),
+    maxTokens: 2048,
+    maxRetries: 1,
+    // Sonnet 5.5 can't disable thinking; "between_tools" turns it off, so replies are quick and the trimmed
+    // history never replays thinking blocks (Claude rejects those once earlier history changes).
+    invocationKwargs: { thinking: { type: "between_tools" } },
+  });
+}
+
+function geminiModel(model: string) {
   return new ChatGoogleGenerativeAI({
     model,
     apiKey: process.env.GEMINI_API_KEY,
@@ -76,6 +100,15 @@ function chatModel(model: string) {
     maxRetries: 1,
     thinkingConfig: { thinkingBudget: 0 },
   });
+}
+
+/** The models to try in order: Claude (when its key is set), then Gemini. */
+export function coachModels(): (ChatAnthropic | ChatGoogleGenerativeAI)[] {
+  const primary = process.env.SONAR_MODEL || DEFAULT_SONAR_MODEL;
+  const claude = isClaude(primary) ? claudeModel(primary) : null;
+  const gemini = [isClaude(primary) ? undefined : primary, process.env.GEMINI_MODEL, process.env.GEMINI_FALLBACK_MODEL]
+    .filter((m, i, all): m is string => !!m && all.indexOf(m) === i);
+  return [...(claude ? [claude] : []), ...(process.env.GEMINI_API_KEY ? gemini.map(geminiModel) : [])];
 }
 
 /** The last ~16 messages, starting at a Player message so no tool call is cut from its result. */
@@ -94,11 +127,9 @@ export async function runSonar({ playerId, message, context }: { playerId: strin
   const getModel = () => (modelP ??= loadSonarModel(playerId));
   const tools = buildTools(playerId, context, sink, getModel);
 
-  const primary = process.env.SONAR_MODEL || process.env.GEMINI_MODEL;
-  if (!primary || !process.env.GEMINI_API_KEY) throw new SonarModelError("GEMINI_API_KEY and GEMINI_MODEL must be set");
-  const fallbackName = process.env.GEMINI_FALLBACK_MODEL;
-  const bound = chatModel(primary).bindTools(tools);
-  const llm = fallbackName && fallbackName !== primary ? bound.withFallbacks([chatModel(fallbackName).bindTools(tools)]) : bound;
+  const [first, ...rest] = coachModels().map((m) => m.bindTools(tools));
+  if (!first) throw new SonarModelError("Set LANGSMITH_API_KEY (Claude via the LangSmith gateway) or GEMINI_API_KEY and GEMINI_MODEL");
+  const llm = rest.length ? first.withFallbacks(rest) : first;
 
   const observe = async () => {
     const scope = scopeFor(context);
