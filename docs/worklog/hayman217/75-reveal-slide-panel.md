@@ -2,7 +2,7 @@
 
 Status: in-review
 Branch: feat/75-reveal-slide-panel
-Updated: 2026-10-04 10:25
+Updated: 2026-10-04 10:45
 
 ## Goal
 On the Reveal, an Evidence link (`Week2.pdf · p.12`) opens that page in a side panel instead of
@@ -34,7 +34,10 @@ readable formulas), with the raw parsed text one toggle away. Issue #75.
   `lib/gemini/math-notation.ts` MATH_NOTATION_RULE is appended to Dive/Apogee (game-prompt.ts),
   Leap/Arena, Blitz and Pairs instructions: Unicode symbols in questions/options/statements, rebuild
   lost complements/subscripts, no LaTeX, typed answers stay words. Checked on the Week2 deck: Blitz and
-  Leap now write ∪ ∩ ∅ Aᶜ A₁ ≤. Existing Games keep their old text until regenerated.
+  Leap now write ∪ ∩ ∅ Aᶜ A₁ ≤.
+- Old Games: `npm run math:backfill -- --module <id> [--apply]` (scripts/math-symbols-backfill.mts)
+  rewrites only prompts.text/hint/explanation (options and answers untouched: matching uses them).
+  Applied to the user's `test` Module (10 prompts). Note: :3000 is the user's Docker container on main.
 - Verified in the browser (dev server on :3100 with DEV_PLAYER_ID) on the Week2 deck.
 
 ## Next steps
