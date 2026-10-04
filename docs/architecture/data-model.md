@@ -13,6 +13,11 @@ Game   1──N Prompt 1──N Answer 1──N Answer Key
 Player 1──N Run N──1 Game
 Run    1──N Run Prompt N──1 Prompt      (Dive/Apogee 7, Leap 10, Pairs 12, Blitz a deck of up to 120)
 guess_events  (hypertable: every guess ever made, the source for Mastery and Staleness)
+
+Social (F21, ADR-0005):
+Player 1──N xp_events      (hypertable: every XP award)
+Player 1──N player_badges
+Player N──M Player         (friendships: one row per pair, pending or accepted)
 ```
 
 ## Conventions
@@ -253,3 +258,78 @@ CREATE INDEX player_game_daily_lookup ON player_game_daily (player_id, game_id, 
 - **Never refresh it by hand with a NULL end.** `refresh_continuous_aggregate('player_game_daily', NULL, NULL)` materializes today, and guesses made later today stay hidden until tomorrow. End the window at `now() - interval '1 minute'`, like the policy does.
 
 This powers an "accuracy and speed over time" chart on the Game page (F11). It isn't needed for the core loop.
+
+## Social tables (F21, ADR-0005)
+
+Migration: `db/migrations/20261004T1015_social.sql`. Code: `lib/social/`. Behaviour (XP table, Levels, Streak, Badges, Leaderboards, API): [`social.md`](./social.md).
+
+**Privacy changes here.** Everything above stays private to its Player. These tables, the Profile columns on `players`, and `runs` on **public** Games are read across Players by the Profile and Leaderboard queries. Nothing in a Module (names, files, Prompts, private-Game scores) is.
+
+```sql
+-- Profile columns, filled lazily by ensureProfile() (Clerk username/name/email, de-duplicated)
+ALTER TABLE players
+  ADD COLUMN username      text CHECK (username ~ '^[a-z0-9_]{3,20}$'),          -- unique, stored lowercase
+  ADD COLUMN display_name  text CHECK (char_length(display_name) BETWEEN 1 AND 40),
+  ADD COLUMN image_url     text,                                                 -- Clerk photo
+  ADD COLUMN avatar        text NOT NULL DEFAULT 'anglerfish',                   -- pixel avatar id (AVATARS in lib/social/types.ts)
+  ADD COLUMN use_photo     boolean NOT NULL DEFAULT false,                       -- show image_url instead of the avatar
+  ADD COLUMN bio           text CHECK (char_length(bio) <= 160),
+  ADD COLUMN banner        text;                                                 -- optional banner theme id
+CREATE UNIQUE INDEX players_username ON players (username);
+-- plus text_pattern_ops indexes on username and lower(display_name) for prefix search
+
+CREATE TABLE xp_events (                    -- hypertable, 30-day chunks
+  at         timestamptz NOT NULL DEFAULT now(),
+  player_id  text NOT NULL,                 -- no FK: an event log, like guess_events
+  amount     integer NOT NULL CHECK (amount BETWEEN 1 AND 10000),
+  reason     text NOT NULL,                 -- run_finished | topic_passed | topic_read | course_finished | daily_played
+  ref        text NOT NULL                  -- run id, '<course>:<topic n>', course slug, Vancouver day
+);
+CREATE UNIQUE INDEX xp_events_once ON xp_events (player_id, reason, ref, at);
+
+CREATE TABLE player_badges (
+  player_id  text NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+  badge_id   text NOT NULL,                 -- catalogue in lib/social/badges.ts
+  earned_at  timestamptz NOT NULL DEFAULT now(),
+  ref        text,
+  PRIMARY KEY (player_id, badge_id)
+);
+
+CREATE TABLE friendships (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  requester     text NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+  addressee     text NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+  status        text NOT NULL CHECK (status IN ('pending','accepted')),
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  responded_at  timestamptz,                -- set on accept; decline/remove delete the row
+  CHECK (requester <> addressee)
+);
+CREATE UNIQUE INDEX friendships_pair ON friendships (least(requester, addressee), greatest(requester, addressee));
+```
+
+**XP idempotency.** Each event (a Run, a Topic, a Daily day) earns XP once: `(player_id, reason, ref)` identifies it. A hypertable's unique index must include its time column, so that triple can't be a constraint. `awardXp` takes a per-Player advisory transaction lock (`pg_advisory_xact_lock(727002, hashtext(player_id))`) and inserts only if no row with the triple exists; `xp_events_once` (with `at`) is a safety net for callers that pass a deterministic time, such as a Run's `finished_at`.
+
+### Continuous aggregates over `xp_events`
+
+Both are real-time (`materialized_only = false`), created `WITH NO DATA`, and refreshed every 5 minutes up to `now() - 1 minute`. As with `player_game_daily`, never refresh them by hand with a NULL end.
+
+```sql
+-- Heatmap: Vancouver days. Policy window 400 days (covers the 53-week grid).
+CREATE MATERIALIZED VIEW player_activity_daily WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
+SELECT time_bucket('1 day', at, 'America/Vancouver') AS day, player_id,
+       sum(amount)::bigint AS xp, count(*) FILTER (WHERE reason = 'run_finished') AS runs
+FROM xp_events GROUP BY day, player_id WITH NO DATA;
+
+-- Weekly XP leaderboard: Vancouver weeks starting Monday (time_bucket's default origin 2000-01-03 is a Monday). Window 60 days.
+CREATE MATERIALIZED VIEW player_xp_weekly WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
+SELECT time_bucket('7 days', at, 'America/Vancouver') AS week, player_id, sum(amount)::bigint AS xp
+FROM xp_events GROUP BY week, player_id WITH NO DATA;
+```
+
+The heatmap query gap-fills with `time_bucket_gapfill('1 day', day, 'America/Vancouver', lo, hi)` over the aggregate, so days without play come back as 0 (`lib/social/activity.ts`).
+
+**Real-time caveat for tests and backfills:** rows inserted for a day the policy has already materialized stay hidden until the next refresh of that range. Today (and this week) are always computed live. `npm run social:backfill` refreshes both aggregates after inserting past XP; `lib/social/social.db.test.ts` commits its heatmap fixture and refreshes outside a transaction.
+
+### Compression on `guess_events`
+
+`add_compression_policy('guess_events', compress_after => 30 days)`. Compression itself was enabled in the init migration (`segmentby player_id`, `orderby created_at DESC`); this schedules it. TimescaleDB 2.11+ allows INSERT/UPDATE/DELETE on compressed chunks, so the Game delete route and Mastery/Staleness queries are unaffected, and `player_game_daily` only refreshes the last 30 days. Tiger Cloud `stormhacks-dev` runs TimescaleDB 2.30.
