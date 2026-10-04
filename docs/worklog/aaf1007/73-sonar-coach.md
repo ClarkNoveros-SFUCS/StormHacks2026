@@ -24,7 +24,8 @@ A coach agent (LangGraph + Gemini) that reads a deterministic per-concept learne
 ## Decisions & gotchas
 - No migration and no Run-engine change in v0: the model is computed on read from guess_events.
 - Tags are keyed by a hash of the Prompt text so the content-hashed seeded Games don't change.
-- The agent can only recommend one of the plan's top 3 actions (checked in the tool).
+- The agent picks one of the planner's top 3, or its own Game ("Sonar's pick"); its own pick must pass checkPlayable on the server. On Modules it can propose a new Game, which the Player confirms before it's made.
+- The deadline is unknown; I assumed about 2 h left and that deploy (F12) is covered.
 
 ## Files touched
 - docs/architecture/sonar.md, docs/worklog/aaf1007/73-sonar-coach.md, docs/FEATURES.md
