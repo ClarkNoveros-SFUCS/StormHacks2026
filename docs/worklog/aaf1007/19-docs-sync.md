@@ -1,6 +1,6 @@
 # #19 Docs sync: align plan docs with what's built
 
-Status: in-review
+Status: done
 Branch: chore/19-docs-sync
 Updated: 2026-10-03 21:20
 
@@ -18,7 +18,7 @@ Bring the plan docs in line with the code on `main` after F01–F07 and F03 (ADR
 - `npm test` 66/66 (6 files), `npm run test:db` 40/40 (4 files; one run stalled on Tiger Cloud latency, then passed on re-run), `npm run typecheck` and eslint clean.
 
 ## Next steps
-1. User review, then PR with `Closes #19` (set this worklog to `done`).
+None. Anton approved; the PR closes #19.
 
 ## Decisions & gotchas
 - Out of scope, waiting on a team decision: Hint Tier display (RunState has no Tier; hinted `GuessResult.tier` is the original), `exact_only` per key vs per Answer, CONTEXT.md terms (Abandoned Run, Reveal, one-submission rule, kind-name mapping).
