@@ -12,7 +12,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 |---|---|---|---|---|---|
 | F01 | Foundation: auth, DB, migrations | Platform | — | #1 | done |
 | F02 | Seed data: demo Module and Game | Platform | F01 | #2 | done |
-| F03 | Upload pipeline (Snowflake) | Pipelines | F01 | #3 | planned |
+| F03 | Upload pipeline (Node extraction) | Pipelines | F01 | #3 | done |
 | F04 | Game generation (Gemini) | Pipelines | F01 (F02 for test pages) | #4 | planned |
 | F05 | Answer matching | Gameplay | F01 | #5 | done |
 | F06 | Run engine and scoring API | Gameplay | F01, F05 | #6 | done |
@@ -76,18 +76,25 @@ Notes for others:
 - **F03:** the seeded document has `stage_path = NULL` (it never went to Snowflake), so the delete and retry routes must handle that.
 - **postgres.js and jsonb:** pass arrays as `tx.json(arr)`. A pre-stringified value cast with `::jsonb` gets stored as a jsonb string.
 
-## F03 Upload pipeline (Snowflake)
-Spec: `docs/architecture/upload-pipeline.md` · **Setup:** `docs/setup/snowflake.md`
-- [ ] Snowflake account, warehouse, stage, `STUDY_APP` role and key-pair service user created; parse check (step 5) passes in Snowsight
-- [ ] `serverExternalPackages: ['snowflake-sdk']` in `next.config.ts`
-- [ ] Snowflake stage created (SQL in the spec); `lib/snowflake.ts` with `putFile`, `parseStagedFile`, `removeStagedFile`
-- [ ] `POST /api/modules/[moduleId]/documents`: validates type and size, inserts, responds 202, parses in `after()`
-- [ ] `AI_PARSE_DOCUMENT` LAYOUT + page_split → `source_pages`; > 100 pages fails cleanly
-- [ ] Status transitions `uploaded → parsing → parsed | failed`, with a user-facing error
-- [ ] `POST /api/documents/[id]/retry`; `DELETE /api/documents/[id]` returns 409 while a Game uses the file
-- [ ] Tested with a real PDF, a PPTX and a DOCX
+## F03 Upload pipeline (Node extraction)
+Spec: `docs/architecture/upload-pipeline.md` · Decision: `docs/adr/0003-parse-uploads-in-node.md` (Snowflake trial blocks `AI_PARSE_DOCUMENT`)
+- [x] `lib/documents/extract/`: PDF (`unpdf`), PPTX (`jszip`), DOCX (`mammoth`) → one markdown string per page, unit-tested on fixtures
+- [x] `serverExternalPackages: ['unpdf', 'mammoth']` and `proxyClientMaxBodySize: '26mb'` in `next.config.ts`
+- [x] `POST /api/modules/[moduleId]/documents`: validates type and size, inserts, responds 202, parses in `after()`; `GET` lists the Module's files
+- [x] Pages → `source_pages`; > 100 pages and text-less (scanned) files fail cleanly
+- [x] Status transitions `uploaded → parsing → parsed | failed`, with a user-facing error
+- [x] `DELETE /api/documents/[id]` returns 409 while a Game uses the file (no Retry: delete and re-upload)
+- [x] `npm run parse:check -- <file>` parses a local file without the app
+- [ ] Tested with a real PDF, a PPTX and a DOCX (real PDF done: MIT 6.100L lec 1, 57 slides; PPTX/DOCX only on generated fixtures)
 
-Entry points: — · Notes for others: —
+Entry points: `POST`/`GET /api/modules/[moduleId]/documents` (multipart field `file`), `GET`/`DELETE /api/documents/[documentId]`, `lib/documents/extract/index.ts` (`extractPages(bytes, mimeType)`), `lib/documents/parse-document.ts` (`parseDocument`), `lib/documents/parsed-pages.ts` (`validateUpload`, `toParsedPages`, `MAX_PAGES`, `ALLOWED_TYPES`), `npm run parse:check -- <file> [--full]`
+
+Notes for others:
+- **No Snowflake** (ADR-0003): trial accounts block `AI_PARSE_DOCUMENT`. Parsing is local and takes well under a second; no env vars needed. `SNOWFLAKE_*` are gone from `.env.example`.
+- **No Retry route:** the file isn't kept. A `failed` document shows `error` (already user-facing); the Player deletes it and uploads again. `stage_path` is always null.
+- **F04:** `source_pages.content_md` is markdown: `#`/`##` headings, `- ` bullets, ` | ` between PDF table columns, markdown tables for PPTX/DOCX, `Speaker notes:` at the end of PPTX slides. Running headers/footers and slide numbers are stripped from PDFs. Text is NFC-normalized. DOCX "pages" are sections (split at page breaks, else ~3000 chars at headings).
+- **F08:** poll `GET /api/modules/[id]/documents` (or re-render the server component) while any document is `uploaded`/`parsing`. Uploads up to 25 MB work because `next.config.ts` raises `proxyClientMaxBodySize` (proxy.ts truncates at 10 MB otherwise).
+- **Limits:** scanned PDFs (no text layer) fail with a clear message; no `.ppt`/`.doc`; diagram-heavy slides come out jumbled.
 
 ## F04 Game generation (Gemini)
 Spec: `docs/architecture/game-generation-pipeline.md` · **Setup:** `docs/setup/README.md` (Gemini)

@@ -13,7 +13,6 @@
 | Service | Used by | Guide | Env vars |
 |---|---|---|---|
 | Tiger Data (Postgres + TimescaleDB) | everything (F01+) | [`tiger-data.md`](./tiger-data.md) | `DATABASE_URL` |
-| Snowflake (stage + `AI_PARSE_DOCUMENT`) | F03 upload pipeline | [`snowflake.md`](./snowflake.md) | `SNOWFLAKE_*` |
 | Gemini API | F04 game generation | below | `GEMINI_API_KEY`, `GEMINI_MODEL` |
 | Clerk (auth) | F01 | below | `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` |
 

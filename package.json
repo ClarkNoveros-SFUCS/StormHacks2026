@@ -14,15 +14,19 @@
     "db:seed": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/seed.mts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --exclude \"**/*.db.test.ts\"",
-    "test:db": "vitest run db.test"
+    "test:db": "vitest run db.test",
+    "parse:check": "node scripts/parse-check.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.10",
+    "jszip": "^3.10.2",
+    "mammoth": "^1.13.0",
     "next": "16.3.8",
     "postgres": "^3.4.9",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "unpdf": "^1.8.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
