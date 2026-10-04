@@ -18,6 +18,7 @@ import { ResultHeader } from "@/components/results/ResultHeader";
 import { revealTopic, TopicPassBanner } from "@/components/results/TopicPassBanner";
 import { ArenaStage, type ArenaStageHandle } from "./ArenaStage";
 import "./arena.css";
+import { revealLinks } from "../shared/reveal-links";
 
 type Props = {
   reveal: ArenaReveal;
@@ -68,7 +69,8 @@ export function ArenaRevealScreen({ reveal, context, history }: Props) {
     return () => clearTimeout(id);
   }, [progress]);
 
-  const evidenceHref = (e: NonNullable<Evidence>) => `/modules/${context.moduleId}?doc=${e.documentId}&page=${e.pageNumber}`;
+  const links = revealLinks(reveal, context);
+  const evidenceHref = links.evidenceHref;
 
   const again = async () => {
     if (pending) return;
@@ -117,8 +119,8 @@ export function ArenaRevealScreen({ reveal, context, history }: Props) {
             <button type="button" onClick={again} disabled={pending} className="ar-btn ar-btn-primary px-7 py-3 text-[22px]" style={{ animation: pending ? undefined : "btn-bob 2.4s ease-in-out infinite" }}>
               {pending ? "…" : "✛ PLAY AGAIN"}
             </button>
-            <button type="button" onClick={() => router.push(`/games/${context.gameId}`)} className="ar-btn text-[16px]">
-              Back to Game
+            <button type="button" onClick={() => router.push(links.backHref)} className="ar-btn text-[16px]">
+              {links.backLabel}
             </button>
             {error && <p className="w-full text-[14px] text-danger">{error}</p>}
           </div>
