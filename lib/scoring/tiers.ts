@@ -1,15 +1,17 @@
-// Tier table and Open Prompt tier assignment. Pure, shared by game generation, the seed
-// and scoring. Spec: docs/architecture/game-generation-pipeline.md § Tier assignment.
-
+// Tier table, shared by scoring (F06) and Game generation (F04). See CONTEXT.md § Scoring.
 export const TIERS = ["common", "solid", "deep", "rare"] as const;
 export type Tier = (typeof TIERS)[number];
 
 export const TIER_POINTS: Record<Tier, number> = { common: 10, solid: 25, deep: 60, rare: 100 };
 
+// One Tier down, for a used Hint. A hinted common Prompt has no Tier below; it scores HINTED_COMMON_POINTS.
+export const TIER_BELOW: Record<Tier, Tier | null> = { rare: "deep", deep: "solid", solid: "common", common: null };
+export const HINTED_COMMON_POINTS = 5;
+
 /**
  * Tiers for an Open Prompt's Answers, ordered from most obvious to most obscure.
  * Index i is the Answer with rarity_rank i + 1. The last Answer is always the only rare one,
- * and there's always at least one common.
+ * and there's always at least one common. Spec: game-generation-pipeline.md § Tier assignment.
  */
 export function assignOpenTiers(n: number): Tier[] {
   if (!Number.isInteger(n) || n < 4 || n > 15) throw new Error(`An Open Prompt needs 4-15 Answers, got ${n}`);
