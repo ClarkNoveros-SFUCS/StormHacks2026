@@ -11,7 +11,7 @@ Server-only read functions in `lib/progress.ts` for Personal Best, Mastery, per-
 - Claimed #7, branch `feat/7-progress`
 - Plan agreed with Anton: build the core first, then the continuous aggregate
 - Contract posted on #7 (cc #6, #8, #11); Vitest heads-up posted on #5 and #6
-- Vitest 4 (`npm test` = `vitest run`, `vitest.config.ts`). Vitest 5 would have forced an `@types/node` bump to ≥22
+- Vitest 4 (`npm test` = `vitest run`, `vitest.config.mts`). Vitest 5 would have forced an `@types/node` bump to ≥22
 - `lib/progress.ts`: `personalBest`, `mastery`, `masteryByTier`, `recentRuns`, `progressForGames`, `runProgress` + types
 - `lib/progress.test.ts`: 11 integration tests, all passing on local TimescaleDB (container `stormhacks-test-db`, port 5499). Skipped without `TEST_DATABASE_URL`
 - Caught and fixed: the found count didn't check Game ownership (another Player got "1 of 0")
@@ -41,7 +41,7 @@ Server-only read functions in `lib/progress.ts` for Personal Best, Mastery, per-
 - `runProgress` returns null unless the Run is `finished`.
 - The total-answers count joins `games` on `player_id`, so another Player's `gameId` returns 0/0.
 - F06 owns `GET /api/runs/[runId]/reveal`. If F06 merges first, F07's PR adds `progress: RunProgress` to the route and `lib/runs/types.ts`; otherwise F06 calls `runProgress`.
-- Vitest was chosen as the team's test runner (Anton, 2026-10-03). `server-only` is aliased to its `empty.js` in `vitest.config.ts`.
+- Vitest was chosen as the team's test runner (Anton, 2026-10-03). `server-only` is aliased to its `empty.js` in `vitest.config.mts`.
 - Mastery `pct` rounds down (spec SQL used `round`), so 100% means every Answer was found.
 - `Tier` is defined in `lib/progress.ts` for now. Once F04/F06 add `lib/scoring/tiers.ts`, import it from there instead.
 - Invalid uuid strings make Postgres throw `22P02`. Callers should load or validate the Game/Run first.
@@ -52,6 +52,6 @@ Server-only read functions in `lib/progress.ts` for Personal Best, Mastery, per-
 ## Files touched
 - db/migrations/20261004T0316_player_game_daily.sql, docs/architecture/data-model.md
 - lib/progress.ts, lib/progress.test.ts
-- vitest.config.ts, package.json, package-lock.json (vitest, `npm test`)
+- vitest.config.mts, package.json, package-lock.json (vitest, `npm test`)
 - .env.example (`TEST_DATABASE_URL` note)
 - docs/worklog/aaf1007/7-progress.md
