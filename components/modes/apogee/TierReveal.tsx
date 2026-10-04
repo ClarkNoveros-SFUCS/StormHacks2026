@@ -55,10 +55,10 @@ export function TierReveal({ tier, answer, points, altitude, tags, onContinue, a
 
   const hex = ui.hex;
   return (
-    <div className="flex h-full w-full flex-col items-center justify-between px-4 pt-[14vh] pb-8 text-center" role="dialog" aria-label={`${ui.label}: ${answer}, plus ${points} kilometres`}>
+    <div className="flex h-full w-full flex-col items-center justify-between px-4 pt-[16vh] pb-8 text-center" role="dialog" aria-label={`${ui.label}: ${answer}, plus ${points} kilometres`}>
       <div className="flex flex-col items-center">
         <div className="relative mb-3" style={{ filter: `drop-shadow(0 0 14px ${hex}) drop-shadow(0 0 30px ${hex}88)`, animation: "ap-reveal-in .5s var(--ease-snap) both, bob 3s ease-in-out .5s infinite" }}>
-          <PixelIcon name={ui.icon} size={72} palette={{ c: hex, b: hex, v: hex, y: hex, Y: hex, B: hex, w: "#fff" }} title={ui.label} />
+          <PixelIcon name={ui.icon} size={72} palette={{ c: hex, b: hex, v: hex, y: hex, Y: hex, B: hex, r: hex, w: "#fff" }} title={ui.label} />
         </div>
         <p className="ap-eyebrow" style={{ animation: "ap-fade-in .4s .15s both" }}>
           tier reached
@@ -74,7 +74,7 @@ export function TierReveal({ tier, answer, points, altitude, tags, onContinue, a
           <span className="mx-3 text-muted">·</span>
           <span className="text-text">{altitude.toLocaleString("en-US")} km up</span>
         </p>
-        <p className="mt-2 text-[15px] text-muted" style={{ animation: "ap-fade-in .4s .55s both" }}>
+        <p className="mt-2 text-[15px] text-[#cfd3e6]" style={{ animation: "ap-fade-in .4s .55s both" }}>
           {ui.verdict}
         </p>
         {(tags?.hint || tags?.stale) && (

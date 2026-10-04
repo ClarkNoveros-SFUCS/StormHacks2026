@@ -119,9 +119,8 @@ export function AltitudeRuler({ live, best, onScrub, scrubStart = 0, className =
             style={{ bottom: `${rulerPct(l.pts)}%` }}
           >
             {l.major && (
-              <span className="hidden text-right font-hud text-[10px] leading-[1.15] whitespace-nowrap text-muted md:block" style={{ textShadow: "0 1px 6px rgba(4,5,12,.7)" }}>
-                <em className="ap-tick-name block font-sans text-[11px] font-semibold not-italic">{l.name}</em>
-                {l.pts.toLocaleString("en-US")} km
+              <span className="hidden text-right font-hud text-[10px] leading-none whitespace-nowrap text-muted md:block" style={{ textShadow: "0 1px 6px rgba(4,5,12,.7)" }}>
+                <em className="ap-tick-name font-sans text-[11px] font-semibold not-italic">{l.name}</em> {l.pts.toLocaleString("en-US")}
               </span>
             )}
             <i className="ap-tick-line block h-px w-[9px] flex-none" />

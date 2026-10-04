@@ -29,7 +29,7 @@ export function MissionLogChart({ prompts, className = "" }: Props) {
               <div key={i} className="absolute bottom-0 -translate-x-1/2" style={{ left, height: `${(h / MAX) * 100}%` }}>
                 <div className="mx-auto h-full w-[3px] origin-bottom rounded-t" style={{ background: `linear-gradient(to top, ${ui.hex}33, ${ui.hex})`, boxShadow: `0 0 10px ${ui.hex}66`, animation: `ml-rise .9s var(--ease-out) ${i * 90}ms both` }} />
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ filter: `drop-shadow(0 0 6px ${ui.hex})`, animation: `ap-fade-in .5s ${300 + i * 90}ms both` }}>
-                  <PixelIcon name={ui.icon} size={p.tier === "miss" ? 12 : 18} palette={{ c: ui.hex, b: ui.hex, v: ui.hex, y: ui.hex, Y: ui.hex, B: ui.hex }} title={ui.label} />
+                  <PixelIcon name={ui.icon} size={p.tier === "miss" ? 12 : 18} palette={{ c: ui.hex, b: ui.hex, v: ui.hex, y: ui.hex, Y: ui.hex, B: ui.hex, r: ui.hex }} title={ui.label} />
                 </div>
               </div>
             );

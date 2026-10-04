@@ -24,8 +24,8 @@ export type ApogeeTierUi = {
 };
 
 export const APOGEE_TIERS: Record<TierKey, ApogeeTierUi> = {
-  common: { label: "Troposphere", band: 1, color: "var(--band-1)", hex: "#a9b8d6", icon: "bubble", points: TIER_POINTS.common, verdict: "Off the pad. Every answer is fuel.", burn: 0.5 },
-  solid: { label: "Orbit", band: 2, color: "var(--band-2)", hex: "#4fd6e8", icon: "target", points: TIER_POINTS.solid, verdict: "Stable orbit. You know this stuff.", burn: 0.8 },
+  common: { label: "Troposphere", band: 1, color: "var(--band-1)", hex: "#a9b8d6", icon: "bolt", points: TIER_POINTS.common, verdict: "Off the pad. Every answer is fuel.", burn: 0.5 },
+  solid: { label: "Orbit", band: 2, color: "var(--band-2)", hex: "#4fd6e8", icon: "bubble", points: TIER_POINTS.solid, verdict: "Stable orbit. You know this stuff.", burn: 0.8 },
   deep: { label: "Lunar", band: 3, color: "var(--band-3)", hex: "#a98bff", icon: "star", points: TIER_POINTS.deep, verdict: "Lunar burn. Genuinely uncommon.", burn: 1.2 },
   rare: { label: "Deep Space", band: 4, color: "var(--band-4)", hex: "#ffcf4a", icon: "sparkle", points: TIER_POINTS.rare, verdict: "Escape velocity. Straight from the footnotes.", burn: 2 },
   miss: { label: "Miss", band: 0, color: "var(--band-miss)", hex: "#ff5468", icon: "cross", points: 0, verdict: "Lost signal.", burn: 0 },
@@ -100,14 +100,16 @@ export function zoneText(points: number): string {
   return `Past ${LANDMARKS[i].the}`;
 }
 
-/** Where `points` sits on the ruler, 0–100 (%), eased so the lower atmosphere gets room. */
+const RULER_EASE = 0.8;
+
+/** Where `points` sits on the ruler, 0–100 (%), eased a little so the atmosphere gets room. */
 export function rulerPct(points: number): number {
-  return Math.pow(Math.min(1, Math.max(0, points / MAX_POINTS)), 0.6) * 100;
+  return Math.pow(Math.min(1, Math.max(0, points / MAX_POINTS)), RULER_EASE) * 100;
 }
 
 /** Inverse of rulerPct. */
 export function pointsAtRulerPct(pct: number): number {
-  return Math.pow(Math.min(1, Math.max(0, pct / 100)), 1 / 0.6) * MAX_POINTS;
+  return Math.pow(Math.min(1, Math.max(0, pct / 100)), 1 / RULER_EASE) * MAX_POINTS;
 }
 
 export type MissionBand = { min: number; max: number; range: string; tier: Tier; label: string; verdict: string };

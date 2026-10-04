@@ -546,7 +546,7 @@ export function ApogeeRunScreen({ initial, context }: Props) {
               <span ref={altRef}>{initial.score}</span>
               <small className="ml-1 text-[16px] text-muted sm:text-[18px]">km</small>
             </div>
-            <span ref={zoneRef} className="block text-[11px] text-muted sm:text-[12px]">
+            <span ref={zoneRef} className="hidden text-[12px] whitespace-nowrap text-muted sm:block">
               {zoneText(initial.score)}
             </span>
             <span className="block font-hud text-[12px] text-accent sm:text-[13px]" aria-live="polite">
@@ -775,7 +775,7 @@ export function ApogeeRunScreen({ initial, context }: Props) {
 
       {/* tier reveal */}
       {phase === "tier" && burn && (
-        <div className="absolute inset-0 z-30" style={{ background: "radial-gradient(60% 55% at 50% 42%, rgba(4,5,12,.72), rgba(4,5,12,.25) 70%, transparent)", animation: "ap-fade-in .35s both" }}>
+        <div className="absolute inset-0 z-30" style={{ background: "radial-gradient(70% 60% at 50% 45%, rgba(4,5,12,.86), rgba(4,5,12,.55) 70%, rgba(4,5,12,.35))", animation: "ap-fade-in .35s both" }}>
           <TierReveal key={burn.key} tier={burn.tier} answer={burn.text} points={burn.points} altitude={burn.altitude} tags={{ hint: burn.hinted, stale: burn.stale }} onContinue={advance} cta={position >= total ? "MISSION REPORT" : "CONTINUE"} />
         </div>
       )}

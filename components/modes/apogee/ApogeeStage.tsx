@@ -68,7 +68,10 @@ export const ApogeeStage = forwardRef<ApogeeStageHandle, Props>(function ApogeeS
         scene.place(initial.current.initialPoints, initial.current.lifted);
         sceneRef.current = scene;
         for (const fn of queue.current.splice(0)) fn(scene);
+        // Draw one frame now so a background tab still shows the world, then pause until visible.
+        scene.step();
         if (document.hidden) scene.setPaused(true);
+        if (process.env.NODE_ENV === "development") (window as unknown as { __apogee?: ApogeeScene }).__apogee = scene;
         setReady(true);
       })
       .catch(() => setFailed(true));

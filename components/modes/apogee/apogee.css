@@ -124,6 +124,35 @@
 .ap-root .label-line {
   font-family: var(--f-hud);
 }
+/* The shared round blocks (OptionGrid, OrderList) were drawn for Dive: glass rows, body type. */
+.ap-root ol[aria-label="Put these in order"] li,
+.ap-root [role="group"][aria-label="Options"] button {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px var(--border) !important;
+}
+.ap-root ol[aria-label="Put these in order"] button,
+.ap-root [role="group"][aria-label="Options"] button {
+  font-family: var(--f-body);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.ap-root ol[aria-label="Put these in order"] { gap: 6px; }
+.ap-root ol[aria-label="Put these in order"] button { min-height: 40px; }
+.ap-root [role="group"][aria-label="Options"] button { min-height: 46px; }
+.ap-root ol[aria-label="Put these in order"] li[style*="--success"],
+.ap-root [role="group"][aria-label="Options"] button[style*="--success"] {
+  box-shadow: inset 0 0 0 2px var(--success), 0 0 18px color-mix(in srgb, var(--success) 35%, transparent) !important;
+}
+.ap-root ol[aria-label="Put these in order"] li[style*="--danger"],
+.ap-root [role="group"][aria-label="Options"] button[style*="--danger"] {
+  box-shadow: inset 0 0 0 2px var(--danger) !important;
+}
+.ap-root ol[aria-label="Put these in order"] li[style*="--signal"] {
+  box-shadow: inset 0 0 0 2px var(--accent), 0 10px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
 /* The shared results blocks were drawn for Dive; soften them into glass here. */
 .ap-root .dv-panel {
   background: rgba(255, 255, 255, 0.04);

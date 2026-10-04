@@ -1166,6 +1166,16 @@ export class ApogeeScene {
   private frame = (now: number) => {
     if (this.disposed || this.paused) return;
     this.raf = requestAnimationFrame(this.frame);
+    this.tick(now);
+  };
+
+  /** Advance one frame by hand (dev tools and tests drive a background tab with it). */
+  step(ms = 16) {
+    if (this.disposed) return;
+    this.tick(this.last + ms);
+  }
+
+  private tick(now: number) {
     const dt = Math.min((now - this.last) / 1000, 0.05);
     this.last = now;
     this.t += dt;
@@ -1286,7 +1296,7 @@ export class ApogeeScene {
     if (camAlt < 1.2) cam.position.add(this.tmpV2.copy(cam.position).sub(center).normalize().multiplyScalar(1.2 - camAlt));
     const onPad = f.mode === "pad" || f.mode === "countdown";
     // Look a little below the rocket so it rides above the console (and above the phone sheet on the Reveal).
-    const lift = onPad ? 1 : rig.reveal ? (rig.wide ? 0 : -R * 0.32) : -R * (rig.wide ? 0.1 : 0.2);
+    const lift = onPad ? 1 : rig.reveal ? (rig.wide ? 0 : -R * 0.32) : -R * (rig.wide ? 0.17 : 0.26);
     cam.lookAt(tx, ty + lift, tz);
     const fo = !rig.wide ? 0 : rig.reveal ? 8 : 0;
     if (Math.abs(cam.filmOffset - fo) > 0.01) {
@@ -1414,5 +1424,5 @@ export class ApogeeScene {
     }
 
     this.composer.render(dt);
-  };
+  }
 }
