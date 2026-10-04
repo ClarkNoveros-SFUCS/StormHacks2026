@@ -14,7 +14,7 @@ export const KINDS = ["open", "cloze", "definition_to_term", "ordered_recall", "
 export type Kind = (typeof KINDS)[number];
 
 export const MAX_OPEN_ANSWERS = 15;
-const MIN_OPEN_ANSWERS = 4;
+export const MIN_OPEN_ANSWERS = 4;
 const MAX_QUOTE = 200;
 
 // ---------- Response schema (the flat shape Gemini returns) ----------

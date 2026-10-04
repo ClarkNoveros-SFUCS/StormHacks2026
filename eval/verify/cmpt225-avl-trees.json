@@ -1,0 +1,348 @@
+{
+  "deck": "cmpt225-avl-trees",
+  "createdAt": "2026-10-04T12:48:50.722Z",
+  "verifyVersion": "f8bbc1ed",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 7.274,
+    "usage": {
+      "inputTokens": 5204,
+      "outputTokens": 2249,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.0071836999999999995
+  },
+  "prompts": [
+    "Name a tree data structure covered in balanced search trees or heaps",
+    "Name a field stored in an AVL node class implementation",
+    "Name a public method of a min-heap",
+    "Name an operation supported by a priority queue",
+    "Name a suggested origin or meaning for the B in B-trees",
+    "Name a real-world application or use case of a priority queue",
+    "Name a computer scientist associated with inventing tree structures like B-trees or AVL trees",
+    "Name a heap operation or algorithm used for organizing or sorting data",
+    "In an AVL tree, the absolute difference between the heights of a node's left and right subtrees is at most ______.",
+    "The propagation procedure that pushes an inserted element up to restore the heap condition is called ______.",
+    "In a B-tree, when a leaf becomes empty after a deletion, this condition is known as ______.",
+    "A binary search tree where the height difference between the left and right subtrees of every vertex is at most 1.",
+    "Put the steps of removing the minimum element from a min-heap in order.",
+    "Which structure serves as a priority queue implementation rather than a search tree structure?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "Page 6 defines AVL tree as a balanced tree",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "Page 4 is titled Balanced Binary Search Trees",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "Page 36 covers B-trees",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "Page 34 covers 2-3 trees",
+            "supports": true
+          },
+          {
+            "id": "P1.A5",
+            "reason": "Page 48 states min-heap is a heap implementation",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "Page 17 lists data field",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "Page 17 lists height field",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "Page 17 lists leftChild field",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "Page 17 lists rightChild field",
+            "supports": true
+          },
+          {
+            "id": "P2.A5",
+            "reason": "Page 17 lists parent field",
+            "supports": true
+          },
+          {
+            "id": "P2.A6",
+            "reason": "Page 17 lists balance as optional field",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "Page 48 lists getMin",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "Page 48 lists addElement",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "Page 48 lists removeMin",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "Page 48 lists getSize",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "Page 46 lists add item",
+            "supports": true
+          },
+          {
+            "id": "P4.A2",
+            "reason": "Page 46 lists getTop",
+            "supports": true
+          },
+          {
+            "id": "P4.A3",
+            "reason": "Page 46 lists removeTop",
+            "supports": true
+          },
+          {
+            "id": "P4.A4",
+            "reason": "Page 46 lists getSize",
+            "supports": true
+          },
+          {
+            "id": "P4.A5",
+            "reason": "Page 46 lists isEmpty",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "Page 37 lists balanced",
+            "supports": true
+          },
+          {
+            "id": "P5.A2",
+            "reason": "Page 37 lists Boeing",
+            "supports": true
+          },
+          {
+            "id": "P5.A3",
+            "reason": "Page 37 lists broad",
+            "supports": true
+          },
+          {
+            "id": "P5.A4",
+            "reason": "Page 37 lists bushy",
+            "supports": true
+          },
+          {
+            "id": "P5.A5",
+            "reason": "Page 37 lists Bayer",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "Page 45 lists Printer's queue",
+            "supports": true
+          },
+          {
+            "id": "P6.A2",
+            "reason": "Page 45 lists Job scheduling in CPU",
+            "supports": true
+          },
+          {
+            "id": "P6.A3",
+            "reason": "Page 45 lists Line for customer services",
+            "supports": true
+          },
+          {
+            "id": "P6.A4",
+            "reason": "Page 45 lists Order book in the stock market",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "Page 37 lists Bayer as inventor",
+            "supports": true
+          },
+          {
+            "id": "P7.A2",
+            "reason": "Page 37 lists McCreight as inventor",
+            "supports": true
+          },
+          {
+            "id": "P7.A3",
+            "reason": "Page 6 lists Adelson-Velsky as inventor",
+            "supports": true
+          },
+          {
+            "id": "P7.A4",
+            "reason": "Page 6 lists Landis as inventor",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "Page 59 covers HeapSort",
+            "supports": true
+          },
+          {
+            "id": "P8.A2",
+            "reason": "Page 59 covers buildMaxHeap",
+            "supports": true
+          },
+          {
+            "id": "P8.A3",
+            "reason": "Page 52 covers heapifyDown",
+            "supports": true
+          },
+          {
+            "id": "P8.A4",
+            "reason": "Page 51 covers heapifyUp",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "Page 6 gives height difference as <= 1",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "Page 51 names it heapifyUp",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "Page 40 names it underflow",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "Page 6 defines AVL tree properties",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "Page 52 steps match remove min process",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "Page 48 states min-heap is priority queue implementation",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}

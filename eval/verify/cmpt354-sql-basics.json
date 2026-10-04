@@ -1,0 +1,373 @@
+{
+  "deck": "cmpt354-sql-basics",
+  "createdAt": "2026-10-04T12:48:43.392Z",
+  "verifyVersion": "f8bbc1ed",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 5.736,
+    "usage": {
+      "inputTokens": 5713,
+      "outputTokens": 2427,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.0077814
+  },
+  "prompts": [
+    "Name a primitive data type supported in SQL",
+    "Name an aggregate function in SQL",
+    "Name an operator or keyword used with subqueries in SQL conditions",
+    "Name a type of join supported in SQL",
+    "Name a set operation keyword in SQL",
+    "Name a basic SQL statement used to query or modify data",
+    "Name a constraint keyword or declaration used in SQL table definitions",
+    "Name a clause keyword used in a SQL query",
+    "In SQL, arithmetic operations involving a NULL value evaluate to ______.",
+    "In SQL, comparisons with NULL evaluate to ______.",
+    "What is the sublanguage of SQL used for declaring database schemas?",
+    "What is the sublanguage of SQL used for querying and modifying databases?",
+    "Put the steps of evaluating a SQL query with HAVING in order.",
+    "Which operation is NOT one of the standard set operations in SQL?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "INTEGER is listed as a primitive data type",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "VARCHAR is listed as a primitive data type",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "CHAR is listed as a primitive data type",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "BOOLEAN is listed as a primitive data type",
+            "supports": true
+          },
+          {
+            "id": "P1.A5",
+            "reason": "FLOAT is listed as a primitive data type",
+            "supports": true
+          },
+          {
+            "id": "P1.A6",
+            "reason": "DATE is listed as a primitive data type",
+            "supports": true
+          },
+          {
+            "id": "P1.A7",
+            "reason": "REAL is listed as a primitive data type",
+            "supports": true
+          },
+          {
+            "id": "P1.A8",
+            "reason": "NUMERIC is listed as a primitive data type",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "COUNT is listed as an aggregate function",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "SUM is listed as an aggregate function",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "AVG is listed as an aggregate function",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "MAX is listed as an aggregate function",
+            "supports": true
+          },
+          {
+            "id": "P2.A5",
+            "reason": "MIN is listed as an aggregate function",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "IN is used with subqueries in conditions",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "EXISTS is used with subqueries in conditions",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "NOT IN is used with subqueries in conditions",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "NOT EXISTS is used with subqueries in conditions",
+            "supports": true
+          },
+          {
+            "id": "P3.A5",
+            "reason": "ANY is used with subqueries in conditions",
+            "supports": true
+          },
+          {
+            "id": "P3.A6",
+            "reason": "ALL is used with subqueries in conditions",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "INNER JOIN is a supported join type",
+            "supports": true
+          },
+          {
+            "id": "P4.A2",
+            "reason": "LEFT OUTER JOIN is a supported join type",
+            "supports": true
+          },
+          {
+            "id": "P4.A3",
+            "reason": "RIGHT OUTER JOIN is a supported join type",
+            "supports": true
+          },
+          {
+            "id": "P4.A4",
+            "reason": "FULL OUTER JOIN is a supported join type",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "UNION is a set operation keyword",
+            "supports": true
+          },
+          {
+            "id": "P5.A2",
+            "reason": "INTERSECT is a set operation keyword",
+            "supports": true
+          },
+          {
+            "id": "P5.A3",
+            "reason": "EXCEPT is a set operation keyword",
+            "supports": true
+          },
+          {
+            "id": "P5.A4",
+            "reason": "MINUS is an implementation of a set operation",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "SELECT is a basic SQL statement",
+            "supports": true
+          },
+          {
+            "id": "P6.A2",
+            "reason": "INSERT is a basic SQL statement",
+            "supports": true
+          },
+          {
+            "id": "P6.A3",
+            "reason": "UPDATE is a basic SQL statement",
+            "supports": true
+          },
+          {
+            "id": "P6.A4",
+            "reason": "DELETE is a basic SQL statement",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "PRIMARY KEY is a constraint declaration",
+            "supports": true
+          },
+          {
+            "id": "P7.A2",
+            "reason": "FOREIGN KEY is a constraint declaration",
+            "supports": true
+          },
+          {
+            "id": "P7.A3",
+            "reason": "UNIQUE is a constraint declaration",
+            "supports": true
+          },
+          {
+            "id": "P7.A4",
+            "reason": "NOT NULL is a constraint declaration",
+            "supports": true
+          },
+          {
+            "id": "P7.A5",
+            "reason": "DEFAULT is a constraint/default value declaration",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "SELECT is a clause keyword",
+            "supports": true
+          },
+          {
+            "id": "P8.A2",
+            "reason": "FROM is a clause keyword",
+            "supports": true
+          },
+          {
+            "id": "P8.A3",
+            "reason": "WHERE is a clause keyword",
+            "supports": true
+          },
+          {
+            "id": "P8.A4",
+            "reason": "GROUP BY is a clause keyword",
+            "supports": true
+          },
+          {
+            "id": "P8.A5",
+            "reason": "HAVING is a clause keyword",
+            "supports": true
+          },
+          {
+            "id": "P8.A6",
+            "reason": "ORDER BY is a clause keyword",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "Arithmetic operations on nulls return NULL",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "Comparisons with nulls evaluate to UNKNOWN",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "Data Definition Language is defined as the sublanguage for declaring database schemas",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "Data Manipulation Language is defined as the sublanguage for querying and modifying databases",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "The page correctly lists the evaluation order for queries with HAVING",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "JOIN is not a set operation like UNION, INTERSECT, or EXCEPT",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}

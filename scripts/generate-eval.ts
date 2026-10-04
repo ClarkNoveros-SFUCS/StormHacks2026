@@ -10,6 +10,10 @@
 //   ... --save <dir>                            where --live saves (eval/responses replaces the baseline)
 //   ... --deck <id>[,<id>]                      only these decks
 //   ... --no-fallback                           never switch to GEMINI_FALLBACK_MODEL (one model per table)
+//   ... --verify                                also run the verification pass (F16): one more Gemini
+//                                               call per deck, saved to <save dir>/verify/
+//   ... --verify-from <dir>                     replay saved verifications instead (eval/verify, $0)
+//   ... --verify-model <model>                  the verifier's model (default GEMINI_VERIFY_MODEL, else GEMINI_MODEL)
 //   ... --drops                                 list every drop under the table
 //   ... --json                                  JSON instead of the table
 //
@@ -20,8 +24,13 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { generateDocumentPrompts } from "../lib/gemini.ts";
 import { estimateCostUsd } from "../lib/gemini/pricing.ts";
-import { formatScorecardTable, scoreDocument, unwrapSaved, type RunInfo, type SavedResponse, type ScorecardRow } from "../lib/games/scorecard.ts";
-import { loadEnv, loadFileDeck, loadSeedDeck, promptVersion, root, type Deck } from "./deck-pages.ts";
+import { geminiVerifyCall } from "../lib/gemini/verify.ts";
+import {
+  formatScorecardTable, scoreDocument, unwrapSaved,
+  type RunInfo, type SavedResponse, type SavedVerification, type Scorecard, type ScorecardRow,
+} from "../lib/games/scorecard.ts";
+import { verifyDocument } from "../lib/games/verify.ts";
+import { loadEnv, loadFileDeck, loadSeedDeck, promptVersion, root, verifyVersion, type Deck } from "./deck-pages.ts";
 
 loadEnv();
 
@@ -38,6 +47,9 @@ const saveDir = path.resolve(root, flag("--save") ?? `eval/runs/${new Date().toI
 const decksDir = path.resolve(root, process.env.EVAL_DECKS_DIR || "eval/decks");
 const only = flag("--deck")?.split(",");
 if (args.includes("--no-fallback")) delete process.env.GEMINI_FALLBACK_MODEL;
+const verifyLive = args.includes("--verify");
+const verifyFrom = flag("--verify-from") && path.resolve(root, flag("--verify-from")!);
+if (flag("--verify-model")) process.env.GEMINI_VERIFY_MODEL = flag("--verify-model");
 
 const manifest: { decks: EvalDeck[] } = JSON.parse(await readFile(path.join(root, "eval/decks.json"), "utf8"));
 const decks = manifest.decks.filter((d) => !only || only.includes(d.id));
@@ -50,7 +62,7 @@ const version = promptVersion();
 const rows: ScorecardRow[] = [];
 const notes: string[] = [];
 let spent = 0;
-if (live) await mkdir(saveDir, { recursive: true });
+if (live || verifyLive) await mkdir(saveDir, { recursive: true });
 
 for (const d of decks) {
   const deck = await loadDeck(d);
@@ -89,7 +101,8 @@ for (const d of decks) {
     run = saved?.run ?? null;
     if (saved && saved.promptVersion !== version) notes.push(`${d.id}: saved with prompt version ${saved.promptVersion}; the current prompt is ${version}`);
   }
-  rows.push({ deck: d.id, pages: deck.pages.length, run, card: scoreDocument(response, deck.pages) });
+  const card = scoreDocument(response, deck.pages);
+  rows.push(verifyLive || verifyFrom ? await verified(d.id, deck, response, card, run) : { deck: d.id, pages: deck.pages.length, run, card });
 }
 
 if (args.includes("--json")) {
@@ -102,17 +115,56 @@ if (args.includes("--json")) {
   console.log(
     "\nKinds: open/cloze/definition_to_term/ordered_recall/odd_one_out. Ans/Open: mean kept Answers per Open Prompt." +
       "\nQuotes ok: kept Answers whose evidence quote is on its page. Hints removed: by check 5, of Hints given." +
-      "\nDropped P / A: Prompts / Answers dropped by the checks. ⚠ fewer than 7 Prompts kept.",
+      "\nDropped P / A: Prompts / Answers dropped by the checks. ⚠ fewer than 7 Prompts kept." +
+      (verifyLive || verifyFrom
+        ? "\nVerify removed A / P: Answers judged unsupported / Prompts removed by the verification pass (F16);" +
+          " the other columns describe what survives it."
+        : ""),
   );
   for (const n of notes) console.log(`Note: ${n}`);
   if (args.includes("--drops")) {
     for (const r of rows) {
-      if (!r.card?.drops.length) continue;
+      if (!r.card?.drops.length && !r.card?.verify?.drops.length) continue;
       console.log(`\n${r.deck}:`);
-      for (const drop of r.card.drops) console.log(`- "${drop.prompt}" · ${drop.what}: ${drop.reason}`);
+      for (const drop of [...r.card.drops, ...(r.card.verify?.drops ?? [])]) console.log(`- "${drop.prompt}" · ${drop.what}: ${drop.reason}`);
     }
   }
-  console.log(live ? `\nGemini spend this run: ≈ $${spent.toFixed(3)} USD` : "\nGemini spend this run: $0 (replay)");
+  console.log(live || verifyLive ? `\nGemini spend this run: ≈ $${spent.toFixed(3)} USD` : "\nGemini spend this run: $0 (replay)");
+}
+
+/** The row with the verification pass applied: a live call (--verify) or a saved one (--verify-from). */
+async function verified(id: string, deck: Deck, response: unknown, card: Scorecard, run: RunInfo | null): Promise<ScorecardRow> {
+  const base = { deck: id, pages: deck.pages.length, run };
+  const texts = card.prompts.map((p) => p.text);
+  let saved: SavedVerification;
+  if (verifyLive) {
+    process.stderr.write(`${id}: verifying ${texts.length} Prompts… `);
+    const out = await verifyDocument(deck.title, deck.pages, card.prompts, geminiVerifyCall);
+    if (out.status !== "verified" || !out.model || !out.usage) {
+      process.stderr.write("failed\n");
+      notes.push(`${id}: verification ${out.status}: ${out.error ?? ""}`.slice(0, 200));
+      return { ...base, card };
+    }
+    const vrun = { model: out.model, seconds: out.seconds, usage: out.usage, costUsd: estimateCostUsd(out.model, out.usage) };
+    spent += vrun.costUsd ?? 0;
+    process.stderr.write(`${vrun.seconds.toFixed(0)} s, ${vrun.model}\n`);
+    saved = { deck: id, createdAt: new Date().toISOString(), verifyVersion: verifyVersion(), run: vrun, prompts: texts, response: out.response };
+    await mkdir(path.join(saveDir, "verify"), { recursive: true });
+    await writeFile(path.join(saveDir, "verify", `${id}.json`), JSON.stringify(saved, null, 2) + "\n");
+  } else {
+    try {
+      saved = JSON.parse(await readFile(path.join(verifyFrom!, `${id}.json`), "utf8"));
+    } catch {
+      notes.push(`${id}: no saved verification in ${path.relative(root, verifyFrom!)}`);
+      return { ...base, card };
+    }
+    if (JSON.stringify(saved.prompts) !== JSON.stringify(texts)) {
+      notes.push(`${id}: the saved verification judged other Prompts (a different response); run --verify`);
+      return { ...base, card };
+    }
+    if (saved.verifyVersion !== verifyVersion()) notes.push(`${id}: verified with verify version ${saved.verifyVersion}; the current one is ${verifyVersion()}`);
+  }
+  return { ...base, card: scoreDocument(response, deck.pages, saved.response), verifyRun: saved.run };
 }
 
 /** The deck's pages, or why it can't be scored. */

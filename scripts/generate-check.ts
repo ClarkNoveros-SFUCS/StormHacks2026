@@ -8,14 +8,18 @@
 //   ... --mode leap                                             a Game Mode's generator (default dive)
 //   ... --save out.json                                         keep Gemini's response (+ model, time, cost)
 //   ... --from out.json                                         re-check a saved response (no call)
+//   ... --verify                                                also run the verification pass (F16):
+//                                                               one more Gemini call, any Mode
 //
 // For the scorecard over every eval deck, use npm run generate:eval (scripts/generate-eval.ts).
 
 import { readFile, writeFile } from "node:fs/promises";
 import { generateDocumentPrompts } from "../lib/gemini.ts";
 import { estimateCostUsd } from "../lib/gemini/pricing.ts";
+import { geminiVerifyCall } from "../lib/gemini/verify.ts";
 import { formatScorecardTable, scoreDocument, unwrapSaved, type RunInfo, type SavedResponse } from "../lib/games/scorecard.ts";
 import { dedupeAcrossDocuments, type DocumentPage } from "../lib/games/validate.ts";
+import { verifyDocument } from "../lib/games/verify.ts";
 import type { GeneratedPrompt } from "../lib/modes/generation.ts";
 import { generatorFor } from "../lib/modes/generators.ts";
 import { MODES, type ModeId } from "../lib/modes/index.ts";
@@ -31,7 +35,7 @@ const flag = (name: string) => {
 const valueFlags = new Set(["--pages", "--save", "--from", "--mode"].map((f) => flag(f)));
 const file = args.find((a) => !a.startsWith("--") && !valueFlags.has(a));
 const usage =
-  "Usage: npm run generate:check -- <file.pdf|pptx|docx> | --seed  [--mode dive|apogee|leap|pairs|blitz] [--pages 1-20] [--save out.json] [--from out.json]";
+  "Usage: npm run generate:check -- <file.pdf|pptx|docx> | --seed  [--mode dive|apogee|leap|pairs|blitz] [--pages 1-20] [--save out.json] [--from out.json] [--verify]";
 if (!file && !args.includes("--seed")) {
   console.error(usage);
   process.exit(1);
@@ -83,13 +87,30 @@ if (from) {
 
 // ---- checks: the Mode's per-document checks, check 7, then the Mode's Game-level checks ----
 const result = generator.validate(response, pages);
-const deduped = dedupeAcrossDocuments([{ doc: title, prompts: result.prompts }]);
+// ---- the verification pass (F16), as generateGame runs it ----
+const verify = args.includes("--verify") ? await verifyDocument(title, pages, result.prompts, geminiVerifyCall) : null;
+/** The verification call as a scorecard RunInfo, or null when it didn't run or failed. */
+function verifyRun(): RunInfo | null {
+  if (!verify?.model || !verify.usage) return null;
+  return { model: verify.model, seconds: verify.seconds, usage: verify.usage, costUsd: estimateCostUsd(verify.model, verify.usage) };
+}
+if (verify) {
+  const cost = verifyRun()?.costUsd ?? null;
+  console.log(
+    verify.status === "verified"
+      ? `Verification: ${verify.model}, ${verify.seconds.toFixed(1)} s${cost === null ? "" : `, ≈ $${cost.toFixed(4)} USD`}: ` +
+          `removed ${verify.answersRemoved} Answers and ${verify.promptsRemoved} of ${result.prompts.length} Prompts` +
+          (verify.unverified ? ` (${verify.unverified} without a verdict, kept)` : "") + "\n"
+      : `Verification ${verify.status}: ${verify.error} (every Prompt kept unverified)\n`,
+  );
+}
+const deduped = dedupeAcrossDocuments([{ doc: title, prompts: verify ? verify.prompts : result.prompts }]);
 const final = generator.finalize(deduped.kept);
 const prompts = final.kept.map((k) => k.prompt);
 const returned = (response as { prompts?: unknown[] })?.prompts?.length ?? 0;
 for (const p of prompts) printPrompt(p);
 
-const dropped = [...result.dropped, ...deduped.dropped, ...final.dropped];
+const dropped = [...result.dropped, ...(verify?.dropped ?? []), ...deduped.dropped, ...final.dropped];
 console.log(`\n=== Dropped (${dropped.length}) ===`);
 for (const d of dropped) console.log(`- "${d.prompt}" · ${d.what}: ${d.reason}`);
 
@@ -108,7 +129,7 @@ console.log(
 );
 // The F14 scorecard row scores Dive's checks (lib/games/validate.ts), so only Dive-engine Modes get one
 if (MODES[mode].engine === "dive") {
-  console.log("\n" + formatScorecardTable([{ deck: title, pages: pages.length, run, card: scoreDocument(response, pages) }]));
+  console.log("\n" + formatScorecardTable([{ deck: title, pages: pages.length, run, card: scoreDocument(response, pages, verify?.status === "verified" ? verify.response : undefined), verifyRun: verifyRun() }]));
 }
 console.log(
   prompts.length >= generator.minPrompts
