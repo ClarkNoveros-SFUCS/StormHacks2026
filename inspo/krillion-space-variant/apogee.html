@@ -1,0 +1,1568 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Apogee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: full-bleed 3D flight, HUD pinned to the edges, prompt console docked bottom-centre, altitude ruler on the right. Single dark look: it is space. */
+:root {
+  --void: #04050c;
+  --panel: rgba(9, 12, 28, 0.66);
+  --panel-solid: #0b0f22;
+  --line: rgba(196, 210, 255, 0.12);
+  --hull: #ece6d8;
+  --dim: #8b93b3;
+  --flame: #ff6a2b;
+  --flame-soft: rgba(255, 106, 43, 0.16);
+  --bad: #ff5468;
+  --t-common: #a9b8d6;
+  --t-solid: #4fd6e8;
+  --t-deep: #a98bff;
+  --t-rare: #ffcf4a;
+  --f-display: "Big Shoulders Stencil Display", "Arial Narrow", Impact, sans-serif;
+  --f-body: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--void); color: var(--hull); font-family: var(--f-body); font-size: 15px; overflow: hidden; -webkit-font-smoothing: antialiased; }
+#stage { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+#stage:active { cursor: grabbing; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
+.glass { background: var(--panel); border: 1px solid var(--line); backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2); border-radius: 14px; }
+.mono { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+.eyebrow { font-family: var(--f-data); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+
+/* ---------- top HUD ---------- */
+.hud-top { text-shadow: 0 1px 10px rgba(4,5,12,0.55);
+  position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: calc(14px + env(safe-area-inset-top, 0px)) 18px 0; pointer-events: none; z-index: 5; }
+.brand { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.brand b { font-family: var(--f-display); font-weight: 900; font-size: 30px; letter-spacing: 0.06em; line-height: 0.9; }
+.brand span { font-size: 12px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pips { display: flex; gap: 6px; padding-top: 8px; }
+.pip { width: 26px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.12); transition: background .3s, box-shadow .3s; }
+.pip.now { background: var(--hull); }
+.pip.common { background: var(--t-common); } .pip.solid { background: var(--t-solid); }
+.pip.deep { background: var(--t-deep); } .pip.rare { background: var(--t-rare); box-shadow: 0 0 10px var(--t-rare); }
+.pip.miss { background: rgba(255, 84, 104, 0.55); }
+.telemetry { text-align: right; display: flex; flex-direction: column; gap: 2px; }
+.telemetry .alt { font-family: var(--f-display); font-weight: 800; font-size: 34px; line-height: 0.95; letter-spacing: 0.02em; }
+.telemetry .alt small { font-size: 18px; color: var(--dim); margin-left: 4px; }
+.telemetry .zone { font-size: 12px; color: var(--dim); }
+.telemetry .pts { font-family: var(--f-data); font-size: 13px; color: var(--flame); }
+
+/* ---------- altitude ruler ---------- */
+.ruler { position: fixed; right: 18px; top: 116px; bottom: 210px; width: 150px; z-index: 4; transition: right .5s cubic-bezier(.2,.8,.2,1); user-select: none; }
+.ruler .track { position: absolute; right: 0; top: 0; bottom: 0; width: 3px; border-radius: 2px; background: rgba(255,255,255,0.1); }
+.ruler .fill { position: absolute; right: 0; bottom: 0; width: 3px; border-radius: 2px; background: linear-gradient(to top, var(--flame), #ffd08a); box-shadow: 0 0 8px var(--flame); }
+.ruler .tick { position: absolute; right: 0; transform: translateY(50%); display: flex; align-items: center; gap: 8px; justify-content: flex-end; width: 100%; pointer-events: none; }
+.ruler .tick i { width: 9px; height: 1px; background: rgba(255,255,255,0.35); flex: none; }
+.ruler .tick span { text-shadow: 0 1px 6px rgba(4,5,12,0.7); font-family: var(--f-data); font-size: 10px; line-height: 1.15; color: var(--dim); text-align: right; white-space: nowrap; }
+.ruler .tick span em { font-style: normal; color: rgba(236,230,216,0.8); display: block; font-family: var(--f-body); font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
+.ruler .tick.passed span em { color: var(--hull); }
+.ruler .tick.passed i { background: var(--flame); }
+.ruler .marker { position: absolute; right: -6px; transform: translateY(50%); width: 15px; height: 15px; pointer-events: none; }
+.ruler .marker::before { content: ""; position: absolute; inset: 3px; background: var(--flame); transform: rotate(45deg); border-radius: 2px; box-shadow: 0 0 14px var(--flame); }
+.ruler .pb { position: absolute; right: -10px; width: 23px; height: 0; border-top: 1px dashed var(--t-rare); pointer-events: none; }
+.ruler .pb::after { content: "PB"; position: absolute; right: 26px; top: -7px; font-family: var(--f-data); font-size: 9px; color: var(--t-rare); }
+.ruler .scrub { position: absolute; right: -9px; width: 21px; height: 21px; transform: translateY(50%); border: 2px solid var(--hull); border-radius: 50%; display: none; pointer-events: none; }
+body.reveal .ruler { cursor: ns-resize; }
+body.reveal .ruler .scrub { display: block; }
+body.reveal .ruler .track { width: 6px; right: -1.5px; background: rgba(255,255,255,0.16); }
+
+/* ---------- prompt console ---------- */
+.console { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); width: min(640px, calc(100% - 32px)); transform: translate(-50%, 0); padding: 18px 20px 16px; z-index: 6; display: flex; flex-direction: column; gap: 12px; transition: transform .45s cubic-bezier(.2,.8,.2,1), opacity .35s; }
+.console.away { transform: translate(-50%, 130%); opacity: 0; pointer-events: none; }
+.console .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.kind { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tierchip { font-family: var(--f-data); font-size: 11px; padding: 2px 8px; border-radius: 99px; border: 1px solid currentColor; letter-spacing: 0.04em; white-space: nowrap; }
+.tierchip.common { color: var(--t-common); } .tierchip.solid { color: var(--t-solid); }
+.tierchip.deep { color: var(--t-deep); } .tierchip.rare { color: var(--t-rare); }
+.tierchip s { opacity: .55; }
+.clock { font-family: var(--f-data); font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 4ch; text-align: right; transition: color .2s; }
+.clock.low { color: var(--bad); }
+.timebar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); overflow: hidden; }
+.timebar div { height: 100%; width: 100%; background: linear-gradient(90deg, var(--flame), #ffc36b); transform-origin: left; }
+.prompt-text { font-family: var(--f-body); font-weight: 600; font-size: clamp(19px, 2.6vw, 25px); line-height: 1.25; text-wrap: balance; margin: 0; }
+.prompt-text .blank { display: inline-block; min-width: 4.5em; border-bottom: 2px solid var(--flame); margin: 0 2px; transform: translateY(-3px); }
+.answer-row { display: flex; gap: 8px; }
+.answer-row input { flex: 1; min-width: 0; background: rgba(0,0,0,0.35); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; color: var(--hull); font: 500 17px var(--f-body); outline: none; transition: border-color .2s, box-shadow .2s; }
+.answer-row input:focus { border-color: rgba(255,106,43,0.7); box-shadow: 0 0 0 3px var(--flame-soft); }
+.btn { border: 1px solid var(--line); background: rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 14px; cursor: pointer; font-weight: 600; font-size: 14px; transition: background .15s, border-color .15s, transform .1s; }
+.btn:hover { background: rgba(255,255,255,0.12); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--flame); border-color: var(--flame); color: #1a0800; }
+.btn.primary:hover { background: #ff8550; }
+.btn.big { font-family: var(--f-display); font-weight: 800; font-size: 24px; letter-spacing: 0.08em; padding: 12px 28px; }
+.btn[disabled] { opacity: .4; cursor: not-allowed; }
+.hint-line { font-size: 14px; color: #ffd9a8; display: flex; gap: 8px; align-items: baseline; }
+.feedback { min-height: 20px; font-size: 14px; color: var(--dim); }
+.feedback.bad { color: var(--bad); }
+.options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.options .btn { padding: 14px; font-size: 16px; text-align: left; }
+.options .btn.wrong { border-color: var(--bad); color: var(--bad); }
+.order { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.order li { display: flex; align-items: center; gap: 10px; padding: 10px 10px 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--line); cursor: grab; touch-action: none; user-select: none; font-size: 14px; line-height: 1.3; position: relative; }
+.order li.dragging { z-index: 2; background: rgba(255,106,43,0.18); border-color: var(--flame); cursor: grabbing; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.order li .grip { font-family: var(--f-data); color: var(--dim); flex: none; width: 1.4em; }
+.order li span.t { flex: 1; min-width: 0; }
+.order li .mv { display: flex; gap: 2px; flex: none; }
+.order li .mv button { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--line); background: transparent; cursor: pointer; color: var(--dim); font-size: 12px; line-height: 1; }
+.shake { animation: shake .38s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-9px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(3px)} }
+.result-line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font-size: 18px; font-weight: 600; }
+.result-line .pts { font-family: var(--f-display); font-size: 30px; font-weight: 800; }
+
+/* ---------- floating pops ---------- */
+.pop { position: fixed; left: 0; top: 0; z-index: 7; pointer-events: none; text-align: center; transform: translate(-50%, -100%); white-space: nowrap; }
+.pop .n { font-family: var(--f-display); font-weight: 900; font-size: 56px; line-height: 1; letter-spacing: 0.02em; text-shadow: 0 0 24px currentColor; }
+.pop .w { font-family: var(--f-data); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; }
+.pop.minus .n { font-size: 34px; color: var(--bad); }
+.toast { position: fixed; left: 50%; top: calc(86px + env(safe-area-inset-top, 0px)); transform: translate(-50%, -12px); opacity: 0; z-index: 6; padding: 8px 16px; display: flex; gap: 12px; align-items: baseline; transition: opacity .35s, transform .35s; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast b { font-family: var(--f-display); font-weight: 800; font-size: 22px; letter-spacing: 0.04em; }
+.toast .mono { font-size: 12px; color: var(--flame); }
+.countdown { position: fixed; inset: 0; display: grid; place-items: center; z-index: 8; pointer-events: none; }
+.countdown span { font-family: var(--f-display); font-weight: 900; font-size: clamp(90px, 18vw, 200px); line-height: 1; color: var(--hull); text-shadow: 0 0 40px rgba(255,106,43,0.6); opacity: 0; }
+.countdown span.go { animation: tick .9s ease-out forwards; }
+@keyframes tick { 0% { opacity: 0; transform: scale(1.5); } 20% { opacity: 1; transform: scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: scale(.9); } }
+
+/* ---------- intro ---------- */
+.intro { position: fixed; left: 32px; top: 50%; transform: translateY(-50%); width: min(430px, calc(100% - 32px)); padding: 26px 26px 22px; z-index: 6; display: flex; flex-direction: column; gap: 16px; transition: opacity .4s, transform .5s cubic-bezier(.2,.8,.2,1); }
+.intro.away { opacity: 0; transform: translate(-40px, -50%); pointer-events: none; }
+.intro h1 { font-family: var(--f-display); font-weight: 900; font-size: clamp(64px, 9vw, 96px); line-height: 0.82; letter-spacing: 0.03em; margin: 0; }
+.intro h1 span { color: var(--flame); }
+.intro p { margin: 0; line-height: 1.5; color: #cfd3e6; max-width: 40ch; }
+.rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.rules div { padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--line); }
+.rules b { display: block; font-family: var(--f-display); font-size: 26px; font-weight: 800; line-height: 1; }
+.rules span { font-size: 12px; color: var(--dim); }
+.ladder { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.ladder div { border-top: 2px solid currentColor; padding-top: 6px; }
+.ladder b { display: block; font-family: var(--f-data); font-size: 13px; }
+.ladder span { font-size: 11px; color: var(--dim); }
+.ladder .common { color: var(--t-common); } .ladder .solid { color: var(--t-solid); } .ladder .deep { color: var(--t-deep); } .ladder .rare { color: var(--t-rare); }
+.controls-hint { font-size: 12px; color: var(--dim); }
+
+/* ---------- reveal ---------- */
+.reveal-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(470px, 100%); z-index: 6; border-radius: 0; border-width: 0 0 0 1px; overflow-y: auto; padding: calc(22px + env(safe-area-inset-top, 0px)) 22px calc(28px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 18px; transform: translateX(105%); transition: transform .6s cubic-bezier(.2,.8,.2,1); overscroll-behavior: contain; }
+body.reveal .reveal-panel { transform: none; }
+body.reveal.flyby .reveal-panel { transform: translateX(105%); }
+body.reveal .ruler { right: calc(min(470px, 100%) + 26px); }
+body.reveal.flyby .ruler { right: 18px; }
+.apogee-head { display: flex; flex-direction: column; gap: 6px; }
+.apogee-head .big { font-family: var(--f-display); font-weight: 900; font-size: 64px; line-height: .9; letter-spacing: 0.01em; }
+.apogee-head .big small { font-size: 26px; color: var(--dim); margin-left: 6px; }
+.apogee-head .where { font-size: 16px; color: #d7dbee; }
+.pb-banner { align-self: flex-start; font-family: var(--f-data); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #1a1200; background: var(--t-rare); padding: 4px 10px; border-radius: 6px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stats div { padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--line); min-width: 0; }
+.stats b { display: block; font-family: var(--f-data); font-size: 18px; font-weight: 600; }
+.stats span { font-size: 11px; color: var(--dim); }
+.reveal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.pr { border-top: 1px solid var(--line); padding-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.pr h3 { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.35; }
+.pr .yours { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: #cfd3e6; }
+.pr .yours b { font-family: var(--f-data); font-weight: 600; }
+.pr .note { font-size: 12px; color: var(--dim); }
+.tiergroup { display: flex; gap: 10px; align-items: flex-start; }
+.tiergroup > .tierchip { flex: none; margin-top: 3px; width: 56px; text-align: center; }
+.answers { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; }
+.ans { font-size: 13px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: var(--dim); cursor: pointer; text-align: left; }
+.ans.found { color: var(--hull); border-color: currentColor; background: rgba(255,255,255,0.06); }
+.ans.found::before { content: "✓ "; color: var(--flame); }
+.ans.now { color: var(--flame); border-color: var(--flame); }
+.evidence { font-size: 12px; color: #cfd3e6; background: rgba(255,255,255,0.04); border-left: 2px solid var(--flame); padding: 8px 10px; border-radius: 0 8px 8px 0; line-height: 1.45; }
+.evidence .src { font-family: var(--f-data); font-size: 11px; color: var(--dim); display: block; margin-bottom: 3px; }
+.flyby-hint { position: fixed; left: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 6; padding: 10px 14px; font-size: 12px; color: var(--dim); display: none; gap: 10px; align-items: center; }
+body.reveal.flyby .flyby-hint { display: flex; }
+.flyby-hint .btn { padding: 6px 10px; font-size: 12px; }
+.fade { position: fixed; inset: 0; background: var(--void); opacity: 0; pointer-events: none; z-index: 20; transition: opacity .4s; }
+.fade.on { opacity: 1; }
+.loading { position: fixed; inset: 0; display: grid; place-items: center; z-index: 30; background: var(--void); font-family: var(--f-data); font-size: 12px; letter-spacing: 0.14em; color: var(--dim); text-transform: uppercase; transition: opacity .6s; }
+.loading.done { opacity: 0; pointer-events: none; }
+
+@media (max-width: 760px) {
+  .brand b { font-size: 20px; }
+  .brand span { display: none; }
+  .pips { gap: 4px; } .pip { width: 14px; }
+  .telemetry .alt { font-size: 26px; }
+  .ruler { width: 14px; right: 8px; top: 96px; bottom: 54%; }
+  .ruler .tick span { display: none; }
+  .intro { left: 16px; top: auto; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: none; padding: 20px 18px 18px; gap: 12px; }
+  .intro.away { transform: translateY(40px); }
+  .intro h1 { font-size: 64px; }
+  .console { padding: 14px 14px 12px; gap: 10px; }
+  .options { grid-template-columns: 1fr; }
+  .reveal-panel { top: auto; height: 68%; width: 100%; border-width: 1px 0 0 0; border-radius: 16px 16px 0 0; transform: translateY(105%); }
+  body.reveal .ruler, body.reveal.flyby .ruler { right: 8px; bottom: 70%; }
+  body.reveal.flyby .reveal-panel { transform: translateY(105%); }
+  .apogee-head .big { font-size: 48px; }
+  .flyby-hint { left: 16px; right: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .console, .intro, .reveal-panel, .toast, .ruler { transition-duration: .01s; }
+  .shake { animation: none; }
+}
+</style>
+
+<canvas id="stage" aria-label="3D view of the rocket's flight"></canvas>
+<div class="loading" id="loading">Fuelling…</div>
+
+<header class="hud-top">
+  <div class="brand"><b>APOGEE</b><span id="gameTitle">Graph Algorithms (Week 9)</span></div>
+  <div class="pips" id="pips" aria-label="Prompt progress"></div>
+  <div class="telemetry" aria-live="polite">
+    <div class="alt" id="altReadout">0<small>km</small></div>
+    <div class="zone" id="zoneReadout">On the pad</div>
+    <div class="pts" id="ptsReadout">0 pts</div>
+  </div>
+</header>
+
+<div class="ruler" id="ruler" aria-label="Altitude ruler">
+  <div class="track"></div>
+  <div class="fill" id="rulerFill"></div>
+  <div id="rulerTicks"></div>
+  <div class="pb" id="rulerPB" hidden></div>
+  <div class="marker" id="rulerMarker"></div>
+  <div class="scrub" id="rulerScrub"></div>
+</div>
+
+<section class="intro glass" id="intro">
+  <div class="eyebrow" id="introModule">Module · Graph Algorithms</div>
+  <h1>APO<span>GEE</span></h1>
+  <p>Every right answer is fuel. Obvious answers get you off the ground; the rarest ones from your slides burn hot enough to reach the Moon.</p>
+  <div class="rules">
+    <div><b>7</b><span>prompts per Run</span></div>
+    <div><b>25 s</b><span>on each clock</span></div>
+    <div><b>−3 s</b><span>per wrong guess</span></div>
+  </div>
+  <div class="ladder">
+    <div class="common"><b>10</b><span>common</span></div>
+    <div class="solid"><b>25</b><span>solid</span></div>
+    <div class="deep"><b>60</b><span>deep</span></div>
+    <div class="rare"><b>100</b><span>rare</span></div>
+  </div>
+  <button class="btn primary big" id="launchBtn">LAUNCH</button>
+  <div class="controls-hint">Drag to look around · scroll or pinch to zoom</div>
+</section>
+
+<section class="console glass away" id="console" aria-live="polite"></section>
+
+<div class="toast glass" id="toast"><b id="toastName"></b><span class="mono" id="toastKm"></span></div>
+<div class="countdown" id="countdown"><span id="countdownNum"></span></div>
+<div class="pop" id="pop" hidden><div class="n" id="popN"></div><div class="w" id="popW"></div></div>
+
+<aside class="reveal-panel glass" id="reveal" aria-label="Run results"></aside>
+<div class="flyby-hint glass" id="flybyHint"><span>Drag the altitude ruler to fly back through your trip.</span><button class="btn" id="flybyBack">Results</button></div>
+<div class="fade" id="fade"></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+// ======================================================================
+// Game data: the demo Game from db/seed/graph-algorithms.json
+// ======================================================================
+const SEED = {"module":"Graph Algorithms","game":"Graph Algorithms (Week 9)","file":"week9-graph-algorithms.pptx","pages":{"1":"Graphs: the basics","2":"Breadth-first search (BFS)","3":"Depth-first search (DFS)","4":"Topological sort","5":"Dijkstra's algorithm","6":"Bellman-Ford","7":"Floyd-Warshall","8":"Minimum spanning trees (MST)","9":"Union-find (disjoint set)","10":"Strongly connected components (SCC)","11":"Bipartite matching","12":"Summary: which algorithm when?"},"prompts":[{"kind":"open","text":"Name a graph algorithm","answers":[{"canonical":"BFS","aliases":["breadth-first search","breadth first"],"exact_only":true,"evidence_page":2,"evidence_quote":"BFS visits every neighbor at the current depth before moving one level deeper."},{"canonical":"DFS","aliases":["depth-first search","depth first"],"exact_only":true,"evidence_page":3,"evidence_quote":"DFS explores as far down one branch as possible before backtracking."},{"canonical":"Dijkstra","aliases":["Dijkstra's algorithm","dijkstras algorithm"],"exact_only":false,"evidence_page":5,"evidence_quote":"Finds shortest paths from one source in a graph with non-negative edge weights."},{"canonical":"Kruskal","aliases":["Kruskal's algorithm","kruskals algorithm"],"exact_only":false,"evidence_page":8,"evidence_quote":"Kruskal's algorithm adds edges from cheapest to most expensive, skipping any edge that would create a cycle"},{"canonical":"Prim","aliases":["Prim's algorithm","prims algorithm"],"exact_only":false,"evidence_page":8,"evidence_quote":"Prim's algorithm grows one tree from a start vertex, always adding the cheapest edge that leaves the tree."},{"canonical":"Bellman-Ford","aliases":["bellmanford","Bellman-Ford algorithm"],"exact_only":false,"evidence_page":6,"evidence_quote":"Finds shortest paths from one source, and works with negative edge weights."},{"canonical":"Topological sort","aliases":["topo sort","toposort","topological ordering","topological order"],"exact_only":false,"evidence_page":4,"evidence_quote":"A topological sort is a linear ordering of the vertices of a DAG such that for every edge (u, v), u comes before v."},{"canonical":"Floyd-Warshall","aliases":["Floyd","Floyd's algorithm","Floyd-Warshall algorithm"],"exact_only":false,"evidence_page":7,"evidence_quote":"Finds the shortest paths between every pair of vertices (all-pairs shortest paths)."},{"canonical":"Kosaraju","aliases":["Kosaraju's algorithm","kosarajus algorithm"],"exact_only":false,"evidence_page":10,"evidence_quote":"Kosaraju's algorithm runs DFS to get finishing times, reverses every edge, then runs DFS again in decreasing finishing time."},{"canonical":"Tarjan","aliases":["Tarjan's algorithm","tarjans algorithm","tarjan scc"],"exact_only":false,"evidence_page":10,"evidence_quote":"Tarjan's algorithm finds every SCC in a single DFS, using low-link values and a stack."},{"canonical":"Borůvka","aliases":["Borůvka's algorithm","boruvkas algorithm"],"exact_only":false,"evidence_page":8,"evidence_quote":"Borůvka's algorithm: every component adds its cheapest outgoing edge at once, and the rounds repeat until one tree is left."},{"canonical":"Reverse-delete","aliases":["reverse-delete algorithm"],"exact_only":false,"evidence_page":8,"evidence_quote":"Reverse-delete: start with every edge and delete the heaviest edge that does not disconnect the graph."},{"canonical":"Hopcroft-Karp","aliases":["Hopcroft-Karp algorithm"],"exact_only":false,"evidence_page":11,"evidence_quote":"Hopcroft-Karp finds a maximum matching in a bipartite graph faster than the basic augmenting path method"}]},{"kind":"open","text":"Name a minimum spanning tree algorithm","answers":[{"canonical":"Kruskal","aliases":["Kruskal's algorithm","kruskals algorithm"],"exact_only":false,"evidence_page":8,"evidence_quote":"Kruskal's algorithm adds edges from cheapest to most expensive, skipping any edge that would create a cycle"},{"canonical":"Prim","aliases":["Prim's algorithm","prims algorithm"],"exact_only":false,"evidence_page":8,"evidence_quote":"Prim's algorithm grows one tree from a start vertex, always adding the cheapest edge that leaves the tree."},{"canonical":"Borůvka","aliases":["Borůvka's algorithm","boruvkas algorithm"],"exact_only":false,"evidence_page":8,"evidence_quote":"Borůvka's algorithm: every component adds its cheapest outgoing edge at once, and the rounds repeat until one tree is left."},{"canonical":"Reverse-delete","aliases":["reverse-delete algorithm"],"exact_only":false,"evidence_page":8,"evidence_quote":"Reverse-delete: start with every edge and delete the heaviest edge that does not disconnect the graph."}]},{"kind":"open","text":"Name a shortest-path algorithm","answers":[{"canonical":"Dijkstra","aliases":["Dijkstra's algorithm","dijkstras algorithm"],"exact_only":false,"evidence_page":5,"evidence_quote":"Finds shortest paths from one source in a graph with non-negative edge weights."},{"canonical":"Bellman-Ford","aliases":["bellmanford","Bellman-Ford algorithm"],"exact_only":false,"evidence_page":6,"evidence_quote":"Finds shortest paths from one source, and works with negative edge weights."},{"canonical":"BFS","aliases":["breadth-first search","breadth first"],"exact_only":true,"evidence_page":2,"evidence_quote":"On an unweighted graph, BFS finds the shortest path (fewest edges) from the source to every vertex."},{"canonical":"Floyd-Warshall","aliases":["Floyd","Floyd's algorithm","Floyd-Warshall algorithm"],"exact_only":false,"evidence_page":7,"evidence_quote":"Finds the shortest paths between every pair of vertices (all-pairs shortest paths)."}]},{"kind":"cloze","text":"Dijkstra's algorithm breaks on graphs that have ______ edge weights.","tier":"solid","hint":"Think about the sign of the number on an edge.","explanation":"Dijkstra assumes a settled node never gets a shorter path later, which negative edges can violate.","answers":[{"canonical":"negative","aliases":["negative weights"],"exact_only":false,"evidence_page":5,"evidence_quote":"Dijkstra breaks on graphs that have negative edge weights"}]},{"kind":"cloze","text":"BFS uses a ______ to decide which vertex to visit next.","tier":"common","hint":"Think of the line at a coffee shop.","explanation":"BFS takes vertices from the front of a queue and adds new neighbors to the back, so it finishes each level before the next.","answers":[{"canonical":"queue","aliases":["FIFO queue","FIFO"],"exact_only":false,"evidence_page":2,"evidence_quote":"It uses a queue: take the vertex at the front, then add its unvisited neighbors to the back."}]},{"kind":"cloze","text":"One extra pass of Bellman-Ford over the edges detects a negative ______.","tier":"deep","hint":"A path that ends where it started.","explanation":"If any distance still improves after V - 1 rounds of relaxing, some loop of edges has a negative total weight.","answers":[{"canonical":"cycle","aliases":["negative cycle"],"exact_only":false,"evidence_page":6,"evidence_quote":"One more pass over the edges detects a negative cycle"}]},{"kind":"definition_to_term","text":"This traversal visits every neighbor at the current depth before moving one level deeper.","tier":"common","hint":"It spreads out level by level, like ripples in a pond.","explanation":"BFS finishes each depth level before going deeper, which is why it finds fewest-edge paths.","answers":[{"canonical":"BFS","aliases":["breadth-first search","breadth first"],"exact_only":true,"evidence_page":2,"evidence_quote":"BFS visits every neighbor at the current depth before moving one level deeper."}]},{"kind":"definition_to_term","text":"A linear ordering of a DAG's vertices in which every edge points from an earlier vertex to a later one.","tier":"solid","hint":"A course planner uses one so that prerequisites come first.","explanation":"A topological sort exists only for graphs with no directed cycle, and DFS finishing times give one.","answers":[{"canonical":"Topological sort","aliases":["topo sort","toposort","topological ordering","topological order"],"exact_only":false,"evidence_page":4,"evidence_quote":"A topological sort is a linear ordering of the vertices of a DAG such that for every edge (u, v), u comes before v."}]},{"kind":"ordered_recall","text":"Put the steps of Dijkstra's algorithm in order.","tier":"solid","hint":"Every node starts infinitely far away except one.","explanation":"Dijkstra settles the closest unvisited node, relaxes its edges, and repeats until every node is done.","items":["Set the source distance to 0 and every other distance to infinity","Pick the unvisited node with the smallest known distance","Relax the edges leaving that node","Mark the node visited and repeat until all nodes are done"],"evidence_page":5},{"kind":"ordered_recall","text":"Put the steps of Kruskal's algorithm in order.","tier":"solid","hint":"Nothing can be picked until the edges are arranged.","explanation":"Kruskal sorts the edges, then greedily takes the cheapest one that doesn't make a cycle until the tree has V - 1 edges.","items":["Sort the edges by weight","Take the cheapest edge that is left","Skip that edge if it would create a cycle","Stop once the tree has V - 1 edges"],"evidence_page":8},{"kind":"odd_one_out","text":"Which one solves a different problem from the other three?","tier":"common","hint":"Three of them build the same kind of tree.","explanation":"Kruskal, Prim and Borůvka build minimum spanning trees. Dijkstra computes shortest paths.","options":["Kruskal","Prim","Dijkstra","Borůvka"],"correct_option":"Dijkstra","evidence_page":8},{"kind":"odd_one_out","text":"Which one ignores edge weights?","tier":"solid","hint":"It only counts how many edges a path has.","explanation":"Dijkstra, Prim and Kruskal all choose edges by weight. BFS ignores weights and only counts edges.","options":["Dijkstra","Prim","BFS","Kruskal"],"correct_option":"BFS","evidence_page":2}]};
+
+const TIERS = ['common', 'solid', 'deep', 'rare'];
+const TIER_POINTS = { common: 10, solid: 25, deep: 60, rare: 100 };
+const TIER_BELOW = { rare: 'deep', deep: 'solid', solid: 'common', common: null };
+const HINTED_COMMON_POINTS = 5;
+const RUN_LENGTH = 7, PROMPT_SECONDS = 25, WRONG_PENALTY = 3;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Same rule as lib/scoring/tiers.ts assignOpenTiers
+function assignOpenTiers(n) {
+  const m = n - 1, deep = Math.ceil(0.3 * m);
+  let solid = Math.round(0.4 * m), common = m - deep - solid;
+  if (common < 1) { solid -= 1; common += 1; }
+  return [...Array(common).fill('common'), ...Array(solid).fill('solid'), ...Array(deep).fill('deep'), 'rare'];
+}
+SEED.prompts.forEach((p, i) => {
+  p.id = i;
+  if (p.kind === 'open') { const t = assignOpenTiers(p.answers.length); p.answers.forEach((a, j) => a.tier = t[j]); }
+});
+
+// ---------- answer matching (approximates lib/matching) ----------
+function norm(s) {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/['’]s\b/g, '').replace(/\b(algorithm|algo)\b/g, '').replace(/[^a-z0-9]+/g, '');
+}
+function lev(a, b) {
+  const d = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let prev = d[0]; d[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const tmp = d[j];
+      d[j] = Math.min(d[j] + 1, d[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = tmp;
+    }
+  }
+  return d[b.length];
+}
+function matches(guess, ans) {
+  const g = norm(guess); if (!g) return false;
+  const cands = [ans.canonical, ...(ans.aliases || [])].map(norm);
+  if (cands.includes(g)) return true;
+  if (ans.exact_only) return false;
+  return cands.some(c => c.length >= 5 && lev(g, c) <= (c.length >= 9 ? 2 : 1));
+}
+
+// ---------- altitude scale: points → km, through real landmarks ----------
+const LANDMARKS = [
+  { pts: 0,   km: 0,         name: 'Launch pad',       note: 'Engines lit' },
+  { pts: 30,  km: 12,        name: 'Tropopause',       the: 'the tropopause', note: 'Weather ends here' },
+  { pts: 60,  km: 50,        name: 'Stratopause',      the: 'the stratopause', note: 'Top of the ozone layer' },
+  { pts: 90,  km: 85,        name: 'Mesopause',        the: 'the mesopause', note: 'Meteors burn up below' },
+  { pts: 110, km: 100,       name: 'Kármán line',      the: 'the Kármán line', note: 'Space begins' },
+  { pts: 160, km: 408,       name: 'ISS',              the: 'the ISS', note: 'Low Earth orbit' },
+  { pts: 240, km: 35786,     name: 'Geostationary',    the: 'geostationary orbit', note: 'Weather satellites park here' },
+  { pts: 340, km: 384400,    name: 'The Moon',         the: 'the Moon', note: 'Apollo 11 got this far' },
+  { pts: 450, km: 1.5e6,     name: 'Sun–Earth L2',     the: 'Sun–Earth L2', note: 'Home of the Webb telescope' },
+  { pts: 560, km: 5.46e7,    name: 'Mars',             the: 'Mars', note: 'At closest approach' },
+  { pts: 700, km: 5.88e8,    name: 'Jupiter',          the: 'Jupiter', note: 'At closest approach' },
+];
+const MAX_PTS = 700;
+function ptsToKm(p) {
+  if (p <= 0) return 0;
+  const L = LANDMARKS;
+  if (p <= L[1].pts) return (p / L[1].pts) * L[1].km;
+  for (let i = 1; i < L.length - 1; i++) {
+    const a = L[i], b = L[i + 1];
+    if (p <= b.pts) { const t = (p - a.pts) / (b.pts - a.pts); return Math.exp(Math.log(a.km) + t * (Math.log(b.km) - Math.log(a.km))); }
+  }
+  const a = L[L.length - 2], b = L[L.length - 1];
+  return Math.exp(Math.log(b.km) + (p - b.pts) / (b.pts - a.pts) * (Math.log(b.km) - Math.log(a.km)));
+}
+function fmtKm(km) {
+  if (km < 10) return { v: km.toFixed(1), u: 'km' };
+  if (km < 1e6) return { v: Math.round(km).toLocaleString('en-US'), u: 'km' };
+  if (km < 1e9) return { v: (km / 1e6).toFixed(km < 1e7 ? 2 : 1), u: 'million km' };
+  return { v: (km / 1e9).toFixed(2), u: 'billion km' };
+}
+function landmarkAt(p) { let idx = 0; LANDMARKS.forEach((l, i) => { if (p >= l.pts) idx = i; }); return idx; }
+function zoneText(p) {
+  if (p <= 0.5) return 'On the pad';
+  const i = landmarkAt(p), l = LANDMARKS[i];
+  if (i === 0) return 'Climbing through the troposphere';
+  if (i === LANDMARKS.length - 1) return 'Past Jupiter';
+  return `Past ${l.the}`;
+}
+
+// ======================================================================
+// Three.js scene
+// ======================================================================
+const UNIT = 2;            // world units per point
+const HOVER = 10;          // rocket hover height above the pad once lifted
+const EARTH_R = 600;
+const ptsToY = p => HOVER + p * UNIT;
+const SUN_DIR = new THREE.Vector3(0.55, 0.42, 0.42).normalize();
+
+const canvas = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 9000);
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.8, 0.5, 0.86);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+const NOISE = /* glsl */`
+float hash(vec3 p){ p = fract(p*0.3183099 + 0.1); p *= 17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
+float noise(vec3 x){ vec3 i = floor(x); vec3 f = fract(x); f = f*f*(3.0-2.0*f);
+  return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x), mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),
+             mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x), mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y), f.z); }
+float fbm(vec3 p){ float a = 0.5, s = 0.0; for (int i = 0; i < 5; i++){ s += a*noise(p); p = p*2.03 + vec3(1.7,9.2,3.1); a *= 0.5; } return s; }
+`;
+const PLANET_VERT = /* glsl */`
+varying vec3 vObjN; varying vec3 vN; varying vec3 vWorldPos;
+void main(){ vObjN = normalize(position); vec4 wp = modelMatrix * vec4(position, 1.0); vWorldPos = wp.xyz;
+  vN = normalize(mat3(modelMatrix) * normal); gl_Position = projectionMatrix * viewMatrix * wp; }`;
+
+// ---------- sky dome ----------
+const skyU = { uAtmo: { value: 1 }, uSunDir: { value: SUN_DIR }, uTime: { value: 0 } };
+const sky = new THREE.Mesh(new THREE.SphereGeometry(4000, 48, 32), new THREE.ShaderMaterial({
+  uniforms: skyU, side: THREE.BackSide, depthWrite: false,
+  vertexShader: `varying vec3 vDir; void main(){ vDir = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+  fragmentShader: NOISE + /* glsl */`
+  uniform float uAtmo; uniform vec3 uSunDir; varying vec3 vDir;
+  void main(){
+    vec3 d = normalize(vDir); float h = d.y;
+    vec3 zenith = vec3(0.04, 0.16, 0.55), horizon = vec3(0.42, 0.62, 0.88);
+    vec3 day = mix(horizon, zenith, smoothstep(-0.02, 0.55, h));
+    day = mix(day, vec3(0.36, 0.48, 0.66), smoothstep(0.0, -0.25, h));
+    vec3 n = normalize(vec3(0.3, 0.55, 0.78));
+    float band = exp(-pow(dot(d, n) * 3.2, 2.0));
+    float neb = fbm(d * 3.5);
+    vec3 space = vec3(0.003, 0.004, 0.012);
+    space += band * (0.02 + 0.09 * neb * neb) * vec3(0.55, 0.52, 0.8);
+    space += pow(fbm(d * 2.2 + 7.0), 4.0) * vec3(0.16, 0.04, 0.22) * 0.5;
+    space += pow(fbm(d * 1.7 + 19.0), 5.0) * vec3(0.02, 0.12, 0.2) * 0.7;
+    vec3 col = mix(space, day, uAtmo);
+    float tw = clamp(uAtmo * (1.0 - uAtmo) * 4.0, 0.0, 1.0);
+    col += tw * vec3(0.95, 0.42, 0.18) * exp(-abs(h + 0.02) * 10.0) * 0.45;
+    float s = max(dot(d, uSunDir), 0.0);
+    col += vec3(1.0, 0.92, 0.8) * (pow(s, 900.0) * 8.0 + pow(s, 60.0) * (0.25 + 0.35 * uAtmo) + pow(s, 6.0) * 0.08 * uAtmo);
+    gl_FragColor = vec4(col, 1.0);
+  }`,
+}));
+sky.renderOrder = -10;
+scene.add(sky);
+
+// ---------- stars ----------
+const STAR_N = 6000;
+const starGeo = new THREE.BufferGeometry();
+{
+  const pos = new Float32Array(STAR_N * 3), size = new Float32Array(STAR_N), col = new Float32Array(STAR_N * 3), ph = new Float32Array(STAR_N);
+  const tints = [[1, 1, 1], [0.75, 0.85, 1], [1, 0.88, 0.72], [0.9, 0.92, 1]];
+  for (let i = 0; i < STAR_N; i++) {
+    const v = new THREE.Vector3().randomDirection().multiplyScalar(3500);
+    pos.set([v.x, v.y, v.z], i * 3);
+    size[i] = Math.pow(Math.random(), 6) * 4 + 0.8;
+    const t = tints[(Math.random() * tints.length) | 0], b = 0.5 + Math.random() * 0.8;
+    col.set([t[0] * b, t[1] * b, t[2] * b], i * 3);
+    ph[i] = Math.random() * 6.28;
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  starGeo.setAttribute('aSize', new THREE.BufferAttribute(size, 1));
+  starGeo.setAttribute('aColor', new THREE.BufferAttribute(col, 3));
+  starGeo.setAttribute('aPhase', new THREE.BufferAttribute(ph, 1));
+}
+const starU = { uOpacity: { value: 0 }, uTime: { value: 0 }, uPR: { value: renderer.getPixelRatio() } };
+const stars = new THREE.Points(starGeo, new THREE.ShaderMaterial({
+  uniforms: starU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  vertexShader: `attribute float aSize; attribute vec3 aColor; attribute float aPhase; uniform float uTime; uniform float uPR; varying vec3 vC; varying float vTw;
+    void main(){ vC = aColor; vTw = 0.75 + 0.25 * sin(uTime * 2.0 + aPhase * 7.0); gl_PointSize = aSize * uPR; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+  fragmentShader: `uniform float uOpacity; varying vec3 vC; varying float vTw;
+    void main(){ float d = length(gl_PointCoord - 0.5); float a = smoothstep(0.5, 0.0, d); gl_FragColor = vec4(min(vC * vTw, vec3(0.72)) * a * uOpacity, 1.0); }`,
+}));
+stars.renderOrder = -9;
+scene.add(stars);
+
+// ---------- sun + lights ----------
+const sunLight = new THREE.DirectionalLight(0xfff1dc, 2.6);
+sunLight.position.copy(SUN_DIR).multiplyScalar(100);
+scene.add(sunLight, sunLight.target);
+const hemi = new THREE.HemisphereLight(0x9fc4ff, 0x2a3346, 0.7);
+scene.add(hemi);
+const ambient = new THREE.AmbientLight(0x6070a0, 0.25);
+scene.add(ambient);
+
+// ---------- Earth ----------
+const earthCenter = new THREE.Vector3(0, -EARTH_R, 0);
+const earthU = { uSunDir: { value: SUN_DIR }, uAtmo: { value: 1 }, uHaze: { value: new THREE.Color(0.42, 0.58, 0.82) } };
+const earth = new THREE.Mesh(new THREE.SphereGeometry(EARTH_R, 160, 120), new THREE.ShaderMaterial({
+  uniforms: earthU, vertexShader: PLANET_VERT,
+  fragmentShader: NOISE + /* glsl */`
+  uniform vec3 uSunDir; uniform float uAtmo; uniform vec3 uHaze;
+  varying vec3 vObjN; varying vec3 vN; varying vec3 vWorldPos;
+  void main(){
+    vec3 p = vObjN;
+    float n = fbm(p * 2.4) + 0.22 * (fbm(p * 9.0) - 0.5) + 0.25 * smoothstep(0.975, 1.0, p.y);
+    float land = smoothstep(0.50, 0.515, n);
+    float coast = smoothstep(0.42, 0.50, n) * (1.0 - land);
+    vec3 ocean = mix(vec3(0.003, 0.018, 0.07), vec3(0.01, 0.09, 0.17), coast);
+    float dry = fbm(p * 4.0 + 5.0);
+    vec3 landC = mix(vec3(0.045, 0.12, 0.03), vec3(0.30, 0.22, 0.11), smoothstep(0.45, 0.66, dry));
+    landC *= 0.7 + 0.6 * fbm(p * 70.0);
+    float ice = smoothstep(0.84, 0.9, abs(p.z + 0.12 * (fbm(p * 6.0) - 0.5)));
+    vec3 col = mix(mix(ocean, landC, land), vec3(0.78, 0.83, 0.9), ice);
+    // launch site: a pale concrete apron
+    float pad = 1.0 - smoothstep(0.99996, 0.99999, p.y);
+    col = mix(col, vec3(0.22, 0.22, 0.2), 1.0 - pad);
+    vec3 N = normalize(vN), L = normalize(uSunDir), V = normalize(cameraPosition - vWorldPos);
+    float dif = max(dot(N, L), 0.0);
+    float spec = pow(max(dot(reflect(-L, N), V), 0.0), 70.0) * (1.0 - land) * (1.0 - ice) * 0.7;
+    vec3 lit = col * (dif * 1.7 + 0.015) + spec * vec3(1.0, 0.88, 0.7);
+    float night = 1.0 - smoothstep(-0.08, 0.12, dot(N, L));
+    float city = smoothstep(0.80, 0.97, noise(p * 140.0)) * land * (1.0 - ice) * smoothstep(0.42, 0.6, fbm(p * 11.0));
+    lit += night * city * vec3(1.0, 0.62, 0.28) * 2.2;
+    float rim = pow(1.0 - max(dot(N, V), 0.0), 3.0);
+    lit += rim * vec3(0.22, 0.48, 1.0) * (0.08 + dif) * 0.9 * (1.0 - uAtmo);
+    float dist = length(cameraPosition - vWorldPos);
+    lit = mix(lit, uHaze, uAtmo * (1.0 - exp(-dist * 0.006)));
+    gl_FragColor = vec4(lit, 1.0);
+  }`,
+}));
+earth.position.copy(earthCenter);
+scene.add(earth);
+
+// cloud shell
+const cloudU = { uSunDir: { value: SUN_DIR }, uTime: { value: 0 }, uAtmo: { value: 1 } };
+const cloudShell = new THREE.Mesh(new THREE.SphereGeometry(EARTH_R + 16, 128, 96), new THREE.ShaderMaterial({
+  uniforms: cloudU, vertexShader: PLANET_VERT, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+  fragmentShader: NOISE + /* glsl */`
+  uniform vec3 uSunDir; uniform float uTime; uniform float uAtmo;
+  varying vec3 vObjN; varying vec3 vN; varying vec3 vWorldPos;
+  void main(){
+    vec3 p = vObjN;
+    float c = fbm(p * 5.0 + vec3(uTime * 0.004, 0.0, uTime * 0.002)) + 0.25 * (fbm(p * 22.0) - 0.5);
+    float a = smoothstep(0.52, 0.7, c);
+    a *= 1.0 - 0.75 * smoothstep(0.9985, 0.99995, p.y);   // clear sky over the pad
+    float dif = max(dot(normalize(vN), normalize(uSunDir)), 0.0);
+    vec3 col = vec3(1.0) * (dif * 1.4 + 0.03);
+    float dist = length(cameraPosition - vWorldPos);
+    a *= mix(0.9, 0.55, uAtmo) * smoothstep(2.0, 30.0, dist);
+    gl_FragColor = vec4(col, a);
+  }`,
+}));
+cloudShell.position.copy(earthCenter);
+scene.add(cloudShell);
+
+// atmosphere glow seen from space
+const ATMO_R = EARTH_R * 1.07;
+const atmoU = { uCenter: { value: earthCenter }, uR: { value: EARTH_R }, uRs: { value: ATMO_R }, uSunDir: { value: SUN_DIR }, uSpace: { value: 0 } };
+const atmo = new THREE.Mesh(new THREE.SphereGeometry(ATMO_R, 96, 64), new THREE.ShaderMaterial({
+  uniforms: atmoU, transparent: true, depthWrite: false, side: THREE.BackSide, blending: THREE.AdditiveBlending,
+  vertexShader: `varying vec3 vWorldPos; void main(){ vec4 wp = modelMatrix * vec4(position,1.0); vWorldPos = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }`,
+  fragmentShader: /* glsl */`
+  uniform vec3 uCenter; uniform float uR; uniform float uRs; uniform vec3 uSunDir; uniform float uSpace; varying vec3 vWorldPos;
+  void main(){
+    vec3 ro = cameraPosition, rd = normalize(vWorldPos - ro);
+    vec3 oc = uCenter - ro; float tca = max(dot(oc, rd), 0.0);
+    vec3 cp = ro + rd * tca; float d = length(cp - uCenter);
+    float x = clamp((d - uR) / (uRs - uR), 0.0, 1.0);
+    float g = pow(1.0 - x, 3.5);
+    float lit = 0.15 + 0.85 * smoothstep(-0.3, 0.6, dot(normalize(cp - uCenter), uSunDir));
+    gl_FragColor = vec4(vec3(0.28, 0.55, 1.0) * g * lit * 1.4 * uSpace, 1.0);
+  }`,
+}));
+atmo.position.copy(earthCenter);
+scene.add(atmo);
+
+// Kármán line: a thin halo shell
+const karmanY = ptsToY(110);
+const karman = new THREE.Mesh(new THREE.SphereGeometry(EARTH_R + karmanY, 256, 128), new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+  uniforms: { uOp: { value: 0 } },
+  vertexShader: `varying vec3 vN; varying vec3 vW; void main(){ vec4 wp = modelMatrix * vec4(position,1.0); vW = wp.xyz; vN = normalize(mat3(modelMatrix) * normal); gl_Position = projectionMatrix * viewMatrix * wp; }`,
+  fragmentShader: `uniform float uOp; varying vec3 vN; varying vec3 vW;
+    void main(){ float r = 1.0 - abs(dot(normalize(vN), normalize(cameraPosition - vW))); gl_FragColor = vec4(vec3(1.0, 0.45, 0.2) * pow(r, 10.0) * 0.5 * uOp, 1.0); }`,
+}));
+karman.position.copy(earthCenter);
+scene.add(karman);
+
+// ---------- launch pad ----------
+const pad = new THREE.Group();
+{
+  const concrete = new THREE.MeshStandardMaterial({ color: 0x8a8a86, roughness: 0.95 });
+  const steel = new THREE.MeshStandardMaterial({ color: 0xb84a22, roughness: 0.6, metalness: 0.3 });
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(9, 10, 1.2, 40), concrete);
+  base.position.y = -0.55; pad.add(base);
+  const deck = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 2.8, 0.6, 24), new THREE.MeshStandardMaterial({ color: 0x3a3b40, roughness: 0.8 }));
+  deck.position.y = 0.25; pad.add(deck);
+  const tower = new THREE.Group();
+  const H = 12;
+  for (const [x, z] of [[-0.6, -0.6], [0.6, -0.6], [-0.6, 0.6], [0.6, 0.6]]) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.16, H, 0.16), steel); leg.position.set(x, H / 2, z); tower.add(leg);
+  }
+  for (let y = 0.8; y < H; y += 1.2) {
+    for (const r of [0, Math.PI / 2]) {
+      const brace = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.08, 0.08), steel);
+      brace.position.set(0, y, 0); brace.rotation.y = r; brace.rotation.z = 0.6; tower.add(brace);
+    }
+  }
+  const arm = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.22, 0.4), steel); arm.position.set(-1.6, 8.5, 0); tower.add(arm);
+  const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 8), new THREE.MeshBasicMaterial({ color: 0xff2a2a }));
+  beacon.position.set(0, H + 0.2, 0); beacon.name = 'beacon'; tower.add(beacon);
+  tower.position.set(-2.65, 0, -2.1); tower.rotation.y = 2.47;
+  pad.add(tower);
+}
+scene.add(pad);
+
+// ---------- rocket ----------
+const rocket = new THREE.Group();
+const rocketBody = new THREE.Group();
+{
+  const hull = new THREE.MeshStandardMaterial({ color: 0xf1ebdd, roughness: 0.35, metalness: 0.15 });
+  const orange = new THREE.MeshStandardMaterial({ color: 0xff5a1f, roughness: 0.45, metalness: 0.1 });
+  const dark = new THREE.MeshStandardMaterial({ color: 0x2a2d36, roughness: 0.35, metalness: 0.85 });
+  const bodyPts = [[0.62, 0.35], [0.8, 0.6], [0.84, 1.4], [0.84, 3.3], [0.78, 3.7]].map(([x, y]) => new THREE.Vector2(x, y));
+  rocketBody.add(new THREE.Mesh(new THREE.LatheGeometry(bodyPts, 48), hull));
+  const nosePts = [];
+  for (let i = 0; i <= 14; i++) { const t = i / 14; nosePts.push(new THREE.Vector2(0.78 * Math.cos(t * Math.PI / 2) ** 0.9, 3.7 + t * 1.85)); }
+  rocketBody.add(new THREE.Mesh(new THREE.LatheGeometry(nosePts, 48), orange));
+  const band = new THREE.Mesh(new THREE.CylinderGeometry(0.845, 0.845, 0.22, 48, 1, true), orange); band.position.y = 1.15; rocketBody.add(band);
+  const band2 = band.clone(); band2.position.y = 3.15; band2.scale.set(1, 0.5, 1); rocketBody.add(band2);
+  const bottom = new THREE.Mesh(new THREE.CircleGeometry(0.62, 32), dark); bottom.rotation.x = Math.PI / 2; bottom.position.y = 0.35; rocketBody.add(bottom);
+  const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.52, 0.55, 32, 1, true), dark); nozzle.position.y = 0.1; rocketBody.add(nozzle);
+  const finShape = new THREE.Shape(); finShape.moveTo(0, 0); finShape.lineTo(0.85, -0.55); finShape.lineTo(0.85, -0.05); finShape.lineTo(0, 1.5); finShape.lineTo(0, 0);
+  const finGeo = new THREE.ExtrudeGeometry(finShape, { depth: 0.08, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 2 });
+  for (let i = 0; i < 3; i++) {
+    const fin = new THREE.Mesh(finGeo, orange);
+    const a = i * Math.PI * 2 / 3 + Math.PI / 6;
+    fin.position.set(Math.cos(a) * 0.76, 0.55, Math.sin(a) * 0.76);
+    fin.rotation.y = -a; rocketBody.add(fin);
+  }
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.055, 12, 32), dark); ring.position.set(0, 2.45, 0.86); rocketBody.add(ring);
+  const glass = new THREE.Mesh(new THREE.CircleGeometry(0.26, 32), new THREE.MeshStandardMaterial({ color: 0x0c2433, emissive: 0x2fb7ff, emissiveIntensity: 0.9, roughness: 0.1, metalness: 0.5 }));
+  glass.position.set(0, 2.45, 0.85); rocketBody.add(glass);
+  // stencil-style number on the hull
+  const c = document.createElement('canvas'); c.width = 128; c.height = 256;
+  rocketBody.userData.decalCanvas = c;
+  const decal = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.84), new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(c), transparent: true, roughness: 0.5 }));
+  decal.position.set(0, 1.9, 0); decal.rotation.y = -Math.PI / 2; decal.position.x = -0.85; rocketBody.add(decal);
+  rocketBody.userData.decal = decal;
+}
+rocket.add(rocketBody);
+scene.add(rocket);
+rocket.position.set(0, 0.55, 0);
+
+// flame core
+const flameU = { uTime: { value: 0 }, uThrust: { value: 0 } };
+const flameCore = new THREE.Mesh(new THREE.ConeGeometry(0.42, 3.2, 24, 8, true), new THREE.ShaderMaterial({
+  uniforms: flameU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+  vertexShader: `varying vec2 vUv; uniform float uTime; void main(){ vUv = uv; vec3 p = position; p.xz *= 1.0 + 0.08 * sin(uTime * 40.0 + p.y * 6.0); gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0); }`,
+  fragmentShader: `varying vec2 vUv; uniform float uThrust; uniform float uTime;
+    void main(){ float t = 1.0 - vUv.y; float flick = 0.85 + 0.15 * sin(uTime * 55.0 + t * 20.0);
+      vec3 c = mix(vec3(1.0, 0.25, 0.05), vec3(1.0, 0.85, 0.55), smoothstep(0.2, 1.0, t)) * 3.0;
+      float edge = 1.0 - abs(vUv.x - 0.5) * 2.0; float a = smoothstep(0.0, 0.6, t) * flick * uThrust * (0.5 + 0.5 * edge);
+      gl_FragColor = vec4(c * a, 1.0); }`,
+}));
+flameCore.rotation.x = Math.PI;
+flameCore.position.y = -1.45;
+rocket.add(flameCore);
+const engineLight = new THREE.PointLight(0xff7a30, 0, 40, 1.6);
+engineLight.position.y = -1.2;
+rocket.add(engineLight);
+
+// ---------- particle systems ----------
+function makeParticles(n, frag, blending) {
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(n * 3), life = new Float32Array(n).fill(1), size = new Float32Array(n);
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage));
+  geo.setAttribute('aLife', new THREE.BufferAttribute(life, 1).setUsage(THREE.DynamicDrawUsage));
+  geo.setAttribute('aSize', new THREE.BufferAttribute(size, 1).setUsage(THREE.DynamicDrawUsage));
+  const u = { uScale: { value: 500 }, uTint: { value: new THREE.Color(1, 1, 1) } };
+  const mat = new THREE.ShaderMaterial({
+    uniforms: u, transparent: true, depthWrite: false, blending,
+    vertexShader: `attribute float aLife; attribute float aSize; uniform float uScale; varying float vAge;
+      void main(){ vAge = aLife; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_PointSize = aLife >= 1.0 ? 0.0 : aSize * uScale / -mv.z; gl_Position = projectionMatrix * mv; }`,
+    fragmentShader: frag,
+  });
+  const pts = new THREE.Points(geo, mat);
+  pts.frustumCulled = false;
+  scene.add(pts);
+  return { n, pts, u, pos, life, size, vel: new Float32Array(n * 3), maxLife: new Float32Array(n).fill(1), age: new Float32Array(n), grow: new Float32Array(n), head: 0 };
+}
+const fire = makeParticles(1400, `varying float vAge;
+  void main(){ float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard; float a = smoothstep(0.5, 0.0, d);
+    vec3 c = mix(vec3(1.0, 0.9, 0.7) * 1.6, vec3(1.0, 0.42, 0.08) * 1.1, smoothstep(0.0, 0.25, vAge));
+    c = mix(c, vec3(0.55, 0.06, 0.02), smoothstep(0.3, 0.8, vAge));
+    gl_FragColor = vec4(c * a * 0.55 * (1.0 - smoothstep(0.5, 1.0, vAge)), 1.0); }`, THREE.AdditiveBlending);
+const smoke = makeParticles(700, `varying float vAge; uniform vec3 uTint;
+  void main(){ float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard; float a = smoothstep(0.5, 0.1, d);
+    gl_FragColor = vec4(uTint * (0.75 - 0.25 * vAge), a * 0.2 * (1.0 - vAge) * smoothstep(0.0, 0.08, vAge)); }`, THREE.NormalBlending);
+const sparks = makeParticles(500, `varying float vAge; uniform vec3 uTint;
+  void main(){ float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard; float a = smoothstep(0.5, 0.0, d);
+    gl_FragColor = vec4(uTint * 2.5 * a * (1.0 - vAge), 1.0); }`, THREE.AdditiveBlending);
+
+function emit(sys, p, v, life, size, grow = 0) {
+  const i = sys.head; sys.head = (sys.head + 1) % sys.n;
+  sys.pos.set([p.x, p.y, p.z], i * 3); sys.vel.set([v.x, v.y, v.z], i * 3);
+  sys.age[i] = 0; sys.maxLife[i] = life; sys.size[i] = size; sys.grow[i] = grow; sys.life[i] = 0;
+}
+function stepParticles(sys, dt, drag) {
+  for (let i = 0; i < sys.n; i++) {
+    if (sys.life[i] >= 1) continue;
+    sys.age[i] += dt;
+    const l = sys.age[i] / sys.maxLife[i];
+    if (l >= 1) { sys.life[i] = 1; continue; }
+    sys.life[i] = l;
+    const k = Math.exp(-drag * dt);
+    sys.vel[i * 3] *= k; sys.vel[i * 3 + 1] *= k; sys.vel[i * 3 + 2] *= k;
+    sys.pos[i * 3] += sys.vel[i * 3] * dt; sys.pos[i * 3 + 1] += sys.vel[i * 3 + 1] * dt; sys.pos[i * 3 + 2] += sys.vel[i * 3 + 2] * dt;
+    sys.size[i] += sys.grow[i] * dt;
+  }
+  const g = sys.pts.geometry;
+  g.attributes.position.needsUpdate = true; g.attributes.aLife.needsUpdate = true; g.attributes.aSize.needsUpdate = true;
+}
+function clearParticles(sys) { sys.life.fill(1); stepParticles(sys, 0, 0); }
+
+// ---------- speed streaks ----------
+const STREAKS = 220;
+const streakGeo = new THREE.BufferGeometry();
+const streakPos = new Float32Array(STREAKS * 6);
+const streakSeed = Array.from({ length: STREAKS }, () => ({ a: Math.random() * Math.PI * 2, r: 6 + Math.random() * 40, y: Math.random() * 120 - 60 }));
+streakGeo.setAttribute('position', new THREE.BufferAttribute(streakPos, 3).setUsage(THREE.DynamicDrawUsage));
+const streakMat = new THREE.LineBasicMaterial({ color: 0xbfd4ff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+const streaks = new THREE.LineSegments(streakGeo, streakMat);
+streaks.frustumCulled = false;
+scene.add(streaks);
+
+// ---------- canvas labels ----------
+const labels = [];
+function makeLabel(title, sub, pos, color = '#ece6d8') {
+  const c = document.createElement('canvas'); c.width = 640; c.height = 160;
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, sizeAttenuation: false, opacity: 0 });
+  const s = new THREE.Sprite(mat); s.scale.set(0.2, 0.05, 1); s.center.set(0, 0.5); s.position.copy(pos); s.renderOrder = 5;
+  scene.add(s);
+  const draw = () => {
+    const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height);
+    g.fillStyle = color; g.fillRect(0, 70, 34, 3);
+    g.font = '800 64px "Big Shoulders Stencil Display", Impact, sans-serif'; g.fillStyle = color; g.textBaseline = 'alphabetic';
+    g.fillText(title.toUpperCase(), 46, 86);
+    g.font = '500 26px "IBM Plex Mono", monospace'; g.fillStyle = 'rgba(236,230,216,0.72)'; g.fillText(sub, 48, 128);
+    tex.needsUpdate = true;
+  };
+  draw();
+  const L = { sprite: s, draw, y: pos.y };
+  labels.push(L);
+  return L;
+}
+
+// ---------- landmarks ----------
+const std = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.4, ...extra });
+
+// low clouds: soft sprites around the climb
+const puffTex = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+  const grd = g.createRadialGradient(64, 64, 4, 64, 64, 64); grd.addColorStop(0, 'rgba(255,255,255,1)'); grd.addColorStop(0.5, 'rgba(255,255,255,0.45)'); grd.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = grd; g.fillRect(0, 0, 128, 128); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+})();
+const puffs = new THREE.Group();
+for (let k = 0; k < 26; k++) {
+  const a = Math.random() * Math.PI * 2, r = 22 + Math.random() * 90, y = 22 + Math.random() * 50;
+  const cx = Math.cos(a) * r, cz = Math.sin(a) * r;
+  for (let j = 0; j < 7; j++) {
+    const m = new THREE.SpriteMaterial({ map: puffTex, transparent: true, depthWrite: false, opacity: 0.55, color: 0xffffff });
+    const s = new THREE.Sprite(m); const sc = 9 + Math.random() * 14;
+    s.scale.set(sc, sc * 0.62, 1); s.position.set(cx + (Math.random() - 0.5) * 22, y + (Math.random() - 0.5) * 4, cz + (Math.random() - 0.5) * 22);
+    puffs.add(s);
+  }
+}
+scene.add(puffs);
+
+// ISS
+const iss = new THREE.Group();
+{
+  const panel = std(0x1b2a6b, { emissive: 0x0a1440, roughness: 0.3, metalness: 0.7 });
+  const white = std(0xd9d9d4, { roughness: 0.6 });
+  const gold = std(0xc89b3c, { metalness: 0.9, roughness: 0.3 });
+  const truss = new THREE.Mesh(new THREE.BoxGeometry(16, 0.35, 0.35), white); iss.add(truss);
+  for (const x of [-7, -5, 5, 7]) for (const z of [-1, 1]) {
+    const p = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.04, 4.2), panel); p.position.set(x, 0, z * 2.4); iss.add(p);
+  }
+  const mod = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 6, 16), white); mod.rotation.x = Math.PI / 2; iss.add(mod);
+  const mod2 = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 3, 16), gold); mod2.rotation.z = Math.PI / 2; mod2.position.set(0, 0, 2.2); iss.add(mod2);
+  for (const z of [-2, 2]) { const r = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.4, 1.2), white); r.position.set(0, 0.9, z); iss.add(r); }
+}
+iss.scale.setScalar(1.3);
+scene.add(iss);
+const issY = ptsToY(160);
+makeLabel('ISS', '408 km · low Earth orbit', new THREE.Vector3(14, issY + 4, 0));
+
+// geostationary ring + satellites
+const geoY = ptsToY(240);
+const geoR = EARTH_R + geoY;
+const geoRing = new THREE.Group();
+{
+  const pts = []; for (let i = 0; i <= 360; i++) { const a = i / 360 * Math.PI * 2; pts.push(new THREE.Vector3(Math.sin(a) * geoR, Math.cos(a) * geoR, 0)); }
+  const line = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ color: 0x4fd6e8, dashSize: 6, gapSize: 8, transparent: true, opacity: 0.5 }));
+  line.computeLineDistances(); geoRing.add(line);
+  const body = std(0xd8c58d, { metalness: 0.9, roughness: 0.3 }), pan = std(0x1d2b70, { emissive: 0x0a1440 });
+  for (const ang of [-0.11, -0.05, 0.035, 0.09]) {
+    const sat = new THREE.Group();
+    sat.add(new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.6), body));
+    for (const s of [-1, 1]) { const p = new THREE.Mesh(new THREE.BoxGeometry(4, 0.05, 1.2), pan); p.position.x = s * 2.7; sat.add(p); }
+    const dish = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 8, 0, Math.PI * 2, 0, 1.0), std(0xeeeeee, { side: THREE.DoubleSide })); dish.position.z = 1.1; dish.rotation.x = Math.PI / 2; sat.add(dish);
+    sat.position.set(Math.sin(ang) * geoR, Math.cos(ang) * geoR, 0); sat.rotation.z = -ang; sat.scale.setScalar(1.3);
+    geoRing.add(sat);
+  }
+}
+geoRing.position.copy(earthCenter);
+geoRing.rotation.y = 0.5;
+scene.add(geoRing);
+makeLabel('Geostationary', '35,786 km', new THREE.Vector3(16, geoY + 6, -8), '#9feaf4');
+
+// Moon
+const moonY = ptsToY(340);
+const moon = new THREE.Mesh(new THREE.SphereGeometry(46, 96, 64), new THREE.ShaderMaterial({
+  uniforms: { uSunDir: { value: SUN_DIR } }, vertexShader: PLANET_VERT,
+  fragmentShader: NOISE + `uniform vec3 uSunDir; varying vec3 vObjN; varying vec3 vN; varying vec3 vWorldPos;
+  void main(){ vec3 p = vObjN; float base = 0.42 + 0.28 * fbm(p * 3.0);
+    float mare = smoothstep(0.5, 0.58, fbm(p * 1.6 + 3.0)); base = mix(base, base * 0.5, mare);
+    float cr = smoothstep(0.72, 0.78, noise(p * 26.0)) - smoothstep(0.78, 0.86, noise(p * 26.0)) * 0.6;
+    base += cr * 0.12 + 0.1 * (fbm(p * 40.0) - 0.5);
+    float dif = max(dot(normalize(vN), uSunDir), 0.0);
+    gl_FragColor = vec4(vec3(base) * vec3(1.0, 0.98, 0.95) * (dif * 1.15 + 0.01), 1.0); }`,
+}));
+moon.position.set(-150, moonY + 20, -150);
+scene.add(moon);
+makeLabel('The Moon', '384,400 km', new THREE.Vector3(-100, moonY + 70, -150));
+
+// JWST at L2
+const jwst = new THREE.Group();
+{
+  const gold = new THREE.MeshStandardMaterial({ color: 0xffc35a, metalness: 1, roughness: 0.18, emissive: 0x4a2a00, emissiveIntensity: 0.6 });
+  const hex = new THREE.CylinderGeometry(0.5, 0.5, 0.08, 6); hex.rotateX(Math.PI / 2); hex.rotateZ(Math.PI / 6);
+  const w = Math.sqrt(3) * 0.5 + 0.06;
+  const axial = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
+  const cells = [];
+  for (const [q, r] of axial) cells.push([q, r]);
+  for (let i = 0; i < 6; i++) { const [q1, r1] = axial[i], [q2, r2] = axial[(i + 1) % 6]; cells.push([q1 * 2, r1 * 2], [q1 + q2, r1 + r2]); }
+  for (const [q, r] of cells) {
+    const m = new THREE.Mesh(hex, gold);
+    m.position.set(w * (q + r / 2), w * (r * Math.sqrt(3) / 2), 0);
+    jwst.add(m);
+  }
+  const shieldMat = new THREE.MeshStandardMaterial({ color: 0xd9b7d9, metalness: 0.8, roughness: 0.35, side: THREE.DoubleSide, emissive: 0x2a1030, emissiveIntensity: 0.4 });
+  const sh = new THREE.Shape(); sh.moveTo(-6, 0); sh.lineTo(-2.5, 2.4); sh.lineTo(2.5, 2.4); sh.lineTo(6, 0); sh.lineTo(2.5, -2.4); sh.lineTo(-2.5, -2.4); sh.lineTo(-6, 0);
+  for (let i = 0; i < 5; i++) {
+    const layer = new THREE.Mesh(new THREE.ShapeGeometry(sh), shieldMat);
+    layer.rotation.x = -Math.PI / 2; layer.position.set(0, -2.3 - i * 0.22, 0.8); layer.scale.setScalar(1 - i * 0.03); jwst.add(layer);
+  }
+  const strut = std(0x333333);
+  for (const a of [0, 2.1, 4.2]) { const s = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 2.6), strut); s.position.set(Math.cos(a) * 0.9, Math.sin(a) * 0.9, 1.1); s.rotation.x = Math.PI / 2; s.lookAt(0, 0, 2.4); s.rotateX(Math.PI / 2); jwst.add(s); }
+  const sec = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 8), gold); sec.position.z = 2.4; jwst.add(sec);
+}
+jwst.scale.setScalar(3.2);
+const l2Y = ptsToY(450);
+jwst.position.set(40, l2Y + 8, -30);
+scene.add(jwst);
+makeLabel('Webb · L2', '1.5 million km', new THREE.Vector3(62, l2Y + 26, -30), '#ffd98a');
+
+// Mars
+const marsY = ptsToY(560);
+const mars = new THREE.Mesh(new THREE.SphereGeometry(62, 96, 64), new THREE.ShaderMaterial({
+  uniforms: { uSunDir: { value: SUN_DIR } }, vertexShader: PLANET_VERT,
+  fragmentShader: NOISE + `uniform vec3 uSunDir; varying vec3 vObjN; varying vec3 vN; varying vec3 vWorldPos;
+  void main(){ vec3 p = vObjN; float n = fbm(p * 3.0);
+    vec3 c = mix(vec3(0.32, 0.08, 0.02), vec3(0.62, 0.26, 0.09), smoothstep(0.3, 0.7, n));
+    c = mix(c, vec3(0.16, 0.05, 0.02), smoothstep(0.55, 0.62, fbm(p * 1.8 + 4.0)) * 0.7);
+    c *= 0.8 + 0.4 * fbm(p * 30.0);
+    c = mix(c, vec3(0.9, 0.88, 0.86), smoothstep(0.88, 0.93, abs(p.y)));
+    vec3 N = normalize(vN); vec3 V = normalize(cameraPosition - vWorldPos); float dif = max(dot(N, uSunDir), 0.0);
+    vec3 col = c * (dif * 1.8 + 0.01) + pow(1.0 - max(dot(N, V), 0.0), 4.0) * vec3(1.0, 0.45, 0.25) * dif * 0.6;
+    gl_FragColor = vec4(col, 1.0); }`,
+}));
+mars.position.set(210, marsY + 30, -230);
+scene.add(mars);
+makeLabel('Mars', '54.6 million km', new THREE.Vector3(250, marsY + 105, -230), '#ff9a6a');
+
+// asteroid belt between Mars and Jupiter
+const ROCKS = 520;
+const rockGeo = new THREE.IcosahedronGeometry(1, 1);
+{
+  const p = rockGeo.attributes.position;
+  for (let i = 0; i < p.count; i++) { const v = new THREE.Vector3().fromBufferAttribute(p, i); v.multiplyScalar(0.75 + Math.random() * 0.5); p.setXYZ(i, v.x, v.y, v.z); }
+  rockGeo.computeVertexNormals();
+}
+const rocks = new THREE.InstancedMesh(rockGeo, new THREE.MeshStandardMaterial({ color: 0x7d7166, roughness: 0.95, flatShading: true }), ROCKS);
+const rockData = [];
+{
+  const m = new THREE.Matrix4();
+  for (let i = 0; i < ROCKS; i++) {
+    const a = Math.random() * Math.PI * 2, r = 14 + Math.pow(Math.random(), 0.7) * 260, y = ptsToY(590) + Math.random() * (ptsToY(670) - ptsToY(590));
+    const d = { a, r, y, s: 0.4 + Math.pow(Math.random(), 3) * 5, rot: new THREE.Euler(Math.random() * 6, Math.random() * 6, 0), spin: (Math.random() - 0.5) * 0.6, orbit: 0.01 + Math.random() * 0.02 };
+    rockData.push(d);
+  }
+}
+scene.add(rocks);
+makeLabel('Asteroid belt', 'between Mars and Jupiter', new THREE.Vector3(18, ptsToY(625), 0), '#c8bfb4');
+
+// Jupiter
+const jupY = ptsToY(700);
+const jupiter = new THREE.Mesh(new THREE.SphereGeometry(170, 128, 96), new THREE.ShaderMaterial({
+  uniforms: { uSunDir: { value: SUN_DIR }, uTime: { value: 0 } }, vertexShader: PLANET_VERT,
+  fragmentShader: NOISE + `uniform vec3 uSunDir; uniform float uTime; varying vec3 vObjN; varying vec3 vN; varying vec3 vWorldPos;
+  void main(){ vec3 p = vObjN; float lat = p.y;
+    float turb = fbm(vec3(p.x * 3.0 + uTime * 0.01, p.y * 14.0, p.z * 3.0));
+    float b = sin(lat * 22.0 + turb * 3.2);
+    vec3 cream = vec3(0.82, 0.70, 0.52), brown = vec3(0.45, 0.25, 0.12), white = vec3(0.92, 0.88, 0.80);
+    vec3 c = mix(brown, cream, smoothstep(-0.6, 0.6, b));
+    c = mix(c, white, smoothstep(0.75, 0.95, sin(lat * 9.0 + turb * 2.0)) * 0.6);
+    float lon = atan(p.z, p.x);
+    vec2 q = vec2((lon - 0.9) * 1.0, (lat + 0.32) * 2.6);
+    float spot = 1.0 - smoothstep(0.09, 0.15, length(q));
+    c = mix(c, vec3(0.62, 0.18, 0.08), spot);
+    vec3 N = normalize(vN); float dif = max(dot(N, uSunDir), 0.0);
+    gl_FragColor = vec4(c * (dif * 1.6 + 0.01), 1.0); }`,
+}));
+jupiter.position.set(-360, jupY + 90, -520);
+jupiter.rotation.z = 0.05;
+scene.add(jupiter);
+makeLabel('Jupiter', '588 million km', new THREE.Vector3(-260, jupY + 270, -520), '#f0c98a');
+
+// atmosphere layer labels along the climb
+makeLabel('Tropopause', '12 km · weather ends', new THREE.Vector3(-16, ptsToY(30), 4), '#cfe3ff');
+makeLabel('Stratopause', '50 km · top of the ozone', new THREE.Vector3(14, ptsToY(60), -4), '#cfe3ff');
+makeLabel('Mesopause', '85 km · meteors burn up', new THREE.Vector3(-16, ptsToY(90), 4), '#ffd0b0');
+makeLabel('Kármán line', '100 km · space begins', new THREE.Vector3(14, karmanY, 0), '#ff9a6a');
+
+// meteors in the mesosphere
+const meteors = Array.from({ length: 10 }, () => {
+  const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, 0)]);
+  geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array([1, 0.85, 0.6, 0, 0, 0]), 3));
+  const l = new THREE.Line(geo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, opacity: 0, depthWrite: false }));
+  l.frustumCulled = false; scene.add(l);
+  return { line: l, life: 1, p: new THREE.Vector3(), v: new THREE.Vector3() };
+});
+
+// trajectory line drawn on the Reveal
+const trajMat = new THREE.LineDashedMaterial({ color: 0xff6a2b, dashSize: 2, gapSize: 2.5, transparent: true, opacity: 0 });
+let traj = null;
+function drawTrajectory(topY) {
+  if (traj) { scene.remove(traj); traj.geometry.dispose(); }
+  const pts = []; for (let i = 0; i <= 200; i++) { const y = 0.5 + (topY - 0.5) * i / 200; pts.push(new THREE.Vector3(Math.sin(y * 0.03) * 0.6, y, 0)); }
+  traj = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), trajMat); traj.computeLineDistances(); scene.add(traj);
+}
+
+// shockwave rings for scoring
+const rings = [];
+function shockwave(color, strength) {
+  const m = new THREE.Mesh(new THREE.RingGeometry(0.9, 1.0, 64), new THREE.MeshBasicMaterial({ color, transparent: true, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false }));
+  m.rotation.x = -Math.PI / 2; m.position.copy(rocket.position).add(new THREE.Vector3(0, 0.8, 0));
+  scene.add(m); rings.push({ m, t: 0, s: strength });
+  const c = new THREE.Color(color);
+  sparks.u.uTint.value.copy(c);
+  const n = Math.round(60 * strength);
+  for (let i = 0; i < n; i++) {
+    const v = new THREE.Vector3().randomDirection().multiplyScalar(10 + Math.random() * 25 * strength);
+    emit(sparks, rocket.position.clone().add(new THREE.Vector3(0, 2.5, 0)), v, 0.6 + Math.random() * 0.8, 0.5 + Math.random() * 0.6);
+  }
+}
+
+// ======================================================================
+// camera rig + input
+// ======================================================================
+const rig = { az: 0.9, el: -0.08, r: 15, userAz: 0, userEl: 0, zoom: 1, targetY: 2.5, shake: 0, scrubY: null };
+let dragging = null;
+canvas.addEventListener('pointerdown', e => { dragging = { x: e.clientX, y: e.clientY, id: e.pointerId }; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', e => {
+  if (!dragging || dragging.id !== e.pointerId) return;
+  rig.userAz -= (e.clientX - dragging.x) * 0.006;
+  rig.userEl = THREE.MathUtils.clamp(rig.userEl + (e.clientY - dragging.y) * 0.005, -0.9, 1.1);
+  dragging.x = e.clientX; dragging.y = e.clientY;
+});
+canvas.addEventListener('pointerup', () => dragging = null);
+canvas.addEventListener('pointercancel', () => dragging = null);
+canvas.addEventListener('dblclick', () => { rig.userAz = 0; rig.userEl = 0; rig.zoom = 1; });
+canvas.addEventListener('wheel', e => { e.preventDefault(); rig.zoom = THREE.MathUtils.clamp(rig.zoom * Math.exp(e.deltaY * 0.001), 0.45, 6); }, { passive: false });
+// pinch zoom
+const touches = new Map(); let pinch0 = null;
+canvas.addEventListener('touchstart', e => { if (e.touches.length === 2) pinch0 = { d: Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY), z: rig.zoom }; }, { passive: true });
+canvas.addEventListener('touchmove', e => { if (e.touches.length === 2 && pinch0) { const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); rig.zoom = THREE.MathUtils.clamp(pinch0.z * pinch0.d / d, 0.45, 6); } }, { passive: true });
+canvas.addEventListener('touchend', () => pinch0 = null);
+
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false); composer.setSize(w, h); bloom.setSize(w, h);
+  camera.aspect = w / h; camera.fov = w < 700 ? 62 : 50; camera.updateProjectionMatrix();
+  const scale = h * renderer.getPixelRatio() / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
+  for (const s of [fire, smoke, sparks]) s.u.uScale.value = scale;
+}
+addEventListener('resize', resize);
+resize();
+
+// ======================================================================
+// flight state
+// ======================================================================
+const flight = { y: 0.55, vy: 0, targetY: 0.55, thrust: 0, thrustTarget: 0, lifted: false, mode: 'pad' };
+function setTargetPts(p) { flight.targetY = ptsToY(p); }
+
+// ======================================================================
+// UI
+// ======================================================================
+const $ = id => document.getElementById(id);
+const store = {
+  get() { try { return JSON.parse(localStorage.getItem('apogee.v1') || '{}'); } catch { return {}; } },
+  set(v) { try { localStorage.setItem('apogee.v1', JSON.stringify(v)); } catch {} },
+};
+$('gameTitle').textContent = SEED.game;
+$('introModule').textContent = `Module · ${SEED.module} · ${SEED.game}`;
+
+// ruler ticks
+const rulerTicks = $('rulerTicks');
+const rulerPct = p => Math.pow(Math.min(1, Math.max(0, p / MAX_PTS)), 0.6) * 100;
+LANDMARKS.forEach((l, i) => {
+  if (i === 0) return;
+  const t = document.createElement('div'); t.className = 'tick'; t.style.bottom = rulerPct(l.pts) + '%';
+  const km = fmtKm(l.km);
+  t.innerHTML = l.pts < 110 ? '<i></i>' : `<span><em>${l.name}</em>${km.v} ${km.u}</span><i></i>`;
+  rulerTicks.appendChild(t); l.el = t;
+});
+function updateRuler(p) {
+  $('rulerFill').style.height = rulerPct(p) + '%';
+  $('rulerMarker').style.bottom = rulerPct(p) + '%';
+  LANDMARKS.forEach(l => l.el && l.el.classList.toggle('passed', p >= l.pts));
+}
+function showPB() {
+  const pb = store.get().pb || 0;
+  const el = $('rulerPB'); el.hidden = !pb; el.style.bottom = rulerPct(pb) + '%';
+}
+showPB();
+
+// ruler scrubbing on the Reveal
+{
+  const ruler = $('ruler'); let scrubbing = false;
+  const set = e => {
+    const r = ruler.getBoundingClientRect();
+    const t = 1 - (e.clientY - r.top) / r.height;
+    const p = Math.pow(THREE.MathUtils.clamp(t, 0, 1), 1 / 0.6) * MAX_PTS;
+    rig.scrubY = ptsToY(p);
+    $('rulerScrub').style.bottom = rulerPct(p) + '%';
+  };
+  ruler.addEventListener('pointerdown', e => { if (!document.body.classList.contains('reveal')) return; scrubbing = true; ruler.setPointerCapture(e.pointerId); set(e); });
+  ruler.addEventListener('pointermove', e => scrubbing && set(e));
+  ruler.addEventListener('pointerup', () => scrubbing = false);
+  ruler.addEventListener('wheel', e => {
+    if (!document.body.classList.contains('reveal')) return; e.preventDefault();
+    const cur = rig.scrubY ?? flight.y; const p = THREE.MathUtils.clamp((cur - HOVER) / UNIT - e.deltaY * 0.15, 0, MAX_PTS);
+    rig.scrubY = ptsToY(p); $('rulerScrub').style.bottom = rulerPct(p) + '%';
+  }, { passive: false });
+}
+
+// toast for passing landmarks
+let toastTimer = 0;
+function toast(l) {
+  $('toastName').textContent = l.name; const k = fmtKm(l.km); $('toastKm').textContent = `${k.v} ${k.u} · ${l.note}`;
+  $('toast').classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('show'), 2400);
+}
+
+// score pop anchored to the rocket
+let popUntil = 0;
+function pop(text, sub, color, minus = false) {
+  const el = $('pop'); el.hidden = false; el.classList.toggle('minus', minus);
+  $('popN').textContent = text; $('popN').style.color = color; $('popW').textContent = sub; $('popW').style.color = color;
+  el.animate([{ opacity: 0, transform: 'translate(-50%,-60%) scale(.6)' }, { opacity: 1, transform: 'translate(-50%,-100%) scale(1.08)', offset: 0.18 }, { opacity: 1, transform: 'translate(-50%,-120%) scale(1)', offset: 0.7 }, { opacity: 0, transform: 'translate(-50%,-150%) scale(.96)' }], { duration: minus ? 900 : 1700, easing: 'cubic-bezier(.2,.8,.2,1)' });
+  popUntil = performance.now() + (minus ? 900 : 1700);
+}
+const TIER_COLOR = { common: '#a9b8d6', solid: '#4fd6e8', deep: '#a98bff', rare: '#ffcf4a' };
+
+// ======================================================================
+// Run engine (client-side mock of the F06 flow)
+// ======================================================================
+const run = { prompts: [], idx: -1, score: 0, timeLeft: PROMPT_SECONDS, clock: false, locked: false, results: [] };
+
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function drawRun() {
+  const open = shuffle(SEED.prompts.filter(p => p.kind === 'open')).slice(0, 2);
+  const rest = shuffle(SEED.prompts.filter(p => !open.includes(p))).slice(0, RUN_LENGTH - 2);
+  return shuffle([...open, ...rest]);
+}
+function renderPips() {
+  $('pips').innerHTML = run.prompts.map((p, i) => {
+    const r = run.results[i];
+    const cls = r ? (r.points > 0 ? r.tier : 'miss') : (i === run.idx ? 'now' : '');
+    return `<div class="pip ${cls}" title="Prompt ${i + 1}"></div>`;
+  }).join('');
+}
+
+const KIND_LABEL = { open: 'Open · many answers', cloze: 'Fill the blank', definition_to_term: 'Name the term', ordered_recall: 'Put in order', odd_one_out: 'Odd one out' };
+const con = $('console');
+
+function promptHTML(p) {
+  const text = p.text.replace(/_{3,}/g, '<span class="blank"></span>');
+  const tier = p.kind === 'open' ? '<span class="tierchip common">10</span><span class="tierchip solid">25</span><span class="tierchip deep">60</span><span class="tierchip rare">100</span>'
+    : `<span class="tierchip ${p.tier}" id="tierchip">${p.tier} · ${TIER_POINTS[p.tier]}</span>`;
+  let input = '';
+  if (p.kind === 'odd_one_out') input = `<div class="options">${shuffle(p.options).map(o => `<button class="btn opt" data-v="${o}">${o}</button>`).join('')}</div>`;
+  else if (p.kind === 'ordered_recall') {
+    let items = shuffle(p.items); while (items.every((x, i) => x === p.items[i])) items = shuffle(p.items);
+    input = `<ol class="order" id="order">${items.map(t => `<li data-v="${t.replace(/"/g, '&quot;')}"><span class="grip">⋮⋮</span><span class="t">${t}</span><span class="mv"><button aria-label="Move up" data-d="-1">▲</button><button aria-label="Move down" data-d="1">▼</button></span></li>`).join('')}</ol>
+      <div class="row"><span class="feedback" id="fb"></span><button class="btn primary" id="orderSubmit">Lock in order</button></div>`;
+  } else input = `<form class="answer-row" id="guessForm" autocomplete="off"><input id="guess" placeholder="${p.kind === 'open' ? 'Type any answer from your slides' : 'Type your answer'}" aria-label="Your answer" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn primary" type="submit">Fire</button></form>`;
+  const hint = p.hint ? `<button class="btn" id="hintBtn" title="Shows a clue and drops this prompt one Tier">Hint</button>` : '';
+  return `
+    <div class="row"><div class="kind"><span class="eyebrow">${run.idx + 1} / ${RUN_LENGTH} · ${KIND_LABEL[p.kind]}</span>${tier}</div><div class="clock mono" id="clock">25.0</div></div>
+    <div class="timebar"><div id="timebar"></div></div>
+    <p class="prompt-text">${text}</p>
+    <div class="hint-line" id="hintLine" hidden></div>
+    ${input}
+    ${p.kind === 'ordered_recall' ? '' : `<div class="row"><span class="feedback" id="fb"></span>${hint}</div>`}
+    ${p.kind === 'ordered_recall' && hint ? `<div class="row" style="justify-content:flex-end">${hint}</div>` : ''}`;
+}
+
+function nextPrompt() {
+  run.idx++;
+  if (run.idx >= RUN_LENGTH) return endRun();
+  const p = run.prompts[run.idx];
+  run.cur = { p, hinted: false, wrong: [] };
+  run.timeLeft = PROMPT_SECONDS; run.locked = false;
+  con.innerHTML = promptHTML(p);
+  con.classList.remove('away');
+  renderPips();
+  wirePrompt(p);
+  // the clock starts once the prompt is on screen
+  setTimeout(() => { if (run.cur && run.cur.p === p) { run.clock = true; const g = $('guess'); if (g && matchMedia('(pointer:fine)').matches) g.focus(); } }, 480);
+}
+
+function wirePrompt(p) {
+  const form = $('guessForm');
+  if (form) form.addEventListener('submit', e => { e.preventDefault(); const g = $('guess'); const v = g.value.trim(); if (!v) return; g.value = ''; submitText(v); });
+  con.querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => {
+    if (run.locked || !run.clock) return;
+    if (b.dataset.v === p.correct_option) resolve({ answer: b.dataset.v, canonical: b.dataset.v, tier: tierFor(p) });
+    else { b.disabled = true; b.classList.add('wrong'); wrongGuess(b.dataset.v); }
+  }));
+  const hb = $('hintBtn');
+  if (hb) hb.addEventListener('click', () => {
+    if (run.locked || run.cur.hinted) return;
+    run.cur.hinted = true; hb.disabled = true;
+    const hl = $('hintLine'); hl.hidden = false; hl.innerHTML = `<span class="eyebrow">Hint</span><span>${p.hint}</span>`;
+    const below = TIER_BELOW[p.tier];
+    $('tierchip').innerHTML = below ? `<s>${p.tier}</s> → ${below} · ${TIER_POINTS[below]}` : `<s>common</s> → ${HINTED_COMMON_POINTS} pts`;
+    $('tierchip').className = `tierchip ${below || 'common'}`;
+  });
+  const ol = $('order');
+  if (ol) wireOrder(ol, p);
+}
+
+function wireOrder(ol, p) {
+  ol.querySelectorAll('.mv button').forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation(); const li = b.closest('li'); const d = +b.dataset.d;
+    if (d < 0 && li.previousElementSibling) ol.insertBefore(li, li.previousElementSibling);
+    if (d > 0 && li.nextElementSibling) ol.insertBefore(li.nextElementSibling, li);
+  }));
+  ol.querySelectorAll('li').forEach(li => {
+    let start = 0, active = false;
+    li.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; active = true; start = e.clientY; li.setPointerCapture(e.pointerId); li.classList.add('dragging'); });
+    li.addEventListener('pointermove', e => {
+      if (!active) return;
+      let dy = e.clientY - start;
+      const prev = li.previousElementSibling, next = li.nextElementSibling;
+      if (next && dy > next.offsetHeight * 0.6) { ol.insertBefore(next, li); start += next.offsetHeight + 6; dy = e.clientY - start; }
+      else if (prev && dy < -prev.offsetHeight * 0.6) { ol.insertBefore(li, prev); start -= prev.offsetHeight + 6; dy = e.clientY - start; }
+      li.style.transform = `translateY(${dy}px)`;
+    });
+    const end = () => { active = false; li.classList.remove('dragging'); li.style.transform = ''; };
+    li.addEventListener('pointerup', end); li.addEventListener('pointercancel', end);
+  });
+  $('orderSubmit').addEventListener('click', () => {
+    if (run.locked || !run.clock) return;
+    const order = [...ol.children].map(li => li.dataset.v);
+    if (order.every((v, i) => v === p.items[i])) resolve({ answer: 'Correct order', canonical: 'Correct order', tier: tierFor(p) });
+    else wrongGuess('That order');
+  });
+}
+
+function tierFor(p) {
+  if (!run.cur.hinted) return p.tier;
+  return TIER_BELOW[p.tier] || 'common';
+}
+function pointsFor(p, tier) {
+  if (p.kind !== 'open' && run.cur.hinted && !TIER_BELOW[p.tier]) return HINTED_COMMON_POINTS;
+  return TIER_POINTS[tier];
+}
+
+function submitText(v) {
+  if (run.locked || !run.clock) return;
+  const p = run.cur.p;
+  const hit = p.answers.find(a => matches(v, a));
+  if (hit) resolve({ answer: v, canonical: hit.canonical, tier: p.kind === 'open' ? hit.tier : tierFor(p) });
+  else wrongGuess(v);
+}
+
+function wrongGuess(v) {
+  run.cur.wrong.push(v);
+  run.timeLeft = Math.max(0, run.timeLeft - WRONG_PENALTY);
+  const fb = $('fb'); if (fb) { fb.className = 'feedback bad'; fb.textContent = `“${v}” isn't in your slides · −3 s`; }
+  con.classList.remove('shake'); void con.offsetWidth; con.classList.add('shake');
+  pop('−3 s', 'wrong guess', '#ff5468', true);
+  rig.shake = Math.max(rig.shake, 0.35);
+  flight.sputter = 0.5;
+  if (run.timeLeft <= 0) timeout();
+}
+
+function resolve({ answer, canonical, tier }) {
+  run.locked = true; run.clock = false;
+  const p = run.cur.p;
+  const points = pointsFor(p, tier);
+  run.score += points;
+  const res = { p, answer, canonical, tier, points, hinted: run.cur.hinted, wrong: run.cur.wrong, timeLeft: run.timeLeft };
+  run.results[run.idx] = res;
+  con.innerHTML = `
+    <div class="row"><span class="eyebrow">${run.idx + 1} / ${RUN_LENGTH} · ${KIND_LABEL[p.kind]}</span><span class="tierchip ${tier}">${tier}</span></div>
+    <div class="result-line"><span style="color:${TIER_COLOR[tier]}" class="pts">+${points}</span><span>${canonical}</span>${res.hinted ? '<span class="tierchip common">hinted</span>' : ''}</div>
+    <div class="feedback">${p.kind === 'open' ? openNote(p, canonical) : p.explanation}</div>`;
+  renderPips();
+  pop(`+${points}`, `${tier} · ${canonical}`, TIER_COLOR[tier]);
+  const strength = { common: 0.5, solid: 0.8, deep: 1.2, rare: 2 }[tier];
+  shockwave(TIER_COLOR[tier], strength);
+  rig.shake = Math.max(rig.shake, 0.25 + strength * 0.35);
+  flight.boost = 1.6 + strength;
+  setTargetPts(run.score);
+  updateScore();
+  setTimeout(() => { con.classList.add('away'); setTimeout(nextPrompt, 420); }, 2300);
+}
+function openNote(p, canonical) {
+  const others = p.answers.filter(a => a.canonical !== canonical);
+  const rare = p.answers[p.answers.length - 1];
+  return rare.canonical === canonical ? `That's the rarest answer in your slides. ${others.length} others were possible.` : `${others.length} other answers were possible. The rarest was hiding on p.${rare.evidence_page}.`;
+}
+function timeout() {
+  run.locked = true; run.clock = false;
+  const p = run.cur.p;
+  run.results[run.idx] = { p, answer: null, canonical: null, tier: null, points: 0, hinted: run.cur.hinted, wrong: run.cur.wrong, timedOut: true };
+  const ans = p.kind === 'open' ? `e.g. ${p.answers[0].canonical}` : p.kind === 'odd_one_out' ? p.correct_option : p.kind === 'ordered_recall' ? p.items[0] + ' …' : p.answers[0].canonical;
+  con.innerHTML = `<div class="row"><span class="eyebrow">${run.idx + 1} / ${RUN_LENGTH} · ${KIND_LABEL[p.kind]}</span></div>
+    <div class="result-line"><span class="pts" style="color:var(--bad)">Time!</span><span>${ans}</span></div>
+    <div class="feedback">Engines idle. No points for this one; the Run carries on.</div>`;
+  renderPips();
+  flight.sputter = 1.2;
+  setTimeout(() => { con.classList.add('away'); setTimeout(nextPrompt, 420); }, 2000);
+}
+
+function updateScore() { $('ptsReadout').textContent = `${run.score} pts`; }
+
+// ---------- start / end ----------
+async function countdown() {
+  const el = $('countdownNum');
+  for (const t of ['3', '2', '1', 'LIFTOFF']) {
+    el.textContent = t; el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
+    if (t === '1') { flight.thrustTarget = 0.6; }
+    await new Promise(r => setTimeout(r, t === 'LIFTOFF' ? 700 : 850));
+  }
+}
+async function startRun() {
+  document.body.classList.remove('reveal', 'flyby');
+  $('intro').classList.add('away');
+  run.prompts = drawRun(); run.idx = -1; run.score = 0; run.results = []; run.cur = null;
+  updateScore(); renderPips();
+  rig.scrubY = null;
+  trajMat.opacity = 0;
+  flight.mode = 'countdown';
+  await countdown();
+  flight.mode = 'flight'; flight.lifted = true; flight.boost = 2.2;
+  setTargetPts(0);
+  rig.shake = 0.6;
+  setTimeout(nextPrompt, 1300);
+}
+function endRun() {
+  run.clock = false; con.classList.add('away'); renderPips();
+  flight.mode = 'coast';
+  const s = store.get();
+  const prevPB = s.pb || 0;
+  const found = new Set(s.found || []);
+  const total = SEED.prompts.reduce((n, p) => n + (p.answers ? (p.kind === 'open' ? p.answers.length : 1) : 1), 0);
+  const masteryBefore = found.size / total;
+  run.results.forEach(r => { if (r.points > 0) found.add(`${r.p.id}:${r.canonical}`); });
+  const masteryAfter = found.size / total;
+  const isPB = run.score > prevPB;
+  store.set({ ...s, pb: Math.max(prevPB, run.score), found: [...found], runs: (s.runs || 0) + 1 });
+  drawTrajectory(flight.targetY + 2);
+  setTimeout(() => {
+    renderReveal({ isPB, prevPB, masteryBefore, masteryAfter });
+    document.body.classList.add('reveal');
+    rig.scrubY = flight.targetY; $('rulerScrub').style.bottom = rulerPct(run.score) + '%';
+    showPB();
+  }, 1600);
+}
+
+function evidenceHTML(page, quote) {
+  return `<div class="evidence"><span class="src">${SEED.file} · p.${page} · ${SEED.pages[page] || ''}</span>${quote ? '“' + quote + '”' : ''}</div>`;
+}
+function renderReveal({ isPB, prevPB, masteryBefore, masteryAfter }) {
+  const km = fmtKm(ptsToKm(run.score));
+  const li = landmarkAt(run.score), lm = LANDMARKS[li];
+  const where = run.score === 0 ? 'The rocket never left the pad. Every answer counts as fuel next time.'
+    : li === 0 ? 'Still inside the weather. Hunt for rarer answers to break through.'
+    : `You climbed past ${lm.the}.${LANDMARKS[li + 1] ? ` ${LANDMARKS[li + 1].pts - run.score} more points reaches ${LANDMARKS[li + 1].the}.` : ''}`;
+  const pct = x => Math.round(x * 100) + '%';
+  const scored = run.results.filter(r => r.points > 0).length;
+  let html = `
+    <div class="apogee-head">
+      ${isPB ? '<span class="pb-banner">New Personal Best</span>' : ''}
+      <span class="eyebrow">Apogee · ${SEED.game}</span>
+      <div class="big">${km.v}<small>${km.u}</small></div>
+      <div class="where">${where}</div>
+    </div>
+    <div class="stats">
+      <div><b>${run.score}</b><span>points this Run</span></div>
+      <div><b>${scored}/${RUN_LENGTH}</b><span>prompts scored</span></div>
+      <div><b>${pct(masteryBefore)} → ${pct(masteryAfter)}</b><span>Mastery</span></div>
+    </div>
+    <div class="reveal-actions"><button class="btn primary" id="againBtn">Fly again</button><button class="btn" id="flybyBtn">Explore the flight</button></div>`;
+  run.results.forEach((r, i) => {
+    const p = r.p;
+    const yours = r.timedOut ? '<span style="color:var(--bad)">Time ran out</span>' : `${r.canonical}`;
+    const notes = [r.hinted ? 'Hint used, one Tier down' : '', r.wrong.length ? `${r.wrong.length} wrong guess${r.wrong.length > 1 ? 'es' : ''} (−${r.wrong.length * 3} s)` : ''].filter(Boolean).join(' · ');
+    html += `<div class="pr"><span class="eyebrow">${i + 1} · ${KIND_LABEL[p.kind]}</span><h3>${p.text}</h3>
+      <div class="yours"><span>Your answer: ${yours}</span><b style="color:${r.tier ? TIER_COLOR[r.tier] : 'var(--dim)'}">+${r.points}</b></div>
+      ${notes ? `<div class="note">${notes}</div>` : ''}`;
+    if (p.kind === 'open') {
+      TIERS.forEach(t => {
+        const as = p.answers.filter(a => a.tier === t); if (!as.length) return;
+        html += `<div class="tiergroup"><span class="tierchip ${t}">${t}</span><div class="answers">${as.map(a => `<button class="ans ${a.canonical === r.canonical ? 'found now' : ''}" data-p="${a.evidence_page}" data-q="${(a.evidence_quote || '').replace(/"/g, '&quot;')}">${a.canonical}</button>`).join('')}</div></div>`;
+      });
+      html += `<div class="ev-slot"></div>`;
+    } else {
+      const correct = p.kind === 'odd_one_out' ? p.correct_option : p.kind === 'ordered_recall' ? p.items.map((x, k) => `${k + 1}. ${x}`).join('<br>') : p.answers[0].canonical;
+      const page = p.evidence_page || (p.answers && p.answers[0].evidence_page);
+      const quote = p.answers && p.answers[0].evidence_quote;
+      html += `<div class="note" style="color:var(--hull)">Answer: ${correct}</div><div class="note">${p.explanation}</div>${evidenceHTML(page, quote)}`;
+    }
+    html += `</div>`;
+  });
+  const panel = $('reveal'); panel.innerHTML = html; panel.scrollTop = 0;
+  panel.querySelectorAll('.ans').forEach(b => b.addEventListener('click', () => {
+    const slot = b.closest('.pr').querySelector('.ev-slot');
+    slot.innerHTML = evidenceHTML(b.dataset.p, b.dataset.q);
+  }));
+  $('againBtn').addEventListener('click', flyAgain);
+  $('flybyBtn').addEventListener('click', () => document.body.classList.add('flyby'));
+}
+$('flybyBack').addEventListener('click', () => document.body.classList.remove('flyby'));
+
+async function flyAgain() {
+  $('fade').classList.add('on');
+  await new Promise(r => setTimeout(r, 420));
+  document.body.classList.remove('reveal', 'flyby');
+  flight.y = 0.55; flight.vy = 0; flight.vel = 0; flight.targetY = 0.55; flight.lifted = false; flight.mode = 'pad'; flight.thrustTarget = 0;
+  rig.targetY = 2.5; rig.scrubY = null; rig.userAz = 0; rig.userEl = 0; rig.zoom = 1;
+  [fire, smoke, sparks].forEach(clearParticles);
+  trajMat.opacity = 0; lastLandmark = 0; run.score = 0; updateScore(); run.prompts = []; renderPips();
+  $('fade').classList.remove('on');
+  startRun();
+}
+$('launchBtn').addEventListener('click', startRun);
+
+// keyboard: Enter on intro launches
+addEventListener('keydown', e => { if (e.key === 'Enter' && flight.mode === 'pad' && !$('intro').classList.contains('away')) { e.preventDefault(); startRun(); } });
+
+// ======================================================================
+// frame loop
+// ======================================================================
+const clock = new THREE.Clock();
+let lastLandmark = 0;
+const tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3();
+const rockM = new THREE.Matrix4(), rockQ = new THREE.Quaternion(), rockS = new THREE.Vector3(), rockP = new THREE.Vector3();
+let meteorTimer = 0;
+
+function frame() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const t = clock.elapsedTime;
+
+  // --- run clock ---
+  if (run.clock && !run.locked) {
+    run.timeLeft -= dt;
+    if (run.timeLeft <= 0) { run.timeLeft = 0; timeout(); }
+  }
+  const ck = $('clock');
+  if (ck) { ck.textContent = run.timeLeft.toFixed(1); ck.classList.toggle('low', run.timeLeft < 6); const tb = $('timebar'); if (tb) tb.style.transform = `scaleX(${run.timeLeft / PROMPT_SECONDS})`; }
+
+  // --- rocket physics ---
+  const prevY = flight.y;
+  if (flight.lifted) {
+    const want = THREE.MathUtils.clamp((flight.targetY - flight.y) * 2.4, -320, 320);
+    flight.vel = (flight.vel || 0) + (want - (flight.vel || 0)) * (1 - Math.exp(-dt * 4));
+    flight.y += flight.vel * dt;
+  }
+  flight.vy = (flight.y - prevY) / Math.max(dt, 1e-4);
+  flight.boost = Math.max(0, (flight.boost || 0) - dt);
+  flight.sputter = Math.max(0, (flight.sputter || 0) - dt);
+  const climbing = Math.min(1, Math.abs(flight.vy) / 40);
+  if (flight.mode === 'flight') flight.thrustTarget = 0.42 + Math.min(1, flight.boost * 0.6) * 0.9 + climbing * 0.5;
+  else if (flight.mode === 'coast') flight.thrustTarget = 0.22;
+  else if (flight.mode === 'pad') flight.thrustTarget = 0;
+  let thr = flight.thrustTarget;
+  if (flight.sputter > 0) thr *= 0.35 + 0.65 * (Math.sin(t * 60) > 0 ? 1 : 0.2);
+  flight.thrust += (thr - flight.thrust) * (1 - Math.exp(-dt * 8));
+  const wob = flight.lifted ? 1 : 0;
+  rocket.position.set(Math.sin(t * 0.7) * 0.35 * wob, flight.y + Math.sin(t * 1.3) * 0.25 * wob, Math.cos(t * 0.5) * 0.25 * wob);
+  rocket.rotation.z = Math.sin(t * 0.7) * 0.04 * wob - (rig.shake * 0.05) * Math.sin(t * 50);
+  rocket.rotation.x = Math.cos(t * 0.5) * 0.03 * wob;
+  rocketBody.rotation.y += dt * 0.15 * wob;
+  if (flight.mode === 'countdown') rocket.position.x += (Math.random() - 0.5) * 0.04;
+
+  flameU.uTime.value = t; flameU.uThrust.value = flight.thrust;
+  flameCore.scale.set(1, 0.4 + flight.thrust * 1.2, 1);
+  flameCore.position.y = -0.17 - 1.6 * (0.4 + flight.thrust * 1.2);
+  engineLight.intensity = flight.thrust * 60;
+
+  // --- particles ---
+  const nozzle = tmpV.set(0, 0, 0).applyMatrix4(rocket.matrixWorld).add(tmpV2.set(0, -0.2, 0));
+  const fireRate = flight.thrust * 380;
+  const nFire = Math.floor(fireRate * dt + Math.random());
+  for (let i = 0; i < nFire; i++) {
+    const sp = 0.35 + flight.thrust;
+    emit(fire, nozzle, new THREE.Vector3((Math.random() - 0.5) * 2.2 * sp, -(14 + Math.random() * 12) * (0.5 + flight.thrust) + flight.vy * 0.9, (Math.random() - 0.5) * 2.2 * sp),
+      0.35 + Math.random() * 0.35, 0.35 + Math.random() * 0.45 * (0.5 + flight.thrust));
+  }
+  const inAir = flight.y < 260;
+  if (inAir && flight.thrust > 0.05) {
+    const nearPad = flight.y < 14 ? 2 : 0.6;
+    const nSmoke = Math.floor(flight.thrust * 70 * nearPad * dt + Math.random());
+    for (let i = 0; i < nSmoke; i++) {
+      const v = new THREE.Vector3((Math.random() - 0.5) * 4, -(4 + Math.random() * 6), (Math.random() - 0.5) * 4);
+      if (flight.y < 4) { v.y = Math.random() * 1.2; v.x *= 4; v.z *= 4; }
+      emit(smoke, nozzle.clone().add(new THREE.Vector3(0, -1.2, 0)), v, 2.5 + Math.random() * 2.5, 1.2 + Math.random() * 1.2, 1.3);
+    }
+  }
+  stepParticles(fire, dt, 1.2);
+  stepParticles(smoke, dt, 0.8);
+  stepParticles(sparks, dt, 2.0);
+
+  // --- shockwaves ---
+  for (let i = rings.length - 1; i >= 0; i--) {
+    const r = rings[i]; r.t += dt;
+    const k = r.t / 1.1; const s = 1 + k * 18 * r.s;
+    r.m.scale.set(s, s, s); r.m.material.opacity = (1 - k) * 0.9; r.m.position.y = rocket.position.y + 0.8;
+    if (k >= 1) { scene.remove(r.m); r.m.geometry.dispose(); r.m.material.dispose(); rings.splice(i, 1); }
+  }
+
+  // --- camera ---
+  const revealing = document.body.classList.contains('reveal');
+  const followY = rig.scrubY != null ? rig.scrubY : flight.y + 2.5;
+  if (rig.scrubY != null) rig.targetY += (followY - rig.targetY) * (1 - Math.exp(-dt * 2.2));
+  else rig.targetY += (followY - THREE.MathUtils.clamp((flight.vel || 0) * 0.01, -3, 3) - rig.targetY) * (1 - Math.exp(-dt * 20));
+  const atmoAmt = 1 - THREE.MathUtils.smoothstep(rig.targetY, 50, 230);
+  const space = 1 - atmoAmt;
+  rig.az += dt * (revealing ? 0.05 : 0.035) * (REDUCED ? 0.3 : 1);
+  const baseEl = THREE.MathUtils.lerp(flight.mode === 'pad' ? 0.06 : -0.12, 0.42, space);
+  const baseR = (flight.mode === 'pad' ? 21 : 15 + space * 8) * (revealing ? 2.8 : 1);
+  const el = THREE.MathUtils.clamp(baseEl + rig.userEl, -1.2, 1.35);
+  const az = rig.az + rig.userAz;
+  const R = baseR * rig.zoom * (innerWidth < 760 ? 1.35 : 1);
+  rig.shake = Math.max(0, rig.shake - dt * 1.2);
+  const sh = REDUCED ? 0 : rig.shake * rig.shake;
+  const tgt = new THREE.Vector3(rocket.position.x, rig.targetY, rocket.position.z);
+  camera.position.set(tgt.x + Math.cos(el) * Math.sin(az) * R + (Math.random() - 0.5) * sh, tgt.y + Math.sin(el) * R + (Math.random() - 0.5) * sh, tgt.z + Math.cos(el) * Math.cos(az) * R);
+  // keep the camera above the ground
+  const camAlt = camera.position.distanceTo(earthCenter) - EARTH_R;
+  if (camAlt < 1.2) camera.position.add(tmpV2.copy(camera.position).sub(earthCenter).normalize().multiplyScalar(1.2 - camAlt));
+  const lift = flight.mode === 'pad' ? 1 : revealing ? 0 : -R * (innerWidth > 760 ? 0.1 : 0.2);
+  camera.lookAt(tgt.x, tgt.y + lift, tgt.z);
+  const wide = innerWidth > 760;
+  const fo = !wide ? 0 : (flight.mode === 'pad' ? -9 : revealing && !document.body.classList.contains('flyby') ? 8 : 0);
+  if (Math.abs(camera.filmOffset - fo) > 0.01) { camera.filmOffset += (fo - camera.filmOffset) * (1 - Math.exp(-dt * 3)); camera.updateProjectionMatrix(); }
+
+  // --- environment by altitude ---
+  const camY = camera.position.y;
+  const atmoCam = 1 - THREE.MathUtils.smoothstep(camY, 50, 230);
+  skyU.uAtmo.value = atmoCam; earthU.uAtmo.value = atmoCam; cloudU.uAtmo.value = atmoCam;
+  atmoU.uSpace.value = 1 - atmoCam;
+  starU.uOpacity.value = THREE.MathUtils.smoothstep(1 - atmoCam, 0.35, 0.95);
+  starU.uTime.value = t; cloudU.uTime.value = t;
+  sky.position.copy(camera.position); stars.position.copy(camera.position);
+  hemi.intensity = 0.15 + 0.65 * atmoCam;
+  ambient.intensity = 0.12 + 0.15 * atmoCam;
+  smoke.u.uTint.value.setRGB(0.9, 0.9, 0.92).multiplyScalar(0.4 + 0.6 * atmoCam);
+  bloom.strength = 0.65 + 0.35 * (1 - atmoCam);
+  karman.material.uniforms.uOp.value = 0.55 + 0.45 * (1 - atmoCam);
+  puffs.children.forEach(s => s.material.opacity = 0.6 * THREE.MathUtils.smoothstep(camera.position.distanceTo(s.position), 4, 18));
+  sky.material.uniforms.uTime && (sky.material.uniforms.uTime.value = t);
+  pad.getObjectByName('beacon').visible = Math.sin(t * 4) > 0;
+
+  // ISS orbit
+  const ia = t * 0.06;
+  iss.position.set(Math.cos(ia) * 34, issY + Math.sin(ia * 2) * 2, Math.sin(ia) * 34);
+  iss.rotation.y = -ia + Math.PI / 2;
+  jwst.rotation.y = Math.sin(t * 0.1) * 0.3 + 0.6;
+  moon.rotation.y = t * 0.01; mars.rotation.y = t * 0.02; jupiter.rotation.y = t * 0.015;
+  jupiter.material.uniforms.uTime.value = t;
+  geoRing.rotation.z = t * 0.002;
+
+  // asteroids
+  if (Math.abs(camY - ptsToY(630)) < 600) {
+    for (let i = 0; i < ROCKS; i++) {
+      const d = rockData[i]; const a = d.a + t * d.orbit;
+      rockP.set(Math.cos(a) * d.r, d.y, Math.sin(a) * d.r);
+      d.rot.x += d.spin * dt; d.rot.y += d.spin * dt * 0.7;
+      rockQ.setFromEuler(d.rot); rockS.setScalar(d.s);
+      rockM.compose(rockP, rockQ, rockS); rocks.setMatrixAt(i, rockM);
+    }
+    rocks.instanceMatrix.needsUpdate = true; rocks.visible = true;
+  } else rocks.visible = false;
+
+  // meteors near the mesosphere
+  meteorTimer -= dt;
+  const inMeso = camY > ptsToY(45) && camY < ptsToY(120);
+  if (meteorTimer <= 0 && (inMeso || Math.random() < 0.002)) {
+    meteorTimer = inMeso ? 0.25 + Math.random() * 0.5 : 2;
+    const m = meteors.find(m => m.life >= 1);
+    if (m) {
+      const a = Math.random() * Math.PI * 2;
+      m.p.set(Math.cos(a) * (40 + Math.random() * 60), camY + 20 + Math.random() * 40, Math.sin(a) * (40 + Math.random() * 60));
+      m.v.set(-Math.cos(a) * 30 + (Math.random() - 0.5) * 40, -60 - Math.random() * 40, -Math.sin(a) * 30 + (Math.random() - 0.5) * 40);
+      m.life = 0;
+    }
+  }
+  for (const m of meteors) {
+    if (m.life >= 1) { m.line.material.opacity = 0; continue; }
+    m.life += dt / 0.7; m.p.addScaledVector(m.v, dt);
+    const pa = m.line.geometry.attributes.position;
+    pa.setXYZ(0, m.p.x, m.p.y, m.p.z); pa.setXYZ(1, m.p.x - m.v.x * 0.12, m.p.y - m.v.y * 0.12, m.p.z - m.v.z * 0.12); pa.needsUpdate = true;
+    m.line.material.opacity = Math.sin(Math.min(1, m.life) * Math.PI) * 1.5;
+  }
+
+  // speed streaks
+  const speed = Math.abs(flight.vy);
+  streakMat.opacity = REDUCED ? 0 : THREE.MathUtils.clamp((speed - 30) / 200, 0, 0.42) * (rig.scrubY != null ? 0 : 1);
+  if (streakMat.opacity > 0) {
+    for (let i = 0; i < STREAKS; i++) {
+      const s = streakSeed[i];
+      s.y -= speed * dt * 0.9;
+      if (s.y < -60) { s.y += 120; s.a = Math.random() * Math.PI * 2; s.r = 6 + Math.random() * 40; }
+      const x = camera.position.x + Math.cos(s.a) * s.r, z = camera.position.z + Math.sin(s.a) * s.r, y = rig.targetY + s.y;
+      const len = Math.min(30, speed * 0.06);
+      streakPos.set([x, y, z, x, y + len, z], i * 6);
+    }
+    streakGeo.attributes.position.needsUpdate = true;
+  }
+
+  // trajectory fade-in on Reveal
+  trajMat.opacity += ((revealing ? 0.85 : 0) - trajMat.opacity) * (1 - Math.exp(-dt * 2));
+
+  // labels fade by distance from the camera's altitude
+  for (const L of labels) {
+    const dy = Math.abs(L.y - rig.targetY);
+    const big = L.y > ptsToY(300) ? 260 : 90;
+    L.sprite.material.opacity = 1 - THREE.MathUtils.smoothstep(dy, big * 0.5, big);
+  }
+
+  // --- HUD ---
+  const livePts = Math.max(0, (flight.y - HOVER) / UNIT);
+  const shownPts = flight.lifted ? livePts : 0;
+  const km = fmtKm(ptsToKm(shownPts));
+  $('altReadout').innerHTML = `${km.v}<small>${km.u}</small>`;
+  $('zoneReadout').textContent = zoneText(shownPts);
+  updateRuler(shownPts);
+  const li = landmarkAt(shownPts + 0.5);
+  if (flight.lifted && li > lastLandmark) { toast(LANDMARKS[li]); lastLandmark = li; }
+
+  if (performance.now() < popUntil) {
+    const sp = tmpV.copy(rocket.position).add(tmpV2.set(0, 6.5, 0)).project(camera);
+    const pe = $('pop');
+    pe.style.left = ((sp.x + 1) / 2 * innerWidth) + 'px';
+    pe.style.top = ((1 - sp.y) / 2 * innerHeight) + 'px';
+  } else $('pop').hidden = true;
+
+  composer.render(dt);
+  requestAnimationFrame(frame);
+}
+
+// paint the hull number once fonts are ready, then start
+document.fonts.ready.then(() => {
+  const c = rocketBody.userData.decalCanvas, g = c.getContext('2d');
+  g.clearRect(0, 0, c.width, c.height);
+  g.save(); g.translate(64, 128); g.rotate(-Math.PI / 2);
+  g.font = '900 92px "Big Shoulders Stencil Display", Impact, sans-serif'; g.fillStyle = '#1b1d26'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText('APOGEE', 0, 4); g.restore();
+  rocketBody.userData.decal.material.map.needsUpdate = true;
+  labels.forEach(L => L.draw());
+});
+requestAnimationFrame(() => { $('loading').classList.add('done'); });
+frame();
+</script>
