@@ -1,0 +1,631 @@
+{
+  "deck": "seed-graph-algorithms",
+  "createdAt": "2026-10-04T09:38:29.738Z",
+  "promptVersion": "11c93557",
+  "run": {
+    "model": "gemini-3.6-flash",
+    "seconds": 57.802,
+    "usage": {
+      "inputTokens": 2604,
+      "outputTokens": 4870,
+      "thinkingTokens": 6064
+    },
+    "costUsd": 0.0429555
+  },
+  "response": {
+    "prompts": [
+      {
+        "kind": "open",
+        "text": "Name an algorithm that computes a minimum spanning tree.",
+        "answers": [
+          {
+            "canonical": "Kruskal's algorithm",
+            "aliases": [
+              "Kruskal",
+              "Kruskals algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Kruskal's algorithm adds edges from cheapest to most expensive, skipping any edge that would create a cycle:"
+          },
+          {
+            "canonical": "Prim's algorithm",
+            "aliases": [
+              "Prim",
+              "Prims algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Prim's algorithm grows one tree from a start vertex, always adding the cheapest edge that leaves the tree."
+          },
+          {
+            "canonical": "Borůvka's algorithm",
+            "aliases": [
+              "Boruvka",
+              "Boruvka's algorithm",
+              "Boruvkas algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Borůvka's algorithm: every component adds its cheapest outgoing edge at once, and the rounds repeat until one tree is left."
+          },
+          {
+            "canonical": "Reverse-delete",
+            "aliases": [
+              "reverse delete",
+              "reverse-delete algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Reverse-delete: start with every edge and delete the heaviest edge that does not disconnect the graph."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a shortest path algorithm.",
+        "answers": [
+          {
+            "canonical": "Dijkstra's algorithm",
+            "aliases": [
+              "Dijkstra",
+              "Dijkstras algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 5,
+            "evidence_quote": "Finds shortest paths from one source in a graph with non-negative edge weights."
+          },
+          {
+            "canonical": "BFS",
+            "aliases": [
+              "breadth-first search",
+              "breadth first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 2,
+            "evidence_quote": "On an unweighted graph, BFS finds the shortest path (fewest edges) from the source to every vertex."
+          },
+          {
+            "canonical": "Bellman-Ford",
+            "aliases": [
+              "Bellman Ford",
+              "Bellman-Ford algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "Finds shortest paths from one source, and works with negative edge weights."
+          },
+          {
+            "canonical": "Floyd-Warshall",
+            "aliases": [
+              "Floyd Warshall",
+              "Floyd-Warshall algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 7,
+            "evidence_quote": "Finds the shortest paths between every pair of vertices (all-pairs shortest paths)."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a graph algorithm described in this course.",
+        "answers": [
+          {
+            "canonical": "BFS",
+            "aliases": [
+              "breadth-first search",
+              "breadth first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 2,
+            "evidence_quote": "Breadth-first search (BFS)"
+          },
+          {
+            "canonical": "DFS",
+            "aliases": [
+              "depth-first search",
+              "depth first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 3,
+            "evidence_quote": "Depth-first search (DFS)"
+          },
+          {
+            "canonical": "Dijkstra's algorithm",
+            "aliases": [
+              "Dijkstra",
+              "Dijkstras algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 5,
+            "evidence_quote": "Dijkstra's algorithm"
+          },
+          {
+            "canonical": "Kruskal's algorithm",
+            "aliases": [
+              "Kruskal",
+              "Kruskals algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Kruskal's algorithm adds edges from cheapest to most expensive"
+          },
+          {
+            "canonical": "Prim's algorithm",
+            "aliases": [
+              "Prim",
+              "Prims algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Prim's algorithm grows one tree from a start vertex"
+          },
+          {
+            "canonical": "Bellman-Ford",
+            "aliases": [
+              "Bellman Ford",
+              "Bellman-Ford algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "Bellman-Ford"
+          },
+          {
+            "canonical": "Floyd-Warshall",
+            "aliases": [
+              "Floyd Warshall",
+              "Floyd-Warshall algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 7,
+            "evidence_quote": "Floyd-Warshall"
+          },
+          {
+            "canonical": "Kosaraju's algorithm",
+            "aliases": [
+              "Kosaraju",
+              "Kosarajus algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 10,
+            "evidence_quote": "Kosaraju's algorithm runs DFS to get finishing times"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an algorithm or process with O(V + E) time complexity.",
+        "answers": [
+          {
+            "canonical": "BFS",
+            "aliases": [
+              "breadth-first search",
+              "breadth first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 2,
+            "evidence_quote": "Running time: O(V + E)."
+          },
+          {
+            "canonical": "DFS",
+            "aliases": [
+              "depth-first search",
+              "depth first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 3,
+            "evidence_quote": "Running time: O(V + E)."
+          },
+          {
+            "canonical": "Topological sort",
+            "aliases": [
+              "topological sorting",
+              "topo sort"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "| Order a DAG | Topological sort | O(V + E) |"
+          },
+          {
+            "canonical": "Kosaraju's algorithm",
+            "aliases": [
+              "Kosaraju",
+              "Kosarajus algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 10,
+            "evidence_quote": "Both run in O(V + E)."
+          },
+          {
+            "canonical": "Tarjan's algorithm",
+            "aliases": [
+              "Tarjan",
+              "Tarjans algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 10,
+            "evidence_quote": "Both run in O(V + E)."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a data structure used in graph algorithms.",
+        "answers": [
+          {
+            "canonical": "Queue",
+            "aliases": [
+              "queues"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "It uses a queue: take the vertex at the front, then add its unvisited neighbors to the back."
+          },
+          {
+            "canonical": "Stack",
+            "aliases": [
+              "stacks",
+              "call stack"
+            ],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "It uses a stack, or recursion, which uses the call stack."
+          },
+          {
+            "canonical": "Priority queue",
+            "aliases": [
+              "min-heap",
+              "min heap",
+              "binary heap"
+            ],
+            "exact_only": false,
+            "evidence_page": 5,
+            "evidence_quote": "Uses a priority queue (min-heap)."
+          },
+          {
+            "canonical": "Union-find",
+            "aliases": [
+              "disjoint set",
+              "union find",
+              "disjoint-set"
+            ],
+            "exact_only": false,
+            "evidence_page": 9,
+            "evidence_quote": "Kruskal uses union-find to check whether an edge would create a cycle."
+          },
+          {
+            "canonical": "Adjacency list",
+            "aliases": [
+              "adjacency lists"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Adjacency list: each vertex stores a list of its neighbors."
+          },
+          {
+            "canonical": "Adjacency matrix",
+            "aliases": [
+              "adjacency matrices"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Adjacency matrix: a V x V table where entry (u, v) records the edge from u to v."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an application, algorithm, or task built on depth-first search (DFS).",
+        "answers": [
+          {
+            "canonical": "Cycle detection",
+            "aliases": [
+              "detecting cycles",
+              "cycle checking"
+            ],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "DFS is the building block for cycle detection, topological sort and strongly connected components."
+          },
+          {
+            "canonical": "Topological sort",
+            "aliases": [
+              "topological sorting",
+              "topo sort"
+            ],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "DFS is the building block for cycle detection, topological sort and strongly connected components."
+          },
+          {
+            "canonical": "Kosaraju's algorithm",
+            "aliases": [
+              "Kosaraju",
+              "Kosarajus algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 10,
+            "evidence_quote": "Kosaraju's algorithm runs DFS to get finishing times"
+          },
+          {
+            "canonical": "Tarjan's algorithm",
+            "aliases": [
+              "Tarjan",
+              "Tarjans algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 10,
+            "evidence_quote": "Tarjan's algorithm finds every SCC in a single DFS"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an operation or optimization technique associated with union-find.",
+        "answers": [
+          {
+            "canonical": "find",
+            "aliases": [
+              "find operation",
+              "find(x)"
+            ],
+            "exact_only": false,
+            "evidence_page": 9,
+            "evidence_quote": "find(x) returns the representative of x's set; union(x, y) merges two sets."
+          },
+          {
+            "canonical": "union",
+            "aliases": [
+              "union operation",
+              "union(x, y)"
+            ],
+            "exact_only": false,
+            "evidence_page": 9,
+            "evidence_quote": "find(x) returns the representative of x's set; union(x, y) merges two sets."
+          },
+          {
+            "canonical": "Path compression",
+            "aliases": [
+              "path-compression"
+            ],
+            "exact_only": false,
+            "evidence_page": 9,
+            "evidence_quote": "With union by rank and path compression, each operation is almost O(1)."
+          },
+          {
+            "canonical": "Union by rank",
+            "aliases": [
+              "union-by-rank"
+            ],
+            "exact_only": false,
+            "evidence_page": 9,
+            "evidence_quote": "With union by rank and path compression, each operation is almost O(1)."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a graph algorithm listed in the summary table.",
+        "answers": [
+          {
+            "canonical": "BFS",
+            "aliases": [
+              "breadth-first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 12,
+            "evidence_quote": "| Traverse level by level | BFS | O(V + E) |"
+          },
+          {
+            "canonical": "DFS",
+            "aliases": [
+              "depth-first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 12,
+            "evidence_quote": "| Traverse deep first | DFS | O(V + E) |"
+          },
+          {
+            "canonical": "Dijkstra",
+            "aliases": [
+              "Dijkstra's algorithm",
+              "Dijkstras algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "| Single-source shortest paths, non-negative weights | Dijkstra | O((V + E) log V) |"
+          },
+          {
+            "canonical": "Bellman-Ford",
+            "aliases": [
+              "Bellman Ford"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "| Single-source shortest paths, negative weights | Bellman-Ford | O(V * E) |"
+          },
+          {
+            "canonical": "Floyd-Warshall",
+            "aliases": [
+              "Floyd Warshall"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "| All-pairs shortest paths | Floyd-Warshall | O(V^3) |"
+          },
+          {
+            "canonical": "Hopcroft-Karp",
+            "aliases": [
+              "Hopcroft Karp"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "| Maximum bipartite matching | Hopcroft-Karp | O(E sqrt(V)) |"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "cloze",
+        "text": "An adjacency matrix uses ______ space to store a graph with V vertices.",
+        "answers": [
+          {
+            "canonical": "O(V^2)",
+            "aliases": [
+              "O(V^2) space",
+              "O(V**2)"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Uses O(V^2) space."
+          }
+        ],
+        "tier": "solid",
+        "hint": "It grows quadratically with the number of vertices.",
+        "explanation": "An adjacency matrix is a V x V table, requiring quadratic space relative to the vertex count."
+      },
+      {
+        "kind": "cloze",
+        "text": "Bellman-Ford relaxes every edge ______ times to find shortest paths from a single source.",
+        "answers": [
+          {
+            "canonical": "V - 1",
+            "aliases": [
+              "V-1",
+              "V - 1 times"
+            ],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "Relaxes every edge V - 1 times."
+          }
+        ],
+        "tier": "solid",
+        "hint": "It is one less than the total number of vertices.",
+        "explanation": "Bellman-Ford relaxes all edges V - 1 times to guarantee shortest paths in the absence of negative cycles."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is a directed graph that contains no cycles called?",
+        "answers": [
+          {
+            "canonical": "DAG",
+            "aliases": [
+              "directed acyclic graph"
+            ],
+            "exact_only": true,
+            "evidence_page": 1,
+            "evidence_quote": "A DAG is a directed acyclic graph: a directed graph with no cycles."
+          }
+        ],
+        "tier": "common",
+        "hint": "An abbreviation for a directed structure without circular paths.",
+        "explanation": "A DAG stands for directed acyclic graph, which is a directed graph with no cycles."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is a maximal set of vertices in a directed graph where every vertex can reach every other vertex?",
+        "answers": [
+          {
+            "canonical": "Strongly connected component",
+            "aliases": [
+              "SCC",
+              "strongly connected components"
+            ],
+            "exact_only": false,
+            "evidence_page": 10,
+            "evidence_quote": "An SCC is a maximal set of vertices in which every vertex can reach every other vertex."
+          }
+        ],
+        "tier": "solid",
+        "hint": "Abbreviated as SCC.",
+        "explanation": "A strongly connected component (SCC) is a maximal subset of vertices with mutual reachability."
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of Kruskal's algorithm in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Start by sorting all available edges by weight.",
+        "explanation": "Kruskal's algorithm repeatedly picks the cheapest remaining edge and adds it if it does not form a cycle.",
+        "items": [
+          "Sort the edges by weight",
+          "Take the cheapest edge that is left",
+          "Skip that edge if it would create a cycle",
+          "Stop once the tree has V - 1 edges"
+        ],
+        "evidence_page": 8
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of Dijkstra's algorithm in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Start by setting distance values for the source and all other nodes.",
+        "explanation": "Dijkstra's algorithm sets initial distances, repeatedly extracts the unvisited node with the minimum distance, relaxes outgoing edges, and marks nodes visited.",
+        "items": [
+          "Set the source distance to 0 and every other distance to infinity",
+          "Pick the unvisited node with the smallest known distance",
+          "Relax the edges leaving that node",
+          "Mark the node visited and repeat until all nodes are done"
+        ],
+        "evidence_page": 5
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which algorithm computes shortest paths rather than minimum spanning trees?",
+        "answers": [],
+        "tier": "common",
+        "hint": "Three of these options construct a minimum spanning tree on undirected graphs.",
+        "explanation": "Dijkstra's algorithm computes single-source shortest paths rather than a minimum spanning tree.",
+        "options": [
+          "Kruskal",
+          "Prim",
+          "Borůvka",
+          "Dijkstra"
+        ],
+        "correct_option": "Dijkstra",
+        "evidence_page": 8
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which graph algorithm has O(V^3) time complexity instead of O(V + E)?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Three of these algorithms run in linear time on graph inputs.",
+        "explanation": "Floyd-Warshall runs in cubic time O(V^3), whereas BFS, DFS, and Topological sort run in O(V + E) time.",
+        "options": [
+          "BFS",
+          "DFS",
+          "Topological sort",
+          "Floyd-Warshall"
+        ],
+        "correct_option": "Floyd-Warshall",
+        "evidence_page": 7
+      }
+    ]
+  }
+}
