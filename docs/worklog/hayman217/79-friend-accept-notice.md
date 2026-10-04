@@ -1,6 +1,6 @@
 # #79 Pop-up notification when a friend accepts your request
 
-Status: in-review
+Status: done
 Branch: feat/79-friend-accept-notice
 Updated: 2026-10-04 09:55
 
@@ -21,7 +21,7 @@ linking to their profile. Issue #79.
 - Verified in the browser with a temporary accepted friendship (deleted afterwards).
 
 ## Next steps
-1. User review. After approval: PR with `Closes #79`, FEATURES.md row, worklog done.
+None: shipped in the PR that closes #79 (F36 in docs/FEATURES.md).
 
 ## Decisions & gotchas
 - Polling, not websockets: no realtime infra in the app; 30 s is plenty for a friend notice.
