@@ -1,8 +1,8 @@
 # #10 F10 Visual design system (site + Mode themes)
 
-Status: in-progress
+Status: done
 Branch: feat/10-design-system (base `chore/overnight-plan`, PR stacked on #43)
-Updated: 2026-10-04 04:00
+Updated: 2026-10-04 05:30
 
 ## Goal
 The foundation every UI feature builds on, in the new direction (overnight-decisions §1–3, §12–14):
@@ -43,19 +43,17 @@ Dive / round / results (built by a parallel sub-task):
 - `components/modes/dive/`: `tiers.ts` (`TIER_UI`), `OceanStage` (`setDepth`), `DepthRuler`, `DiveHud`, `TierLines`, `CatchScreen`, `DiveLogChart`, `DivePlayground`
 
 ## Done so far
-- Branch, claim, env, deps.
-- `app/globals.css` tokens (site + `[data-theme]` blocks), recipes, keyframes, reduced motion.
-- Fonts in `app/layout.tsx`; minimal header.
-- `lib/motion/` (spring, particles, reduced), `lib/ui/sfx.ts`, `lib/ui/modes.ts`.
-- `components/ui/`: Button, Logo, PixelSprite, PixelIcon, SoundToggle, Toast.
+- Docs: `design-system.md` rewritten (two worlds), `modes/dive.md` (Krillion layout, real descent, catch screen, Reveal column), `ui-map.md` (new routes, file viewer, dev bypass).
+- Mock: Dive with real descent (depth zones, ruler + YOU, sinking chip → catch screen → next prompt, Reveal over the sea; `?autoplay#run`), site shell refresh (`#landing`, `#home`, sky backdrop, mascot, profile card, heatmap, Mode tiles).
+- App: tokens/fonts/keyframes, `lib/motion`, `lib/ui/sfx.ts` (synthesized), `lib/ui/modes.ts`, full `components/ui/` kit (barrel `components/ui/index.ts`), `components/round/`, `components/results/`, `components/modes/dive/`, `/styleguide` + `/styleguide/dive`, `SiteHeader` (hidden on Mode screens), dev auth bypass (`DEV_PLAYER_ID`, dev only; announced on #10).
+- Checks: tsc, lint, 114 unit tests, `next build` all pass. Dev server on 3100: `/`, `/modules`, `/styleguide`, `/styleguide/dive` load with no console errors; Dive flow verified (catch screen, descent).
 
 ## Next steps
-1. Remaining `components/ui/` components (contract above).
-2. Dive blocks + playground; mock; docs (parallel sub-tasks).
-3. `/styleguide` page; dev auth bypass in `lib/auth.ts` (comment on #10 first); `.env.example`.
-4. Checks, dev server on 3100, FEATURES.md, PR.
+- None for F10. Follow-ups for others are in FEATURES.md F10 "Known gaps".
 
 ## Decisions & gotchas
+- Made without Anton: Mode presentation data in `lib/ui/modes.ts` (accent colours, taglines, verbs incl. Leap "START CLIMB", Pairs "DEAL", Blitz "GO"); mascot named "Lumen"; depth zones compressed to a 0–7,000 m game (sunlit <200, twilight <1,000, midnight <3,000, abyss <5,500, trench); `pxPerMetre = H/300`; SkyBackdrop picks day/dusk/night from the local clock (all dark-tinted, light mode deferred); the mock and `inspo/` are ignored by eslint (reference JS, never imported).
+- The site header hides itself on `/runs/*` so Mode screens are full-bleed.
 - Raw font tokens are `--f-display/--f-body/--f-hud` (not `--font-*`) so Tailwind's `@theme inline` doesn't self-reference.
 - `[data-theme="dive"]` swaps `--f-display` to VT323 and zeroes the radii, so site components inside Dive pick up the Krillion look.
 - Mode presentation lives in `lib/ui/modes.ts` (`MODE_UI`), separate from `lib/modes/` (F20 owns the playable list).

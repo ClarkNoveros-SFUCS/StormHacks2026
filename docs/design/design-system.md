@@ -14,9 +14,13 @@ Codedex is a reference, not the target. Anton's brief (§14): the site must be *
 | `mock/core/prompt-kinds.js` | Matching and the inputs for each Prompt kind, shared by Modes | §6 |
 | `mock/themes/ocean.js` | The tall ocean depth world (Dive's scene) | `modes/dive.md` §5 |
 | `mock/modes/dive/` | Dive's theme, Run with real descent and the catch screen, Reveal column | `modes/dive.md` |
+| `mock/themes/sky.js` | The site's living sky backdrop (stars, moon, parallax clouds, birds, time-of-day tint; sky → ocean on landing scroll) | §2.5 |
+| `mock/app/site.css`, `app/site.js` | Site pieces: mascot, pixel avatars, profile card, odometers, streak flame, heatmap, Mode tile mini-scenes, tilt cards, XP bar, confetti, flip clock | §2, §6.1, §8 |
 | `mock/app/shell.js` | Site shell: landing, home, Modules, Module page, New Game dialog, Game page frame | §7 |
 
-**Live reference in the app:** `/styleguide` (dev only, `notFound()` in production) renders every component below plus a **Dive playground** that runs a fake 7-Prompt Dive client-side with the full descent and catch flow.
+Mock extras: `index.html?autoplay#run` plays a Dive by itself through to the Reveal; `?tod=day|dusk|night` forces the sky tint.
+
+**Live reference in the app:** `/styleguide` (dev only, `notFound()` in production) renders every component below, and `/styleguide/dive` is a **Dive playground** that runs a fake 7-Prompt Dive client-side with the full descent and catch flow.
 
 When the mock, the styleguide and these docs disagree, the docs win.
 
