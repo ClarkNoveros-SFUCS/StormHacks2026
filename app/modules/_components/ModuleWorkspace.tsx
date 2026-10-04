@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AskSonarButton } from "@/components/sonar/AskSonarButton";
 import { Button } from "@/components/ui/Button";
 import { Mascot, type MascotHandle } from "@/components/ui/Mascot";
 import { Modal } from "@/components/ui/Modal";
@@ -311,6 +312,7 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
           <div className="hidden sm:block">
             <Mascot ref={mascot} size={72} bubbleSide="left" sleepAfterMs={40000} />
           </div>
+          <AskSonarButton message="What am I getting wrong in this Module?" />
           <Button
             variant="primary"
             onClick={() => setNewGameOpen(true)}

@@ -1,3 +1,6 @@
+/* Layer order: Clerk's CSS (cssLayerName "clerk", lib/ui/clerk-appearance.ts) sits above
+   Tailwind's preflight and below utilities, so preflight can't break it and our classes win. */
+@layer theme, base, clerk, components, utilities;
 @import "tailwindcss";
 
 /*
@@ -342,6 +345,33 @@ h4 {
   --bevel: #a32c2c;
 }
 
+/* Clerk SignIn/SignUp (F34): the primary action is the yellow pixel button, social buttons the
+   secondary one. Elements get `.px-btn` / `.px-frame` from lib/ui/clerk-appearance.ts. */
+.cl-formButtonPrimary.px-btn {
+  --fill: var(--primary);
+  --fill-text: var(--primary-text);
+  --bevel: var(--primary-drop);
+}
+.cl-cardBox.px-frame {
+  --frame: var(--border-strong);
+  box-shadow:
+    0 -2px 0 0 var(--frame),
+    0 2px 0 0 var(--frame),
+    -2px 0 0 0 var(--frame),
+    2px 0 0 0 var(--frame),
+    0 10px 0 0 color-mix(in srgb, black 55%, transparent);
+}
+.cl-formFieldInput {
+  box-shadow: inset 0 0 0 2px var(--border);
+}
+.cl-formFieldInput:focus {
+  box-shadow: inset 0 0 0 2px var(--signal);
+}
+.cl-socialButtonsBlockButton.px-btn {
+  --edge: var(--border-strong);
+  margin: 4px 2px 8px;
+}
+
 /* Pixel frame: a stepped 2px border for cards (ProfileCard, HUD plates). */
 .px-frame {
   --frame: var(--border-strong);
@@ -462,6 +492,15 @@ h4 {
   from {
     opacity: 0;
     transform: translateY(46px) scale(0.92);
+  }
+}
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22vh);
+  }
+  35% {
+    opacity: 1;
   }
 }
 @keyframes card-gone {

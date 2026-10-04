@@ -15,6 +15,7 @@ import { MasteryBlock } from "../shared/MasteryBlock";
 import { revealTopic, TopicPassBanner } from "../shared/TopicPassBanner";
 import s from "./pairs.module.css";
 import { revealLinks } from "../shared/reveal-links";
+import { AskSonarButton } from "@/components/sonar/AskSonarButton";
 
 type Props = {
   reveal: PairsReveal;
@@ -146,6 +147,7 @@ export function PairsRevealScreen({ reveal, context, history }: Props) {
           >
             {links.backLabel.toUpperCase()}
           </button>
+          <AskSonarButton size="sm" message="What should I learn from this run?" />
         </div>
       </main>
     </div>

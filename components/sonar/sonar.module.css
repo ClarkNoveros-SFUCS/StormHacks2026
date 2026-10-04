@@ -1,0 +1,186 @@
+/* Sonar (F32): mascot, buddy drawer and mastery map motion. Everything stops under reduced motion. */
+
+/* ---- Mascot ---------------------------------------------------------------------------------- */
+.bob {
+  animation: sonar-bob 2.8s ease-in-out infinite;
+}
+.talk {
+  animation: sonar-talk 0.42s ease-in-out infinite;
+}
+.happy {
+  animation: sonar-hop 0.7s var(--ease-bounce) 2;
+}
+.think {
+  animation: sonar-bob 1.6s ease-in-out infinite;
+}
+.ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sonar-ping 1.8s var(--ease-out) infinite;
+}
+.mouth {
+  animation: sonar-mouth 0.28s steps(2, jump-none) infinite;
+}
+
+@keyframes sonar-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-6%) rotate(2deg);
+  }
+}
+@keyframes sonar-talk {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  50% {
+    transform: translateY(-4%) scale(1.02, 0.97);
+  }
+}
+@keyframes sonar-hop {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  40% {
+    transform: translateY(-18%) rotate(-6deg);
+  }
+  70% {
+    transform: translateY(0) rotate(3deg);
+  }
+}
+@keyframes sonar-ping {
+  0% {
+    transform: scale(0.15);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+@keyframes sonar-mouth {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ---- Buddy ----------------------------------------------------------------------------------- */
+.fab {
+  transition: transform 0.25s var(--ease-snap);
+}
+.fab:hover {
+  transform: translateY(-3px) scale(1.04);
+}
+.fab:active {
+  transform: scale(1.05, 0.92);
+}
+.fabHalo {
+  animation: sonar-halo 2.6s ease-out infinite;
+}
+@keyframes sonar-halo {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--signal) 45%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 14px color-mix(in srgb, var(--signal) 0%, transparent);
+  }
+}
+
+.panel {
+  animation: drawer-up 0.35s var(--ease-out) both;
+}
+@media (min-width: 640px) {
+  .panel {
+    animation: drawer-right 0.35s var(--ease-out) both;
+  }
+}
+.bubbleIn {
+  animation: pop-in 0.35s var(--ease-snap) both;
+}
+
+/* ---- Map ------------------------------------------------------------------------------------- */
+.chart {
+  background:
+    radial-gradient(ellipse at 30% 0%, color-mix(in srgb, var(--signal) 10%, transparent), transparent 60%),
+    linear-gradient(180deg, #071228 0%, #050a18 100%);
+  background-color: #050a18;
+}
+.grid {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--signal) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--signal) 7%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.sweep {
+  background: conic-gradient(from 0deg, color-mix(in srgb, var(--signal) 18%, transparent), transparent 18%);
+  animation: sonar-sweep 9s linear infinite;
+  border-radius: 9999px;
+}
+.root {
+  animation: sonar-root 1.4s ease-in-out infinite;
+}
+@keyframes sonar-root {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px var(--danger),
+      0 0 0 0 color-mix(in srgb, var(--danger) 50%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px var(--danger),
+      0 0 0 10px color-mix(in srgb, var(--danger) 0%, transparent);
+  }
+}
+.lantern {
+  animation: sonar-lantern 2.2s ease-in-out infinite;
+}
+@keyframes sonar-lantern {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px var(--primary),
+      0 0 18px 2px color-mix(in srgb, var(--primary) 35%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px var(--primary),
+      0 0 34px 8px color-mix(in srgb, var(--primary) 55%, transparent);
+  }
+}
+.blame {
+  stroke-dasharray: 6 6;
+  animation: sonar-blame 0.9s linear infinite;
+}
+/* Positive offset moves dashes toward the path's start: blame flows back to the prerequisite. */
+@keyframes sonar-blame {
+  to {
+    stroke-dashoffset: 12;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bob,
+  .talk,
+  .happy,
+  .think,
+  .ring,
+  .mouth,
+  .fabHalo,
+  .panel,
+  .bubbleIn,
+  .sweep,
+  .root,
+  .lantern,
+  .blame {
+    animation: none !important;
+  }
+}

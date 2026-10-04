@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AskSonarButton } from "@/components/sonar/AskSonarButton";
 import { Chip, PixelIcon } from "@/components/ui";
 import { getTopic } from "@/lib/courses/queries";
 import { badgeInfo } from "@/lib/social/badges";
@@ -75,6 +76,7 @@ export default async function TopicPage({ params }: PageProps<"/explore/[courseS
             <PixelIcon name="cards" size={15} /> {topic.games.length} practice games
           </span>
           <JumpToPractice />
+          {playerId && <AskSonarButton size="sm" message="How am I doing on this Topic?" />}
         </div>
         {passed && (
           <div className="mt-2">

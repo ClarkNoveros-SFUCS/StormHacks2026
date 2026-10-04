@@ -18,6 +18,7 @@ import { revealTopic, TopicPassBanner } from "@/components/results/TopicPassBann
 import { LeapStage, type LeapStageHandle } from "./LeapStage";
 import "./leap.css";
 import { revealLinks } from "../shared/reveal-links";
+import { AskSonarButton } from "@/components/sonar/AskSonarButton";
 
 type Props = {
   reveal: LeapReveal;
@@ -132,6 +133,7 @@ export function LeapRevealScreen({ reveal, context, history }: Props) {
             <button type="button" onClick={() => router.push(links.backHref)} className="lp-btn text-[16px]">
               {links.backLabel}
             </button>
+            <AskSonarButton size="sm" message="What should I learn from this run?" />
             {error && <p className="w-full text-[14px] text-danger">{error}</p>}
           </div>
 

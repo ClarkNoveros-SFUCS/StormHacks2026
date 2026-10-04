@@ -16,6 +16,7 @@ import type { DiveReveal as DiveRevealData } from "@/lib/runs/types";
 import { sfx } from "@/lib/ui/sfx";
 import { DiveReveal } from "./DiveReveal";
 import { revealLinks } from "../shared/reveal-links";
+import { AskSonarButton } from "@/components/sonar/AskSonarButton";
 import { revealTopic, TopicPassBanner } from "../shared/TopicPassBanner";
 
 type Props = {
@@ -172,7 +173,12 @@ export function DiveRevealScreen({ reveal, context, history, crowd, title }: Pro
         evidenceHref={evidenceHref}
         onAgain={again}
         againPending={pending}
-        notice={error && <p className="font-hud text-[18px] text-danger">{error}</p>}
+        notice={
+          <>
+            {error && <p className="font-hud text-[18px] text-danger">{error}</p>}
+            <AskSonarButton size="sm" message="What should I learn from this run?" />
+          </>
+        }
         onBack={() => router.push(daily ? "/daily" : links.backHref)}
         backLabel={daily ? "BACK TO THE DAILY" : links.backLabel.toUpperCase()}
       />

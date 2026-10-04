@@ -10,12 +10,15 @@ In the mock, try `kruskal`, `floyd warshal` (a typo that still matches), `hopcro
 
 ## 1. Reference: Krillion
 
-Studied from krillion.io (start, run, catch and results screens; screenshots on Anton's Desktop, 2026-10-04).
+Studied from krillion.io (start, run, catch and results screens; screenshots on Anton's Desktop, 2026-10-04). The motion (§5–6) was then matched frame by frame to a recorded Krillion daily dive (youtube.com/watch?v=YU2mpcddchs, issue #72).
 
 | We copy | We make our own |
 |---|---|
 | The ocean world: pixel sky → waterline → dark sea, the boat on the surface | The mascot (pixel anglerfish, not a krill) |
-| The run layout: three HUD plates in a centred row, menu/mute tiles at the sides, prompt card under the waterline, depth ruler with `YOU ◀` on the right edge, bottom dock with sonar clock, input, fuse and DIVE button | Tier names, creature icons, flavour lines and all wording |
+| The run layout: three HUD plates in a centred row, menu/mute tiles at the sides, prompt card under the waterline, depth facts on the left and right edges, bottom dock with sonar clock, input, fuse and DIVE button |
+| The opening shot: the camera starts up in the sky over a big boat and pans down to the waterline as the first card comes up with the water |
+| The descent: the answer chip drops and the camera follows it in one move, past dashed tier lines hanging in the water, while DEPTH counts up and the card scrolls away |
+| NOTHING LANDED after a timeout, and the hot clock's red top edge | Tier names, creature icons, flavour lines and all wording |
 | The catch screen after a correct answer: creature icon, tier name, the answer in quotes, `+60 PTS · sink 600m`, a verdict line, `DESCEND ▼` | Prompt kinds beyond open answers (cloze, definition, order, odd-one-out) |
 | The results column over the sea: score + depth, distribution chart, dive log, "The Bearing", "The Catch" | The distribution: your own past Runs for private Games; today's players only for public Games (Daily, Course) |
 | Score as depth: 10 m per point | Evidence: every Answer links to a page of your notes |
@@ -78,8 +81,8 @@ Its Play button is `▼ BEGIN DESCENT ▼`. Pressing it unlocks audio, creates t
 Depth is a **real camera position** in a tall world, not a colour fade. `OceanStage` (`components/modes/dive/OceanStage.tsx`) is a full-viewport canvas drawn at low resolution and scaled up (`image-rendering: pixelated`). Its camera has a world y in metres; `setDepth(metres)` moves it.
 
 - **Scale:** every point scored moves the camera 10 m down. The world spans 0 → 7,000 m (the Run maximum) plus margin. Screen mapping (`components/modes/dive/depth.ts`): `pxPerMetre = viewportHeight / 300` (100 m ≈ a third of the screen, so the first catch scrolls the waterline out of view), and the camera's depth sits 25% down the screen at the surface, easing to 45% once deeper than 300 m. One `DiveCamera` instance drives the canvas, the ruler and the HUD without React re-renders.
-- **Start:** camera at the surface. The sky fills the top ~25% of the screen, the pixel boat (red flag) sits on the waterline, the prompt card sits just under the waterline.
-- **On a score:** the camera springs to the new depth (stiffness ~60, damping ~14, a long glide with a slight settle, ~1.2–2 s) while `sfx.sink()` plays and bubbles stream up past the screen. On the **first** catch the waterline and boat scroll up out of view. Under reduced motion it cuts.
+- **Start:** a fresh Run's camera starts at `SKY_DEPTH` (−120 m: the waterline sits ~70% down, the big boat on it, sky above) and springs to 0 as the first card comes up riding the water (`useSkyCarry`). At 0 the sky fills the top ~25% of the screen and the card sits just under the waterline. The boat is drawn at 2× on desktop (about a seventh of the screen wide).
+- **On a score:** see §6.1. The camera is pinned to the falling chip (`DiveCamera.follow`) for the whole fall, so the chip holds its place on screen while the water, the card and the tier lines scroll past; on the first catch the waterline and boat scroll up out of view. Under reduced motion it cuts.
 - **Between Prompts** the camera holds at your depth: the sea stays dark once you're deep. It never rises back up during a Run.
 
 **Depth zones** (`depthZone(m)` in `tiers.ts`; compressed from the real ocean zones to fit a 0–7,000 m game; everything blends across boundaries):
@@ -95,7 +98,7 @@ Depth is a **real camera position** in a tall world, not a colour fade. `OceanSt
 
 - **Marine snow** drifts down everywhere below 200 m, denser and slower with depth. Particles are parallaxed (two layers) so the descent reads as motion.
 - **Creatures** are pixel silhouettes picked by the camera's zone; they drift across slowly and are culled off-screen. Cheap: a few dozen sprites at most.
-- **Depth ruler** (`DepthRuler`): a vertical tick ruler on the right edge, a minor tick every 20 m and a label every 100 m (`-100m`, `-200m`, …; every 500 m once deep). It scrolls with the camera. A pink **`YOU ◀`** marker sits at your current depth and slides down on the same spring.
+- **Depth facts** (`DepthMarks`): real-ocean landmarks hung at their depths on the left and right edges (`recreational scuba limit · 40m`, `deepest scuba dive ever · 332m`, `THE MIDNIGHT ZONE`, `the Titanic rests at 3,800m`, …; zone names in signal, the rest faint). They scroll with the camera. Krillion has no ruler, so the Run no longer shows `DepthRuler` (the component stays for other uses).
 
 ## 6. Run (`/runs/[id]`)
 
@@ -105,51 +108,53 @@ Depth is a **real camera position** in a tall world, not a colour fade. `OceanSt
         │ −1,240m     │                               │         124 │        (depth in signal, ProgressSquares, score in accent)
         └─────────────┘                               └─────────────┘
  [≡]                                                                [🔊]  ← menu tile left, mute tile right (below the HUD row)
-                        ~~~~ boat ~~~~                              ─┤
- ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ waterline (start only) ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ ─┤
-               ┌──────────────────────────────────────┐              ─┤ -1,200m
-               │ PROMPT 4 OF 7                          │              ─┤
-               │ Name a graph algorithm                 │              ─┤
-               │ ▼ rarer answers sink deeper ▼          │       YOU ◀ ─┤   ← DepthRuler on the right edge
-               └──────────────────────────────────────┘              ─┤
-   - - - - - - - - - - - - - - - - - - - - - - - ◌ SHALLOWS 100 M    ─┤   ← TierLines (play area)
-   - - - - - - - - - - - - - - - - - - - - - - - ≻ REEF 250 M        ─┤ -1,300m
- (mascot)               [ KRUSKAL ] +25                               ─┤   ← the sinking chip
-   - - - - - - - - - - - - - - - - - - - - - - - ⌘ ABYSS 600 M       ─┤
-   - - - - - - - - - - - - - - - - - - - - - - - ✦ TRENCH 1,000 M    ─┤
+                        ~~~~ boat ~~~~
+ ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ waterline (start only) ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+ — THE MIDNIGHT ZONE                                         no sunlight below here —   ← DepthMarks on both edges
+               ┌──────────────────────────────────────┐
+               │ PROMPT 4 OF 7                          │
+               │ Name a graph algorithm                 │
+               │ ▼ rarer answers sink deeper ▼          │
+               └──────────────────────────────────────┘
+ (mascot)                                                           ← empty water while you answer
+
+   after an answer (Descent: the camera rides down with the chip, card scrolls away):
+   - - - - - - - - - - - - - - - - - - - - - - - ◌ SHALLOWS · 10      ← lit once passed
+                        “KRUSKAL” ▼  (reef fish swimming round it)
+   - - - - - - - - - - - - - - - - - - - - - - - ≻ REEF · 25          ← the chip stops on its own line
                 (◔ 18)  [ type one answer…          ]  [ DIVE ]           ← bottom dock: SonarTimer, TypedInput, DIVE
                         ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░ fuse      [? HINT]          ← Fuse under the input; HintButton beside/under
 ```
 
 - **HUD:** `DiveHud` = `DEPTH` plate (signal) left of centre, `ProgressSquares` + `PROMPT n OF 7` in the middle, `SCORE` plate (accent) right of centre. Squares: done (reward), miss (`--band-miss`), current (accent, `dot-pulse`), upcoming (dark).
 - **Card:** `RoundCard` centred just under the waterline (at depth: in the upper third). Pink tracking label, the prompt in big VT323, the micro line `▼ rarer answers sink deeper ▼` (single-answer kinds show their tier, e.g. `THIS ONE SINKS TO ABYSS · 600 M`).
-- **Play area:** `TierLines`, dashed lines at 16%, 40%, 66% and 90% of the space between card and dock, each tagged with icon, name and sink depth on the right.
-  - Single-answer Prompts: the line the Prompt will score on is marked `THIS PROMPT ▸` and the others dim. The Hint moves the mark up one line.
-  - Put-in-order: the `OrderList` sits over the lines until `LOCK IN ▼` is pressed. Odd-one-out: the `OptionGrid` sits there.
+- **Play area:** empty water while you answer, as in Krillion: the tier lines only appear once an answer drops (§6.1). Single-answer Prompts show their tier on the card (`REEF · 25`).
+  - Put-in-order: the `OrderList` sits here until `LOCK IN ▼` is pressed. Odd-one-out: the `OptionGrid` sits here.
 - **Dock (bottom, centred):** round `SonarTimer` (digits in the middle, sweep), the wide `TypedInput` (`type one answer…`) with the `Fuse` right under it, and the `DIVE` button on the right. On mobile the dock pins to the bottom above the keyboard.
 
-### 6.1 A correct answer: sink, then catch
+### 6.1 A correct answer: one continuous descent, then catch
 
-1. **Chip sinks.** The chip (a `ResultChip`, dropped via `TierLines`' `sink` prop) appears under the card and sinks on a spring (stiffness 120, damping 14), so it overshoots and bobs back to rest on its tier line. Each line it passes plays `line-flash` in that line's band colour. On landing: `+25` floats up, the score slams, the depth plate counts up, the square turns reward, the mascot reacts `happy`, 8 bubbles rise. A Trench answer releases 24 gold bubbles and pulses the chip gold.
-2. **Camera descends** to the new total depth (§5) while the chip settles (~1 s after landing starts).
-3. **Catch screen** (`CatchScreen`, Krillion's catch image). The prompt card and tier lines fade (`card-gone`); centred on the dark water:
-   - the tier's pixel creature icon, glowing in band colour, bobbing
-   - the tier name big (`TRENCH` in band colour)
+1. **The chip drops** (`Descent`, `components/modes/dive/Descent.tsx`). The answer chip, `“HEAPSORT” ▼` in its tier colour with three of the tier's creatures swimming round it, appears just under the card. The dock fades away.
+2. **The camera follows it down** to the new total depth in one move (~3 s whatever the depth, `fallMs`): about a third of the way at a third of the time, ~95% by two thirds, then it settles (`fallCurve`, timed off the Krillion recording). The camera is pinned to the chip, so the chip holds its place while everything else scrolls up: the card rides away with the water (`onShift`), the depth facts pass, bubbles stream up off the chip, and the HUD's DEPTH counts up live with the camera. `sfx.sink()` plays as it drops.
+3. **Tier lines hang in the water** below where you answered: dashed lines at +100 m (Shallows), +250 m (Reef), +600 m (Abyss) and +1,000 m (Trench), each labelled `icon NAME · points` at its right end. A line lights in its tier colour as the chip passes it; the chip stops on its own line, which glows. On landing the score counts up, the square fills, the mascot reacts `happy` and bubbles burst; a Trench catch adds gold bubbles and a faint gold flash.
+4. **Catch screen** (`CatchScreen`, Krillion's catch image), ~0.4 s after landing. The chip and lines fade; centred in the water at the new depth:
+   - the tier's pixel creature icon, glowing in band colour, bobbing under a column of rising ring bubbles
+   - the tier name (`TRENCH` in band colour)
    - the answer in quotes (`"Hopcroft–Karp"`)
    - `+100 PTS · sink 1,000m` (points in band colour)
    - a one-line flavour verdict (`TIER_UI[tier].verdicts`, picked at random)
    - tags when they apply: `HINT`, `REPEAT ÷2`
-   - a primary **`DESCEND ▼`** button at the bottom, with a thin auto-continue bar under it.
+   - an outlined **`DESCEND ▼`** button at the bottom where the dock was, with a thin auto-continue bar under it.
    `sfx.catch(band)` plays as it appears.
-4. **Continue:** `DESCEND ▼`, **Enter**, or **auto after ~6 s**. Then the next Prompt's card plays `card-in`.
+5. **Continue:** `DESCEND ▼`, **Enter**, or **auto after ~6 s**. The catch fades out, the next card drifts up out of the water to its place (`RoundCard` state `rise`) and the dock slides up after it.
 
 **The clock is paused during the catch screen.** No server change is needed: a correct answer closes the Prompt, and the next Prompt's 25 s clock starts only when the client calls `POST /api/runs/[runId]/start-prompt`. So the client calls `start-prompt` **after** `DESCEND` (once the next card has entered), never while the catch screen is up. The client's `SonarTimer` shows full time until `deadlineAt` arrives.
 
 ### 6.2 Misses
 
-- **Wrong typed guess:** the input plays `reject-jolt`, `−3s` floats up from the clock, the fuse cuts 3 s, `sfx.wrong()`. The correction line reads `<guess> · not in your notes`. Never say "wrong": it may be an Off-syllabus guess. The Prompt stays open.
-- **One-try miss** (put-in-order, odd-one-out): the card shakes, the right option lights, the correction line says `One try · it was Dijkstra`, the square turns miss, the mascot looks sad. A short miss card (`MISSED · it was Dijkstra`, no sink) then the next Prompt; no descent.
-- **Timeout:** at ≤ 5 s the clock is hot (accent digits, faster sweep, edge throb, `sfx.ping()` each second). At 0, `TIME!` stamps on the card, it shakes, `sfx.timeout()`, the mascot looks sad, the square turns miss, then the next Prompt (no catch screen, no descent).
+- **Wrong typed guess:** the input plays `reject-jolt`, `−3s` floats up from the clock, the fuse cuts 3 s, `sfx.wrong()`. The correction line reads `“<guess>”: no echo · try again` (sonar, as in Krillion). Never say "wrong": it may be an Off-syllabus guess. The Prompt stays open.
+- **One-try miss** (put-in-order, odd-one-out): the card shakes, the right option lights, the correction line says `One try · it was Dijkstra`, the square turns miss, the mascot looks sad. After ~1.8 s, the NOTHING LANDED screen with your pick quoted and `One try · it was Dijkstra.`; no descent.
+- **Timeout:** at ≤ 5 s the clock is hot (accent digits, faster sweep, a red glow throbbing on the top edge, `sfx.ping()` each second). At 0, `TIME!` stamps on the card, it shakes, `sfx.timeout()`, the mascot looks sad, the square turns miss; ~0.9 s later the **NOTHING LANDED** screen (`CatchScreen tier="miss"`): grey title, your last wrong guess in quotes if there was one, `+0 PTS`, a faint line, and `DESCEND ▼`. No descent.
 
 ## 7. Reveal (`/runs/[id]/reveal`)
 
@@ -185,10 +190,12 @@ The camera starts at your **final depth**; the results are a centred column (max
 | `tiers.ts` | `TIER_UI` (label, band var, icon, sink depth, verdicts) |
 | `depth.ts` | metres per point, `formatDepth`, zone table and colour blending |
 | `OceanStage.tsx` | the depth-world canvas: camera, zones, rays, marine snow, creatures, boat, waterline, bubbles; imperative `setDepth(metres)` |
-| `DepthRuler.tsx` | right-edge ruler + `YOU ◀` marker, scrolled by the camera depth |
+| `DepthMarks.tsx` | real-ocean depth facts on the screen edges, scrolled by the camera |
+| `Descent.tsx` | the answer's fall: chip + world-anchored tier lines, drives the camera; `SKY_DEPTH` + `useSkyCarry` for the opening pan |
+| `DepthRuler.tsx` | right-edge ruler + `YOU ◀` marker (no longer on the Run screen) |
 | `DiveHud.tsx` | the three-plate HUD row (`HudPlate`, `ProgressSquares` from `components/round/`) |
-| `TierLines.tsx` | the four dashed tier lines; its `sink` prop drops the sinking `ResultChip` (line flashes, `onLanded`) |
-| `CatchScreen.tsx` | the catch screen with `DESCEND ▼`, Enter and the ~6 s auto-continue |
+| `TierLines.tsx` | the older fixed-box tier lines with a sinking `ResultChip` (no longer on the Run screen) |
+| `CatchScreen.tsx` | the catch screen (and NOTHING LANDED with `tier="miss"`) with `DESCEND ▼`, Enter and the ~6 s auto-continue |
 | `DiveLogChart.tsx` | the dive log droplines |
 | `DiveReveal.tsx` | the Reveal column (§7) |
 | `DivePlayground.tsx` | a fake 7-Prompt Dive, client-side, for `/styleguide` |

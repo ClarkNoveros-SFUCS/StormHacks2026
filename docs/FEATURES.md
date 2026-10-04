@@ -41,6 +41,9 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F29 | Arena: three.js FPS study Mode (stretch) | Frontend | F20, F24 | #42 | done |
 | F30 | Split generation: parallel Open and other-kinds calls | Pipelines | F04, F14 (F17) | #64 | done |
 | F31 | Faster Gemini fallback: fewer retries on 503, fall back on timeout | Pipelines | F04 | #66 | done |
+| F32 | Sonar: AI study coach (LangGraph) over a per-concept learner model | Gameplay | F22 | #73 | done |
+| F33 | Dive matches Krillion: continuous descent, catch and miss screens, intro pan | Frontend | F09 | #72 | done |
+| F34 | Clerk sign-in and sign-up match the site style | Frontend | F10, F19 | #77 | done |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -578,3 +581,55 @@ Notes for others:
 - **Verification** uses the same loop with its own model order (lite first) and 120 s timeout, so a stalled verifier also falls back to 3.6-flash now.
 - The SDK's own retries (`httpOptions.retryOptions`) stay off; all retrying is in `withFallback`.
 - Without `GEMINI_FALLBACK_MODEL` there's one model, and it keeps the full 2/5/12 s retries as before.
+
+## F32 Sonar: AI study coach (LangGraph) over a per-concept learner model
+Spec: `docs/architecture/sonar.md` · Issue #73
+- [x] Python Basics concept graph (22 Concepts, 28 prerequisite edges) and Prompt tags (447 Prompts, Gemini-tagged, sidecar JSON)
+- [x] Learner model: Mode-aware BKT with noisy-AND blame, root cause, ranked next actions (pure, tested)
+- [x] Sonar agent (LangGraph + Gemini) with tools; briefing and chat API
+- [x] `/sonar` page (mastery map), floating Sonar buddy (pixel dolphin) on every page except Run screens, speech bubbles, Ask Sonar buttons
+- [x] Demo seed (allowlisted to one account and `demo_sonar_*` test players)
+
+Entry points: `loadSonarModel(playerId)` in `lib/sonar/queries.ts` (the model); `runSonar({ playerId, message?, context })` in `lib/sonar/agent.ts`; `GET /api/sonar/model`, `POST /api/sonar/chat`, `GET /api/sonar/bubble?path=`; `openSonar({ message? })` in `lib/sonar/client.ts` opens the drawer from any client component; `components/sonar/AskSonarButton.tsx`; `npm run sonar:tag` (re-tag after editing the course), `npm run sonar:demo [-- demo_sonar_<x>]`.
+
+Notes for others:
+- **AI never during a Run.** Sonar runs between Runs only; the buddy hides on `/runs/[runId]`. The numbers come from deterministic code (`lib/sonar/{model,diagnose,plan}.ts`); Gemini only explains and picks among checked options.
+- **No migration.** The model is computed on read by replaying `guess_events` (plus `run_prompts` timeouts) on the Course Module's Games, about 80 ms.
+- **Changing Python Basics content:** run `npm run sonar:tag` afterwards. Tags are keyed by a hash of the Prompt text; an untagged Prompt falls back to its Topic's weakest Concept at half weight.
+- **The coach is Claude Sonnet 5.5** (`ANTHROPIC_API_KEY`, `SONAR_MODEL`), traced in LangSmith. Gemini is the fallback, and is used alone without that key.
+- **Agent memory** is an in-process `MemorySaver` (per Player, lost on restart).
+- `npm run sonar:demo` **deletes** the target's Python Basics Runs, guesses and Topic progress before seeding.
+
+## F33 Dive matches Krillion: continuous descent, catch and miss screens, intro pan
+Spec: `docs/design/modes/dive.md` §5–6 · Issue #72 · Reference: a recorded Krillion daily dive (youtube.com/watch?v=YU2mpcddchs)
+- [x] One continuous descent: the camera rides down with the answer chip (~3 s, Krillion's timing), the card scrolls away with the water, DEPTH counts live
+- [x] Tier lines hang in the water below where you answered (+100/+250/+600/+1,000 m), light up as the chip passes, the chip stops on its own; nothing is drawn while you answer
+- [x] Chip in its tier colour with the tier's creatures swimming round it and a bubble trail
+- [x] Real-ocean depth facts on the screen edges (replaces the depth ruler on the Run)
+- [x] Catch screen at Krillion's size and layout; the score counts up; fades out into the next card rising from the water
+- [x] NOTHING LANDED screen after a timeout or one-try miss; wrong guesses read `“x”: no echo · try again`; hot clock glows on the top edge
+- [x] Fresh Runs open in the sky over a bigger boat and pan down to the waterline; the playground gets a title shot
+- [x] Same flow in `/styleguide/dive`; unit tests for the fall curve, world shift and camera follow
+
+Entry points: `Descent`, `SKY_DEPTH`, `useSkyCarry` in `components/modes/dive/Descent.tsx`; `DepthMarks` in `components/modes/dive/DepthMarks.tsx`; `fallMs`, `fallCurve`, `worldShift`, `DiveCamera.follow` / `.min` in `components/modes/dive/depth.ts`; `CatchScreen tier="miss"`; `RoundCard` state `"rise"`; `DiveHud` `camera` prop
+
+Notes for others:
+- **No scoring or API change.** Tiers, points and the start-prompt clock are untouched; the clock still starts only after the next card has come up (`ENTER_MS` is now 1.1 s).
+- `TierLines` and `DepthRuler` are no longer on the Run screen but stay exported.
+- Krillion's "did you mean X? submit again to confirm" typo flow is **not** copied: it's matching logic (F05), not animation.
+
+## F34 Clerk sign-in and sign-up match the site style
+Issue #77
+- [x] `appearance` on `ClerkProvider`: the :root palette, Pixelify for headings and buttons, Mulish body
+- [x] Clerk elements reuse the site recipes: yellow `.px-btn` primary action, `.px-btn` social buttons, `.px-frame` card with a hard drop, 2px input border that turns signal-cyan on focus
+- [x] `cssLayerName: "clerk"` and `@layer theme, base, clerk, components, utilities` so Tailwind preflight can't break Clerk and our classes win
+- [x] Checked in a production build: `/sign-in` page and the nav's sign-in modal
+- [ ] Application name in the Clerk dashboard set to SYLLABYSS (the title says "Sign in to StormHacks 2026" until then; dashboard only, needs human)
+
+Entry points: `clerkAppearance` in `lib/ui/clerk-appearance.ts`; the `.cl-*` rules next to `.px-frame` in `app/globals.css`
+
+Notes for others:
+- Applies to every Clerk component (SignIn, SignUp, the modals from `SignInButton`/`SignUpButton`, UserButton, UserProfile). Style a new one by adding its element key to `elements`, or a `.cl-<element>` rule in globals.css.
+- Colours are hex copies of the :root tokens: Clerk derives shades from them and can't read CSS variables. Change both if the palette changes.
+- "Secured by Clerk" stays (removing it needs a paid Clerk plan).
+

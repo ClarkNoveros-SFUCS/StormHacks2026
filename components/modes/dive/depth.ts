@@ -26,6 +26,25 @@ export function depthAtScreenY(y: number, cameraDepth: number, viewH: number): n
   return cameraDepth + (y - anchorY(cameraDepth, viewH)) / pxPerMetre(viewH);
 }
 
+/** How long the fall takes: about 3 s whatever the depth, as in Krillion (deeper answers fall faster). */
+export function fallMs(metres: number): number {
+  return 2900 + 300 * Math.min(1, metres / 1000);
+}
+
+/**
+ * Fall progress at time fraction p. Timed off Krillion's descent: about a third of the way at a
+ * third of the time, ~95% by two thirds, then the last few metres settle onto the line.
+ */
+export function fallCurve(p: number): number {
+  const q = Math.min(1, Math.max(0, p / 0.8));
+  return q < 0.5 ? 2 * q * q : 1 - Math.pow(-2 * q + 2, 2) / 2;
+}
+
+/** How far (CSS px) a world-attached element has moved since the camera was at `from`. */
+export function worldShift(from: number, cam: number, viewH: number): number {
+  return anchorY(cam, viewH) - anchorY(from, viewH) - (cam - from) * pxPerMetre(viewH);
+}
+
 type Listener = (depth: number, velocity: number) => void;
 
 /**
@@ -38,11 +57,16 @@ export class DiveCamera {
   velocity = 0;
   stiffness = 60;
   damping = 14;
+  /** The shallowest the camera goes. Below 0 is up in the sky (the Run's opening shot). */
+  min = 0;
+  /** Driven from outside (`follow`): the spring stands still but the velocity is kept for effects. */
+  private following = false;
   private listeners = new Set<Listener>();
 
   /** Move toward `m` (sprung), or jump there with `instant`. */
   set(m: number, instant = false) {
-    this.target = Math.max(0, m);
+    this.following = false;
+    this.target = Math.max(this.min, m);
     if (instant) {
       this.depth = this.target;
       this.velocity = 0;
@@ -50,8 +74,17 @@ export class DiveCamera {
     }
   }
 
+  /** Pin the camera to `m` this frame (the Dive chip's fall), moving at `velocity` m/s. */
+  follow(m: number, velocity: number) {
+    this.following = true;
+    this.depth = this.target = Math.max(this.min, m);
+    this.velocity = velocity;
+    this.emit();
+  }
+
   /** Advance by dt seconds. Returns true while moving. */
   step(dt: number, reduced = false): boolean {
+    if (this.following) return true;
     if (reduced) {
       const moved = this.depth !== this.target;
       this.depth = this.target;
@@ -73,8 +106,8 @@ export class DiveCamera {
       [this.depth, this.velocity] = springStep(this.depth, this.velocity, this.target, s, this.stiffness, this.damping, 1);
       left -= s;
     }
-    if (this.depth < 0) {
-      this.depth = 0;
+    if (this.depth < this.min) {
+      this.depth = this.min;
       this.velocity = Math.max(0, this.velocity);
     }
     this.emit();
