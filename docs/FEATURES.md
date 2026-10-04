@@ -594,5 +594,6 @@ Notes for others:
 - **AI never during a Run.** Sonar runs between Runs only; the buddy hides on `/runs/[runId]`. The numbers come from deterministic code (`lib/sonar/{model,diagnose,plan}.ts`); Gemini only explains and picks among checked options.
 - **No migration.** The model is computed on read by replaying `guess_events` (plus `run_prompts` timeouts) on the Course Module's Games, about 80 ms.
 - **Changing Python Basics content:** run `npm run sonar:tag` afterwards. Tags are keyed by a hash of the Prompt text; an untagged Prompt falls back to its Topic's weakest Concept at half weight.
+- **The coach is Claude Sonnet 5.5 through the LangSmith LLM Gateway** (`LANGSMITH_API_KEY`; the Anthropic key is a Provider Secret in LangSmith). Gemini is the fallback, and is used alone without that key.
 - **Agent memory** is an in-process `MemorySaver` (per Player, lost on restart).
 - `npm run sonar:demo` **deletes** the target's Python Basics Runs, guesses and Topic progress before seeding.
