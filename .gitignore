@@ -34,6 +34,10 @@ yarn-error.log*
 .env*
 !.env.example
 
+# eval decks are course files (never commit them); --live runs land in eval/runs
+/eval/decks/
+/eval/runs/
+
 # vercel
 .vercel
 

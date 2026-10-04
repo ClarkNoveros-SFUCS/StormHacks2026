@@ -1,0 +1,532 @@
+{
+  "deck": "ml-midterm-notes",
+  "createdAt": "2026-10-04T09:50:18.872Z",
+  "promptVersion": "11c93557",
+  "run": {
+    "model": "gemini-3.6-flash",
+    "seconds": 75.279,
+    "usage": {
+      "inputTokens": 2840,
+      "outputTokens": 3320,
+      "thinkingTokens": 7734
+    },
+    "costUsd": 0.0435825
+  },
+  "response": {
+    "prompts": [
+      {
+        "kind": "open",
+        "text": "Name an evaluation metric mentioned in machine learning.",
+        "answers": [
+          {
+            "canonical": "Accuracy",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Accuracy: Proportion of all correct predictions"
+          },
+          {
+            "canonical": "Precision",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Precision: of all predicted positives, probability that a positive prediction is correct"
+          },
+          {
+            "canonical": "Recall",
+            "aliases": [
+              "sensitivity"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Recall (sensitivity): of all actual positive"
+          },
+          {
+            "canonical": "Specificity",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Specificity: of all actual negatives, probability that an actual negative outcome is predicted correctly"
+          },
+          {
+            "canonical": "F1 score",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "F1 score: Combination of precision and recall"
+          },
+          {
+            "canonical": "Mean Absolute Error",
+            "aliases": [
+              "MAE"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Mean Absolute Error (MAE): Average of absolute difference"
+          },
+          {
+            "canonical": "Root mean square error",
+            "aliases": [
+              "RMSE"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Root mean square error (RMSE): Average distance between predicted value"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a component of a node's anatomy in a neural network.",
+        "answers": [
+          {
+            "canonical": "Input",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Input: Multiple input signals + bias (constant)"
+          },
+          {
+            "canonical": "bias",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "bias (constant)"
+          },
+          {
+            "canonical": "Input function",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Input function: Apply weights to inputs"
+          },
+          {
+            "canonical": "Activation function",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Activation function: Controls how strongly the “neuron” activates"
+          },
+          {
+            "canonical": "Output",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Output: single number"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a step in the K-means clustering algorithm.",
+        "answers": [
+          {
+            "canonical": "Initialize K means",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Initialize K means (random points), one for each class"
+          },
+          {
+            "canonical": "Assign each point to closest mean",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Phase 1: Assign each point in set to closest mean"
+          },
+          {
+            "canonical": "Compute new mean for each cluster",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Phase 2: For each cluster, compute the new mean of all points assigned to it"
+          },
+          {
+            "canonical": "Repeat until means are not changed",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Repeat step 2 and 3 until means are not changed"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a step in constructing a decision tree.",
+        "answers": [
+          {
+            "canonical": "Select feature that gives best split",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Select feature that gives best split"
+          },
+          {
+            "canonical": "Create a new node based on the split",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Create a new node in the tree based on the split"
+          },
+          {
+            "canonical": "Separate data based on the split",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Separate data based on the split"
+          },
+          {
+            "canonical": "Create a child node that represents the class",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "If met, create a child node that represents the class"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a step in K-nearest neighbors classification.",
+        "answers": [
+          {
+            "canonical": "Compute distance from query point to training points",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Compute distance from the query point to all training points (using a distance metric like Euclidean)"
+          },
+          {
+            "canonical": "Select k closest neighbors",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Select the k closest neighbors"
+          },
+          {
+            "canonical": "Get labels of k neighbors",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Get the labels of these k neighbors (e.g., cancerous, noncancerous)"
+          },
+          {
+            "canonical": "Vote on labels",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Vote: Count how many of each label appear"
+          },
+          {
+            "canonical": "Output most frequent label",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Output the most frequent label (majority vote)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a step in K-nearest neighbors regression.",
+        "answers": [
+          {
+            "canonical": "Compute distance from query point to training points",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Compute distance from the query point to all training points (using a distance metric like Euclidean)"
+          },
+          {
+            "canonical": "Select k closest neighbors",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Select the k closest neighbors"
+          },
+          {
+            "canonical": "Get target values of k neighbors",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Get the target values of these k neighbors (e.g. temp, cost, etc.)"
+          },
+          {
+            "canonical": "Average k target values",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Average k target values"
+          },
+          {
+            "canonical": "Output the mean",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Output the mean"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a variable or parameter in the gradient descent weight update equation.",
+        "answers": [
+          {
+            "canonical": "Current weight",
+            "aliases": [
+              "w_c"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Where: $w_c$ is the current weight, $w_{next}$ is the updated weight, $\\alpha$ is the learning rate, and $\\nabla L$ is the direction in which the loss function is increasing"
+          },
+          {
+            "canonical": "Updated weight",
+            "aliases": [
+              "w_next"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Where: $w_c$ is the current weight, $w_{next}$ is the updated weight, $\\alpha$ is the learning rate, and $\\nabla L$ is the direction in which the loss function is increasing"
+          },
+          {
+            "canonical": "Learning rate",
+            "aliases": [
+              "alpha"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Where: $w_c$ is the current weight, $w_{next}$ is the updated weight, $\\alpha$ is the learning rate, and $\\nabla L$ is the direction in which the loss function is increasing"
+          },
+          {
+            "canonical": "Gradient",
+            "aliases": [
+              "direction loss function increases"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Where: $w_c$ is the current weight, $w_{next}$ is the updated weight, $\\alpha$ is the learning rate, and $\\nabla L$ is the direction in which the loss function is increasing"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a main topic or algorithm listed on the midterm review.",
+        "answers": [
+          {
+            "canonical": "K-means clustering",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "1. K-means clustering"
+          },
+          {
+            "canonical": "Cross-validation",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "2. Cross-validation"
+          },
+          {
+            "canonical": "K-nearest neighbors",
+            "aliases": [
+              "KNN",
+              "K-NN"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "3. K-nearest neighbors (K-NN)"
+          },
+          {
+            "canonical": "Decision Trees",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "5. Decision Trees and working with datasets"
+          },
+          {
+            "canonical": "Linear classifiers",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "7. Linear classifiers"
+          },
+          {
+            "canonical": "Linear regression",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "8. Linear regression"
+          },
+          {
+            "canonical": "A* search",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "9. A* search"
+          },
+          {
+            "canonical": "Backpropagation",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "11. Computation graphs and backpropagation"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of the K-means clustering algorithm in order.",
+        "answers": [],
+        "tier": "common",
+        "hint": "Start by picking initial points for each class.",
+        "explanation": "K-means initializes means, assigns points to the closest mean, calculates new cluster means, and repeats until convergence.",
+        "items": [
+          "Initialize K means",
+          "Assign each point in set to closest mean",
+          "Compute the new mean for each cluster",
+          "Repeat until means are not changed"
+        ],
+        "evidence_page": 1
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the main steps of constructing a decision tree in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Begin by selecting the feature that best splits the data.",
+        "explanation": "Decision tree building selects the best split feature, creates a node, separates data, and repeats until terminal criteria create a leaf.",
+        "items": [
+          "Select feature that gives best split",
+          "Create a new node in the tree based on the split",
+          "Separate data based on the split",
+          "Repeat steps for each group until criteria met"
+        ],
+        "evidence_page": 1
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which metric evaluates regression performance rather than classification performance?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Look for the metric that calculates average absolute prediction differences.",
+        "explanation": "Mean Absolute Error evaluates regression error, whereas Accuracy, Precision, and Recall evaluate classification predictions.",
+        "options": [
+          "Accuracy",
+          "Precision",
+          "Recall",
+          "Mean Absolute Error"
+        ],
+        "correct_option": "Mean Absolute Error",
+        "evidence_page": 1
+      },
+      {
+        "kind": "cloze",
+        "text": "In cross-validation, the dataset is split such that for each fold, the training and test data are ______.",
+        "answers": [
+          {
+            "canonical": "disjoint",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "for each fold training + test data is disjoint"
+          }
+        ],
+        "tier": "solid",
+        "hint": "This means the training and testing sets do not share data.",
+        "explanation": "Cross-validation guarantees disjoint training and test sets in every fold."
+      },
+      {
+        "kind": "cloze",
+        "text": "The F1 score is calculated as the ______ mean of precision and recall.",
+        "answers": [
+          {
+            "canonical": "harmonic",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "F1 score: Combination of precision and recall (harmonic mean)"
+          }
+        ],
+        "tier": "solid",
+        "hint": "This type of average is ideal for ratios.",
+        "explanation": "The F1 score combines precision and recall using their harmonic mean."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What activation function compares an input value with 0 and returns the larger value, preserving a constant slope to prevent vanishing gradients?",
+        "answers": [
+          {
+            "canonical": "ReLU",
+            "aliases": [
+              "Rectified Linear Unit"
+            ],
+            "exact_only": true,
+            "evidence_page": 2,
+            "evidence_quote": "Rectified Linear Unit (ReLU): Compares bigger value between 0 and u"
+          }
+        ],
+        "tier": "common",
+        "hint": "Its name refers to rectifying negative inputs to zero.",
+        "explanation": "ReLU outputs zero for negative values and u for positive values, maintaining a constant slope."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What objective function calculates error for continuous target outputs and is commonly used for regression tasks?",
+        "answers": [
+          {
+            "canonical": "Mean Squared Error",
+            "aliases": [
+              "MSE"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Mean Squared Error: Used for regression"
+          }
+        ],
+        "tier": "solid",
+        "hint": "It measures the average squared difference between predictions and targets.",
+        "explanation": "Mean Squared Error measures prediction loss for regression problems."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What algorithm updates weights in a neural network by moving backwards through the network using the derivative chain rule?",
+        "answers": [
+          {
+            "canonical": "Backpropagation",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Backpropagation: Updates weights by working backwards using chain rules to figure out how much each weight contributed to the error"
+          }
+        ],
+        "tier": "common",
+        "hint": "The term describes propagating error backwards through the model.",
+        "explanation": "Backpropagation calculates gradients via the chain rule backwards to update weights."
+      }
+    ]
+  }
+}

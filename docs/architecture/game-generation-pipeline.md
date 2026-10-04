@@ -100,7 +100,7 @@ A flat shape (optional fields per `kind`) works more reliably with structured ou
 
 Validate the parsed response with a zod schema mirroring this shape. If one Prompt fails validation, drop it, not the whole document.
 
-`npm run generate:check -- <file> [--pages a-b] [--save out.json] [--from out.json]` runs extraction → Gemini → checks on a local file without the app or database and prints what was kept and dropped and why. Use it to tune the prompt; `--from` replays a saved response for free.
+`npm run generate:check -- <file> [--pages a-b] [--save out.json] [--from out.json]` runs extraction → Gemini → checks on a local file without the app or database and prints what was kept and dropped and why, plus its scorecard row. Use it to tune the prompt; `--from` replays a saved response for free. To compare a change across all the eval decks, use `npm run generate:eval` (§ Scorecard).
 
 ## Checks (code, after Gemini)
 
@@ -173,4 +173,6 @@ Planned, in order (each measured with F14's scorecard, which comes first):
 | `lib/games/queries.ts`, `lib/games/types.ts` | Game reads for the routes (`getPlayerGame`, `listModuleGames`), client-safe `GameSummary` |
 | `lib/modes/index.ts` | `MODES`, `ModeId`, `isModeId` |
 | `scripts/generate-check.ts` | `npm run generate:check`: tune the prompt on a local file |
+| `scripts/generate-eval.ts`, `eval/decks.json`, `eval/responses/` | `npm run generate:eval`: the F14 scorecard over the eval decks (§ Scorecard) |
+| `lib/games/scorecard.ts`, `lib/gemini/pricing.ts` | `scoreDocument`, `formatScorecardTable`; Gemini price constants and `estimateCostUsd` (scripts only) |
 | `lib/scoring/tiers.ts` | Tier table + Open Prompt tier assignment |

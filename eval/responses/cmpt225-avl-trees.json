@@ -1,0 +1,523 @@
+{
+  "deck": "cmpt225-avl-trees",
+  "createdAt": "2026-10-04T09:45:15.388Z",
+  "promptVersion": "11c93557",
+  "run": {
+    "model": "gemini-3.6-flash",
+    "seconds": 79.242,
+    "usage": {
+      "inputTokens": 8686,
+      "outputTokens": 4023,
+      "thinkingTokens": 9384
+    },
+    "costUsd": 0.05679075
+  },
+  "response": {
+    "prompts": [
+      {
+        "kind": "open",
+        "text": "Name a real-world application of priority queues mentioned in the lecture.",
+        "answers": [
+          {
+            "canonical": "Printer's queue",
+            "aliases": [
+              "printer queue",
+              "printer"
+            ],
+            "exact_only": false,
+            "evidence_page": 45,
+            "evidence_quote": "Printer’s queue – may prefer to print shorter jobs first"
+          },
+          {
+            "canonical": "Job scheduling in CPU",
+            "aliases": [
+              "CPU job scheduling",
+              "CPU scheduling"
+            ],
+            "exact_only": false,
+            "evidence_page": 45,
+            "evidence_quote": "Job scheduling in CPU – some processes are more important"
+          },
+          {
+            "canonical": "Line for customer services",
+            "aliases": [
+              "customer service line",
+              "customer service"
+            ],
+            "exact_only": false,
+            "evidence_page": 45,
+            "evidence_quote": "Line for customer services – some customers are more valued"
+          },
+          {
+            "canonical": "Order book in the stock market",
+            "aliases": [
+              "stock market order book",
+              "stock market"
+            ],
+            "exact_only": false,
+            "evidence_page": 45,
+            "evidence_quote": "Order book in the stock market – highest bids are matched with lowest asks"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a field declared in the standard AVLNode class implementation.",
+        "answers": [
+          {
+            "canonical": "data",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private T data;"
+          },
+          {
+            "canonical": "leftChild",
+            "aliases": [
+              "left child"
+            ],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private AVLNode<T> leftChild;"
+          },
+          {
+            "canonical": "rightChild",
+            "aliases": [
+              "right child"
+            ],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private AVLNode<T> rightChild;"
+          },
+          {
+            "canonical": "parent",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private AVLNode<T> parent;"
+          },
+          {
+            "canonical": "height",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private int height;"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an operation defined for a general priority queue.",
+        "answers": [
+          {
+            "canonical": "add item",
+            "aliases": [
+              "add item(item)"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "add item(item): add an item to the queue"
+          },
+          {
+            "canonical": "getTop",
+            "aliases": [
+              "getTop()"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "getTop(): return the item with highest priority without removing it from the queue"
+          },
+          {
+            "canonical": "removeTop",
+            "aliases": [
+              "removeTop()"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "removeTop(): remove the item with highest priority, and return it"
+          },
+          {
+            "canonical": "getSize",
+            "aliases": [
+              "getSize()"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "getSize() / isEmpty()"
+          },
+          {
+            "canonical": "isEmpty",
+            "aliases": [
+              "isEmpty()"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "getSize() / isEmpty()"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a public method supported by a min-heap implementation.",
+        "answers": [
+          {
+            "canonical": "addElement",
+            "aliases": [
+              "addElement(element)"
+            ],
+            "exact_only": false,
+            "evidence_page": 48,
+            "evidence_quote": "addElement(element)"
+          },
+          {
+            "canonical": "getMin",
+            "aliases": [
+              "getMin()"
+            ],
+            "exact_only": false,
+            "evidence_page": 48,
+            "evidence_quote": "getMin()"
+          },
+          {
+            "canonical": "removeMin",
+            "aliases": [
+              "removeMin()"
+            ],
+            "exact_only": false,
+            "evidence_page": 48,
+            "evidence_quote": "removeMin()"
+          },
+          {
+            "canonical": "getSize",
+            "aliases": [
+              "getSize()"
+            ],
+            "exact_only": false,
+            "evidence_page": 48,
+            "evidence_quote": "getSize()"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a suggested meaning for the letter B in B-trees mentioned in the historical notes.",
+        "answers": [
+          {
+            "canonical": "Boeing",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          },
+          {
+            "canonical": "balanced",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          },
+          {
+            "canonical": "broad",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          },
+          {
+            "canonical": "bushy",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          },
+          {
+            "canonical": "Bayer",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a requirement or rule for taking the midterm exam.",
+        "answers": [
+          {
+            "canonical": "Closed books",
+            "aliases": [
+              "closed book"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Closed books."
+          },
+          {
+            "canonical": "Bring student IDs",
+            "aliases": [
+              "student ID",
+              "student IDs",
+              "bring student ID"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Please bring your student IDs"
+          },
+          {
+            "canonical": "In person",
+            "aliases": [
+              "in person exam"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "The exam will be in person"
+          },
+          {
+            "canonical": "Only pens/pencils allowed",
+            "aliases": [
+              "pens and pencils",
+              "only pens and pencils"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Only pens/pencils are allowed."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a disadvantage or con of using AVL trees listed in the lecture.",
+        "answers": [
+          {
+            "canonical": "Rebalancing is not free",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 31,
+            "evidence_quote": "Rebalancing is not free"
+          },
+          {
+            "canonical": "Inefficient when done in database systems on disk",
+            "aliases": [
+              "inefficient on disk",
+              "inefficient in database systems"
+            ],
+            "exact_only": false,
+            "evidence_page": 31,
+            "evidence_quote": "Inefficient when done in database systems on disk – writing on disk is costly, especially when the writing is in different blocks."
+          },
+          {
+            "canonical": "Difficult to program",
+            "aliases": [
+              "hard to program"
+            ],
+            "exact_only": false,
+            "evidence_page": 31,
+            "evidence_quote": "Difficult to program (you’d be surprised, but this is a real consideration in the industry.)"
+          },
+          {
+            "canonical": "Writing on disk is costly",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 31,
+            "evidence_quote": "writing on disk is costly, especially when the writing is in different blocks."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a structural formula in the array representation of a heap relative to index i or j.",
+        "answers": [
+          {
+            "canonical": "array[0]",
+            "aliases": [
+              "0",
+              "root at 0"
+            ],
+            "exact_only": false,
+            "evidence_page": 55,
+            "evidence_quote": "A: array[0]"
+          },
+          {
+            "canonical": "array[2i+1]",
+            "aliases": [
+              "2i+1"
+            ],
+            "exact_only": false,
+            "evidence_page": 55,
+            "evidence_quote": "A: array[2i+1]"
+          },
+          {
+            "canonical": "array[2i+2]",
+            "aliases": [
+              "2i+2"
+            ],
+            "exact_only": false,
+            "evidence_page": 55,
+            "evidence_quote": "A: array[2i+2]"
+          },
+          {
+            "canonical": "array[(j+1)/2-1]",
+            "aliases": [
+              "(j+1)/2-1"
+            ],
+            "exact_only": false,
+            "evidence_page": 55,
+            "evidence_quote": "A: array[(j+1)/2-1]"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of inserting an element into an AVL tree in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Start with standard binary search tree placement before maintaining balance upward.",
+        "explanation": "Inserting into an AVL tree starts as a standard BST leaf insertion, followed by updating ancestor heights and rotating where balance is violated.",
+        "items": [
+          "Insert a new node as usual as a leaf in BST",
+          "Update the heights of ancestors of the added node",
+          "Apply rotation to fix balance if a node becomes unbalanced"
+        ],
+        "evidence_page": 23
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the main steps of HeapSort in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "First turn the entire array into a max heap before continuously removing the largest remaining element.",
+        "explanation": "HeapSort first rearranges the input array into a max heap in place, then repeatedly extracts the maximum element to sort the array.",
+        "items": [
+          "Given an array",
+          "buildMaxHeap(array) in place",
+          "Remove the max and add it to the end of the array"
+        ],
+        "evidence_page": 70
+      },
+      {
+        "kind": "cloze",
+        "text": "An AVL tree is a Binary Search Tree where for every vertex v, |height(v.leftSubtree) - height(v.rightSubtree)| ≤ ______.",
+        "answers": [
+          {
+            "canonical": "1",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "|height(v.leftSubtree) - height(v.rightSubtree)| ≤ 1"
+          }
+        ],
+        "tier": "common",
+        "hint": "Think of the maximum allowed integer height imbalance between subtrees.",
+        "explanation": "AVL trees enforce that the height difference between left and right subtrees is at most 1."
+      },
+      {
+        "kind": "cloze",
+        "text": "When deleting a node from a leaf in a B-tree causes the leaf to become empty, this state is known as ______.",
+        "answers": [
+          {
+            "canonical": "underflow",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 40,
+            "evidence_quote": "This sometimes called “underflow”"
+          }
+        ],
+        "tier": "solid",
+        "hint": "This term describes a node having fewer items than required.",
+        "explanation": "Underflow occurs in a B-tree leaf when a deletion leaves it empty."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "Name the propagation procedure that moves a newly inserted element upward to restore min-heap order.",
+        "answers": [
+          {
+            "canonical": "heapifyUp",
+            "aliases": [
+              "heapify up"
+            ],
+            "exact_only": false,
+            "evidence_page": 51,
+            "evidence_quote": "This propagation is sometimes called heapifyUp"
+          }
+        ],
+        "tier": "solid",
+        "hint": "This term pairs the structural fix method with an upward trajectory.",
+        "explanation": "heapifyUp propagates an inserted element up toward the root until heap order is restored."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "Name the procedure that pushes a node downward to restore heap properties after removing the root.",
+        "answers": [
+          {
+            "canonical": "heapifyDown",
+            "aliases": [
+              "heapify down"
+            ],
+            "exact_only": false,
+            "evidence_page": 52,
+            "evidence_quote": "This propagation is called heapifyDown"
+          }
+        ],
+        "tier": "solid",
+        "hint": "This term pairs the structural fix method with a downward trajectory.",
+        "explanation": "heapifyDown pushes a displaced node down through child nodes until heap ordering is satisfied."
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which field name is NOT present in the Java implementation of AVLNode?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Look for the term measuring mass or edge cost rather than tree links or height.",
+        "explanation": "AVLNode stores leftChild, rightChild, parent, data, and height, but no weight field.",
+        "options": [
+          "leftChild",
+          "rightChild",
+          "parent",
+          "weight"
+        ],
+        "correct_option": "weight",
+        "evidence_page": 17
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which file system listed below was NOT mentioned in the lecture slides as using B-trees?",
+        "answers": [],
+        "tier": "deep",
+        "hint": "Identify the legacy file system not cited in the B-tree applications slide.",
+        "explanation": "The lecture explicitly lists Apple's HFS+, Microsoft's NTFS, and Linux file systems as using B-trees.",
+        "options": [
+          "HFS+",
+          "NTFS",
+          "Linux",
+          "FAT32"
+        ],
+        "correct_option": "FAT32",
+        "evidence_page": 43
+      }
+    ]
+  }
+}
