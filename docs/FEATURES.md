@@ -15,7 +15,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F03 | Upload pipeline (Snowflake) | Pipelines | F01 | #3 | planned |
 | F04 | Game generation (Gemini) | Pipelines | F01 (F02 for test pages) | #4 | planned |
 | F05 | Answer matching | Gameplay | F01 | #5 | done |
-| F06 | Run engine and scoring API | Gameplay | F01, F05 | #6 | planned |
+| F06 | Run engine and scoring API | Gameplay | F01, F05 | #6 | done |
 | F07 | Progress: Personal Best and Mastery | Gameplay | F01 | #7 | planned |
 | F08 | Modules list and Module page UI | Frontend | F01 (mock F03/F04) | #8 | planned |
 | F09 | Run screen and Reveal UI | Frontend | F06 (mock), F10 | #9 | planned |
@@ -110,15 +110,28 @@ Notes for others:
 
 ## F06 Run engine and scoring API
 Spec: `docs/architecture/run-and-scoring.md`
-- [ ] `lib/scoring/points.ts`: `openPoints`, `singlePoints` (Staleness halving with a minimum of 1; Hint drops a Tier, common → 5), unit-tested
-- [ ] `lib/runs/run-engine.ts`: create (7 random Prompts, abandon other in-progress Runs), startPrompt, guess, hint, timeout, advance, finish
-- [ ] Server-owned clock: deadline, −3 s per wrong typed guess, 500 ms grace, late requests close the Prompt as timeout first
-- [ ] Put-in-order and odd-one-out are one-shot
-- [ ] Every guess is written to `guess_events`
-- [ ] All `/api/runs/...` routes and `GET /reveal`, returning the spec's `RunState`/`GuessResult` types; Answers and Hints never leak early
-- [ ] Shared types exported from `lib/runs/types.ts` for the frontend
+- [x] `lib/scoring/points.ts`: `openPoints`, `singlePoints` (Staleness halving with a minimum of 1; Hint drops a Tier, common → 5), unit-tested
+- [x] `lib/runs/run-engine.ts`: create (7 random Prompts, abandon other in-progress Runs), startPrompt, guess, hint, timeout, advance, finish
+- [x] Server-owned clock: deadline, −3 s per wrong typed guess, 500 ms grace, late requests close the Prompt as timeout first
+- [x] Put-in-order and odd-one-out are one-shot
+- [x] Every guess is written to `guess_events`
+- [x] All `/api/runs/...` routes and `GET /reveal`, returning the spec's `RunState`/`GuessResult` types; Answers and Hints never leak early
+- [x] Shared types exported from `lib/runs/types.ts` for the frontend
 
-Entry points: — · Notes for others: —
+Entry points: `lib/runs/run-engine.ts` (`createRun`, `getRunState`, `startPrompt`, `guess`, `revealHint`, `timeoutPrompt`, `getReveal`, `RunError`), `lib/runs/types.ts` (client-safe API types), `lib/runs/http.ts` (`runRoute`), `lib/scoring/points.ts`, `lib/scoring/tiers.ts`, routes `app/api/games/[gameId]/runs` and `app/api/runs/[runId]/{,start-prompt,guess,hint,timeout,reveal}`
+
+Notes for others:
+- **F09 flow:** `POST /api/games/[gameId]/runs` → `{ runId }`; per Prompt: `POST start-prompt` (starts the 25 s clock; idempotent), then `guess` / `hint`, and `POST timeout` when your countdown hits 0. A new Prompt shows `startedAt: null` until you call `start-prompt`, so you can play a transition first. After position 7 the state is `finished` with `prompt: null`; then `GET reveal`.
+- **Clock:** render from `deadlineAt` plus the offset `Date.parse(serverNow) − Date.now()`; every response carries a fresh `serverNow`. The server allows guesses 500 ms past the deadline and `/timeout` up to 250 ms early.
+- **Differences from the spec's types:**
+  - `GuessResult` adds `{ correct: false, timedOut: true }` (the guess arrived too late; the Prompt closed as a timeout) and `correctOrder` on a wrong put-in-order.
+  - Send `position` with each guess: a guess for an already-closed Prompt then gets 409 instead of landing on the next one.
+  - `RunState` adds `promptCount`, `hint` (once used, so reloads keep it) and `prompt: null` when the Run is over.
+- **Errors:** `{ error }` with 400 (bad body, empty guess), 401, 404 (not yours or malformed id), 409 (wrong state: not started, already closed, Run finished or abandoned, no Hint, Reveal before finish).
+- **F07:** `Reveal.progress` is `null`; fill it in `getReveal`. Abandoned Runs keep their `guess_events`, so they already count toward Mastery and Staleness.
+- **F04:** `lib/scoring/tiers.ts` owns the Tier table; add Open Prompt Tier assignment there.
+- **Engine functions** take `(tx, playerId, …, now)` and lock the run row; call them inside `sql.begin`. Tests drive them with a fake clock (`run-engine.db.test.ts`).
+- The one-submission rule for put-in-order and odd-one-out is confirmed but not yet in `CONTEXT.md`.
 
 ## F07 Progress: Personal Best and Mastery
 Spec: `docs/architecture/data-model.md` (Progress queries)

@@ -1,6 +1,6 @@
 # #6 F06 Run engine and scoring API
 
-Status: in-review
+Status: done
 Branch: feat/6-run-engine (based on feat/5-answer-matching; rebase onto main after PR #14 merges)
 Updated: 2026-10-03
 
