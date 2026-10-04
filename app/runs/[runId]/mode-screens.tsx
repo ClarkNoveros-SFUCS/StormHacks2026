@@ -12,6 +12,7 @@ import { LeapRevealScreen } from "@/components/modes/leap/LeapRevealScreen";
 import { LeapRunScreen } from "@/components/modes/leap/LeapRunScreen";
 import { PairsRevealScreen } from "@/components/modes/pairs/PairsRevealScreen";
 import { PairsRunScreen } from "@/components/modes/pairs/PairsRunScreen";
+import { SlidePanelProvider } from "@/components/results/SlidePanel";
 import type { Reveal, RunState } from "@/lib/runs/types";
 import type { DiveHistory, RunContext } from "../queries";
 
@@ -32,7 +33,16 @@ export function RunScreen({ state, context }: { state: RunState; context: RunCon
   }
 }
 
-export function RevealScreen({ reveal, context, history }: { reveal: Reveal; context: RunContext; history: DiveHistory }) {
+/** Every Reveal opens its Evidence links in the slide panel (#75). */
+export function RevealScreen(props: { reveal: Reveal; context: RunContext; history: DiveHistory }) {
+  return (
+    <SlidePanelProvider>
+      <ModeReveal {...props} />
+    </SlidePanelProvider>
+  );
+}
+
+function ModeReveal({ reveal, context, history }: { reveal: Reveal; context: RunContext; history: DiveHistory }) {
   switch (reveal.mode) {
     case "dive":
       return <DiveRevealScreen reveal={reveal} context={context} history={history} />;

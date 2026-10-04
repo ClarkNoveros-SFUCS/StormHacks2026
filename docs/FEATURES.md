@@ -649,3 +649,18 @@ Notes for others:
 - **Migration** `20261004T1400_friend_notices.sql` (already applied to the shared DB).
 - Polling, not realtime: a notice can take up to 30 s to show.
 - Crossed requests (B "adds" A after A asked B) notify A, the original requester.
+## F35 Study notes: slide panel on the Reveal, study page per file, maths symbols in questions
+Issue #75
+- [x] Gemini rewrites each parsed page into tidy study notes (headings, lists, tables, bold terms, one-line Unicode formulas), on first view, stored in `source_pages.notes_md`
+- [x] Reveal: an Evidence link opens its page in a side panel (quote callout, ←/→ pages, "Study the whole file →"), every Mode
+- [x] Study page per file replaces the file viewer pop-up: whole file as continuous notes, sticky contents with scroll spy and progress (page picker on phones), ←/→, notes loaded lazily as pages near the screen, "Test yourself" links to the file's Games
+- [x] Generated questions write maths with symbols (∪ ∩ ∅ Aᶜ A₁ ≤), every Mode; `npm run math:backfill` fixes old Games
+- [x] Markdown tables keep `|` inside code spans in one cell; file ↔ Game hover glow removed on the Module page
+
+Entry points: `GET /api/documents/[documentId]/pages/[pageNumber]/notes`; `writePageNotes` in `lib/gemini/notes.ts`; `loadPageNotes` in `app/modules/_lib/notes.ts`; `/modules/[moduleId]/study/[documentId]?page=N` (`StudyNotes.tsx`), `studyHref()` in `app/modules/_lib/files.ts`; `SlidePanelProvider` / `useSlidePanel` in `components/results/SlidePanel.tsx`; `MarkdownView variant="notes"`; `MATH_NOTATION_RULE` in `lib/gemini/math-notation.ts`; `npm run math:backfill -- (--player <id> | --module <id>) [--apply]`
+
+Notes for others:
+- **Migration** `20261004T1300_page_notes.sql` adds nullable `source_pages.notes_md`. `content_md` is unchanged and still feeds generation and Evidence quotes.
+- Notes use the fast model first (GEMINI_FALLBACK_MODEL, ~1 s a page), then GEMINI_MODEL. Re-parsing a file resets its notes; `update source_pages set notes_md = null` regenerates them after a prompt change.
+- The FileViewer modal is gone. Old `/modules/<id>?doc=&page=` and `/modules/files/<docId>?page=` links redirect to the study page; Evidence links point there too.
+- New generator instructions in any Mode should keep `${MATH_NOTATION_RULE}` at the end. `math:backfill` only rewrites `prompts.text/hint/explanation`: options and answers are what matching uses.

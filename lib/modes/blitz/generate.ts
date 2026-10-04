@@ -9,6 +9,7 @@ import {
   containsWords, notEnoughFor, pagesAsText, pageTexts, promptLabel, quoteOnPage,
   type Drop, type GeneratedPrompt, type ModeGenerator, type Tagged,
 } from "../generation.ts";
+import { MATH_NOTATION_RULE } from "../../gemini/math-notation.ts";
 import { MODES } from "../index.ts";
 
 const MIN = MODES.blitz.minPrompts;
@@ -37,7 +38,7 @@ STATEMENTS (write 36-45, about half true and half false)
 EXAMPLES (format and quality only, from a lecture on graph algorithms; not content to reuse)
 {"kind":"true_false","text":"BFS uses a queue to visit vertices level by level.","is_true":true,"explanation":"BFS takes the vertex at the front of a queue and adds its unvisited neighbors to the back.","tier":"common","evidence_page":2,"evidence_quote":"It uses a queue: take the vertex at the front, then add its unvisited neighbors to the back."}
 {"kind":"true_false","text":"Dijkstra's algorithm works correctly with negative edge weights.","is_true":false,"explanation":"Dijkstra needs non-negative weights; Bellman-Ford handles negative ones.","tier":"solid","evidence_page":5,"evidence_quote":"Dijkstra breaks on graphs that have negative edge weights"}
-BAD false statement: "BFS never uses a stack in any situation." (an "always/never" trap). GOOD: swap one real detail, as in the second example.`;
+BAD false statement: "BFS never uses a stack in any situation." (an "always/never" trap). GOOD: swap one real detail, as in the second example.${MATH_NOTATION_RULE}`;
 
 export const BLITZ_RESPONSE_SCHEMA = {
   type: "object",

@@ -39,6 +39,15 @@ describe("parseMarkdown", () => {
     ]);
   });
 
+  it("keeps pipes inside code spans and escaped pipes in one table cell", () => {
+    const [table] = parseMarkdown("| Quantity | Value |\n| --- | --- |\n| `P(A|B)` | 84% |\n| a \\| b | x |");
+    if (table.t !== "table") throw new Error();
+    expect(table.rows.map((r) => r.map(inlineText))).toEqual([
+      ["P(A|B)", "84%"],
+      ["a | b", "x"],
+    ]);
+  });
+
   it("keeps code fences verbatim and collects speaker notes", () => {
     const blocks = parseMarkdown(
       "```python\nfor v in graph:\n    visit(v)\n```\nSpeaker notes: mention the queue\nand the visited set",

@@ -22,6 +22,7 @@
     "parse:check": "node scripts/parse-check.ts",
     "generate:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-check.ts",
     "social:backfill": "node scripts/social-backfill.mjs",
+    "math:backfill": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/math-symbols-backfill.mts",
     "seed:content:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-seed-content.ts",
     "generate:eval": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-eval.ts",
     "sonar:tag": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/sonar-tag.mts"

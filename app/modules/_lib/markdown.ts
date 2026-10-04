@@ -168,7 +168,25 @@ function splitRow(line: string): string[] {
   let s = line.trim();
   if (s.startsWith("|")) s = s.slice(1);
   if (s.endsWith("|") && !s.endsWith("\\|")) s = s.slice(0, -1);
-  return s.split(/(?<!\\)\|/).map((c) => c.trim().replace(/\\\|/g, "|"));
+  // Split on unescaped pipes outside `code` spans, so a cell like `P(A|B)` stays whole.
+  const cells: string[] = [];
+  let cell = "";
+  let tick = false;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (ch === "\\" && s[i + 1] === "|") {
+      cell += "|";
+      i++;
+    } else if (ch === "|" && !tick) {
+      cells.push(cell.trim());
+      cell = "";
+    } else {
+      if (ch === "`") tick = !tick;
+      cell += ch;
+    }
+  }
+  cells.push(cell.trim());
+  return cells;
 }
 
 // `code` | **strong** | __strong__ | *em* | _em_ (not inside words, so snake_case survives) | [text](url)

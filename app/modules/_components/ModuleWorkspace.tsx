@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AskSonarButton } from "@/components/sonar/AskSonarButton";
 import { Button } from "@/components/ui/Button";
@@ -13,9 +14,9 @@ import { MODES } from "@/lib/modes";
 import { burstFrom } from "@/lib/motion/particles";
 import { sfx } from "@/lib/ui/sfx";
 import { api, uploadFile, usePolling } from "../_lib/client";
+import { studyHref } from "../_lib/files";
 import type { CardProgress, DocRow, GameRow, UploadItem } from "../_lib/types";
 import { FilesPanel } from "./FilesPanel";
-import { FileViewer } from "./FileViewer";
 import { GamesPanel, isGenerating } from "./GamesPanel";
 import { moduleTint } from "./ModuleBanner";
 import { NewGameDialog, type NewGameInput } from "./NewGameDialog";
@@ -26,7 +27,8 @@ type Props = {
   initialDocuments: DocRow[];
   initialGames: GameRow[];
   progress: Record<string, CardProgress>;
-  initialViewer: { docId: string; page: number } | null;
+  /** The URL asked for a file (`?doc=`) that isn't in this Module. */
+  missingDoc: boolean;
 };
 
 type Confirm = { kind: "doc"; doc: DocRow } | { kind: "game"; game: GameRow } | null;
@@ -40,27 +42,11 @@ const toRow = (g: GameSummary | GameRow): GameRow => ({
   created_at: new Date(g.created_at).toISOString(),
 });
 
-/** Mirror the open file (and page) in the URL so it can be shared and deep-linked. */
-function setViewerUrl(v: { docId: string; page: number } | null) {
-  const url = new URL(window.location.href);
-  if (v) {
-    url.searchParams.set("doc", v.docId);
-    url.searchParams.set("page", String(v.page));
-  } else {
-    url.searchParams.delete("doc");
-    url.searchParams.delete("page");
-  }
-  window.history.replaceState(window.history.state, "", url);
-}
-
-export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, progress, initialViewer }: Props) {
+export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, progress, missingDoc }: Props) {
   const [docs, setDocs] = useState(initialDocuments);
   const [games, setGames] = useState(initialGames);
   const [uploads, setUploads] = useState<UploadItem[]>([]);
-  const [hoverDocId, setHoverDocId] = useState<string | null>(null);
-  const [viewer, setViewer] = useState(() =>
-    initialViewer && initialDocuments.some((d) => d.id === initialViewer.docId) ? initialViewer : null,
-  );
+  const router = useRouter();
   const [newGameOpen, setNewGameOpen] = useState(false);
   const [confirm, setConfirm] = useState<Confirm>(null);
   const [busy, setBusy] = useState(false);
@@ -73,9 +59,9 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
 
   // A deep link to a file that isn't in this Module: say so once and clean the URL.
   useEffect(() => {
-    if (initialViewer && !initialDocuments.some((d) => d.id === initialViewer.docId)) {
+    if (missingDoc) {
       toast({ title: "That file isn't in this Module", tone: "danger" });
-      setViewerUrl(null);
+      window.history.replaceState(window.history.state, "", `/modules/${mod.id}`);
     }
     // Mount only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -205,8 +191,8 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
     }
   };
 
-  // ---- Viewer ----------------------------------------------------------------------------------
-  const openDoc = (docId: string, page = 1) => {
+  // ---- Study page (#75) -------------------------------------------------------------------------
+  const openDoc = (docId: string) => {
     const d = docs.find((x) => x.id === docId);
     if (!d) return;
     if (d.status !== "parsed") {
@@ -216,11 +202,8 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
       });
       return;
     }
-    const v = { docId, page };
-    setViewer(v);
-    setViewerUrl(v);
+    router.push(studyHref(mod.id, docId));
   };
-  const viewerDoc = viewer ? docs.find((d) => d.id === viewer.docId) : undefined;
 
   // ---- Deletes ---------------------------------------------------------------------------------
   const animateOut = (id: string, then: () => void) => {
@@ -346,8 +329,6 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
           docs={docs}
           uploads={uploads}
           usedBy={usedBy}
-          hoverDocId={hoverDocId}
-          onHover={setHoverDocId}
           removing={removing}
           freshIds={freshIds}
           onFiles={onFiles}
@@ -357,8 +338,6 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
         <GamesPanel
           games={games}
           progress={progress}
-          hoverDocId={hoverDocId}
-          onHover={setHoverDocId}
           freshIds={freshIds}
           removing={removing}
           canCreate={ready > 0}
@@ -401,18 +380,6 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
           </p>
         </Modal>
 
-        {viewer && viewerDoc && (
-          <FileViewer
-            documentId={viewerDoc.id}
-            filename={viewerDoc.filename}
-            initialPage={viewer.page}
-            onPage={(page) => setViewerUrl({ docId: viewerDoc.id, page })}
-            onClose={() => {
-              setViewer(null);
-              setViewerUrl(null);
-            }}
-          />
-        )}
       </Portal>
     </div>
   );
