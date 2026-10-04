@@ -1,5 +1,7 @@
 # Run engine and scoring
 
+**These are the Dive Game Mode's rules** (`game-modes.md`). The lifecycle, server-owned clock and `guess_events` logging are shared by every Mode; the rule values and scoring are Dive's.
+
 A **Run** is one play-through of a Game: 7 Prompts, 25 seconds each. **The server owns the clock and the score.** The browser only renders state the server returns, and never receives an Answer or Hint before it's earned or revealed.
 
 ## Rules (from `CONTEXT.md`, restated for implementers)

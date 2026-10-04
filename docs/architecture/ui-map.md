@@ -1,6 +1,8 @@
 # UI map
 
-The screens and what each one shows and does. The **visual style** (Krillion-like look, motion and physics) is specified separately in `docs/design/`; this file is only about structure and content.
+The screens and what each one shows and does. The **visual style** lives in `docs/design/design-system.md` (shared) and `docs/design/modes/<mode>.md` (one per Game Mode); this file is only about structure and content.
+
+The shell (landing, Modules list, Module page) is the same for every Game Mode. The Game page, Run and Reveal belong to the Game's Mode (`game-modes.md`); the sections below describe **Dive**, the only Mode so far.
 
 ```
 /  (landing, Clerk sign-in)
@@ -29,19 +31,19 @@ Two panels side by side; stacked on mobile.
 - Delete is disabled while the file is used, with a tooltip: "Used by Graphs Midterm, Week 9 Drill. Delete those Games first."
 
 **Games panel**
-- One card per Game: title, status (`Generating…`, `Ready`, `Failed`), **chips naming the files it was built from** (e.g. "📄 Week 8 slides · 📄 Week 9 slides"), Personal Best, a Mastery bar, and a **Play** button.
-- "New Game" opens a dialog: a title field, a checkbox list of this Module's **Ready** files (at least one), and a Create button. The Game appears immediately as `Generating…`.
+- One card per Game: title, a **Mode badge** (e.g. `DIVE`), status (`Generating…`, `Ready`, `Failed`), **chips naming the files it was built from** (e.g. "📄 Week 8 slides · 📄 Week 9 slides"), Personal Best, a Mastery bar, and a **Play** button.
+- "New Game" opens a dialog: first a row of **Game Mode tiles** (Dive, plus a locked "More modes soon" tile until a second Mode exists; Dive is preselected), then a title field, a checkbox list of this Module's **Ready** files (at least one), and a Create button. The Game appears immediately as `Generating…`.
 - Hovering a file chip highlights that file in the Files panel, and hovering a file highlights the Games that use it. This makes the file ↔ Game relationship obvious.
 
 ## `/games/[gameId]`: Game page
 
-- Title, source file chips, created date.
+- Title, the Mode badge, source file chips, created date. The stats below and the Play button's wording come from the Mode (Dive: "Begin descent").
 - **Personal Best** (big number) and **Mastery** (percentage), plus per-Tier found counts ("deep 2/9 · rare 1/12").
 - Recent Runs: date, score, and a link to each Reveal.
 - **Play** button, which creates a Run and navigates to `/runs/[runId]`.
 - Optional: the accuracy-over-time chart from the continuous aggregate (`data-model.md`).
 
-## `/runs/[runId]`: Run (play screen)
+## `/runs/[runId]`: Run (play screen, Dive)
 
 - Position "3 / 7", current Run score, and a 25 s countdown that visibly jumps when a wrong guess costs 3 s.
 - Prompt text.
@@ -54,7 +56,7 @@ Two panels side by side; stacked on mobile.
 - On a timeout: "Time!", then the next Prompt.
 - The clock starts only after the Prompt is on screen (the client calls `start-prompt` after the entry transition).
 
-## `/runs/[runId]/reveal`: Reveal
+## `/runs/[runId]/reveal`: Reveal (Dive)
 
 - Run total, a **New Personal Best!** banner when it applies, and Mastery before → after.
 - One section per Prompt:

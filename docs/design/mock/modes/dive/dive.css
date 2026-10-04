@@ -1,0 +1,21 @@
+/* Dive theme (docs/design/modes/dive.md §2): the house palette plus the four tier bands. */
+[data-theme="dive"] {
+  --band-1: #8fa3c4;   /* Shallows (common) */
+  --band-2: #4de3ff;   /* Reef (solid) */
+  --band-3: #9d7bff;   /* Abyss (deep) */
+  --band-4: #ffd166;   /* Trench (rare) */
+  --band-miss: #3d4f6e;
+}
+
+/* <TierLines>: Dive's play area (dive.md §5) */
+.tl { position: absolute; left: 8px; right: 8px; height: 0; border-top: 2px dashed color-mix(in srgb, var(--muted) 36%, transparent); transition: border-color .3s, opacity .3s; }
+.tl .tag { position: absolute; right: 0; top: -24px; display: flex; gap: 6px; align-items: center; color: color-mix(in srgb, var(--muted) 80%, transparent); letter-spacing: .12em; font-size: 14px; }
+.tl .tag .pxi { opacity: .55; }
+.tl .tag .m { opacity: .6; }
+.tl.target { border-top-color: color-mix(in srgb, var(--text) 50%, transparent); }
+.tl.target .tag::before { content: "THIS PROMPT ▸"; color: var(--text); margin-right: 4px; }
+.tl.dim { opacity: .35; }
+.tl.passed { opacity: 1; border-top-color: var(--tc); box-shadow: 0 0 16px var(--tc); animation: line-flash .6s ease-out; }
+.tl.passed .tag { color: var(--tc); text-shadow: 0 0 9px var(--tc); }
+.tl.passed .tag .pxi { opacity: 1; }
+.rchip::after { content: "▼"; margin-left: 9px; font-size: 18px; opacity: .8; }   /* Dive's chips sink */

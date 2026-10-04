@@ -22,6 +22,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F10 | Visual design system (Krillion style) | Frontend | design session | #10 | planned |
 | F11 | Game page UI | Frontend | F07 | #11 | planned |
 | F12 | Deploy and demo prep | Platform | everything | #12 | planned |
+| F13 | Game Modes: `games.mode` and the Mode picker | Platform | F01 | #21 | planned |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -171,8 +172,8 @@ Spec: `docs/architecture/ui-map.md`
 
 Entry points: — · Notes for others: —
 
-## F09 Run screen and Reveal UI
-Spec: `docs/architecture/ui-map.md`, `docs/architecture/run-and-scoring.md`, `docs/design/`
+## F09 Run screen and Reveal UI (Dive)
+Spec: `docs/architecture/ui-map.md`, `docs/architecture/run-and-scoring.md`, `docs/design/modes/dive.md`
 - [ ] `/runs/[runId]`: countdown driven by the server deadline (clock offset), position and score, input for all five kinds
 - [ ] Wrong-guess feedback (shake, −3 s), correct-answer pop (Tier, points, repeat-answer tag), timeout transition
 - [ ] Hint button: reveal, Tier drop shown, used once
@@ -181,10 +182,12 @@ Spec: `docs/architecture/ui-map.md`, `docs/architecture/run-and-scoring.md`, `do
 Entry points: — · Notes for others: —
 
 ## F10 Visual design system (Krillion style)
-Spec: `docs/design/` (written in the frontend design session)
-- [ ] Design tokens (color, type, spacing) in Tailwind 4 theme
-- [ ] Core components: buttons, cards, chips, pills, timer, score pop, Tier badges
-- [ ] Motion and physics primitives used by F09
+Spec: `docs/design/design-system.md` · reference: `docs/design/mock/` (open `index.html`)
+- [ ] Fonts (VT323, Mulish) and the semantic tokens in the Tailwind 4 theme; per-Mode values under `[data-theme=…]`
+- [ ] Shell components: PxButton, Panel, Tile, Chip, StatusPill, Meter, ModeTile, ModeBadge, Modal, Mascot
+- [ ] Stage (scene + particles + overlays) with the ocean scene and house theme
+- [ ] Round and results building blocks used by F09
+- [ ] Motion keyframes and `lib/motion/` (spring, particles); sound events (`lib/ui/sfx.ts`)
 
 Entry points: — · Notes for others: —
 
@@ -201,5 +204,14 @@ Spec: `docs/architecture/overview.md` (open questions)
 - [ ] Production env vars; migrations run against production
 - [ ] Demo account with a polished Module and Game; a rehearsed demo script
 - [ ] README: what it is, how to run it, the sponsor tracks used
+
+Entry points: — · Notes for others: —
+
+## F13 Game Modes: `games.mode` and the Mode picker
+Spec: `docs/architecture/game-modes.md`, ADR-0004
+- [ ] Migration: `games.mode text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive'))`; `data-model.md` updated from "planned" to the real column
+- [ ] `lib/modes/index.ts` (`MODES`, `ModeId`); `POST /api/modules/[moduleId]/games` accepts `mode` (default `'dive'`) and validates it
+- [ ] Generation and the run engine read `game.mode` (assert `'dive'` for now)
+- [ ] New Game dialog: Mode tiles (Dive + locked "More modes soon"); Game cards and the Game page show the Mode badge
 
 Entry points: — · Notes for others: —

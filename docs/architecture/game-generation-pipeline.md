@@ -1,5 +1,7 @@
 # Game generation pipeline
 
+**This is the Dive Game Mode's generator** (`game-modes.md`). Other Modes reuse the shared steps (reading pages, common checks, writing rows) and bring their own prompt, schema and checks.
+
 Turns the stored pages of chosen Source Documents into a **Game**: Prompts, Answers, Aliases, Tiers, Evidence and Hints. It runs once per Game. Games are immutable: there's no regeneration and no adding files later. A change means a new Game.
 
 ## Flow

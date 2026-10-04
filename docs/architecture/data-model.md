@@ -75,6 +75,8 @@ CREATE TABLE games (
   prompt_count  integer,
   created_at    timestamptz NOT NULL DEFAULT now()
 );
+-- Planned (ADR-0004, game-modes.md), not yet migrated:
+-- ALTER TABLE games ADD COLUMN mode text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive'));
 
 CREATE TABLE game_sources (
   game_id             uuid NOT NULL REFERENCES games(id) ON DELETE CASCADE,
