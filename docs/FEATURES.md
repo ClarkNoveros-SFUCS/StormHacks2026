@@ -16,7 +16,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F04 | Game generation (Gemini) | Pipelines | F01 (F02 for test pages) | #4 | planned |
 | F05 | Answer matching | Gameplay | F01 | #5 | done |
 | F06 | Run engine and scoring API | Gameplay | F01, F05 | #6 | planned |
-| F07 | Progress: Personal Best and Mastery | Gameplay | F01 | #7 | planned |
+| F07 | Progress: Personal Best and Mastery | Gameplay | F01 | #7 | done |
 | F08 | Modules list and Module page UI | Frontend | F01 (mock F03/F04) | #8 | planned |
 | F09 | Run screen and Reveal UI | Frontend | F06 (mock), F10 | #9 | planned |
 | F10 | Visual design system (Krillion style) | Frontend | design session | #10 | planned |
@@ -122,11 +122,19 @@ Entry points: — · Notes for others: —
 
 ## F07 Progress: Personal Best and Mastery
 Spec: `docs/architecture/data-model.md` (Progress queries)
-- [ ] `lib/progress.ts`: `personalBest`, `mastery`, `masteryByTier`, `recentRuns`
-- [ ] The Reveal includes "new Personal Best?" and Mastery before → after
-- [ ] Optional: the `player_game_daily` continuous aggregate and a query for the stats chart
+- [x] `lib/progress.ts`: `personalBest`, `mastery`, `masteryByTier`, `recentRuns` (plus `progressForGames` for F08's cards)
+- [x] The Reveal includes "new Personal Best?" and Mastery before → after: data in `runProgress(playerId, runId)`. `GET /api/runs/[runId]/reveal` doesn't exist yet, so F06 adds it to the response (see Notes)
+- [x] Optional: the `player_game_daily` continuous aggregate and a query for the stats chart (`dailyStats`). The migration is applied to Tiger Cloud `stormhacks-dev`
 
-Entry points: — · Notes for others: —
+Entry points: `lib/progress.ts` (`personalBest`, `mastery`, `masteryByTier`, `recentRuns`, `progressForGames`, `runProgress`, `dailyStats`; types `Tier`, `Mastery`, `RecentRun`, `GameProgress`, `RunProgress`, `DailyStat`), `db/migrations/20261004T0316_player_game_daily.sql`, tests in `lib/progress.db.test.ts`
+
+Notes for others:
+- **All functions are server only and take `playerId` first.** Answers are counted only through Games the caller owns: another Player's `gameId` reads 0 of 0, and `runProgress` returns null. Pass real uuids; a malformed id makes Postgres throw `22P02`, so load or validate the Game/Run first.
+- **F06:** in `GET /reveal`, add `progress: await runProgress(playerId, runId)` (type `RunProgress`) to the `Reveal` type in `lib/runs/types.ts`. Write the final guess and `finished_at = now()` in the same transaction; `runProgress` counts it. Always set `finished_at` when you set `status = 'finished'`; Runs without it are ignored.
+- **F08:** `progressForGames(playerId, gameIds)` returns a `Map` of `{ personalBest, mastery }` for all cards in one query.
+- **F11:** `personalBest`, `mastery` (`pct` 0–100, rounded down), `masteryByTier` (every Tier present), `recentRuns` (finished only, newest first; link each to its Reveal), `dailyStats` (oldest first; `day` is Vancouver midnight as an instant, so format it with `timeZone: "America/Vancouver"`; days without guesses are left out).
+- **`player_game_daily`** is real-time (`materialized_only = false`), so a Run just played shows up immediately. Never refresh it by hand with a NULL end; see `data-model.md`.
+- Definitions of new Personal Best and Mastery before → after: `run-and-scoring.md` § Reveal.
 
 ## F08 Modules list and Module page UI
 Spec: `docs/architecture/ui-map.md`
