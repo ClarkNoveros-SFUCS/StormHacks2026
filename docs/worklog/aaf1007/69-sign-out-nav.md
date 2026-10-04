@@ -1,8 +1,8 @@
 # #69 Bug: Sign out doesn't update the nav
 
-Status: in-review
+Status: done
 Branch: fix/69-sign-out-nav
-Updated: 2026-10-04 08:20
+Updated: 2026-10-04 08:30
 
 ## Goal
 Clicking Sign out should leave the user on the landing page with the signed-out nav, without a hard reload.
@@ -13,7 +13,7 @@ Clicking Sign out should leave the user on the landing page with the signed-out 
 - `npx tsc --noEmit` and eslint are clean.
 
 ## Next steps
-1. Manual check in the browser: sign out from the avatar menu and from the mobile sheet. The header should switch to Sign in / Start playing right away. Then sign in and check that it switches back.
+1. (Approved by the user.) Manual check in the browser: sign out from the avatar menu and from the mobile sheet. The header should switch to Sign in / Start playing right away. Then sign in and check that it switches back.
 
 ## Decisions & gotchas
 - Keyed on signed-in/out only, not the Player: `NavPlayer` has no id, and switching accounts goes through sign-out anyway.
