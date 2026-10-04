@@ -105,7 +105,7 @@ export async function pair(tx: Tx, playerId: string, runId: string, body: unknow
 }
 
 /** POST lifeline (Leap): the Run's one 50/50 on the current question. */
-export async function useLifeline(tx: Tx, playerId: string, runId: string, body: unknown, now: Date): Promise<LifelineResponse> {
+export async function applyLifeline(tx: Tx, playerId: string, runId: string, body: unknown, now: Date): Promise<LifelineResponse> {
   const run = await lockFor(tx, playerId, runId, ["leap"], "lifeline");
   return leapLifeline(tx, run, body, now);
 }

@@ -3,18 +3,22 @@ import { randomUUID } from "node:crypto";
 import type postgres from "postgres";
 import { sql } from "@/lib/db";
 import { generateDocumentPrompts, GeminiError } from "@/lib/gemini";
+import type { GeneratedPrompt, GenerationRequest } from "@/lib/modes/generation";
+import { generatorFor } from "@/lib/modes/generators";
 import type { Db } from "@/lib/progress";
-import { dedupeAcrossDocuments, validateDocument, type DocumentPage, type ValidPrompt } from "./validate";
+import { dedupeAcrossDocuments, type DocumentPage } from "./validate";
 
 // The Game generation pipeline (docs/architecture/game-generation-pipeline.md, steps a-f):
-// one Gemini call per Source Document in parallel, code checks, then one transaction.
+// one Gemini call per Source Document in parallel, code checks, then one transaction. The
+// Game's Mode picks the Gemini request, the checks and the minimum (lib/modes/<mode>/generate.ts).
 // Runs in `after()`, so it never throws: every failure ends with status 'failed' and a short
 // message the Player can read. A failed Game is deleted and created again (Games are immutable).
 
+/** Dive's minimum; every Mode has its own (MODES[mode].minPrompts). */
 export const MIN_PROMPTS = 7;
-export const NOT_ENOUGH_CONTENT = "Not enough usable content to make a Game";
+export { NOT_ENOUGH_CONTENT } from "@/lib/modes/generation";
 
-type Generate = (title: string, pages: DocumentPage[]) => Promise<{ response: unknown }>;
+type Generate = (title: string, pages: DocumentPage[], request: GenerationRequest) => Promise<{ response: unknown }>;
 
 export type GenerateResult =
   | { status: "skipped" } // not 'queued': another call took it, or it was deleted
@@ -39,8 +43,8 @@ export async function generateGame(
   if (!game) return { status: "skipped" };
 
   try {
-    // Only Dive exists so far (ADR-0004); its generator is this file
-    if (game.mode !== "dive") throw new UserFacingError("This Game Mode can't be generated yet");
+    const generator = generatorFor(game.mode);
+    if (!generator) throw new UserFacingError("This Game Mode can't be generated yet");
 
     // b. Each selected document's pages, then one Gemini call per document, in parallel
     const docs = await db<{ id: string; filename: string }[]>`
@@ -60,20 +64,22 @@ export async function generateGame(
         const pages = pageRows
           .filter((p) => p.source_document_id === doc.id)
           .map((p) => ({ pageNumber: p.page_number, contentMd: p.content_md }));
-        if (!pages.length) return { doc, prompts: [] as ValidPrompt[], dropped: 0 };
-        const { response } = await generate(doc.filename, pages);
-        // c. Checks 1-6 per document; Tiers for Open Prompts (d) are assigned inside
-        const result = validateDocument(response, pages);
+        if (!pages.length) return { doc, prompts: [] as GeneratedPrompt[], dropped: 0 };
+        const { response } = await generate(doc.filename, pages, generator.request);
+        // c. The Mode's per-document checks (Dive: 1-6, and Tiers for Open Prompts, step d)
+        const result = generator.validate(response, pages);
         return { doc, prompts: result.prompts, dropped: result.dropped.length };
       }),
     );
-    // c. Check 7 across documents
-    const { kept, dropped: duplicates } = dedupeAcrossDocuments(results);
-    const dropped = results.reduce((n, r) => n + r.dropped, duplicates.length);
+    // c. Check 7 across documents, then the Mode's Game-level checks (Pairs: one per term;
+    //    Blitz: true/false balance)
+    const deduped = dedupeAcrossDocuments(results);
+    const { kept, dropped: gameLevel } = generator.finalize(deduped.kept);
+    const dropped = results.reduce((n, r) => n + r.dropped, deduped.dropped.length + gameLevel.length);
     console.log(`generateGame ${gameId}: ${kept.length} Prompts kept, ${dropped} items dropped`);
 
-    // e. Too few Prompts for a Run
-    if (kept.length < MIN_PROMPTS) throw new UserFacingError(NOT_ENOUGH_CONTENT);
+    // e. Too few Prompts for a Run of this Mode
+    if (kept.length < generator.minPrompts) throw new UserFacingError(generator.notEnough(kept.length));
 
     // f. One transaction: Prompts, Answers, answer_keys, then ready
     const rows = buildRows(gameId, kept, pageId);
@@ -81,9 +87,10 @@ export async function generateGame(
       for (const p of rows.prompts) {
         await tx`
           insert into prompts (id, game_id, source_document_id, kind, text, tier, hint, explanation,
-                               items, options, evidence_page_id)
+                               items, options, evidence_page_id, is_true)
           values (${p.id}, ${gameId}, ${p.source_document_id}, ${p.kind}, ${p.text}, ${p.tier}, ${p.hint},
-                  ${p.explanation}, ${p.items && tx.json(p.items)}, ${p.options && tx.json(p.options)}, ${p.evidence_page_id})`;
+                  ${p.explanation}, ${p.items && tx.json(p.items)}, ${p.options && tx.json(p.options)}, ${p.evidence_page_id},
+                  ${p.is_true})`;
       }
       await tx`insert into answers ${tx(rows.answers)}`;
       if (rows.keys.length) await tx`insert into answer_keys ${tx(rows.keys)}`;
@@ -117,7 +124,7 @@ function transaction<T>(db: Db, fn: (tx: postgres.TransactionSql) => Promise<T>)
 }
 
 /** Rows for prompts, answers and answer_keys. Keys are already normalize()d by validate.ts. */
-function buildRows(gameId: string, kept: { doc: { id: string }; prompt: ValidPrompt }[], pageIds: Map<string, string>) {
+function buildRows(gameId: string, kept: { doc: { id: string }; prompt: GeneratedPrompt }[], pageIds: Map<string, string>) {
   const pageId = (docId: string, page: number) => {
     const id = pageIds.get(`${docId}:${page}`);
     if (!id) throw new Error(`no source_pages row for page ${page}`); // validate.ts checked it exists
@@ -140,6 +147,7 @@ function buildRows(gameId: string, kept: { doc: { id: string }; prompt: ValidPro
       items: p.items,
       options: p.options,
       evidence_page_id: p.evidencePage === null ? null : pageId(doc.id, p.evidencePage),
+      is_true: p.isTrue,
     });
     for (const a of p.answers) {
       const answerId = randomUUID();
