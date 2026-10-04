@@ -41,7 +41,7 @@ F01 goes first and should be small: get the schema merged within the first coupl
 ## F01 Foundation: auth, DB, migrations
 Spec: `docs/architecture/overview.md`, `docs/architecture/data-model.md` · **Setup:** `docs/setup/tiger-data.md`, `docs/setup/README.md` (Clerk)
 - [x] Tiger Cloud service created (`stormhacks-dev`, follow `docs/setup/tiger-data.md`)
-- [ ] `DATABASE_URL` shared with the team privately (ask Anton)
+- [x] `DATABASE_URL` shared with the team privately (ask Anton)
 - [x] Clerk installed; every route except `/` is protected (per resource, see Notes); signed-in `/` redirects to `/modules`
 - [x] `lib/db.ts` (`postgres` client, server only) and `lib/auth.ts` (`requirePlayer()` / `getApiPlayer()` return the Clerk id and upsert `players`)
 - [x] `scripts/migrate.mjs` plus the `schema_migrations` table; `npm run db:migrate`
