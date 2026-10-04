@@ -20,7 +20,10 @@ export type SfxEvent =
   | "tick"
   | "count"
   | "sink"
-  | "catch";
+  | "catch"
+  | "laser"
+  | "shatter"
+  | "blast";
 
 export type BeatVoice = "kick" | "snare" | "hat" | "bass" | "blip";
 
@@ -235,6 +238,25 @@ export const sfx = {
     } else {
       tone({ freq, dur: 0.07, type: "square", gain: 0.018, at: d });
     }
+  },
+
+  // ── Arena (F29) ──
+  /** A blaster shot: a quick falling zap. */
+  laser() {
+    tone({ freq: 1800, to: 260, dur: 0.12, type: "square", gain: 0.035, attack: 0.002 });
+    noise({ dur: 0.05, gain: 0.025, freq: 4000, type: "highpass" });
+  },
+  /** A wrong target breaks apart: glassy crackle. */
+  shatter() {
+    noise({ dur: 0.35, gain: 0.06, freq: 3200, q: 0.8, type: "highpass" });
+    [1900, 2600, 1500].forEach((f, i) => tone({ freq: f, to: f * 0.6, dur: 0.09, type: "triangle", gain: 0.03, at: i * 0.04 }));
+    tone({ freq: 160, to: 80, dur: 0.2, type: "square", gain: 0.04 });
+  },
+  /** The right target explodes: a boom plus a rising chime. */
+  blast() {
+    noise({ dur: 0.7, gain: 0.08, freq: 260, q: 0.6, type: "lowpass" });
+    tone({ freq: 90, to: 40, dur: 0.5, type: "sine", gain: 0.12 });
+    [NOTE.C5, NOTE.G5, NOTE.C6].forEach((f, i) => tone({ freq: f, dur: 0.14, type: "square", gain: 0.035, at: 0.08 + i * 0.06 }));
   },
 
   play(event: SfxEvent, band?: Band) {

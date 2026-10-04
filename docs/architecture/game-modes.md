@@ -1,6 +1,6 @@
 # Game Modes
 
-A **Game Mode** is the kind of game a Game is played as (`CONTEXT.md`). Every Game has exactly one, chosen in the New Game dialog and never changed (ADR-0004). There are five, plus one reserved:
+A **Game Mode** is the kind of game a Game is played as (`CONTEXT.md`). Every Game has exactly one, chosen in the New Game dialog and never changed (ADR-0004). There are six:
 
 | Mode | Id | Plays like | Prompt kinds | Rules (`run-and-scoring.md`) | Min Prompts |
 |---|---|---|---|---|---|
@@ -9,7 +9,7 @@ A **Game Mode** is the kind of game a Game is played as (`CONTEXT.md`). Every Ga
 | **Leap** | `leap` | jump platform to platform by answering right | multiple_choice | 10 × 15 s, one try, 3 Hearts, streak multiplier, one 50/50 | 10 |
 | **Pairs** | `pairs` | match terms to definitions | definition_to_term | 2 Boards × 6 pairs, 60 s per Board | 12 |
 | **Blitz** | `blitz` | rapid true/false | true_false | one 60 s clock, Combo, −3 s per miss | 30 |
-| Arena | `arena` | (reserved) FPS that reuses multiple_choice | multiple_choice | not built; `available: false` | — |
+| **Arena** | `arena` | first-person shooter: shoot the target with the right answer | multiple_choice (**Leap's generator**) | 10 × 20 s, a hit is an answer, wrong hit −3 s and −25 (question stays open), streak multiplier | 10 |
 
 This doc is the seam: what a Mode owns, what all Modes share, and how to add one.
 
@@ -22,7 +22,7 @@ This doc is the seam: what a Mode owns, what all Modes share, and how to add one
 | Progress | what "best" means and how it's shown | `runs.score` → Personal Best, found Answers → Mastery (every kind has ≥ 1 Answer row) |
 | UI | theme (palette, scene, mascot, sounds, words), Game-page stats, Run and Reveal screens | the design system: shell, components, building blocks (`docs/design/design-system.md`) |
 
-Prompt kinds are shared vocabulary: Pairs uses Dive's `definition_to_term`, and Arena will reuse Leap's `multiple_choice`.
+Prompt kinds are shared vocabulary: Pairs uses Dive's `definition_to_term`, and Arena reuses Leap's `multiple_choice` (and Leap's generator: `lib/modes/arena/generate.ts` only renames the not-enough message).
 
 ## Data
 
@@ -30,7 +30,7 @@ Prompt kinds are shared vocabulary: Pairs uses Dive's `definition_to_term`, and 
 - `prompts.kind` adds `multiple_choice` (options in `prompts.options`, the correct option is the one Answer row) and `true_false` (`prompts.is_true`; the Answer row is `True`/`False`). Both carry a `tier` like every single-answer kind.
 - `runs.mode_state jsonb`: the Mode's own Run state (Hearts, streak, Board clocks, Blitz's clock, outcome). Null for Dive and Apogee.
 - `run_prompts`, `guess_events` don't need a mode column: a Run's Mode is its Game's Mode.
-- `POST /api/modules/[moduleId]/games` takes `{ title, mode?, sourceDocumentIds[] }`. A missing `mode` defaults to `'dive'`; a reserved Mode (Arena) is a 400.
+- `POST /api/modules/[moduleId]/games` takes `{ title, mode?, sourceDocumentIds[] }`. A missing `mode` defaults to `'dive'`; a Mode with `available: false` is a 400 (none today; Arena became available with F29).
 
 ## Code layout
 
@@ -39,12 +39,12 @@ lib/modes/index.ts               MODES (id, name, tagline, rules, kinds, availab
                                  ModeId, AvailableModeId, PromptKind, isModeId, isDiveFamily.   Pure, client-safe.
 lib/modes/rules.ts               passedRun(summary), PASS_BAR_TEXT                               Pure, client-safe.
 lib/modes/generation.ts          ModeGenerator, GenerationRequest, GeneratedPrompt, shared checks (quoteOnPage, …)
-lib/modes/generators.ts          generatorFor(mode)  (Apogee → Dive's)
+lib/modes/generators.ts          generatorFor(mode)  (Apogee → Dive's, Arena → Leap's)
 lib/modes/<mode>/generate.ts     the Mode's Gemini instructions + schema + checks
 lib/modes/<mode>/rules.ts        the Mode's constants, scoring and pass bar (pure; the UI can show the same numbers)
 lib/modes/apogee/index.ts        re-exports Dive's generator and rules (Apogee shares them)
 lib/runs/engines/common.ts       ModeEngine, Run row lock, RunError, logGuess, Evidence lookup, progress
-lib/runs/engines/<engine>.ts     dive (Dive + Apogee), leap, pairs, blitz: each Mode's state machine
+lib/runs/engines/<engine>.ts     dive (Dive + Apogee), leap, pairs, blitz, arena: each Mode's state machine
 lib/runs/run-engine.ts           the public commands; dispatches on game.mode
 lib/runs/types.ts                client-safe API types: RunState / Reveal / RunSummary unions on `mode`
 components/modes/<mode>/         theme.css, scene, Mascot, GameStats, RunScreen, RevealScreen  (UI lanes)

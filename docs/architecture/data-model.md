@@ -91,7 +91,7 @@ CREATE TABLE games (
   error         text,
   prompt_count  integer,
   created_at    timestamptz NOT NULL DEFAULT now(),
-  -- Game Mode (ADR-0004): added by 20261004T0750_games_mode.sql, widened by 20261004T1000 (arena is reserved, not creatable)
+  -- Game Mode (ADR-0004): added by 20261004T0750_games_mode.sql, widened by 20261004T1000 (arena reserved there; playable since F29, no CHECK change needed)
   mode          text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive','apogee','leap','pairs','blitz','arena')),
   -- Added by 20261004T1100_courses.sql (F22): 'public' Games (Course practice, Daily Dive) can be played by any Player
   visibility    text NOT NULL DEFAULT 'private' CHECK (visibility IN ('private','public'))

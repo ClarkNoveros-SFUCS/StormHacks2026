@@ -11,6 +11,7 @@
 //   leap            POST answer { optionId }, POST lifeline  LeapRunState    LeapReveal
 //   pairs           POST pair { termId, definitionId }       PairsRunState   PairsReveal
 //   blitz           POST answer { value }                    BlitzRunState   BlitzReveal
+//   arena           POST answer { optionId } (a hit)         ArenaRunState   ArenaReveal
 //
 // Shared by all: GET /api/runs/[runId] (state), POST start-prompt (starts the current clock:
 // a Prompt, a Pairs Board, or Blitz's one 60 s clock; idempotent), POST timeout (the client's
@@ -274,17 +275,85 @@ export type BlitzRevealStatement = {
 };
 
 // =========================================================================================
+// Arena: 10 multiple-choice questions as targets in a first-person room, 20 s each. A hit is
+// an answer: the right target closes the question; a wrong one shatters (−3 s, −25 on that
+// question's points) and the question stays open until the right hit or the clock runs out.
+
+export type ArenaRunState = RunStateBase & {
+  mode: "arena";
+  position: number; //               1..10, the current question (the last one once finished)
+  promptCount: number; //            10
+  streak: number; //                 right questions in a row (a wrong hit resets it)
+  /** The multiplier the next right hit gets: 1, 1.5 (3+ in a row) or 2 (5+ in a row). */
+  nextMultiplier: number;
+  correctCount: number;
+  /** Wrong hits over the whole Run so far. */
+  wrongHits: number;
+  /** "cleared" once all 10 are closed. */
+  outcome: ArenaOutcome | null;
+  /** The current question's clock. Both null until POST /start-prompt. 20 s, minus 3 s per wrong hit. */
+  startedAt: string | null;
+  deadlineAt: string | null;
+  /** The current question, only while its clock runs (null before start-prompt and once over). */
+  question: {
+    text: string;
+    /** Shuffled once per Run (stable across reloads). The right one is never marked. */
+    options: { id: LeapOptionId; text: string }[];
+    /** Targets already shot down on this question (all wrong). */
+    shatteredOptionIds: LeapOptionId[];
+  } | null;
+};
+
+/** POST /answer for Arena: the target that was hit. */
+export type ArenaHitBody = { optionId: LeapOptionId; position?: number };
+
+export type ArenaHitResult =
+  | {
+      correct: true;
+      points: number; //             max(25, round((100 + speedBonus) × multiplier) − 25 × wrongHits)
+      speedBonus: number; //         0–50, linear on time left
+      multiplier: number; //         1, 1.5 or 2
+      wrongHits: number; //          wrong hits on this question before the right one
+      correctOptionId: LeapOptionId;
+      explanation: string | null;
+    }
+  | {
+      correct: false;
+      optionId: LeapOptionId; //     the target that shattered
+      penaltyMs: number; //          3000, off this question's clock
+      /** True when the penalty ran the clock out: the question closed as a timeout. */
+      closed: boolean;
+    }
+  | { correct: false; timedOut: true }; // arrived after the deadline: closed as a timeout, hit ignored
+
+export type ArenaHitResponse = { result: ArenaHitResult; state: ArenaRunState };
+
+export type ArenaRevealQuestion = {
+  position: number;
+  text: string;
+  options: { id: LeapOptionId; text: string }[]; //   as shown in the Run
+  /** Every target hit on this question, in order (wrong ones, then the right one if found). */
+  hits: { optionId: LeapOptionId; correct: boolean; msIntoQuestion: number }[];
+  correctOptionId: LeapOptionId;
+  outcome: PromptOutcome | null; //                   correct | timeout; null: never reached
+  points: number;
+  explanation: string | null;
+  evidence: Evidence;
+};
+
+// =========================================================================================
 // Every Mode
 
-export type RunState = DiveRunState | LeapRunState | PairsRunState | BlitzRunState;
+export type RunState = DiveRunState | LeapRunState | PairsRunState | BlitzRunState | ArenaRunState;
 
-/** The body of POST /answer: Leap sends an optionId, Blitz a value. */
-export type AnswerBody = LeapAnswerBody | BlitzAnswerBody;
-export type AnswerResponse = LeapAnswerResponse | BlitzAnswerResponse;
+/** The body of POST /answer: Leap and Arena send an optionId, Blitz a value. */
+export type AnswerBody = LeapAnswerBody | BlitzAnswerBody | ArenaHitBody;
+export type AnswerResponse = LeapAnswerResponse | BlitzAnswerResponse | ArenaHitResponse;
 
 export type LeapOutcome = "cleared" | "fell";
 export type PairsOutcome = "cleared" | "time_up"; //   cleared = both Boards cleared
 export type BlitzOutcome = "time_up" | "deck_cleared";
+export type ArenaOutcome = "cleared"; //               every question closed (hit or timed out)
 
 /**
  * What every Mode produces when a Run finishes, so XP, leaderboards and Course passes can be
@@ -306,6 +375,11 @@ export type RunSummary =
   | {
       mode: "blitz"; score: number; finishedAt: string; outcome: BlitzOutcome;
       stats: { answered: number; correct: number; wrong: number; bestCombo: number };
+    }
+  | {
+      mode: "arena"; score: number; finishedAt: string; outcome: ArenaOutcome;
+      /** Accuracy is correct / (correct + wrongHits); shots that hit no target never reach the server. */
+      stats: { questions: number; correct: number; timeouts: number; wrongHits: number; bestStreak: number };
     };
 
 /** Personal Best and Mastery before → after (lib/progress.ts), the same for every Mode. */
@@ -337,8 +411,9 @@ export type LeapReveal = RevealBase & { mode: "leap"; questions: LeapRevealQuest
 export type PairsReveal = RevealBase & { mode: "pairs"; boards: PairsRevealBoard[] };
 /** Only statements that were dealt, in the order they were shown. */
 export type BlitzReveal = RevealBase & { mode: "blitz"; statements: BlitzRevealStatement[] };
+export type ArenaReveal = RevealBase & { mode: "arena"; questions: ArenaRevealQuestion[] };
 
-export type Reveal = DiveReveal | LeapReveal | PairsReveal | BlitzReveal;
+export type Reveal = DiveReveal | LeapReveal | PairsReveal | BlitzReveal | ArenaReveal;
 
 /** The state type of one Mode: `ModeRunState<"apogee">` is DiveRunState. */
 export type ModeRunState<M extends ModeId> = M extends DiveFamilyModeId ? DiveRunState : Extract<RunState, { mode: M }>;

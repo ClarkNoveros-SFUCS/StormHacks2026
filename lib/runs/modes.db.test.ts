@@ -1,4 +1,4 @@
-// Integration tests for the Apogee, Leap, Pairs and Blitz run engines against Tiger Data.
+// Integration tests for the Apogee, Leap, Pairs, Blitz and Arena run engines against Tiger Data.
 // Run with `npm run test:db`. Each test builds a Game of one Mode from the seed fixtures with the
 // real generation pipeline (fake Gemini), inside a rolled-back transaction, and drives the
 // engine with a fake clock. Dive itself is covered by run-engine.db.test.ts.
@@ -10,13 +10,14 @@ import modesFixture from "@/db/seed/graph-algorithms-modes.json";
 import { sql } from "@/lib/db";
 import { generateGame } from "@/lib/games/generate-game";
 import type { ModeId } from "@/lib/modes";
+import { ARENA_PENALTY_MS, ARENA_QUESTION_MS } from "@/lib/modes/arena/rules";
 import { BLITZ_MS, BLITZ_PENALTY_MS } from "@/lib/modes/blitz/rules";
 import { LEAP_QUESTION_MS, leapPoints } from "@/lib/modes/leap/rules";
 import { PAIRS_BOARD_MS, PAIRS_MISMATCH_PENALTY_MS, timeBonus } from "@/lib/modes/pairs/rules";
 import * as engine from "./run-engine";
 import { RunError } from "./run-engine";
 import type {
-  BlitzAnswerResponse, BlitzReveal, BlitzRunState, DiveReveal, DiveRunState, LeapAnswerResponse, LeapOptionId,
+  ArenaHitResponse, ArenaReveal, ArenaRunState, BlitzAnswerResponse, BlitzReveal, BlitzRunState, DiveReveal, DiveRunState, LeapAnswerResponse, LeapOptionId,
   LeapReveal, LeapRunState, PairResponse, PairsReveal, PairsRunState, RunState,
 } from "./types";
 
@@ -33,7 +34,7 @@ class Rollback extends Error {}
 type F = { tx: Tx; playerId: string; otherPlayerId: string; gameId: string; clock: Clock };
 
 const promptsFor = (mode: ModeId) =>
-  mode === "apogee" ? fixture.game.prompts : modesFixture.games.find((g) => g.mode === mode)!.prompts!;
+  mode === "apogee" ? fixture.game.prompts : modesFixture.games.find((g) => g.mode === (mode === "arena" ? "leap" : mode))!.prompts!;
 
 /** A ready Game of `mode`, generated from the seed fixture by the real pipeline. */
 async function withGame(mode: ModeId, fn: (f: F) => Promise<void>) {
@@ -392,6 +393,158 @@ describe.skipIf(!process.env.DATABASE_URL)("Mode run engines", () => {
         // 5 × 10 + 33 × 20
         expect(s2).toMatchObject({ outcome: "deck_cleared", correctCount: 38, score: 710 });
         expect((await reveal<BlitzReveal>(f, run2)).passed).toBe(true);
+      }));
+  });
+
+  // ---------------------------------------------------------------------------------------
+  describe("Arena", () => {
+    async function correctId(f: F, s: ArenaRunState): Promise<LeapOptionId> {
+      const [a] = await f.tx<{ canonical: string }[]>`
+        SELECT a.canonical FROM answers a JOIN prompts p ON p.id = a.prompt_id WHERE p.game_id = ${f.gameId} AND p.text = ${s.question!.text}`;
+      return s.question!.options.find((o) => o.text === a.canonical)!.id;
+    }
+    const wrongIds = async (f: F, s: ArenaRunState) => {
+      const right = await correctId(f, s);
+      return s.question!.options.map((o) => o.id).filter((id) => id !== right);
+    };
+    const hit = (f: F, runId: string, body: unknown) => engine.answer(f.tx, f.playerId, runId, body, f.clock.now()) as Promise<ArenaHitResponse>;
+
+    it("hides the question until its clock starts, runs 20 s, and never sends the right target early", () =>
+      withGame("arena", async (f) => {
+        const { runId } = await engine.createRun(f.tx, f.playerId, f.gameId, f.clock.now());
+        const [{ n }] = await f.tx`SELECT count(DISTINCT prompt_id)::int AS n FROM run_prompts WHERE run_id = ${runId}`;
+        expect(n).toBe(10);
+        const s0 = await state<ArenaRunState>(f, runId);
+        expect(s0).toMatchObject({ mode: "arena", position: 1, promptCount: 10, streak: 0, nextMultiplier: 1, wrongHits: 0, correctCount: 0, question: null, startedAt: null, outcome: null });
+        await rejects(hit(f, runId, { optionId: "A" }), 409, /hasn't started/);
+        await rejects(engine.applyLifeline(f.tx, f.playerId, runId, undefined, f.clock.now()), 409, /Arena Run doesn't take \/lifeline/);
+        await rejects(engine.guess(f.tx, f.playerId, runId, { text: "x" }, f.clock.now()), 409);
+
+        const s1 = await start<ArenaRunState>(f, runId);
+        expect(s1.question!.options.map((o) => o.id)).toEqual(["A", "B", "C", "D"]);
+        expect(s1.question!.shatteredOptionIds).toEqual([]);
+        expect(Date.parse(s1.deadlineAt!) - f.clock.t).toBe(ARENA_QUESTION_MS);
+        expect((await state<ArenaRunState>(f, runId)).question).toEqual(s1.question); // stable across reloads
+        const [p] = await f.tx<{ explanation: string; evidence_quote: string }[]>`
+          SELECT p.explanation, a.evidence_quote FROM prompts p JOIN answers a ON a.prompt_id = p.id
+           WHERE p.game_id = ${f.gameId} AND p.text = ${s1.question!.text}`;
+        const json = JSON.stringify(s1);
+        expect(json).not.toContain(p.explanation);
+        expect(json).not.toContain(p.evidence_quote);
+        expect(json).not.toMatch(/correctOption|isTrue|"answer/i);
+        await rejects(hit(f, runId, { optionId: "E" }), 400);
+        await rejects(hit(f, runId, { value: true }), 400);
+        await rejects(hit(f, runId, { optionId: "A", position: 2 }), 409);
+      }));
+
+    it("wrong hits shatter (−3 s, −25, streak reset) and keep the question open; timeouts score 0", () =>
+      withGame("arena", async (f) => {
+        const { runId } = await engine.createRun(f.tx, f.playerId, f.gameId, f.clock.now());
+
+        // Q1: a wrong hit at 2 s, then the right one at 2.5 s with 14.5 s left on a 17 s clock
+        let s = await start<ArenaRunState>(f, runId);
+        const t1 = f.clock.t;
+        const [w1] = await wrongIds(f, s);
+        f.clock.tick(2000);
+        const r1a = await hit(f, runId, { optionId: w1, position: 1 });
+        expect(r1a.result).toEqual({ correct: false, optionId: w1, penaltyMs: ARENA_PENALTY_MS, closed: false });
+        expect(r1a.state).toMatchObject({ position: 1, wrongHits: 1, streak: 0, score: 0, question: { shatteredOptionIds: [w1] } });
+        expect(Date.parse(r1a.state.deadlineAt!) - t1).toBe(17_000);
+        await rejects(hit(f, runId, { optionId: w1 }), 409, /already down/);
+        f.clock.tick(500);
+        const r1 = await hit(f, runId, { optionId: await correctId(f, s), position: 1 });
+        // (100 + 36) × 1 − 25
+        expect(r1.result).toMatchObject({ correct: true, points: 111, speedBonus: 36, multiplier: 1, wrongHits: 1, explanation: expect.any(String) });
+        expect(r1.state).toMatchObject({ position: 2, streak: 1, score: 111, correctCount: 1, question: null });
+
+        // Q2, Q3: instant right hits; the third in a row is ×1.5
+        s = await start<ArenaRunState>(f, runId);
+        expect((await hit(f, runId, { optionId: await correctId(f, s) })).result).toMatchObject({ points: 150, multiplier: 1 });
+        s = await start<ArenaRunState>(f, runId);
+        const r3 = await hit(f, runId, { optionId: await correctId(f, s) });
+        expect(r3.result).toMatchObject({ points: 225, multiplier: 1.5 });
+        expect(r3.state).toMatchObject({ streak: 3, nextMultiplier: 1.5 });
+
+        // Q4: a wrong hit breaks the streak; the right one 1 s later scores (100 + 40) − 25
+        s = await start<ArenaRunState>(f, runId);
+        const r4a = await hit(f, runId, { optionId: (await wrongIds(f, s))[0] });
+        expect(r4a.state).toMatchObject({ streak: 0, nextMultiplier: 1 });
+        f.clock.tick(1000);
+        expect((await hit(f, runId, { optionId: await correctId(f, s) })).result).toMatchObject({ points: 115, multiplier: 1 });
+
+        // Q5: a wrong hit with 2 s left runs the clock out: closed as a timeout
+        s = await start<ArenaRunState>(f, runId);
+        f.clock.t = Date.parse(s.deadlineAt!) - 2000;
+        const r5 = await hit(f, runId, { optionId: (await wrongIds(f, s))[1] });
+        expect(r5.result).toMatchObject({ correct: false, closed: true, penaltyMs: 3000 });
+        expect(r5.state).toMatchObject({ position: 6, question: null, streak: 0 });
+
+        // Q6: an early /timeout is ignored, an on-time one closes it
+        s = await start<ArenaRunState>(f, runId);
+        f.clock.t = Date.parse(s.deadlineAt!) - 1000;
+        expect((await timeout<ArenaRunState>(f, runId)).position).toBe(6);
+        f.clock.t = Date.parse(s.deadlineAt!);
+        expect((await timeout<ArenaRunState>(f, runId)).position).toBe(7);
+
+        // Q7: a hit after the deadline (plus grace) is a timeout
+        s = await start<ArenaRunState>(f, runId);
+        f.clock.t = Date.parse(s.deadlineAt!) + 600;
+        expect((await hit(f, runId, { optionId: await correctId(f, s) })).result).toEqual({ correct: false, timedOut: true });
+
+        // Q8: three wrong hits leave only the right target; found with 0.1 s left → floor 25
+        s = await start<ArenaRunState>(f, runId);
+        const t8 = f.clock.t;
+        for (const id of await wrongIds(f, s)) {
+          const r = await hit(f, runId, { optionId: id });
+          expect(r.result).toMatchObject({ correct: false, closed: false });
+          f.clock.tick(100);
+        }
+        f.clock.t = t8 + 20_000 - 9000 - 100;
+        expect((await hit(f, runId, { optionId: await correctId(f, s) })).result).toMatchObject({ correct: true, points: 25, wrongHits: 3, speedBonus: 0 });
+
+        // Q9, Q10: instant hits (streak 2, then 3 → ×1.5)
+        s = await start<ArenaRunState>(f, runId);
+        await hit(f, runId, { optionId: await correctId(f, s) });
+        s = await start<ArenaRunState>(f, runId);
+        const r10 = await hit(f, runId, { optionId: await correctId(f, s) });
+        expect(r10.result).toMatchObject({ points: 225 });
+        // 111 + 150 + 225 + 115 + 0 + 0 + 0 + 25 + 150 + 225
+        expect(r10.state).toMatchObject({ status: "finished", outcome: "cleared", score: 1001, correctCount: 7, wrongHits: 6, question: null });
+
+        const r = await reveal<ArenaReveal>(f, runId);
+        expect(r).toMatchObject({
+          mode: "arena", score: 1001, passed: true,
+          summary: { mode: "arena", outcome: "cleared", stats: { questions: 10, correct: 7, timeouts: 3, wrongHits: 6, bestStreak: 3 } },
+          progress: { isNewPersonalBest: true },
+        });
+        expect(r.questions.map((q) => q.outcome)).toEqual(["correct", "correct", "correct", "correct", "timeout", "timeout", "timeout", "correct", "correct", "correct"]);
+        expect(r.questions[0].hits).toEqual([
+          { optionId: w1, correct: false, msIntoQuestion: 2000 },
+          { optionId: r.questions[0].correctOptionId, correct: true, msIntoQuestion: 2500 },
+        ]);
+        expect(r.questions[4].hits).toEqual([{ optionId: expect.any(String), correct: false, msIntoQuestion: 18_000 }]);
+        expect(r.questions[5].hits).toEqual([]);
+        expect(r.questions[7].hits.map((h) => h.correct)).toEqual([false, false, false, true]);
+        expect(r.questions[0]).toMatchObject({ points: 111, explanation: expect.any(String), evidence: { documentTitle: "week9.pptx", pageNumber: expect.any(Number), quote: expect.any(String) } });
+
+        const events = await f.tx`SELECT is_correct FROM guess_events WHERE run_id = ${runId}`;
+        expect(events.filter((e) => e.is_correct)).toHaveLength(7);
+        expect(events.filter((e) => !e.is_correct)).toHaveLength(6);
+        expect(await engine.getRunSummary(f.tx, f.playerId, runId)).toEqual(r.summary);
+      }));
+
+    it("perfect aim clears all 10 for Leap's maximum", () =>
+      withGame("arena", async (f) => {
+        const { runId } = await engine.createRun(f.tx, f.playerId, f.gameId, f.clock.now());
+        let s = await state<ArenaRunState>(f, runId);
+        while (s.status === "in_progress") {
+          s = await start<ArenaRunState>(f, runId);
+          s = (await hit(f, runId, { optionId: await correctId(f, s) })).state;
+        }
+        // 150, 150, 225, 225, 300 × 6
+        expect(s).toMatchObject({ outcome: "cleared", correctCount: 10, wrongHits: 0, score: 2550 });
+        const r = await reveal<ArenaReveal>(f, runId);
+        expect(r).toMatchObject({ passed: true, summary: { stats: { correct: 10, bestStreak: 10, wrongHits: 0 } } });
       }));
   });
 

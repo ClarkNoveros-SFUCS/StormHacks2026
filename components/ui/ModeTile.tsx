@@ -82,14 +82,31 @@ export function ModeScene({ mode }: { mode: ModeUiId }) {
     ),
     arena: (
       <>
-        <rect width="120" height="72" fill="#141a33" />
-        <rect y="48" width="120" height="24" fill="#1b2242" />
-        {[20, 50, 80].map((x) => (
-          <rect key={x} x={x} y="26" width="14" height="14" fill="#2a3358" />
+        <rect width="120" height="72" fill="#0a0d1c" />
+        <rect y="46" width="120" height="26" fill="#11162e" />
+        {/* floor grid and neon trims */}
+        {[0, 20, 40, 60, 80, 100, 120].map((x) => (
+          <line key={x} x1={60 + (x - 60) * 0.35} y1="46" x2={x} y2="72" stroke="#4de3ff" strokeOpacity=".18" />
         ))}
+        <rect y="45" width="120" height="1" fill="#ff4d6d" opacity=".8" />
+        <rect y="6" width="120" height="1" fill="#4de3ff" opacity=".45" />
+        {[
+          [14, 18, "#4de3ff"],
+          [40, 26, "#9d7bff"],
+          [70, 16, "#ffd84d"],
+          [94, 28, "#3ddc97"],
+        ].map(([x, y, c], i) => (
+          <g key={i} className={s.target} style={{ animationDelay: `${i * -0.7}s` }}>
+            <rect x={x as number} y={y as number} width="14" height="10" fill="#0f1326" stroke={c as string} />
+            <rect x={(x as number) + 3} y={(y as number) + 4} width="8" height="2" fill={c as string} opacity=".7" />
+          </g>
+        ))}
+        <line className={s.zap} x1="66" y1="72" x2="82" y2="27" stroke="#ff4d6d" strokeWidth="1.5" />
         <g className={s.crosshair}>
-          <rect x="59" y="26" width="2" height="18" fill="#ff5c5c" />
-          <rect x="51" y="34" width="18" height="2" fill="#ff5c5c" />
+          <rect x="59" y="26" width="2" height="6" fill="#ff4d6d" />
+          <rect x="59" y="38" width="2" height="6" fill="#ff4d6d" />
+          <rect x="51" y="34" width="6" height="2" fill="#ff4d6d" />
+          <rect x="63" y="34" width="6" height="2" fill="#ff4d6d" />
         </g>
       </>
     ),

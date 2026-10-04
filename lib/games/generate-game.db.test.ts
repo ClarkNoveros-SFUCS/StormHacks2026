@@ -221,10 +221,27 @@ describe("generateGame", () => {
       { mode: "apogee" },
     ));
 
-  it("refuses a reserved Mode", () =>
+  // Arena was the reserved Mode until F29; it now generates with Leap's request and checks
+  it("Arena uses Leap's generator and names itself when there's too little", () =>
     withFixture(
       async ({ tx, gameId }) => {
-        expect(await generateGame(gameId, { db: tx, generate: fake([]) })).toEqual({ status: "failed", error: "This Game Mode can't be generated yet" });
+        const requests: string[] = [];
+        const result = await generateGame(gameId, {
+          db: tx,
+          generate: async (_title, _pages, request) => (requests.push(request.systemInstruction), { response: { prompts: modePrompts("leap").slice(0, 9) } }),
+        });
+        expect(requests[0]).toMatch(/multiple-choice/);
+        expect(result).toEqual({ status: "failed", error: expect.stringMatching(/an? Arena Game needs 10 questions and only 9/) });
+      },
+      { mode: "arena" },
+    ));
+
+  it("Arena stores multiple_choice Prompts", () =>
+    withFixture(
+      async ({ tx, gameId }) => {
+        expect(await generateGame(gameId, { db: tx, generate: fake(modePrompts("leap")) })).toEqual({ status: "ready", promptCount: 14, dropped: 0 });
+        const kinds = await tx`select distinct kind from prompts where game_id = ${gameId}`;
+        expect(kinds.map((k) => k.kind)).toEqual(["multiple_choice"]);
       },
       { mode: "arena" },
     ));

@@ -29,19 +29,25 @@ const tf = (text: string, isTrue: boolean, extra: Record<string, unknown> = {}) 
 const reasons = (r: { dropped: { reason: string }[] }) => r.dropped.map((d) => d.reason);
 
 describe("generatorFor", () => {
-  it("Apogee uses Dive's generator; Arena and unknown Modes have none", () => {
+  it("Apogee uses Dive's generator; Arena uses Leap's checks; unknown Modes have none", () => {
     expect(generatorFor("apogee")).toBe(generatorFor("dive"));
-    expect(generatorFor("arena")).toBeNull();
     expect(generatorFor("nope")).toBeNull();
     expect(generatorFor("leap")!.minPrompts).toBe(10);
     expect(generatorFor("pairs")!.minPrompts).toBe(12);
     expect(blitzGenerator.minPrompts).toBe(30);
+    const arena = generatorFor("arena")!;
+    const leap = generatorFor("leap")!;
+    expect(arena.validate).toBe(leap.validate);
+    expect(arena.request).toBe(leap.request);
+    expect(arena.minPrompts).toBe(10);
+    expect(arena.notEnough(4)).toMatch(/an? Arena Game needs 10 questions and only 4 passed/);
   });
 
   it("every seeded Mode Game passes its own checks", () => {
-    for (const mode of ["leap", "pairs", "blitz"]) {
+    // Arena's seeded Game reuses the Leap questions ("prompts_from": "leap")
+    for (const mode of ["leap", "pairs", "blitz", "arena"]) {
       const g = generatorFor(mode)!;
-      const r = g.validate({ prompts: seeded(mode) }, pages);
+      const r = g.validate({ prompts: seeded(mode === "arena" ? "leap" : mode) }, pages);
       expect(r.dropped, mode).toEqual([]);
       expect(r.prompts.length).toBeGreaterThanOrEqual(g.minPrompts);
     }

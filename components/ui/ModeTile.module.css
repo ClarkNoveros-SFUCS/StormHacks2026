@@ -199,6 +199,36 @@
     transform: translate(-16px, 6px);
   }
 }
+.target {
+  animation: drift 2.8s ease-in-out infinite;
+}
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(3px, -4px);
+  }
+}
+.zap {
+  opacity: 0;
+  transform-origin: left center;
+  animation: zap 3s steps(1) infinite;
+}
+@keyframes zap {
+  0%,
+  30% {
+    opacity: 0;
+  }
+  33% {
+    opacity: 1;
+  }
+  38%,
+  100% {
+    opacity: 0;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .scene * {

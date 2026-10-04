@@ -37,6 +37,7 @@ import {
   type MascotHandle,
   type SkyVariant,
 } from "@/components/ui";
+import { MODES } from "@/lib/modes";
 import { MODE_UI_LIST, type ModeUiId } from "@/lib/ui/modes";
 import { sfx, type SfxEvent } from "@/lib/ui/sfx";
 import { DiveComponents } from "./DiveComponents";
@@ -293,7 +294,7 @@ export function StyleguideClient() {
           <Section id="modes" title="Mode tiles" note="Each tile plays its mini-scene on hover or when selected.">
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
               {MODE_UI_LIST.map((m) => (
-                <ModeTile key={m.id} mode={m.id} selected={mode === m.id} locked={m.id === "arena"} onSelect={setMode} />
+                <ModeTile key={m.id} mode={m.id} selected={mode === m.id} locked={!MODES[m.id].available} onSelect={setMode} />
               ))}
             </div>
             <div className="mt-4 flex flex-wrap gap-2">

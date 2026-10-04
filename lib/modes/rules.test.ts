@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { RunSummary } from "@/lib/runs/types";
+import {
+  accuracy, ARENA_PASS_CORRECT, ARENA_PENALTY_MS, ARENA_QUESTION_MS, ARENA_QUESTIONS, arenaPoints, arenaSpeedBonus,
+} from "./arena/rules";
 import { blitzPoints } from "./blitz/rules";
 import { MODES, isModeId, isDiveFamily } from "./index";
 import { leapPoints, speedBonus, streakMultiplier } from "./leap/rules";
@@ -9,10 +12,9 @@ import { passedRun } from "./rules";
 const at = "2026-10-04T12:00:00.000Z";
 
 describe("MODES", () => {
-  it("lists the five playable Modes and reserves Arena", () => {
+  it("lists the six playable Modes", () => {
     expect(Object.keys(MODES)).toEqual(["dive", "apogee", "leap", "pairs", "blitz", "arena"]);
-    for (const m of ["dive", "apogee", "leap", "pairs", "blitz"]) expect(isModeId(m)).toBe(true);
-    expect(isModeId("arena")).toBe(false);
+    for (const m of ["dive", "apogee", "leap", "pairs", "blitz", "arena"]) expect(isModeId(m)).toBe(true);
     expect(isModeId("toString")).toBe(false);
     expect(isModeId(undefined)).toBe(false);
   });
@@ -22,6 +24,13 @@ describe("MODES", () => {
     expect(MODES.apogee.kinds).toEqual(MODES.dive.kinds);
     expect(MODES.apogee.minPrompts).toBe(7);
     expect(isDiveFamily("leap")).toBe(false);
+  });
+
+  it("Arena plays Leap's kind on its own engine", () => {
+    expect(MODES.arena.kinds).toEqual(MODES.leap.kinds);
+    expect(MODES.arena.engine).toBe("arena");
+    expect(MODES.arena.minPrompts).toBe(10);
+    expect(isDiveFamily("arena")).toBe(false);
   });
 });
 
@@ -96,5 +105,48 @@ describe("pass bars", () => {
   it("Blitz: ≥ 150 points", () => {
     expect(passedRun(blitz(150))).toBe(true);
     expect(passedRun(blitz(140))).toBe(false);
+  });
+  it("Arena: ≥ 7 right targets, however many wrong hits", () => {
+    const arena = (correct: number, wrongHits = 0): RunSummary => ({
+      mode: "arena", score: 0, finishedAt: at, outcome: "cleared",
+      stats: { questions: 10, correct, timeouts: 10 - correct, wrongHits, bestStreak: 0 },
+    });
+    expect(passedRun(arena(7))).toBe(true);
+    expect(passedRun(arena(7, 12))).toBe(true);
+    expect(passedRun(arena(6))).toBe(false);
+  });
+});
+
+describe("Arena scoring", () => {
+  it("speed bonus is linear on time left over 20 s, 0-50", () => {
+    expect(arenaSpeedBonus(20_000)).toBe(50);
+    expect(arenaSpeedBonus(10_000)).toBe(25);
+    expect(arenaSpeedBonus(0)).toBe(0);
+    expect(arenaSpeedBonus(-300)).toBe(0);
+    expect(arenaSpeedBonus(25_000)).toBe(50);
+  });
+
+  it("points = (100 + speed bonus) × Leap's streak multiplier", () => {
+    expect(arenaPoints(20_000, 1, 0)).toEqual({ points: 150, speedBonus: 50, multiplier: 1 });
+    expect(arenaPoints(0, 1, 0).points).toBe(100);
+    expect(arenaPoints(10_000, 3, 0).points).toBe(188); // 125 × 1.5 = 187.5 → 188
+    expect(arenaPoints(20_000, 5, 0).points).toBe(300);
+  });
+
+  it("each wrong hit on the question takes 25 off, never below 25", () => {
+    expect(arenaPoints(20_000, 1, 1).points).toBe(125);
+    expect(arenaPoints(20_000, 1, 3).points).toBe(75);
+    expect(arenaPoints(0, 1, 3).points).toBe(25);
+    expect(arenaPoints(20_000, 5, 2).points).toBe(250); // the multiplier applies first
+  });
+
+  it("accuracy is right hits over every hit", () => {
+    expect(accuracy(7, 3)).toBe(0.7);
+    expect(accuracy(0, 0)).toBe(0);
+    expect(accuracy(10, 0)).toBe(1);
+  });
+
+  it("the rule numbers", () => {
+    expect([ARENA_QUESTIONS, ARENA_QUESTION_MS, ARENA_PENALTY_MS, ARENA_PASS_CORRECT]).toEqual([10, 20_000, 3_000, 7]);
   });
 });

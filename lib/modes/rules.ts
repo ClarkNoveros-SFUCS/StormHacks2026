@@ -1,6 +1,7 @@
 // Each Mode's pass bar behind one function, for Courses (F22) and badges (F21). Pure and
 // client-safe. A Mode's own rules live in lib/modes/<mode>/rules.ts.
 import type { RunSummary } from "@/lib/runs/types";
+import * as arena from "./arena/rules";
 import * as blitz from "./blitz/rules";
 import * as dive from "./dive/rules";
 import * as leap from "./leap/rules";
@@ -18,6 +19,8 @@ export function passedRun(summary: RunSummary): boolean {
       return pairs.passed(summary);
     case "blitz":
       return blitz.passed(summary);
+    case "arena":
+      return arena.passed(summary);
   }
 }
 
@@ -28,4 +31,5 @@ export const PASS_BAR_TEXT: Record<RunSummary["mode"], string> = {
   leap: `Get ${leap.LEAP_PASS_CORRECT} of ${leap.LEAP_QUESTIONS} right without falling`,
   pairs: `Clear both boards`,
   blitz: `Score ${blitz.BLITZ_PASS_SCORE} or more`,
+  arena: `Hit ${arena.ARENA_PASS_CORRECT} of ${arena.ARENA_QUESTIONS} right targets`,
 };

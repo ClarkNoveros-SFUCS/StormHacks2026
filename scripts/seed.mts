@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Seeds the demo "Graph Algorithms" Module for one Player: a parsed Source Document
 // (one page per slide), a ready Dive Game built from db/seed/graph-algorithms.json, and a
-// ready Game in every other Mode (Apogee, Leap, Pairs, Blitz) from
-// db/seed/graph-algorithms-modes.json, so each Mode can be played without Gemini.
+// ready Game in every other Mode (Apogee, Leap, Pairs, Blitz, Arena) from
+// db/seed/graph-algorithms-modes.json (Arena reuses the Leap questions), so each Mode can be
+// played without Gemini.
 // Needs Node 22.18+ (runs this .mts file directly with built-in type stripping).
 // Usage: npm run db:seed -- <clerkUserId>     (or SEED_PLAYER_ID=<clerkUserId> npm run db:seed)
 //        npm run db:seed -- --check           validate the fixture only, no database
@@ -62,12 +63,13 @@ const TYPED: Kind[] = ["open", "cloze", "definition_to_term"];
 const SEED_LOCK_ID = 727_002; // arbitrary; migrate.mjs uses 727_001
 
 // The other Modes' Games: each uses its Mode's Gemini response shape and must pass that
-// Mode's generation checks. `prompts_from` reuses graph-algorithms.json's Prompts (Apogee).
+// Mode's generation checks. `prompts_from` reuses graph-algorithms.json's Prompts (Apogee), or
+// another Mode Game's list in this file by its mode (Arena takes Leap's questions).
 interface ModeGameFixture {
   mode: ModeId;
   title: string;
   prompts?: unknown[];
-  prompts_from?: "graph-algorithms.json";
+  prompts_from?: "graph-algorithms.json" | ModeId;
 }
 
 const root = path.resolve(import.meta.dirname, "..");
@@ -91,7 +93,7 @@ if (errors.length) {
   process.exit(1);
 }
 const modeGames: ModeGameFixture[] = JSON.parse(await readFile(modesFixturePath, "utf8")).games;
-const checkedModeGames = modeGames.map((g) => checkModeGame(g, fixture));
+const checkedModeGames = modeGames.map((g) => checkModeGame(g, fixture, modeGames));
 const modeErrors = checkedModeGames.flatMap((g) => g.errors);
 if (modeErrors.length) {
   console.error(`Fixture ${path.relative(root, modesFixturePath)} is invalid:\n- ${modeErrors.join("\n- ")}`);
@@ -296,11 +298,16 @@ type CheckedModeGame = { mode: ModeId; title: string; prompts: GeneratedPrompt[]
  * Runs a Mode Game's Prompts through that Mode's own generation checks (lib/modes/<mode>/
  * generate.ts), exactly as a generated Game would be. Any drop, cleared quote or shortfall is an error.
  */
-function checkModeGame(g: ModeGameFixture, f: Fixture): CheckedModeGame {
+function checkModeGame(g: ModeGameFixture, f: Fixture, all: ModeGameFixture[]): CheckedModeGame {
   const at = `${g.mode} "${g.title}"`;
   const generator = generatorFor(g.mode);
   if (!generator) return { mode: g.mode, title: g.title, prompts: [], errors: [`${at}: unknown or unavailable Mode`] };
-  const raw = g.prompts_from === "graph-algorithms.json" ? f.game.prompts : (g.prompts ?? []);
+  const raw =
+    g.prompts_from === "graph-algorithms.json"
+      ? f.game.prompts
+      : g.prompts_from
+        ? (all.find((o) => o.mode === g.prompts_from && o.prompts)?.prompts ?? [])
+        : (g.prompts ?? []);
   const pages = f.document.pages.map((p) => ({ pageNumber: p.page_number, contentMd: p.content_md }));
   const result = generator.validate({ prompts: raw }, pages);
   const deduped = dedupeAcrossDocuments([{ doc: null, prompts: result.prompts }]);

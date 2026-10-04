@@ -38,7 +38,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F26 | Profile, Friends and Leaderboard pages | Frontend | F10, F21 | #39 | done |
 | F27 | Explore, Course and Topic pages | Frontend | F10, F22 | #40 | done |
 | F28 | Daily Dive hub page | Frontend | F09, F23 | #41 | done |
-| F29 | Arena: three.js FPS study Mode (stretch) | Frontend | F20, F24 | #42 | planned |
+| F29 | Arena: three.js FPS study Mode (stretch) | Frontend | F20, F24 | #42 | done |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -525,7 +525,11 @@ Notes for others:
 - The dev DB's only real player is Anton, so Daily #1's counted result (315 pts, −3,150 m) is on his account from the F28 verification.
 
 ## F29 Arena: three.js FPS study Mode (stretch)
-Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #42 (checklist lives on the issue until this feature ships)
-- [ ] See the issue checklist
+Spec: `docs/worklog/aaf1007/overnight-decisions.md` Q22, §14 · `docs/design/modes/arena.md` · `run-and-scoring.md` § Arena · Issue #42
+- [x] Mode `arena` reusing multiple_choice; pointer-lock + WASD, click-to-aim on mobile; shoot the right target
+- [x] Engine: `MODES.arena` available with its own engine; Leap's generator; rules (10 × 20 s, hit = answer, wrong hit −3 s / −25 and the question stays open, Leap's streak multiplier, pass ≥ 7); `POST answer { optionId }` takes Arena hits; unit + DB tests; seeded Arena Game
+- [x] Screen: three.js neon training room, holo-board, 4 drifting targets, blaster with muzzle flash, tracer, sparks, explosion / shatter, HUD (timer, score, streak, n/10), pause on Esc, keys 1–4, touch tap-to-aim, WebGL fallback list
+- [x] After-Action Report: score, accuracy, best streak, fastest hit, round log, every question with your hits, the right option, explanation and Evidence
+- [x] Dispose on unmount, DPR ≤ 2, paused while hidden, reduced motion, mute; Arena Mode tile mini-scene
 
-Entry points: — · Notes for others: —
+Entry points: `lib/modes/arena/rules.ts` (`arenaPoints`, `arenaSpeedBonus`, `accuracy`, `ARENA_*`, `passed`), `lib/modes/arena/generate.ts` (`arenaGenerator` = Leap's), `lib/runs/engines/arena.ts` (`arenaEngine`, `arenaHit`), types `ArenaRunState` / `ArenaHitBody|Result|Response` / `ArenaReveal` in `lib/runs/types.ts`, `runApi.hit` in `lib/runs/client.ts`; `components/modes/arena/` (`ArenaRunScreen`, `ArenaRevealScreen`, `ArenaStage`, `scene.ts`, `arena.css`) wired in `app/runs/[runId]/mode-screens.tsx`; `sfx.laser` / `sfx.shatter` / `sfx.blast` · Notes for others: Arena is now a normal available Mode (`isModeId('arena')` is true; the New Game dialog should list it unlocked by reading `MODES[mode].available`, as the styleguide picker now does). Its Games are generated exactly like Leap's, so `generate:check --mode leap` covers it. Wrong hits are `guess_events` rows with `is_correct = false` (several per Prompt possible), like Dive's wrong guesses. `RunSummary` for Arena is `{ outcome: 'cleared', stats { questions, correct, timeouts, wrongHits, bestStreak } }` (F21/F23: XP and badges can read it). In `next dev` the scene is on `window.__arena` (`.step(ms)` advances a frame); pointer lock is refused in iframes/automated tabs and the screen falls back to click-to-aim. The `/runs/new` launch beat is still the shared ocean scene (F09's), not an Arena-themed one.
