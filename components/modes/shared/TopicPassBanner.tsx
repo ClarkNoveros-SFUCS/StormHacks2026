@@ -46,7 +46,13 @@ export function TopicPassBanner({ topic, className = "" }: { topic: TopicLike | 
 
   if (!topic || !passed) return null;
   const topicHref = topic.courseSlug && topic.topicSlug ? `/explore/${topic.courseSlug}/${topic.topicSlug}` : null;
-  const nextHref = topic.courseSlug && topic.nextTopicSlug ? `/explore/${topic.courseSlug}/${topic.nextTopicSlug}` : null;
+  // A fresh pass that unlocked the next Topic: the Course page replays the unlock (F27's `?passed=`).
+  const nextHref =
+    topic.courseSlug && topic.topicSlug && fresh && topic.unlockedNext
+      ? `/explore/${topic.courseSlug}?passed=${encodeURIComponent(topic.topicSlug)}`
+      : topic.courseSlug && topic.nextTopicSlug
+        ? `/explore/${topic.courseSlug}/${topic.nextTopicSlug}`
+        : null;
 
   return (
     <div
@@ -79,7 +85,7 @@ export function TopicPassBanner({ topic, className = "" }: { topic: TopicLike | 
           )}
           {nextHref && !topic.courseFinished && (
             <Link href={nextHref} className="text-reward underline underline-offset-4 hover:text-text">
-              Next Topic ▶
+              {fresh && topic.unlockedNext ? "Unlock the next Topic ▶" : "Next Topic ▶"}
             </Link>
           )}
         </div>

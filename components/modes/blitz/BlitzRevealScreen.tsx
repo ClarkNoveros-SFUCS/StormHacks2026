@@ -10,12 +10,13 @@ import { Logo } from "@/components/ui/Logo";
 import { SoundToggle } from "@/components/ui/SoundToggle";
 import { BLITZ_PASS_SCORE } from "@/lib/modes/blitz/rules";
 import { RunApiError, runApi } from "@/lib/runs/client";
-import type { BlitzReveal, BlitzRevealStatement, Evidence } from "@/lib/runs/types";
+import type { BlitzReveal, BlitzRevealStatement } from "@/lib/runs/types";
 import { sfx } from "@/lib/ui/sfx";
 import { MasteryBlock } from "../shared/MasteryBlock";
 import { revealTopic, TopicPassBanner } from "../shared/TopicPassBanner";
 import { accuracy } from "./beat";
 import s from "./blitz.module.css";
+import { revealLinks } from "../shared/reveal-links";
 
 type Props = {
   reveal: BlitzReveal;
@@ -36,7 +37,8 @@ export function BlitzRevealScreen({ reveal, context, history }: Props) {
   const missed = reveal.statements.filter((st) => !st.correct);
   const shown = filter === "all" ? reveal.statements : missed;
 
-  const evidenceHref = (e: NonNullable<Evidence>) => `/modules/${context.moduleId}?doc=${e.documentId}&page=${e.pageNumber}`;
+  const links = revealLinks(reveal, context);
+  const evidenceHref = links.evidenceHref;
 
   const again = async () => {
     if (pending) return;
@@ -153,10 +155,10 @@ export function BlitzRevealScreen({ reveal, context, history }: Props) {
           </button>
           <button
             type="button"
-            onClick={() => router.push(`/games/${context.gameId}`)}
+            onClick={() => router.push(links.backHref)}
             className="font-hud text-[18px] tracking-[0.25em] text-muted underline-offset-4 hover:text-text hover:underline"
           >
-            BACK TO GAME
+            {links.backLabel.toUpperCase()}
           </button>
         </div>
       </main>

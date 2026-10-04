@@ -6,7 +6,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { RunApiError, runApi } from "@/lib/runs/client";
-import type { DiveReveal, Evidence } from "@/lib/runs/types";
+import type { DiveReveal } from "@/lib/runs/types";
 import { sfx } from "@/lib/ui/sfx";
 import { Meter } from "@/components/ui/Meter";
 import { SoundToggle } from "@/components/ui/SoundToggle";
@@ -21,6 +21,7 @@ import { apogeeFontVars } from "./fonts";
 import { LiveValue } from "./live";
 import { MissionLogChart } from "./MissionLogChart";
 import "./apogee.css";
+import { revealLinks } from "../shared/reveal-links";
 
 type Props = {
   reveal: DiveReveal;
@@ -86,7 +87,8 @@ export function ApogeeRevealScreen({ reveal, context, history }: Props) {
   const onFrame = useCallback((f: { points: number }) => live.set(f.points), [live]);
   const onScrub = useCallback((p: number) => stage.current?.run((s) => s.scrubTo(p)), []);
 
-  const evidenceHref = (e: NonNullable<Evidence>) => `/modules/${context.moduleId}?doc=${e.documentId}&page=${e.pageNumber}`;
+  const links = revealLinks(reveal, context);
+  const evidenceHref = links.evidenceHref;
 
   const again = async () => {
     if (pending) return;
@@ -178,8 +180,8 @@ export function ApogeeRevealScreen({ reveal, context, history }: Props) {
             >
               Explore the flight
             </button>
-            <button type="button" onClick={() => router.push(`/games/${context.gameId}`)} className="ap-btn">
-              Back to Game
+            <button type="button" onClick={() => router.push(links.backHref)} className="ap-btn">
+              {links.backLabel}
             </button>
           </div>
           {error && <p className="text-[14px] text-danger">{error}</p>}

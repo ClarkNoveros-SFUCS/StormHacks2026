@@ -9,11 +9,12 @@ import { Logo } from "@/components/ui/Logo";
 import { Mascot } from "@/components/ui/Mascot";
 import { SoundToggle } from "@/components/ui/SoundToggle";
 import { RunApiError, runApi } from "@/lib/runs/client";
-import type { Evidence, PairsReveal } from "@/lib/runs/types";
+import type { PairsReveal } from "@/lib/runs/types";
 import { sfx } from "@/lib/ui/sfx";
 import { MasteryBlock } from "../shared/MasteryBlock";
 import { revealTopic, TopicPassBanner } from "../shared/TopicPassBanner";
 import s from "./pairs.module.css";
+import { revealLinks } from "../shared/reveal-links";
 
 type Props = {
   reveal: PairsReveal;
@@ -31,7 +32,8 @@ export function PairsRevealScreen({ reveal, context, history }: Props) {
   const totalPairs = reveal.boards.reduce((n, b) => n + b.pairs.length, 0);
   const topic = revealTopic(reveal);
 
-  const evidenceHref = (e: NonNullable<Evidence>) => `/modules/${context.moduleId}?doc=${e.documentId}&page=${e.pageNumber}`;
+  const links = revealLinks(reveal, context);
+  const evidenceHref = links.evidenceHref;
 
   const again = async () => {
     if (pending) return;
@@ -139,10 +141,10 @@ export function PairsRevealScreen({ reveal, context, history }: Props) {
           </button>
           <button
             type="button"
-            onClick={() => router.push(`/games/${context.gameId}`)}
+            onClick={() => router.push(links.backHref)}
             className="font-hud text-[18px] tracking-[0.25em] text-muted underline-offset-4 hover:text-text hover:underline"
           >
-            BACK TO GAME
+            {links.backLabel.toUpperCase()}
           </button>
         </div>
       </main>

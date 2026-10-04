@@ -12,9 +12,11 @@ import { celebrate } from "@/components/ui/Confetti";
 import { vancouverDay } from "@/lib/daily/days";
 import type { CrowdReveal, DailyReveal } from "@/lib/daily/types";
 import { RunApiError, runApi } from "@/lib/runs/client";
-import type { DiveReveal as DiveRevealData, Evidence } from "@/lib/runs/types";
+import type { DiveReveal as DiveRevealData } from "@/lib/runs/types";
 import { sfx } from "@/lib/ui/sfx";
 import { DiveReveal } from "./DiveReveal";
+import { revealLinks } from "../shared/reveal-links";
+import { revealTopic, TopicPassBanner } from "../shared/TopicPassBanner";
 
 type Props = {
   reveal: DiveRevealData;
@@ -104,7 +106,10 @@ export function DiveRevealScreen({ reveal, context, history, crowd, title }: Pro
 
   // The Daily's fact sheet belongs to the system "Daily Dive" Module, which Players can't open:
   // its Evidence stays plain text.
-  const evidenceHref = daily ? () => null : (e: NonNullable<Evidence>) => `/modules/${context.moduleId}?doc=${e.documentId}&page=${e.pageNumber}`;
+  // Course practice Games (F22): Evidence and Back go to the Topic page; the Topic-pass banner shows.
+  const links = revealLinks(reveal, context);
+  const topic = revealTopic(reveal);
+  const evidenceHref = daily ? () => null : links.evidenceHref;
 
   const again = async () => {
     if (pending) return;
@@ -159,7 +164,7 @@ export function DiveRevealScreen({ reveal, context, history, crowd, title }: Pro
                 best: progress?.personalBest ?? null,
               })
         }
-        afterHeader={daily && <DailyBlock daily={daily} />}
+        afterHeader={daily ? <DailyBlock daily={daily} /> : topic?.passed ? <TopicPassBanner topic={topic} /> : undefined}
         actions={dailyActions || undefined}
         findRate={daily ? findRateLookup(dailyCrowd) : undefined}
         personalBest={daily ? false : progress?.isNewPersonalBest}
@@ -168,8 +173,8 @@ export function DiveRevealScreen({ reveal, context, history, crowd, title }: Pro
         onAgain={again}
         againPending={pending}
         notice={error && <p className="font-hud text-[18px] text-danger">{error}</p>}
-        onBack={() => router.push(daily ? "/daily" : `/games/${context.gameId}`)}
-        backLabel={daily ? "BACK TO THE DAILY" : "BACK TO GAME"}
+        onBack={() => router.push(daily ? "/daily" : links.backHref)}
+        backLabel={daily ? "BACK TO THE DAILY" : links.backLabel.toUpperCase()}
       />
     </div>
   );
