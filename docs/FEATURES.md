@@ -44,7 +44,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F32 | Sonar: AI study coach (LangGraph) over a per-concept learner model | Gameplay | F22 | #73 | done |
 | F33 | Dive matches Krillion: continuous descent, catch and miss screens, intro pan | Frontend | F09 | #72 | done |
 | F34 | Clerk sign-in and sign-up match the site style | Frontend | F10, F19 | #77 | done |
-| F35 | Study notes: slide panel on the Reveal, study page per file, maths symbols in questions | Frontend | F03, F04, F09 | #75 | done |
+| F36 | Pop-up when a friend accepts your request | Platform | F21, F26 | #79 | done |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -634,6 +634,21 @@ Notes for others:
 - Colours are hex copies of the :root tokens: Clerk derives shades from them and can't read CSS variables. Change both if the palette changes.
 - "Secured by Clerk" stays (removing it needs a paid Clerk plan).
 
+## F36 Pop-up when a friend accepts your request
+Issue #79
+- [x] `friendships.requester_notified_at`; existing accepted requests count as already told
+- [x] `takeAcceptedNotices(me)` marks and returns untold acceptances in one statement, so each pop-up shows once
+- [x] `POST /api/friends/notices`
+- [x] Signed-in pages check on load, every 30 s while visible, and when the tab comes back; the toast links to the friend's profile
+- [x] `ToastInput.href` (additive): a toast can be a link
+- [x] DB test: pending, accepter not told, once only, crossed requests
+
+Entry points: `takeAcceptedNotices` in `lib/social/friends.ts`; `AcceptedNotice` in `lib/social/types.ts`; `POST /api/friends/notices`; `components/social/FriendNotices.tsx` (mounted in `app/layout.tsx`); `href` on `ToastInput` in `components/ui/Toast.tsx`
+
+Notes for others:
+- **Migration** `20261004T1400_friend_notices.sql` (already applied to the shared DB).
+- Polling, not realtime: a notice can take up to 30 s to show.
+- Crossed requests (B "adds" A after A asked B) notify A, the original requester.
 ## F35 Study notes: slide panel on the Reveal, study page per file, maths symbols in questions
 Issue #75
 - [x] Gemini rewrites each parsed page into tidy study notes (headings, lists, tables, bold terms, one-line Unicode formulas), on first view, stored in `source_pages.notes_md`
