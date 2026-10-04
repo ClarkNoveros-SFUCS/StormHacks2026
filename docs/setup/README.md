@@ -26,4 +26,4 @@
 
 1. https://dashboard.clerk.com → **Create application** (enable Email and Google sign-in).
 2. Copy the two keys from **API keys** into `.env.local`.
-3. `npm install @clerk/nextjs`. Next 16 uses `proxy.ts` instead of `middleware.ts`; read `node_modules/next/dist/docs/01-app/01-getting-started/16-proxy.md` and Clerk's Next.js quickstart, and use whichever file name the installed Clerk version documents for Next 16.
+3. Already wired up by F01 (`@clerk/nextjs` v7, `proxy.ts`, `lib/auth.ts`). Without both keys in `.env.local`, every page returns a 500 "Clerk keys are missing" error. The whole team can share one Clerk dev app.

@@ -1,34 +1,7 @@
-# Data model (Tiger Data / Postgres)
+-- Initial schema. Spec: docs/architecture/data-model.md
 
-All app data lives in one Postgres database on Tiger Cloud, which includes TimescaleDB. Every table carries or reaches a `player_id`, and **every query filters by the Clerk user id**.
-
-## Relationships
-
-```
-Player 1──N Module
-Module 1──N Source Document 1──N Source Page
-Module 1──N Game
-Game   N──M Source Document         (game_sources; a file can feed several Games)
-Game   1──N Prompt 1──N Answer 1──N Answer Key
-Player 1──N Run N──1 Game
-Run    1──7 Run Prompt N──1 Prompt
-guess_events  (hypertable: every guess ever made, the source for Mastery and Staleness)
-```
-
-## Conventions
-
-- **Client:** `postgres` (porsager) from `lib/db.ts`, server only. Plain SQL, no ORM.
-- **Migrations:** `db/migrations/<UTC timestamp>_<name>.sql`, e.g. `20261003T1530_init.sql`. Use timestamps, not sequence numbers, so parallel branches never collide. `scripts/migrate.mjs` applies files in name order and records them in `schema_migrations`.
-- **Ids:** `uuid DEFAULT gen_random_uuid()`. The Player id is the Clerk user id (`text`).
-- **Time:** `timestamptz` everywhere.
-
-## Schema (initial migration)
-
-The source of truth is `db/migrations/20261003T1830_init.sql`, which also adds indexes on foreign keys. Change the schema with a new migration file, never by editing an applied one.
-
-```sql
 CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;   -- levenshtein_less_equal for answer matching
--- timescaledb is already installed on Tiger Cloud services
+CREATE EXTENSION IF NOT EXISTS timescaledb;     -- already installed on Tiger Cloud; no-op there
 
 CREATE TABLE players (
   id          text PRIMARY KEY,                 -- Clerk user id; upserted on first request
@@ -41,6 +14,7 @@ CREATE TABLE modules (
   name        text NOT NULL,
   created_at  timestamptz NOT NULL DEFAULT now()
 );
+CREATE INDEX modules_player ON modules (player_id);
 
 CREATE TABLE source_documents (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -55,6 +29,7 @@ CREATE TABLE source_documents (
   page_count  integer,
   created_at  timestamptz NOT NULL DEFAULT now()
 );
+CREATE INDEX source_documents_module ON source_documents (module_id);
 
 CREATE TABLE source_pages (
   id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -75,12 +50,18 @@ CREATE TABLE games (
   prompt_count  integer,
   created_at    timestamptz NOT NULL DEFAULT now()
 );
+CREATE INDEX games_module ON games (module_id);
 
+-- Foreign keys that cross from the games branch into the source_documents branch are
+-- DEFERRABLE INITIALLY DEFERRED: checked at commit, after a Module or Player delete has
+-- cascaded down both branches. Immediate (RESTRICT or NO ACTION) checks fire mid-cascade
+-- and refuse the delete. Deleting a file a Game still uses is refused at commit.
 CREATE TABLE game_sources (
   game_id             uuid NOT NULL REFERENCES games(id) ON DELETE CASCADE,
   source_document_id  uuid NOT NULL REFERENCES source_documents(id) DEFERRABLE INITIALLY DEFERRED,  -- can't delete a file a Game uses
   PRIMARY KEY (game_id, source_document_id)
 );
+CREATE INDEX game_sources_document ON game_sources (source_document_id);
 
 CREATE TABLE prompts (
   id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -96,6 +77,7 @@ CREATE TABLE prompts (
   evidence_page_id    uuid REFERENCES source_pages(id) DEFERRABLE INITIALLY DEFERRED,   -- ordered_recall / odd_one_out
   CHECK ((kind = 'open') = (tier IS NULL))
 );
+CREATE INDEX prompts_game ON prompts (game_id);
 
 -- Every Prompt has ≥1 Answer row: Open = 4–15, single-answer kinds = exactly 1.
 -- ordered_recall's single Answer has canonical = 'correct order'; odd_one_out's is the correct option.
@@ -110,6 +92,7 @@ CREATE TABLE answers (
   evidence_page_id  uuid REFERENCES source_pages(id) DEFERRABLE INITIALLY DEFERRED,
   evidence_quote    text
 );
+CREATE INDEX answers_prompt ON answers (prompt_id);
 
 CREATE TABLE answer_keys (          -- typed matching lookup; see answer-matching.md
   prompt_id   uuid NOT NULL REFERENCES prompts(id) ON DELETE CASCADE,
@@ -166,6 +149,8 @@ CREATE TABLE guess_events (
   hint_used          boolean NOT NULL DEFAULT false,
   tier               text                      -- tier of the matched Answer, for stats
 );
+-- create_hypertable + compression settings work on every TimescaleDB 2.13+,
+-- unlike the newer CREATE TABLE ... WITH (tsdb.hypertable) syntax.
 SELECT create_hypertable('guess_events', by_range('created_at'));
 ALTER TABLE guess_events SET (
   timescaledb.compress,
@@ -174,54 +159,3 @@ ALTER TABLE guess_events SET (
 );
 CREATE INDEX guess_events_recall ON guess_events (player_id, prompt_id, matched_answer_id) WHERE is_correct;
 CREATE INDEX guess_events_game   ON guess_events (player_id, game_id) WHERE is_correct;
-```
-
-`create_hypertable(…, by_range(…))` works on every TimescaleDB 2.13+, so the migration uses it instead of the newer `CREATE TABLE … WITH (tsdb.hypertable)` syntax.
-
-**Why four foreign keys are `DEFERRABLE INITIALLY DEFERRED`.** `game_sources.source_document_id`, `prompts.source_document_id`, `prompts.evidence_page_id` and `answers.evidence_page_id` point from the games branch into the source-documents branch. Deleting a Module or a Player cascades down both branches, and an immediate check (`RESTRICT` or `NO ACTION`) fires partway through the cascade and refuses the whole delete. A deferred check runs at commit, after the cascade has finished. Deleting a Source Document that a Game still uses is still refused: with error `23503` at commit, or at the statement itself outside a transaction. F03's delete route should check `game_sources` first and return 409 instead of relying on the error.
-
-## Progress queries
-
-```sql
--- Personal Best: highest finished Run on a Game
-SELECT coalesce(max(score), 0) AS personal_best
-FROM runs WHERE player_id = $1 AND game_id = $2 AND status = 'finished';
-
--- Mastery: share of the Game's Answers ever found (any Run, including abandoned)
-WITH total AS (
-  SELECT count(*) AS n FROM answers a JOIN prompts p ON p.id = a.prompt_id WHERE p.game_id = $2
-), found AS (
-  SELECT count(DISTINCT ge.matched_answer_id) AS n
-  FROM guess_events ge JOIN answers a ON a.id = ge.matched_answer_id
-  WHERE ge.player_id = $1 AND ge.game_id = $2 AND ge.is_correct
-)
-SELECT found.n, total.n, round(100.0 * found.n / nullif(total.n, 0)) AS mastery_pct FROM found, total;
-
--- Mastery per Tier (Game page: "found 2 of 3 deep")
-SELECT a.tier, count(*) AS total, count(f.answer_id) AS found
-FROM answers a JOIN prompts p ON p.id = a.prompt_id
-LEFT JOIN (SELECT DISTINCT matched_answer_id AS answer_id FROM guess_events
-           WHERE player_id = $1 AND game_id = $2 AND is_correct) f ON f.answer_id = a.id
-WHERE p.game_id = $2 GROUP BY a.tier;
-
--- Staleness input: earlier Runs in which this Answer scored on this Prompt
-SELECT count(DISTINCT run_id) FROM guess_events
-WHERE player_id = $1 AND prompt_id = $2 AND matched_answer_id = $3 AND is_correct AND run_id <> $4;
-```
-
-## Optional: continuous aggregate for a stats panel (Tiger Data showcase)
-
-```sql
-CREATE MATERIALIZED VIEW player_game_daily WITH (timescaledb.continuous) AS
-SELECT time_bucket('1 day', created_at) AS day, player_id, game_id,
-       count(*)                                         AS guesses,
-       count(*) FILTER (WHERE is_correct)               AS correct,
-       avg(ms_into_prompt) FILTER (WHERE is_correct)    AS avg_ms_to_correct
-FROM guess_events
-GROUP BY day, player_id, game_id;
-
-SELECT add_continuous_aggregate_policy('player_game_daily',
-  start_offset => INTERVAL '30 days', end_offset => INTERVAL '1 minute', schedule_interval => INTERVAL '5 minutes');
-```
-
-This powers an "accuracy and speed over time" chart on the Game page. It isn't needed for the core loop.
