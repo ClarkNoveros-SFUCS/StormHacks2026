@@ -45,6 +45,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F33 | Dive matches Krillion: continuous descent, catch and miss screens, intro pan | Frontend | F09 | #72 | done |
 | F34 | Clerk sign-in and sign-up match the site style | Frontend | F10, F19 | #77 | done |
 | F36 | Pop-up when a friend accepts your request | Platform | F21, F26 | #79 | done |
+| F38 | Module page map: per-page performance across a Module's Games | Frontend | F07, F35 | #90 | done |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -633,6 +634,22 @@ Notes for others:
 - Applies to every Clerk component (SignIn, SignUp, the modals from `SignInButton`/`SignUpButton`, UserButton, UserProfile). Style a new one by adding its element key to `elements`, or a `.cl-<element>` rule in globals.css.
 - Colours are hex copies of the :root tokens: Clerk derives shades from them and can't read CSS variables. Change both if the palette changes.
 - "Secured by Clerk" stays (removing it needs a paid Clerk plan).
+
+## F38 Module page map: per-page performance across a Module's Games
+Issue #90
+- [x] "Your map" on the Module page: per file, one cell per page, coloured Solid / Shaky / Missing / Not tested yet
+- [x] A guess or timeout counts against its Prompt's Evidence page (top Answer's, else the Prompt's), across every Game of the Module
+- [x] Score: smoothed accuracy, recent answers weigh more (weight halves each week); cell opacity grows with the number of answers
+- [x] Cells open the page's study notes; tooltip shows the page heading and tally
+- [x] Weakest pages (up to 5) with Read (study page) and Drill (asks Sonar about that page)
+- [x] Unit tests for the scoring
+
+Entry points: `moduleMap` in `app/modules/_lib/queries.ts`; `buildModuleMap` in `app/modules/_lib/page-map.ts`; `ModuleMapPanel` in `app/modules/_components/ModuleMapPanel.tsx`; `ModuleWorkspace` `map` prop
+
+Notes for others:
+- No AI and no migration: reads `guess_events`, `run_prompts` timeouts and Evidence pages.
+- Step 2 (#84) can reuse the per-page numbers for an AI concept map.
+- Prompts without an Evidence page aren't counted.
 
 ## F36 Pop-up when a friend accepts your request
 Issue #79
