@@ -20,8 +20,9 @@ Merged on top, in order (each a `--no-ff` merge commit):
 | `feat/40-explore-ui` | F27 #53 | `docs/FEATURES.md`, `docs/architecture/ui-map.md` |
 | `feat/25-example-prompts` | F15 #54 (includes F14 #44) | `.env.example`, `package.json` |
 | `feat/26-verification-pass` | F16 #60 | none |
+| `feat/42-arena` | F29 #61 (stacked on F24) | `CONTEXT.md`, `mode-screens.tsx`, `lib/runs/client.ts`, `lib/runs/run-engine.ts`, `lib/ui/sfx.ts`, `data-model.md`, `docs/FEATURES.md` |
 
-Skipped: `feat/42-arena` (F29 #42): no remote branch and no PR when the merge ran.
+Skipped: `feat/27-overgenerate-select` (F17 #27): still in progress, no PR.
 
 ## Conflict resolutions
 
@@ -31,6 +32,7 @@ Skipped: `feat/42-arena` (F29 #42): no remote branch and no PR when the merge ra
 - **`docs/FEATURES.md`**: every board row takes the newest status (`done` beats `planned`), every `## Fxx` section takes the filled-in side. Result: F08–F11, F14–F16, F19–F28 `done`; F12, F13, F17, F18, F29 `planned`.
 - **`ui-map.md`**: kept the newest text (F28's Daily Reveal lines, F10's `/styleguide` section at the end); took F11's `/games/[gameId]` section whole; dropped a stray "Practice → POST …" line that had landed inside the route tree.
 - **`.env.example`**: kept `DEV_PLAYER_ID` (commented), `NEXT_PUBLIC_SITE_URL`, F14's `EVAL_DECKS_DIR` and F16's `GEMINI_VERIFY`/`GEMINI_VERIFY_MODEL`.
+- **Arena (F29) merge:** `mode-screens.tsx` gets the Arena case next to the other five; `client.ts` keeps F25's `PairBody/PairResponse` and adds `ArenaHitBody/ArenaHitResponse` (`runApi.hit`); `run-engine.ts` `answer()` locks `leap | blitz | arena` and dispatches all three **inside F22's `play()` wrapper** (so finished Arena Runs get XP, Topic and Daily hooks like every other Mode); `sfx.ts` keeps F25's beat voices (`audioNow`, `drum`) and F29's `laser`/`shatter`/`blast`; `CONTEXT.md` keeps F21's sentence on public Profiles and says there are six Modes (… and Arena); `data-model.md` keeps F22's `visibility` column with F29's wording on `arena`.
 - **`package.json`**: kept `social:backfill`, `seed:content:check` and `generate:eval`. `npm install` afterwards: lockfile already up to date.
 
 ## `demo:` integration fixes (port these to the PR they belong to)
@@ -40,20 +42,22 @@ Skipped: `feat/42-arena` (F29 #42): no remote branch and no PR when the merge ra
 | `demo: home Course card reads F22's listCourses` | `app/home/CourseProgress.tsx` is now a server component fed by `listCourses(playerId)` (one card per Course; "Start Topic 1 / Next Topic / Review the course" links to `progress.nextTopicSlug`); `coursesAvailable()` and the client fetch that guessed shapes are gone. | F19 #51 (after F22 #48) |
 | `demo: one Topic-pass banner for every Mode …` | F24's `components/results/TopicPassBanner.tsx` read `topic.title`/`href`, which F22's `reveal.topic` doesn't have (banner said "Topic passed!" with no name, on every passed re-run). It now wraps F25's `components/modes/shared/TopicPassBanner.tsx` (reads `topicTitle`, `passedNow`, `unlockedNext`). On a fresh pass that unlocked the next Topic the link is "Unlock the next Topic ▶" → `/explore/<course>?passed=<topic>` (F27's unlock replay). **Dive's Reveal had no Topic handling at all:** it now shows the banner (in `afterHeader`) and Back goes to the Topic. New `components/modes/shared/reveal-links.ts` (`revealLinks`): for Course Games, Evidence links and Back go to the Topic page instead of `/modules/<system module>` (a 404 for Players); used by all five Reveals. | F24 #58, F25 #55, F09 #49 (all after F22/F27) |
 | `demo: /runs/new sends non-Dive Modes and public Games to their Game page` | `/runs/new?game=` (RunClosed's "Play again") 404'd for public Games and showed Dive's ocean for every Mode. It now redirects to `/games/<id>` unless it's your own Dive Game. | F09 #49 |
+| `demo: Arena Reveal uses revealLinks …` | Same Evidence/Back rule for F29's Reveal. The New Game dialog already reads `MODES[id].available`, so Arena is offered without a change. | F29 #61 |
 | `demo: Explore/Modules layouts portal their sky …` | `app/explore/layout.tsx` rendered its own Logo + Sign in bar for signed-out visitors on top of F19's signed-out nav (two headers); removed. Both layouts now put `SkyBackdrop` in F19's `BackdropPortal` (so no transformed ancestor traps the fixed canvas, same as `/home` and the social pages), and Modules drops `PageTransition` (the root `RouteTransition` already animates; the filled `transform` trapped fixed overlays). | F27 #53, F08 #50 (after F19) |
 
 ## Checks (on the final branch)
 
 - `npx tsc --noEmit`: pass
 - `npm run lint`: pass (0 problems)
-- `npm test`: 34 files, 328 tests pass
-- `npm run test:db`: 9 files, 88 tests pass
+- `npm test`: 34 files, 335 tests pass
+- `npm run test:db`: 9 files, 92 tests pass
 - `npm run build`: pass
 
 ## Smoke test (dev server on :4600 with `DEV_PLAYER_ID` = Anton; then `next start` for signed-out)
 
 - 200 and no console errors: `/home`, `/explore`, `/explore/python-basics`, Topic 1 and Topic 2 (locked), `/modules`, Graph Algorithms Module, the file viewer (`?doc=…&page=2` drawer and `/modules/files/<id>`), `/games/<id>` for Dive, Apogee, Leap, Pairs, Blitz (own) and Course Dive/Leap, `/daily`, `/leaderboard`, `/friends`, `/u/postyfan`, `/profile` (→ `/u/postyfan`), `/styleguide`, `/styleguide/dive`.
 - Dive Run on the Graph Algorithms Dive Game: started from the Game page's BEGIN DESCENT, answered "topological sort" (+25, catch screen, DESCEND), an odd-one-out, reached the put-in-order Prompt, let the rest time out; the Reveal (curve, Dive log, The Catch) rendered with no errors.
+- Arena (after the F29 merge, as F29's test player `user_dev_arena_agent` via `DEV_PLAYER_ID=… npx next dev`, because Anton has no Arena Game and re-seeding would wipe his Module's history): Game page, the Arena Run intro (three.js canvas, "TRAINING ARENA") and the New Game dialog offering Arena, no console errors.
 - Apogee, Leap, Pairs and Blitz Run screens open on their intro (LAUNCH / JUMP / MATCH / GO) with no errors; an abandoned Run shows RunClosed.
 - Production build, signed out (curl, no Clerk session): `/` renders the landing with the Daily teaser ("Name a sorting algorithm"), Sign in and Start playing; `/explore`, the Course and Topic pages and `/daily` render public; `/home` redirects to sign-in; `/modules` streams a redirect to sign-in; `/styleguide` is 404. (Chrome had a real Clerk session on localhost, so the browser view of `/` was the signed-in `/home`.)
 - The smoke test played on Anton's player: one finished Dive Run on his Graph Algorithms Dive Game, and an Apogee Run left in progress (any new Run abandons it). No Course Topic was passed, so the demo can still pass Topic 1 live.
@@ -76,7 +80,8 @@ On `stormhacks-dev` all of these have already been run; `npm install && npm run 
 
 ## Known issues
 
-- F29 Arena isn't in the branch (no PR yet).
+- F17 (#27) isn't in the branch (no PR yet).
+- Anton's player has no Arena Game: `npm run db:seed -- <id>` would add one but **replaces** the Graph Algorithms Module (its Runs and guesses go). Make one from the Module's New Game dialog instead (Gemini), or demo Arena on a fresh account.
 - F13 (#21, `games.mode` + Mode picker) still shows `planned` on the board although F08/F20 built most of it ("Part of #21").
 - Odometers/animations look frozen in background browser tabs (rAF throttling); not a bug.
 - `/runs/new` is still Dive-only by design; other Modes start from their Game page.
