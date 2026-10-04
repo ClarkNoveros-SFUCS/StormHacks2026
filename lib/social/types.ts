@@ -46,6 +46,9 @@ export type PlayerSummary = {
   rank: RankName;
 };
 
+/** A friend request you sent that was accepted, for the pop-up (#79). */
+export type AcceptedNotice = { player: PlayerSummary; acceptedAt: string };
+
 export type Streak = {
   current: number; //       consecutive Vancouver days with a finished Run, ending today or yesterday
   longest: number;

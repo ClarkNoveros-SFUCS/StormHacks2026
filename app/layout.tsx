@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { KonamiFishing } from "@/components/site/KonamiFishing";
 import { getNavState } from "@/components/site/nav-data";
 import { RouteTransition } from "@/components/site/RouteTransition";
+import { FriendNotices } from "@/components/social/FriendNotices";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SonarBuddy } from "@/components/sonar/SonarBuddy";
@@ -43,6 +44,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             </div>
             <SiteFooter />
             <KonamiFishing />
+            {nav.signedIn && <FriendNotices />}
             {/* Sonar (F32): the study-coach buddy, signed in only; hides itself on Run screens. */}
             {nav.signedIn && <SonarBuddy />}
           </ToastProvider>

@@ -11,6 +11,7 @@ import { addDays, vancouverDay } from "./days";
 import { SocialError } from "./errors";
 import {
   acceptFriendRequest, declineFriendRequest, friendStatuses, listFriends, removeFriend, searchPlayers, sendFriendRequest,
+  takeAcceptedNotices,
 } from "./friends";
 import { courseLeaderboard, gameLeaderboard, weeklyXp } from "./leaderboards";
 import { ensureProfile, myProfile, profileCard, profileFor, SYSTEM_PLAYER_ID, updateProfile } from "./profile";
@@ -232,6 +233,23 @@ describe.skipIf(!process.env.DATABASE_URL)("social", () => {
         await expectSocialError(sendFriendRequest(p.amy, uname("amy"), tx), 400);
         await expectSocialError(sendFriendRequest(p.amy, "t_nobody_here", tx), 404);
         await expectSocialError(acceptFriendRequest(p.bob, "not-a-uuid", tx), 404);
+      }));
+
+    it("tells the requester once that their request was accepted (#79)", () =>
+      rolledBack(async (tx) => {
+        const p = await players(tx, "ann", "ben", "cal");
+        const req = await sendFriendRequest(p.ann, uname("ben"), tx);
+        expect(await takeAcceptedNotices(p.ann, tx)).toEqual([]); // still pending
+        await acceptFriendRequest(p.ben, req.requestId, tx);
+        expect(await takeAcceptedNotices(p.ben, tx)).toEqual([]); // the accepter isn't told
+        const notices = await takeAcceptedNotices(p.ann, tx);
+        expect(notices.map((n) => n.player.username)).toEqual([uname("ben")]);
+        expect(await takeAcceptedNotices(p.ann, tx)).toEqual([]); // only once
+
+        // Crossed requests: Cal asked Ann first, so Ann's "request" accepts Cal's and Cal is told.
+        await sendFriendRequest(p.cal, uname("ann"), tx);
+        await sendFriendRequest(p.ann, uname("cal"), tx);
+        expect((await takeAcceptedNotices(p.cal, tx)).map((n) => n.player.username)).toEqual([uname("ann")]);
       }));
 
     it("searches by username or display name prefix", () =>

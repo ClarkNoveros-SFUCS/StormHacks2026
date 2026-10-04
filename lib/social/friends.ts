@@ -2,7 +2,7 @@ import "server-only";
 import { sql } from "@/lib/db";
 import { SocialError, UUID } from "./errors";
 import { playerSummaries, SYSTEM_PLAYER_ID } from "./profile";
-import type { FriendRequest, FriendsList, FriendStatus, PlayerSearchResult } from "./types";
+import type { AcceptedNotice, FriendRequest, FriendsList, FriendStatus, PlayerSearchResult } from "./types";
 import { normalizeUsername } from "./username";
 import { inTx, type Db } from "./xp";
 
@@ -82,6 +82,25 @@ export async function acceptFriendRequest(me: string, requestId: string, db: Db 
     update friendships set status = 'accepted', responded_at = now()
     where id = ${requestId} and addressee = ${me} and status = 'pending' returning id`;
   if (rows.length === 0) throw new SocialError(404, "Friend request not found");
+}
+
+/**
+ * Requests `me` sent that were accepted since `me` was last told (#79), oldest first, marked as
+ * told in the same statement so each pop-up shows once (one tab wins if several ask at once).
+ */
+export async function takeAcceptedNotices(me: string, db: Db = sql): Promise<AcceptedNotice[]> {
+  const rows = await db<{ addressee: string; responded_at: Date | null }[]>`
+    update friendships set requester_notified_at = now()
+    where requester = ${me} and status = 'accepted' and requester_notified_at is null
+    returning addressee, responded_at`;
+  if (rows.length === 0) return [];
+  const summaries = await playerSummaries(rows.map((r) => r.addressee), db);
+  return rows
+    .sort((a, b) => (a.responded_at?.getTime() ?? 0) - (b.responded_at?.getTime() ?? 0))
+    .flatMap((r) => {
+      const player = summaries.get(r.addressee);
+      return player ? [{ player, acceptedAt: (r.responded_at ?? new Date()).toISOString() }] : [];
+    });
 }
 
 /** Declines a request sent to `me` (deletes it; they can ask again). */
