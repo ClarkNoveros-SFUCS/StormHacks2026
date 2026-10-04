@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import type postgres from "postgres";
 import { describe, expect, it } from "vitest";
 import fixture from "@/db/seed/graph-algorithms.json";
+import modesFixture from "@/db/seed/graph-algorithms-modes.json";
 import { sql } from "@/lib/db";
 import { GeminiError } from "@/lib/gemini";
 import { normalize } from "@/lib/matching/normalize";
@@ -15,7 +16,7 @@ type Fixture = { tx: postgres.TransactionSql; gameId: string; documentIds: strin
 class Rollback extends Error {}
 
 /** A Player, a Module, `docs` parsed copies of the seed deck, and a queued Game using all of them. */
-async function withFixture(fn: (f: Fixture) => Promise<void>, { docs = 1, status = "queued" } = {}) {
+async function withFixture(fn: (f: Fixture) => Promise<void>, { docs = 1, status = "queued", mode = "dive" } = {}) {
   try {
     await sql.begin(async (tx) => {
       const playerId = `test_f04_${randomUUID()}`;
@@ -39,7 +40,7 @@ async function withFixture(fn: (f: Fixture) => Promise<void>, { docs = 1, status
         documentIds.push(doc.id);
       }
       const [game] = await tx`
-        insert into games (module_id, player_id, title, status) values (${mod.id}, ${playerId}, 'F04 test', ${status})
+        insert into games (module_id, player_id, title, status, mode) values (${mod.id}, ${playerId}, 'F04 test', ${status}, ${mode})
         returning id`;
       await tx`insert into game_sources ${tx(documentIds.map((id) => ({ game_id: game.id, source_document_id: id })))}`;
       await fn({ tx, gameId: game.id, documentIds });
@@ -123,6 +124,70 @@ describe("generateGame", () => {
       expect(result).toMatchObject({ status: "failed", error: expect.stringMatching(/question generator/) });
       expect((await game(tx, gameId)).status).toBe("failed");
     }));
+
+  // ---- Other Modes (F20): the Mode picks the Gemini request, the checks and the minimum ----
+  const modePrompts = (mode: string) => modesFixture.games.find((g) => g.mode === mode)!.prompts!;
+
+  it("Leap: passes its own request to Gemini and stores multiple_choice Prompts with Evidence", () =>
+    withFixture(
+      async ({ tx, gameId }) => {
+        const requests: string[] = [];
+        const result = await generateGame(gameId, {
+          db: tx,
+          generate: async (_title, _pages, request) => (requests.push(request.systemInstruction), { response: { prompts: modePrompts("leap") } }),
+        });
+        expect(result).toEqual({ status: "ready", promptCount: 14, dropped: 0 });
+        expect(requests[0]).toMatch(/multiple-choice/);
+        const rows = await tx`
+          select p.kind, p.options, p.tier, p.is_true, a.canonical, a.evidence_quote, a.evidence_page_id
+          from prompts p join answers a on a.prompt_id = p.id where p.game_id = ${gameId}`;
+        expect(rows).toHaveLength(14);
+        for (const r of rows) {
+          expect(r).toMatchObject({ kind: "multiple_choice", is_true: null, evidence_quote: expect.any(String), evidence_page_id: expect.any(String) });
+          expect(r.options).toHaveLength(4);
+          expect(r.options).toContain(r.canonical);
+        }
+        expect(await tx`select 1 from answer_keys k join prompts p on p.id = k.prompt_id where p.game_id = ${gameId}`).toHaveLength(0);
+      },
+      { mode: "leap" },
+    ));
+
+  it("Blitz: stores is_true and balances true/false", () =>
+    withFixture(
+      async ({ tx, gameId }) => {
+        expect(await generateGame(gameId, { db: tx, generate: fake(modePrompts("blitz")) })).toMatchObject({ status: "ready", promptCount: 38 });
+        const rows = await tx`select p.is_true, a.canonical from prompts p join answers a on a.prompt_id = p.id where p.game_id = ${gameId}`;
+        expect(rows.filter((r) => r.is_true)).toHaveLength(19);
+        expect(rows.every((r) => r.canonical === (r.is_true ? "True" : "False"))).toBe(true);
+      },
+      { mode: "blitz" },
+    ));
+
+  it("Pairs: fails with a readable error below 12 distinct pairs", () =>
+    withFixture(
+      async ({ tx, gameId }) => {
+        const result = await generateGame(gameId, { db: tx, generate: fake(modePrompts("pairs").slice(0, 11)) });
+        expect(result).toEqual({ status: "failed", error: expect.stringMatching(/^Not enough usable content to make a Game: a Pairs Game needs 12 .* only 11/) });
+        expect(await game(tx, gameId)).toMatchObject({ status: "failed", mode: "pairs" });
+      },
+      { mode: "pairs" },
+    ));
+
+  it("Apogee uses Dive's generator", () =>
+    withFixture(
+      async ({ tx, gameId }) => {
+        expect(await generateGame(gameId, { db: tx, generate: fake(fixture.game.prompts) })).toEqual({ status: "ready", promptCount: 12, dropped: 0 });
+      },
+      { mode: "apogee" },
+    ));
+
+  it("refuses a reserved Mode", () =>
+    withFixture(
+      async ({ tx, gameId }) => {
+        expect(await generateGame(gameId, { db: tx, generate: fake([]) })).toEqual({ status: "failed", error: "This Game Mode can't be generated yet" });
+      },
+      { mode: "arena" },
+    ));
 
   it("leaves a Game that isn't queued alone", () =>
     withFixture(

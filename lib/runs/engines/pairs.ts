@@ -196,7 +196,9 @@ async function closeBoard(tx: Tx, run: Row, cleared: boolean, now: Date, bonus =
     UPDATE run_prompts SET ended_at = ${now}, outcome = 'timeout'
      WHERE run_id = ${run.id} AND position BETWEEN ${from} AND ${to} AND outcome IS NULL`;
   const board = currentBoard(run);
-  board.endedAt = now.toISOString();
+  // A Board that ran out ended at its deadline, even if the request that noticed came later
+  const ended = !cleared && board.deadlineAt ? Math.min(now.getTime(), Date.parse(board.deadlineAt)) : now.getTime();
+  board.endedAt = new Date(ended).toISOString();
   board.cleared = cleared;
   board.timeBonus = bonus;
   run.score += bonus;
