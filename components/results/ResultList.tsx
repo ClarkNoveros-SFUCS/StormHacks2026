@@ -13,6 +13,9 @@ const KIND_LABEL: Record<PromptKind, string> = {
   definition_to_term: "NAME THE TERM",
   ordered_recall: "PUT IN ORDER",
   odd_one_out: "ODD ONE OUT",
+  // Kinds added by F20 (#46); listed so the F10 + F20 merge typechecks.
+  multiple_choice: "MULTIPLE CHOICE",
+  true_false: "TRUE OR FALSE",
 };
 
 type Props = { prompts: RevealPrompt[]; title?: string; className?: string };
