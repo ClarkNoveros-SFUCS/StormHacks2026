@@ -1,6 +1,15 @@
 # Game Modes
 
-A **Game Mode** is the kind of game a Game is played as (`CONTEXT.md`). Every Game has exactly one, chosen in the New Game dialog and never changed (ADR-0004). The first and, for now, only Mode is **Dive**, the Krillion-style game. Everything in `game-generation-pipeline.md` and `run-and-scoring.md` describes Dive.
+A **Game Mode** is the kind of game a Game is played as (`CONTEXT.md`). Every Game has exactly one, chosen in the New Game dialog and never changed (ADR-0004). There are five, plus one reserved:
+
+| Mode | Id | Plays like | Prompt kinds | Rules (`run-and-scoring.md`) | Min Prompts |
+|---|---|---|---|---|---|
+| **Dive** | `dive` | Krillion: type answers, rarer ones score more | open, cloze, definition_to_term, ordered_recall, odd_one_out | 7 × 25 s, −3 s per wrong guess, Tiers, Staleness, Hints | 7 |
+| **Apogee** | `apogee` | Dive in space (score shown as altitude) | same as Dive | **Dive's rules and generator, shared, not copied** | 7 |
+| **Leap** | `leap` | jump platform to platform by answering right | multiple_choice | 10 × 15 s, one try, 3 Hearts, streak multiplier, one 50/50 | 10 |
+| **Pairs** | `pairs` | match terms to definitions | definition_to_term | 2 Boards × 6 pairs, 60 s per Board | 12 |
+| **Blitz** | `blitz` | rapid true/false | true_false | one 60 s clock, Combo, −3 s per miss | 30 |
+| Arena | `arena` | (reserved) FPS that reuses multiple_choice | multiple_choice | not built; `available: false` | — |
 
 This doc is the seam: what a Mode owns, what all Modes share, and how to add one.
 
@@ -8,46 +17,50 @@ This doc is the seam: what a Mode owns, what all Modes share, and how to add one
 
 | | Owned by each Mode | Shared by all Modes |
 |---|---|---|
-| Generation | the Gemini prompt, the response schema, which Prompt kinds, Mode-specific checks (e.g. Dive's Tier assignment) | reading `source_pages`, the common checks (Evidence exists, alias hygiene, dedupe), writing `prompts`/`answers`/`answer_keys` |
-| Play | Run rules (length, timer, penalties, one-try kinds), scoring, the Reveal payload | the Run lifecycle (create, start-prompt, guess, finish), the server-owned clock, `guess_events`, answer matching (`lib/matching/`) |
-| Progress | what "best" means and how it's shown | `runs.score` → Personal Best, found Answers → Mastery |
-| UI | theme (palette, scene, mascot, sounds, words), Game-page stats, Run and Reveal screens | the design system: shell, components, round and results building blocks (`docs/design/design-system.md`) |
+| Generation | the Gemini instructions and response schema, which Prompt kinds, Mode-specific checks (Dive's Tier assignment; Leap's 4-option shape; Pairs' one-term-per-pair; Blitz's true/false balance), the minimum Prompt count | reading `source_pages`, one Gemini call per Source Document, check 7 (duplicate Prompt text), the Evidence quote check, writing `prompts`/`answers`/`answer_keys`, the `failed` path |
+| Play | Run rules (length, clocks, penalties, Hearts/Boards/Combo), scoring, the pass bar, the state and Reveal payloads, any extra routes (`answer`, `pair`, `lifeline`) | the Run lifecycle (create, start-prompt, timeout, finish), the server-owned clock and grace, `guess_events`, `runs.score`, the `RunSummary` shape |
+| Progress | what "best" means and how it's shown | `runs.score` → Personal Best, found Answers → Mastery (every kind has ≥ 1 Answer row) |
+| UI | theme (palette, scene, mascot, sounds, words), Game-page stats, Run and Reveal screens | the design system: shell, components, building blocks (`docs/design/design-system.md`) |
 
-Prompt kinds (open, cloze, definition, put-in-order, odd-one-out) are shared vocabulary. Two similar Modes can use the same kinds, the same matching and the same input components, and differ only in rules, scoring and theme.
+Prompt kinds are shared vocabulary: Pairs uses Dive's `definition_to_term`, and Arena will reuse Leap's `multiple_choice`.
 
 ## Data
 
-```sql
-ALTER TABLE games ADD COLUMN mode text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive'));
-```
-
-- It goes in a new timestamped migration, and existing Games become Dive Games.
-- Widen the `CHECK` when a Mode is added.
-- `runs`, `run_prompts` and `guess_events` don't need the column: a Run's Mode is its Game's Mode.
-- `POST /api/modules/[moduleId]/games` takes `{ title, mode, sourceDocumentIds[] }`. A missing `mode` defaults to `'dive'`, so existing callers keep working.
+- `games.mode text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive','apogee','leap','pairs','blitz','arena'))` (widened by `20261004T1000_game_modes_engine.sql`). Keep it in step with `MODES`.
+- `prompts.kind` adds `multiple_choice` (options in `prompts.options`, the correct option is the one Answer row) and `true_false` (`prompts.is_true`; the Answer row is `True`/`False`). Both carry a `tier` like every single-answer kind.
+- `runs.mode_state jsonb`: the Mode's own Run state (Hearts, streak, Board clocks, Blitz's clock, outcome). Null for Dive and Apogee.
+- `run_prompts`, `guess_events` don't need a mode column: a Run's Mode is its Game's Mode.
+- `POST /api/modules/[moduleId]/games` takes `{ title, mode?, sourceDocumentIds[] }`. A missing `mode` defaults to `'dive'`; a reserved Mode (Arena) is a 400.
 
 ## Code layout
 
-Today's code *is* Dive. Don't move it until a second Mode exists. Until then:
-
-- `lib/modes/index.ts`: `export const MODES = { dive: { id: 'dive', name: 'Dive', available: true } } as const; export type ModeId = keyof typeof MODES;`, the one list of Modes, used for validation and the New Game dialog.
-- Generation and the run engine read `game.mode` and, for now, assert it's `'dive'`.
-
-When a second Mode is added, split by Mode:
-
 ```
-lib/modes/<mode>/generate.ts     prompt + schema + Mode-specific checks  (Dive's: F04's generator prompt, lib/scoring/tiers.ts)
-lib/modes/<mode>/rules.ts        Run rules + scoring                       (Dive's: today's lib/scoring/points.ts, parts of lib/runs/run-engine.ts)
-components/modes/<mode>/         theme.css, scene, Mascot, GameStats, RunScreen, RevealScreen
+lib/modes/index.ts               MODES (id, name, tagline, rules, kinds, available, accent, playVerb, engine, minPrompts, bands),
+                                 ModeId, AvailableModeId, PromptKind, isModeId, isDiveFamily.   Pure, client-safe.
+lib/modes/rules.ts               passedRun(summary), PASS_BAR_TEXT                               Pure, client-safe.
+lib/modes/generation.ts          ModeGenerator, GenerationRequest, GeneratedPrompt, shared checks (quoteOnPage, …)
+lib/modes/generators.ts          generatorFor(mode)  (Apogee → Dive's)
+lib/modes/<mode>/generate.ts     the Mode's Gemini instructions + schema + checks
+lib/modes/<mode>/rules.ts        the Mode's constants, scoring and pass bar (pure; the UI can show the same numbers)
+lib/modes/apogee/index.ts        re-exports Dive's generator and rules (Apogee shares them)
+lib/runs/engines/common.ts       ModeEngine, Run row lock, RunError, logGuess, Evidence lookup, progress
+lib/runs/engines/<engine>.ts     dive (Dive + Apogee), leap, pairs, blitz: each Mode's state machine
+lib/runs/run-engine.ts           the public commands; dispatches on game.mode
+lib/runs/types.ts                client-safe API types: RunState / Reveal / RunSummary unions on `mode`
+components/modes/<mode>/         theme.css, scene, Mascot, GameStats, RunScreen, RevealScreen  (UI lanes)
 ```
 
-The pages `/games/[id]`, `/runs/[id]` and `/runs/[id]/reveal` look up `game.mode` and render that Mode's components inside `<div data-theme={mode}>`.
+Dive's generator instructions and checks still live in `lib/gemini/game-prompt.ts` and `lib/games/validate.ts` (the generation-quality work F14–F17 tunes them there); `lib/modes/dive/generate.ts` plugs them into the per-Mode pipeline. Everything under `lib/modes/` that generation needs uses relative `.ts` imports so `scripts/generate-check.ts` and `scripts/seed.mts` can load it with plain Node.
+
+The pages `/games/[id]`, `/runs/[id]` and `/runs/[id]/reveal` look up `game.mode` (or `state.mode`) and render that Mode's components inside `<div data-theme={mode}>`.
 
 ## Adding a Mode (checklist)
 
 1. Add its terms to `CONTEXT.md`, and write an ADR if a rule is surprising.
-2. Add it to `MODES`, widen the `games.mode` CHECK in a migration, and add it to the New Game dialog. It replaces or sits next to the locked "More modes soon" tile.
-3. Generation: its prompt, schema, kinds and checks.
-4. Rules and scoring, plus tests.
-5. Design: a `docs/design/modes/<mode>.md` and a mock folder `docs/design/mock/modes/<mode>/`, built from the design system's blocks.
-6. A row in `docs/FEATURES.md` for each piece.
+2. Add it to `MODES` (with `engine` and `minPrompts`) and widen the `games.mode` CHECK in a migration (and `prompts.kind` if it brings a new kind).
+3. Generation: `lib/modes/<mode>/generate.ts` exporting a `ModeGenerator`, registered in `generators.ts`; `npm run generate:check -- --seed --mode <mode>` to tune it.
+4. Rules and scoring in `lib/modes/<mode>/rules.ts` with a `passed()`; add it to `passedRun`. Unit tests.
+5. Engine: reuse one (`MODES[mode].engine`) or add `lib/runs/engines/<mode>.ts` implementing `ModeEngine`, plus its state/result/Reveal types in `lib/runs/types.ts` and any routes. DB tests that drive a full Run with a fake clock (`lib/runs/modes.db.test.ts`).
+6. Seed: a Game in `db/seed/graph-algorithms-modes.json` (it must pass the Mode's own checks).
+7. Design: a `docs/design/modes/<mode>.md` and a mock folder `docs/design/mock/modes/<mode>/`.
+8. A row in `docs/FEATURES.md` for each piece.

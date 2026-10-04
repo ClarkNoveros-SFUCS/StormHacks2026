@@ -29,7 +29,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F17 | Overgenerate and select the best Prompts | Pipelines | F04, F14 | #27 | planned |
 | F18 | Open Prompt answer expansion with retrieval (pgvector, stretch) | Pipelines | F04, F14 | #28 | planned |
 | F19 | Landing page and site-wide UI overhaul | Frontend | F10 | #32 | planned |
-| F20 | Game Modes engine and generation: Apogee, Leap, Pairs, Blitz | Platform | F04, F06 | #33 | planned |
+| F20 | Game Modes engine and generation: Apogee, Leap, Pairs, Blitz | Platform | F04, F06 | #33 | done |
 | F21 | Social backend: profiles, XP, streaks, heatmap, badges, friends, leaderboards | Platform | F01, F07 | #34 | planned |
 | F22 | Courses backend and the seeded Python Basics course | Platform | F20 | #35 | planned |
 | F23 | Daily Dive backend | Platform | F21, F22 | #36 | planned |
@@ -262,7 +262,7 @@ Entry points: — · Notes for others: —
 Spec: `docs/architecture/game-modes.md`, ADR-0004
 - [x] Migration: `games.mode text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive'))`; `data-model.md` updated from "planned" to the real column (shipped with F04; applied to stormhacks-dev)
 - [x] `lib/modes/index.ts` (`MODES`, `ModeId`); `POST /api/modules/[moduleId]/games` accepts `mode` (default `'dive'`) and validates it (shipped with F04)
-- [ ] Generation and the run engine read `game.mode` (assert `'dive'` for now). Generation: done in F04. Run engine: still open
+- [x] Generation and the run engine read `game.mode` (generation since F04; F20 made both dispatch on it for five Modes)
 - [ ] New Game dialog: Mode tiles (Dive + locked "More modes soon"); Game cards and the Game page show the Mode badge
 
 Entry points: — · Notes for others: —
@@ -318,10 +318,14 @@ Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #32 (checklist live
 Entry points: — · Notes for others: —
 
 ## F20 Game Modes engine and generation: Apogee, Leap, Pairs, Blitz
-Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #33 (checklist lives on the issue until this feature ships)
-- [ ] See the issue checklist
+Spec: `docs/architecture/game-modes.md`, `run-and-scoring.md`, `game-generation-pipeline.md` (decisions: `docs/worklog/aaf1007/overnight-decisions.md` §4, §12–13) · Issue #33
+- [x] Migration: widen `games.mode` CHECK to dive, apogee, leap, pairs, blitz (+ arena reserved); new Prompt kinds `multiple_choice` and `true_false` (additive) (`20261004T1000_game_modes_engine.sql`, applied to stormhacks-dev; also `prompts.is_true`, `runs.mode_state`, `run_prompts.position` ≥ 1)
+- [x] `lib/modes/<mode>/` split: generate (instructions, schema, kinds, checks) and rules (Run length, clock, penalties, scoring, pass bar); Dive moved without behaviour change
+- [x] Apogee = Dive rules; Leap (10 MCQ, 15 s, hearts, streak multiplier, 50/50); Pairs (2×6 boards, 60 s); Blitz (60 s true/false, combo)
+- [x] Run engine dispatches on `game.mode`; API types extended per Mode; Answers never leak early
+- [x] Unit + DB tests per Mode; `generate:check --mode <m>`; docs (game-modes.md, run-and-scoring.md, CONTEXT.md)
 
-Entry points: — · Notes for others: —
+Entry points: `lib/modes/index.ts` (`MODES`), `lib/modes/rules.ts` (`passedRun`), `lib/runs/types.ts` (state/result/Reveal unions on `mode`), `lib/runs/run-engine.ts` (`answer`, `pair`, `applyLifeline`, `getRunSummary`), routes `POST /api/runs/[runId]/answer|pair|lifeline`, `npm run generate:check -- --seed --mode leap`, `npm run db:seed -- <playerId>` (now also seeds Apogee, Leap, Pairs and Blitz Games) · Notes for others: **UI lanes (F24, F25, F29):** build against `lib/runs/types.ts`; narrow with `switch (state.mode)` or `assertMode`. For Leap, Pairs and Blitz the question/Board/statement is `null` until `start-prompt` (show a "ready" beat), and the next one needs another `start-prompt` (Blitz deals the next statement in the answer response). Pairs card ids are opaque. Rule constants for HUDs are in `lib/modes/<mode>/rules.ts` (client-safe). **F21/F22:** every Reveal has `summary: RunSummary` and `passed`; server code can call `getRunSummary(tx, playerId, runId)`. `GameSummary.mode` can now be any of the five. Design stubs: `docs/design/modes/{apogee,leap,pairs,blitz}.md`.
 
 ## F21 Social backend: profiles, XP, streaks, heatmap, badges, friends, leaderboards
 Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #34 (checklist lives on the issue until this feature ships)

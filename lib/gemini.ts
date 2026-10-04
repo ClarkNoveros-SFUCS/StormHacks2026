@@ -6,6 +6,15 @@
 
 import { ApiError, GoogleGenAI } from "@google/genai";
 import { GAME_PROMPT_TEMPERATURE, GAME_RESPONSE_SCHEMA, GAME_SYSTEM_INSTRUCTION, gamePromptContents } from "./gemini/game-prompt.ts";
+import type { GenerationRequest } from "./modes/generation.ts";
+
+/** Dive's request (also Apogee's), the default. Other Modes pass their own (lib/modes/<mode>/generate.ts). */
+const DIVE_REQUEST: GenerationRequest = {
+  systemInstruction: GAME_SYSTEM_INSTRUCTION,
+  responseSchema: GAME_RESPONSE_SCHEMA,
+  temperature: GAME_PROMPT_TEMPERATURE,
+  contents: gamePromptContents,
+};
 
 const TIMEOUT_MS = 240_000; // a long deck with thinking can take a couple of minutes
 // Waits before each retry of a rate limit (429) or overload (5xx, e.g. 503 "high demand").
@@ -36,17 +45,18 @@ function config() {
 export async function generateDocumentPrompts(
   title: string,
   pages: { pageNumber: number; contentMd: string }[],
+  mode: GenerationRequest = DIVE_REQUEST,
 ): Promise<GeneratedPrompts> {
   const { ai, models } = config();
   const request = (model: string) =>
     ai.models.generateContent({
       model,
-      contents: gamePromptContents(title, pages),
+      contents: mode.contents(title, pages),
       config: {
-        systemInstruction: GAME_SYSTEM_INSTRUCTION,
-        temperature: GAME_PROMPT_TEMPERATURE,
+        systemInstruction: mode.systemInstruction,
+        temperature: mode.temperature,
         responseMimeType: "application/json",
-        responseJsonSchema: GAME_RESPONSE_SCHEMA,
+        responseJsonSchema: mode.responseSchema,
         httpOptions: { timeout: TIMEOUT_MS },
       },
     });
