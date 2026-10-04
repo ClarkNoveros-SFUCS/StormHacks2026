@@ -46,7 +46,7 @@ Spec: `docs/architecture/overview.md`, `docs/architecture/data-model.md` · **Se
 - [x] `scripts/migrate.mjs` plus the `schema_migrations` table; `npm run db:migrate`
 - [x] Initial migration = the full schema from `data-model.md`, including the `guess_events` hypertable and `fuzzystrmatch`
 - [x] `.env.example` listing every variable from `overview.md`
-- [ ] Applied cleanly to a Tiger Cloud service (applied cleanly to a local `timescale/timescaledb:latest-pg17`, TimescaleDB 2.30)
+- [x] Applied cleanly to a Tiger Cloud service (`stormhacks-dev`, us-west-2, 1 CPU, TimescaleDB 2.30.2)
 
 Entry points: `lib/db.ts` (`sql`), `lib/auth.ts` (`requirePlayer()`, `getApiPlayer()`), `proxy.ts`, `scripts/migrate.mjs` (`npm run db:migrate`, `-- --status`), `db/migrations/20261003T1830_init.sql`, `.env.example`, placeholder `app/modules/page.tsx`
 
