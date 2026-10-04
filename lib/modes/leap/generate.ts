@@ -9,6 +9,7 @@ import {
   containsWords, keepAll, notEnoughFor, pagesAsText, pageTexts, promptLabel, quoteOnPage,
   type Drop, type GeneratedPrompt, type ModeGenerator,
 } from "../generation.ts";
+import { MATH_NOTATION_RULE } from "../../gemini/math-notation.ts";
 import { MODES } from "../index.ts";
 
 const MIN = MODES.leap.minPrompts;
@@ -33,7 +34,7 @@ QUESTIONS (write 12-16)
 
 EXAMPLE (format and quality only, from a lecture on graph algorithms; not content to reuse)
 {"kind":"multiple_choice","text":"Which algorithm finds single-source shortest paths when some edge weights are negative?","options":["Dijkstra","Bellman-Ford","Prim","BFS"],"correct_option":"Bellman-Ford","explanation":"Bellman-Ford relaxes every edge V - 1 times, so it handles negative weights; Dijkstra assumes they can't occur.","tier":"solid","evidence_page":6,"evidence_quote":"Finds shortest paths from one source, and works with negative edge weights."}
-BAD: "Which algorithm was NOT covered this week?", or distractors that aren't the same kind of thing ("Dijkstra", "O(V^3)", "a queue", "Kruskal"). GOOD: four algorithms from the notes, one of them right for the stem.`;
+BAD: "Which algorithm was NOT covered this week?", or distractors that aren't the same kind of thing ("Dijkstra", "O(V^3)", "a queue", "Kruskal"). GOOD: four algorithms from the notes, one of them right for the stem.${MATH_NOTATION_RULE}`;
 
 export const LEAP_RESPONSE_SCHEMA = {
   type: "object",

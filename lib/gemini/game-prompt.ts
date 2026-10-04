@@ -5,6 +5,7 @@
 
 import { KINDS } from "../games/validate.ts";
 import { TIERS } from "../scoring/tiers.ts";
+import { MATH_NOTATION_RULE } from "./math-notation.ts";
 
 export const GAME_PROMPT_TEMPERATURE = 0.4;
 
@@ -122,7 +123,7 @@ BAD → GOOD
 - The subject, not the document. BAD "Name a topic covered in this material", "Name a graph algorithm mentioned in the lecture". GOOD: "Name a graph algorithm that runs in linear time".
 - Odd one out from the deck. BAD "Which algorithm was NOT covered in the lecture?" with an option no page names. GOOD: four options the pages all name, where one does something different, as in the example above.
 - Study content only. BAD "Name a rule for taking the midterm exam". GOOD: no Prompt from that slide.
-- Hints that don't give it away. BAD hint for union-find: "A disjoint-set structure" (an alias) or "Its operations are find and union" (words from the Answer). GOOD: "A structure that tracks which vertices already share a component." BAD hint for DAG: "An acronym for a directed graph without cycles" (spells it out). GOOD: "Topological sort only exists on this kind of graph."`;
+- Hints that don't give it away. BAD hint for union-find: "A disjoint-set structure" (an alias) or "Its operations are find and union" (words from the Answer). GOOD: "A structure that tracks which vertices already share a component." BAD hint for DAG: "An acronym for a directed graph without cycles" (spells it out). GOOD: "Topological sort only exists on this kind of graph."${MATH_NOTATION_RULE}`;
 
 export const GAME_SYSTEM_INSTRUCTION = gameSystemInstruction(GAME_PROMPT_COUNT);
 /** F17: ask for more than we keep; selectPrompts (lib/games/select.ts) keeps the best 15-20. */

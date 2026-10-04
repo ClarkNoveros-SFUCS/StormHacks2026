@@ -2,7 +2,7 @@
 
 Status: in-review
 Branch: feat/75-reveal-slide-panel
-Updated: 2026-10-04 10:05
+Updated: 2026-10-04 10:25
 
 ## Goal
 On the Reveal, an Evidence link (`Week2.pdf · p.12`) opens that page in a side panel instead of
@@ -30,6 +30,11 @@ readable formulas), with the raw parsed text one toggle away. Issue #75.
   notes loaded lazily as pages near the screen (3 at a time), "Test yourself" links to the Games
   built from the file. The FileViewer modal is deleted; old `?doc=&page=` and `/modules/files/<id>`
   links redirect to the study page; Evidence links and the slide panel's footer point there too.
+- Review round 3 (user): questions spelled maths out ("E union F intersect G", "P(Ac)").
+  `lib/gemini/math-notation.ts` MATH_NOTATION_RULE is appended to Dive/Apogee (game-prompt.ts),
+  Leap/Arena, Blitz and Pairs instructions: Unicode symbols in questions/options/statements, rebuild
+  lost complements/subscripts, no LaTeX, typed answers stay words. Checked on the Week2 deck: Blitz and
+  Leap now write ∪ ∩ ∅ Aᶜ A₁ ≤. Existing Games keep their old text until regenerated.
 - Verified in the browser (dev server on :3100 with DEV_PLAYER_ID) on the Week2 deck.
 
 ## Next steps
@@ -43,7 +48,8 @@ readable formulas), with the raw parsed text one toggle away. Issue #75.
 
 ## Files touched
 - db/migrations/20261004T1300_page_notes.sql
-- lib/gemini/notes.ts, lib/gemini/notes.test.ts
+- lib/gemini/notes.ts, lib/gemini/notes.test.ts, lib/gemini/math-notation.ts, lib/gemini/game-prompt.ts
+- lib/modes/blitz|leap|pairs/generate.ts
 - app/api/documents/[documentId]/pages/[pageNumber]/notes/route.ts
 - components/results/SlidePanel.tsx, components/results/EvidenceLine.tsx
 - app/runs/[runId]/mode-screens.tsx
