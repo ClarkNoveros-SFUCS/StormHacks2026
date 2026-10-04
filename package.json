@@ -15,6 +15,7 @@
     "db:seed:courses": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/seed-courses.mts",
     "db:seed:daily": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/seed-daily.mts",
     "daily:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/daily-generate.mts",
+    "sonar:demo": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/sonar-demo.mts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --exclude \"**/*.db.test.ts\" --exclude \"**/node_modules/**\" --exclude \".claude/**\"",
     "test:db": "vitest run db.test",
