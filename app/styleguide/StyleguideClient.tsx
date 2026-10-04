@@ -110,7 +110,7 @@ export function StyleguideClient() {
   const [fire, setFire] = useState(0);
   const [mastery, setMastery] = useState(31);
   const [sky, setSky] = useState<SkyVariant>("auto");
-  const days = useMemo(fakeDays, []);
+  const days = useMemo(() => fakeDays(), []);
 
   return (
     <div className="relative min-h-screen">

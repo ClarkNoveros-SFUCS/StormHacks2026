@@ -19,7 +19,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F07 | Progress: Personal Best and Mastery | Gameplay | F01 | #7 | done |
 | F08 | Modules list and Module page UI | Frontend | F01 (mock F03/F04) | #8 | planned |
 | F09 | Run screen and Reveal UI | Frontend | F06 (mock), F10 | #9 | planned |
-| F10 | Visual design system (site + Mode themes) | Frontend | design session | #10 | planned |
+| F10 | Visual design system (site + Mode themes) | Frontend | design session | #10 | done |
 | F11 | Game page UI | Frontend | F07 | #11 | planned |
 | F12 | Deploy and demo prep | Platform | everything | #12 | planned |
 | F13 | Game Modes: `games.mode` and the Mode picker | Platform | F01 | #21 | planned |
@@ -205,14 +205,42 @@ Spec: `docs/architecture/ui-map.md`, `docs/architecture/run-and-scoring.md`, `do
 Entry points: — · Notes for others: —
 
 ## F10 Visual design system (site + Mode themes)
-Spec: `docs/design/design-system.md` (being rewritten for the new direction: `docs/worklog/aaf1007/overnight-decisions.md` §1–3, §14) · reference: `docs/design/mock/` (open `index.html`)
-- [ ] Fonts (VT323, Mulish) and the semantic tokens in the Tailwind 4 theme; per-Mode values under `[data-theme=…]`
-- [ ] Shell components: PxButton, Panel, Tile, Chip, StatusPill, Meter, ModeTile, ModeBadge, Modal, Mascot
-- [ ] Stage (scene + particles + overlays) with the ocean scene and house theme
-- [ ] Round and results building blocks used by F09
-- [ ] Motion keyframes and `lib/motion/` (spring, particles); sound events (`lib/ui/sfx.ts`)
+Spec: `docs/design/design-system.md`, `docs/design/modes/dive.md`, `docs/architecture/ui-map.md` (direction: `docs/worklog/aaf1007/overnight-decisions.md` §1–3, §12–14) · mock: `docs/design/mock/index.html`
+- [x] Docs rewritten for the two worlds: design system (site tokens/type/motion/interaction catalogue, Mode themes via `data-theme`, component inventory, sound, a11y, mobile), Dive (Krillion layout, real descent, catch screen, Reveal column), UI map (new routes + file viewer)
+- [x] Mock updated: Dive with working descent through depth zones, ruler + YOU marker, sinking chip → catch screen → next prompt, Reveal over the sea; refreshed site shell screens
+- [x] Fonts (Pixelify Sans, Mulish, VT323 via `next/font/google`) and tokens in `app/globals.css` (Tailwind 4 `@theme inline` + per-`[data-theme]` blocks: dive, apogee, leap, pairs, blitz), recipes and keyframes, reduced motion
+- [x] `components/ui/` site kit: Logo, Button, Card/TiltCard, Panel, Chip, StatusPill, Meter/ProgressBar/XpBar, Odometer, StreakFlame, Badge, ModeTile/ModeBadge, Modal/Drawer, Tooltip, Tabs, Toast, PixelBurst/celebrate, Mascot, PixelAvatar (+16 avatars, AvatarPicker), ProfileCard, Heatmap, SkyBackdrop, PageTransition, PixelIcon/PixelSprite, SoundToggle, SiteHeader
+- [x] `lib/motion/` (spring, tween, particles, reduced motion) and `lib/ui/sfx.ts` (synthesized WebAudio, mute in localStorage, unlocked on first gesture)
+- [x] Dive building blocks: `components/round/`, `components/results/`, `components/modes/dive/` (OceanStage with camera, DepthRuler, DiveHud, TierLines + sinking chip, CatchScreen, DiveLogChart, DiveReveal, `TIER_UI`)
+- [x] `/styleguide` (every component) and `/styleguide/dive` (fake 7-prompt Dive with descent + catch flow), both 404 in production
+- [x] Dev auth bypass: `DEV_PLAYER_ID` honoured by `requirePlayer()`/`getApiPlayer()` only when `NODE_ENV === "development"`
+- [x] Root layout header restyled minimally (full nav is F19)
 
-Entry points: — · Notes for others: —
+Entry points: `app/globals.css`, `app/layout.tsx`, `components/ui/index.ts` (`import { Button, ProfileCard } from "@/components/ui"`), `components/round/`, `components/results/`, `components/modes/dive/`, `lib/motion/index.ts`, `lib/ui/sfx.ts`, `lib/ui/modes.ts` (`MODE_UI`), `app/styleguide/` (`/styleguide`, `/styleguide/dive`), `lib/auth.ts` (dev bypass)
+
+Notes for others:
+- **See it:** `npx next dev`, open `/styleguide` (every component, live) and `/styleguide/dive` (play a fake Dive; the "Cheat sheet" lists answers). Both 404 in production builds.
+- **Two worlds.** Site pages use the `:root` tokens (night navy, Pixelify Sans headings via `font-display`, Mulish body, yellow `Button variant="primary"`). Mode screens wrap their root in `data-theme="<mode>"`: tokens, `font-display` (VT323 in Dive) and radii (0 in Dive) switch automatically. Use semantic utilities only: `bg-surface`, `bg-surface-2`, `border-border`, `text-muted`, `text-signal`, `text-accent`, `text-reward`, `bg-band-3`, `font-display`, `font-hud`, `rounded-md` (= `--r`). Raw font tokens are `--f-display/--f-body/--f-hud`.
+- **Recipes** in globals.css: `.px-btn[data-variant]` (pixel button), `.px-frame` (stepped 2px border), `.card[data-interactive]`, `.label-line`, `.shine`, `.stagger` (+ `--i`), Dive: `.dv-px`, `.dv-panel`, `.dv-crt`, `.glow-signal`, `.glow-accent`. Keyframes: `rise-in pop-in page-in card-in card-gone score-slam crank-jolt reject-jolt shake edge-throb line-flash title-flicker dot-pulse gold-pulse gold-breathe banner-in gild btn-bob bob float shine-sweep flame-flicker ripple-in wave badge-flip sonar-sweep drift toast-in float-up drawer-right drawer-up mascot-* lantern zzz avatar-wave`.
+- **Site kit API** (`@/components/ui`):
+  - `Button { variant?: primary|secondary|ghost|danger; size?: sm|md|lg; href?; icon?; iconRight?; block?; sound?=true }` + button attrs
+  - `Card { interactive?; as? }`, `TiltCard { max?=8; glare?=true }`, `Panel { title?; action? }`
+  - `Chip { tone?: neutral|accent|signal|reward|violet|success|danger|caution|band-1..4|band-miss; icon?; size? }`, `StatusPill { status: uploading|parsing|generating|ready|failed; message? }`
+  - `Meter { value 0–100; segments?=10; label? }`, `ProgressBar { value; max; tone?; label?; showValue?; height? }`, `XpBar { xp; levelStartXp; nextLevelXp; level }` (shine + sparks when xp grows)
+  - `Odometer { value; format?; duration? }`, `StreakFlame { days; active?; size?; showCount? }`, `Badge { name; icon: PixelIconName; tone?: bronze|silver|gold|gem|accent; earned?; description?; size? }`
+  - `ModeTile { mode: ModeUiId; selected?; locked?; onSelect? }`, `ModeBadge { mode }`, `ModeScene { mode }` (data: `MODE_UI` in `lib/ui/modes.ts`: dive, apogee, leap, pairs, blitz, arena)
+  - `Modal { open; onClose; title?; footer? }`, `Drawer { …same; side?: right|bottom }` (focus trap, Escape, scroll lock), `Tooltip { label; side? }`, `Tabs { tabs: {id,label,count?}[]; value; onChange; label? }`
+  - `useToast()({ title; body?; tone?: info|success|reward|danger; icon?; ms? })` (provider is in the root layout); `celebrate()` (confetti + level-up chime), `PixelBurst { fire: number }`, `burst(x,y,opts)`, `burstFrom(el,opts)`, `confettiRain()`
+  - `Mascot { size?; say?; mood?: idle|happy|sad|wow|sleep; followCursor?; sleepAfterMs?; bubbleSide?; ref?: Ref<MascotHandle> }`, handle `react('happy'|'sad'|'wow')`, `say(text, ms?)`. Clicking it 5× is an easter egg.
+  - `PixelAvatar { id; size?; bob?; imageUrl?; alt? }` (imageUrl = Clerk-photo toggle), `AvatarPicker { value; onChange }`, `AVATARS` (16), `avatarById`, `defaultAvatarFor(playerId)`
+  - `ProfileCard { name; level; avatarId; imageUrl?; totalXp; rank; badges; streak; streakActive?; editHref? | onEdit?; profileHref }` (the Codedex-style card)
+  - `Heatmap { days: {date:'YYYY-MM-DD'; count; xp?}[]; weeks?=52; endDate?; unit? }`
+  - `SkyBackdrop { variant?: auto|day|dusk|night|ocean; parallax?; scrollDive?; sea?; intensity? }` — fixed at `-z-10`; the page colour lives on `<html>` only so it shows through `<body>`. Give content cards a surface.
+  - `PageTransition`, `PixelIcon { name; size?; palette? }` (30 icons, `PIXEL_ICON_NAMES`), `PixelSprite { rows; palette; size? }`, `SoundToggle`, `SiteHeader` (hides itself on `/runs/*` and `/styleguide/dive`)
+- **Motion/sound:** `spring({from,to,stiffness,damping,onUpdate,onRest})`, `tween(...)`, `useReducedMotion()` from `@/lib/motion`; `sfx.hover|click|toggle|pop|whoosh|reward|levelUp|error|correct(band)|wrong|ping|timeout|tick|count|sink|catch(band)` and `useSfxMuted()` from `@/lib/ui/sfx`. Everything no-ops under reduced motion / mute / before the first gesture.
+- **Dive blocks (F09):** `round/`: `HudPlate {label; value; tone: signal|accent; align?}`, `ProgressSquares {total; current; results; caption?}`, `RoundCard {label; text; footer?; badge?; hint?; stamp?; state?: in|gone|shake|still}`, `SonarTimer {remainingMs; totalMs; paused?; sound?; size?}`, `Fuse {remainingMs; totalMs; cutMs?; cutKey?}`, `TypedInput {onSubmit; disabled?; placeholder?; correction?; rejectKey?; submitLabel?; below?}`, `OptionGrid {options; onPick; locked?; correct?; picked?}`, `OrderList {items; onChange; locked?; correctOrder?}`, `HintButton {from; to; used?; onUse}`, `ResultChip {text; band; points; stale?; hinted?}`. `results/`: `ResultHeader {title; score; secondary?; personalBest?; logo?}`, `DistributionChart {values; you; max?=700; caption}`, `BandTable {bands; activeIndex; title?}`, `ResultList {prompts: RevealPrompt[]; title?}`, `EvidenceLine {evidence}`. `modes/dive/`: `OceanStage {depth?; camera?: DiveCamera; sky?: day|dusk; showMascot?; ref?}` (handle `setDepth(m,{instant?})`, `mascot(kind)`, `bubbles(opts)`), `DepthRuler {camera; maxMetres?}`, `DiveHud {depth; score; current; total; results}`, `TierLines {thisPrompt?; sink?: Sink; onLanded?}`, `CatchScreen {tier; answer; points; sinkMetres; verdict?; onContinue; autoMs?=6000; cta?}`, `DiveLogChart {prompts}`, `DiveReveal {title; score; prompts; distribution: {values, caption}; personalBest?; onAgain; onBack; backLabel?; camera?}`, `tiers.ts` (`TIER_UI`, `formatDepth`, `depthZone`, `BEARING`, `bearingIndex`, `promptTier`), `depth.ts` (`DiveCamera`, px-per-metre mapping). `DivePlayground` shows how to wire them; F09 swaps its fake prompts for the Run API (call `start-prompt` only after DESCEND so the clock stays paused during the catch screen).
+- **Dev auth bypass:** put `DEV_PLAYER_ID=<clerk user id>` in your **own worktree's** `.env.local` to render signed-in pages under `next dev` without Clerk. Ignored unless `NODE_ENV === "development"`. Clerk-only UI (`<Show>`, `UserButton`) still sees you as signed out.
+- **Known gaps:** `HintButton` and `ResultList` use Dive's `TIER_UI` labels (add a labels prop before other Modes reuse them). OceanStage animation pauses in hidden tabs (the sinking chip has a 2.5 s timeout fallback). Light mode is deferred (dark only, decision Q5).
 
 ## F11 Game page UI
 Spec: `docs/architecture/ui-map.md`

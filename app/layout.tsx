@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider, Show, UserButton } from "@clerk/nextjs";
 import { Mulish, Pixelify_Sans, VT323 } from "next/font/google";
 import { Logo } from "@/components/ui/Logo";
+import { SiteHeader } from "@/components/ui/SiteHeader";
 import { SoundToggle } from "@/components/ui/SoundToggle";
 import { ToastProvider } from "@/components/ui/Toast";
 import "./globals.css";
@@ -24,15 +25,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <ToastProvider>
             {/* Minimal header until the full shell lands (F19 #32). Signed-out visitors see the landing page. */}
             <Show when="signed-in">
-              <header className="sticky top-0 z-40 border-b border-border bg-bg/85 backdrop-blur">
-                <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
-                  <Logo size="sm" href="/" />
-                  <div className="flex items-center gap-3">
-                    <SoundToggle />
-                    <UserButton />
-                  </div>
+              <SiteHeader>
+                <Logo size="sm" href="/" />
+                <div className="flex items-center gap-3">
+                  <SoundToggle />
+                  <UserButton />
                 </div>
-              </header>
+              </SiteHeader>
             </Show>
             {children}
           </ToastProvider>
