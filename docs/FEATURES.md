@@ -11,7 +11,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | ID | Feature | Lane | Depends on | Issue | Status |
 |---|---|---|---|---|---|
 | F01 | Foundation: auth, DB, migrations | Platform | — | #1 | done |
-| F02 | Seed data: demo Module and Game | Platform | F01 | #2 | planned |
+| F02 | Seed data: demo Module and Game | Platform | F01 | #2 | done |
 | F03 | Upload pipeline (Snowflake) | Pipelines | F01 | #3 | planned |
 | F04 | Game generation (Gemini) | Pipelines | F01 (F02 for test pages) | #4 | planned |
 | F05 | Answer matching | Gameplay | F01 | #5 | done |
@@ -61,11 +61,20 @@ Notes for others:
 
 ## F02 Seed data: demo Module and Game
 Spec: `docs/architecture/data-model.md`
-- [ ] `npm run db:seed` creates, for a given Clerk user id, a "Graph Algorithms" Module, one parsed Source Document with ~10 pages, and one `ready` Game
-- [ ] The Game has ≥ 7 Prompts covering all five kinds, with Tiers, Hints, Evidence and `answer_keys` (use the original sample JSON's graph-algorithm content)
-- [ ] Idempotent: re-running replaces the demo data and nothing else
+- [x] `npm run db:seed` creates, for a given Clerk user id, a "Graph Algorithms" Module, one parsed Source Document with ~10 pages, and one `ready` Game
+- [x] The Game has ≥ 7 Prompts covering all five kinds, with Tiers, Hints, Evidence and `answer_keys` (use the original sample JSON's graph-algorithm content)
+- [x] Idempotent: re-running replaces the demo data and nothing else
 
-Entry points: — · Notes for others: —
+Entry points: `npm run db:seed -- <clerkUserId>` (or `SEED_PLAYER_ID=…`; `-- --check` validates the fixture without a DB), `scripts/seed.mts`, `db/seed/graph-algorithms.json`, `lib/scoring/tiers.ts` (`TIERS`, `Tier`, `TIER_POINTS`, `assignOpenTiers(n)`)
+
+Notes for others:
+- **What you get:** a 12-slide PPTX (one page per slide, `status 'parsed'`) and a `ready` Game with 12 Prompts: 3 open, 3 cloze, 2 definition_to_term, 2 ordered_recall, 2 odd_one_out. That's 30 Answers and 80 `answer_keys`. Every single-answer Prompt has a Tier, Hint and explanation. Get your Clerk user id from the Clerk dashboard → Users.
+- **Needs Node ≥ 22.18** (`engines` in package.json). The script runs `.mts` directly with Node's type stripping, so no `tsx` is needed. On a fresh clone, run `npx next typegen` before `npm run typecheck`.
+- **Re-seeding wipes the whole demo Module.** Its id is `md5('seed:graph-algorithms:' || playerId)` as a uuid. A re-run deletes that Module (cascade) plus its Games' `guess_events`, then inserts fresh rows, including anything you added inside it (for example Games while testing F04). Your other Modules, even one named "Graph Algorithms", are never touched. Game, Prompt and Answer ids change on every run, so don't hard-code them.
+- **F04:** the fixture's `game.prompts` use the Gemini response shape and pass checks 1–7, so you can use them as known-good input for `validate.ts`. Open Prompt Answers are listed most obvious first, and `assignOpenTiers` gives them their Tiers and `rarity_rank`. ordered_recall and odd_one_out get one Answer each (`'correct order'` or the correct option), with `evidence_page_id` set on both the Prompt and that Answer and no `answer_keys`.
+- **F05/F06:** "Name a graph algorithm" reproduces `answer-matching.md`'s worked examples. BFS and DFS are `exact_only`, and A* isn't an Answer.
+- **F03:** the seeded document has `stage_path = NULL` (it never went to Snowflake), so the delete and retry routes must handle that.
+- **postgres.js and jsonb:** pass arrays as `tx.json(arr)`. A pre-stringified value cast with `::jsonb` gets stored as a jsonb string.
 
 ## F03 Upload pipeline (Snowflake)
 Spec: `docs/architecture/upload-pipeline.md` · **Setup:** `docs/setup/snowflake.md`
