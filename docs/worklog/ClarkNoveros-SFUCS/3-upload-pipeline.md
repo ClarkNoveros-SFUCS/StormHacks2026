@@ -1,8 +1,8 @@
 # #3 F03 Upload pipeline
 
-Status: in-progress
+Status: done
 Branch: pdfparser (the user chose this over feat/3-upload-pipeline)
-Updated: 2026-10-03
+Updated: 2026-10-03 (PR opened)
 
 ## Goal
 Uploaded PDF/PPTX/DOCX → per-page markdown in `source_pages`. Spec: `docs/architecture/upload-pipeline.md`. Decision: ADR-0003 (parse in Node).
