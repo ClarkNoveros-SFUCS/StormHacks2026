@@ -223,12 +223,12 @@ Entry points: — · Notes for others: —
 
 ## F12 Deploy and demo prep
 Spec: `docs/architecture/overview.md` (open questions)
-- [ ] Choose the deploy target; resolve the upload body-size limit if it's Vercel
-- [ ] Production env vars; migrations run against production
-- [ ] Demo account with a polished Module and Game; a rehearsed demo script
-- [ ] README: what it is, how to run it, the sponsor tracks used
+- [ ] Choose the deploy target; resolve the upload body-size limit if it's Vercel: **prep done** (`docs/deploy.md` §1 compares hosts and recommends a container host, which keeps 25 MB uploads and long `after()` work with no code change; the Vercel fallback is a 4 MB limit). **Needs human:** pick the host, create the project.
+- [ ] Production env vars; migrations run against production: **prep done** (`docs/deploy.md` §2 lists every variable, §3 the migrate + seed order for a fresh Tiger service, §4 the Daily job, §5 refilling the Daily pool before ~2026-10-15/18). **Needs human:** create the production service, set the secrets, run the commands.
+- [ ] Demo account with a polished Module and Game; a rehearsed demo script: **script done** (`docs/demo-script.md`, 3–4 min with fallbacks and answer cheat sheets). **Needs human:** create the demo account, seed it, rehearse.
+- [x] README: what it is, how to run it, the sponsor tracks used
 
-Entry points: — · Notes for others: —
+Entry points: `README.md`, `docs/deploy.md`, `docs/demo-script.md` · Notes for others: deployment itself is left for a human (no accounts, secrets or deploys were made). Never set `DEV_PLAYER_ID` on a deployed environment. `NEXT_PUBLIC_SITE_URL` must be set before the production build (it's inlined). Screenshots in the README are placeholders under `docs/img/`.
 
 ## F13 Game Modes: `games.mode` and the Mode picker
 Spec: `docs/architecture/game-modes.md`, ADR-0004

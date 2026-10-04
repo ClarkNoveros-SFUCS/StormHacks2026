@@ -15,12 +15,13 @@ SYLLABYSS (StormHacks 2026) turns your own course files into study games. Upload
 
 ## What you can do
 
-- **Five Game Modes from the same notes**
+- **Six Game Modes from the same notes**
   - **Dive** (the original, Krillion-style): 7 timed Prompts, 25 s each. Type any correct answer. Rarer answers score more, and the diver sinks past the Shallows, Reef, Abyss and Trench, with a catch screen for each find.
   - **Apogee**: Dive's rules, but you launch a rocket and measure your score in km, from the Troposphere to Deep Space.
   - **Leap**: 10 multiple-choice questions, 15 s each, 3 hearts. Climb sky islands, build streak multipliers, and use one 50/50 per Run.
   - **Pairs**: match terms to definitions on 2 boards of 6, against the clock.
   - **Blitz**: 60 seconds of rapid true/false on a neon grid, with combos.
+  - **Arena**: a three.js first-person room. The question floats on a board, four answer targets drift in front of you, and you shoot the right one (pointer lock + WASD, tap to aim on mobile).
 - **Evidence everywhere.** Each Answer cites a page of your file, and the Reveal links into a file viewer that shows the parsed text page by page.
 - **Explore + Python Basics.** A public, hand-written beginner course with 6 Topics. Each Topic has a reading, resources and a practice Game in every Mode. Pass any one of them to unlock the next Topic (+150 XP and a Topic Badge).
 - **Daily Dive.** One shared puzzle per day, published at Vancouver midnight. Your first attempt counts. You get a share grid of tier squares, today's score distribution, "% of players found this" on every answer, and a daily leaderboard.
@@ -31,7 +32,7 @@ SYLLABYSS (StormHacks 2026) turns your own course files into study games. Upload
 
 | Concern | Choice |
 |---|---|
-| App | Next.js 16 (App Router, `proxy.ts`), React 19, Tailwind 4, three.js (Apogee, Leap) |
+| App | Next.js 16 (App Router, `proxy.ts`), React 19, Tailwind 4, three.js (Apogee, Leap, Arena) |
 | Auth | Clerk (the Clerk user id is the Player id) |
 | Database | Tiger Data: Tiger Cloud Postgres + TimescaleDB (+ toolkit, fuzzystrmatch) |
 | AI | Gemini API (`@google/genai`), structured JSON output |
