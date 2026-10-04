@@ -142,6 +142,25 @@ Examples:
 
 Points per Tier come from one constant table (`lib/scoring/tiers.ts`): common 10, solid 25, deep 60, rare 100. Gemini never sees or writes points.
 
+## Improving output quality (planned)
+
+What testing on real decks showed (seed deck and CMPT 354 SQL Basics, 94 pages):
+- **Mentioned ≠ correct.** Check 2 only confirms an Answer appears on its page. "Name an algorithm that handles negative edge weights" got Kruskal and Prim, both on the cited page and both wrong.
+- **Broad or compound Open Prompts** ("Name an SQL clause used to filter, order, or group records"), and two ordered_recall Prompts about the same thing.
+- **Hints that nearly give it away** through a plural or a related word ("disjoint sets" for union-find), which check 5's whole-word match misses.
+
+**Why not plain RAG:** retrieval is for material that doesn't fit in the model's context. A whole deck does (94 pages ≈ 13k tokens), and each document already gets its own call, so retrieving chunks would only show Gemini less. Retrieval does help one thing: finding *more* Answers for an Open Prompt across the deck (F18).
+
+Planned, in order (each measured with F14's scorecard, which comes first):
+
+| ID | Change | Fixes | Cost |
+|---|---|---|---|
+| F14 (#24) | Scorecard over 3–4 real decks: kept Prompts, kinds, Answers per Open Prompt, quotes verified, drops by reason, time, cost; `--from` replays for free | judging changes by eye | none per Game |
+| F15 (#25) | Example Prompts from the seed fixture in the instructions, plus "bad → good" pairs | broad Prompts, give-away Hints, tier choice | a few hundred input tokens |
+| F16 (#26) | Second Gemini call per document: does each quote show its Answer fits the Prompt? Is the Prompt clear, or a duplicate? | mentioned-but-wrong Answers, duplicates | ~+20 s, ~+$0.02 per document |
+| F17 (#27) | Ask for ~25 Prompts, keep the best 15–20 by code (Answers per Open Prompt, kind and page coverage, near-duplicates) | uneven quality and coverage | more output tokens |
+| F18 (#28, stretch) | pgvector on `source_pages`: per Open Prompt, retrieve the related pages and ask for every Answer they support, then merge and re-rank | too few Answers per Open Prompt, weak Rarity | embeddings at upload + one call per Open Prompt |
+
 ## Code layout
 
 | File | Responsibility |

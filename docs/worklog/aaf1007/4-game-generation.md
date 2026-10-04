@@ -1,8 +1,8 @@
 # #4 F04 Game generation (Gemini)
 
-Status: in-review
+Status: done
 Branch: feat/4-game-generation
-Updated: 2026-10-04 01:40
+Updated: 2026-10-04 02:00
 
 ## Goal
 Turn a Module's chosen parsed Source Documents into a `ready` Game via one Gemini call per document, then code checks, Tier assignment and one insert transaction. Spec: `docs/architecture/game-generation-pipeline.md`.
@@ -23,9 +23,7 @@ Turn a Module's chosen parsed Source Documents into a `ready` Game via one Gemin
 - Step 3: `scripts/generate-check.ts` (`npm run generate:check -- <file>|--seed [--pages a-b] [--save f] [--from f]`). Tuned on the seed deck: 16 returned → 15 kept, all five kinds.
 
 ## Next steps
-1. **Waiting for the user's review.** Don't open a PR until they explicitly approve.
-2. After approval, on this branch: in `docs/FEATURES.md` § F04, tick the boxes (the real-slides box too) and set Status `done`. Fill Entry points: `POST`/`GET /api/modules/[moduleId]/games`, `GET`/`DELETE /api/games/[gameId]`, `lib/games/generate-game.ts` (`generateGame`), `lib/games/validate.ts`, `lib/games/queries.ts`, `lib/games/types.ts` (`GameSummary`), `lib/gemini.ts`, `npm run generate:check`. Fill Notes for others from the "Decisions" below. In § F13, tick the migration, `lib/modes` and POST-`mode` boxes, and note the run-engine assert and UI are still open on #21. Set this worklog to `Status: done`. Then `gh pr create` with `Closes #4` and `Refs #21`.
-3. Don't commit `.claude/settings.json`: the user added local permission rules to it, and they're not for the team.
+None for F04: approved and shipped in the PR that closes #4. Quality follow-ups are F14–F18 (#24–#28). The F13 run-engine assert and Mode UI are still open on #21.
 
 ## Decisions & gotchas
 - **Gemini overload:** on 2026-10-04 around 01:00, 3.8-flash and 3.7-flash returned 503 "high demand" for minutes at a time; 3.6-flash and the Lite models answered. `.env.example` suggests `GEMINI_FALLBACK_MODEL=gemini-3.6-flash`.
