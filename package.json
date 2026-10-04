@@ -27,6 +27,9 @@
   "dependencies": {
     "@clerk/nextjs": "^7.9.10",
     "@google/genai": "^2.27.0",
+    "@langchain/core": "^1.2.14",
+    "@langchain/google-genai": "^2.3.2",
+    "@langchain/langgraph": "^1.4.19",
     "@types/three": "^0.186.0",
     "jszip": "^3.10.2",
     "mammoth": "^1.13.0",

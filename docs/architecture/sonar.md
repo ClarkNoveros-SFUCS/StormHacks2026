@@ -106,6 +106,34 @@ START ─▶ observe ─▶ coach ⇄ tools ─▶ END
 - **Briefing** (on page load): the server sends a fixed instruction ("Brief the Player"). Sonar says where they stand in 3–4 sentences, names the root cause if there is one, and calls `recommend`.
 - **Chat:** the Player asks ("why am I bad at loops?", "explain range again", "what should I do in 10 minutes?"). Sonar answers with tools.
 
+## Decisions (grill session, 2026-10-04)
+
+| # | Decision |
+|---|---|
+| Q1 | Python Basics gets the full map and recommendations. On Module pages Sonar reads the Player's mistakes and source pages and chats about them; there is no concept map for Modules in v0. |
+| Q2/Q8 | Mixed. The planner ranks a top 3. Sonar may pick one of them **or** any other Game, which needs a reason and must pass a server check (the Game exists, the Player can play it, it isn't a locked Topic). Cards say "Top pick" (planner) or "Sonar's pick". |
+| Q3 | A custom `StateGraph`: `observe` → `coach` ⇄ `tools`. |
+| Q4 | Sonar is a **floating buddy on every page** (a drawer), including Module pages, and hidden during a Run (`/runs/[runId]`). |
+| Q5/Q12 | A new mascot: **Sonar, a baby pixel dolphin**. Its states are idle bob, ping rings while thinking, and talking. |
+| Q6 | A seeded demo history, plus one live Run on stage. |
+| Q9 | The mastery map is a full `/sonar` page; the drawer links to it. |
+| Q10 | A speech bubble pops from the mascot on Reveal, Topic and Module pages, templated from the model with no LLM. Clicking it opens the drawer with that prompt. |
+| Q11 | On Module pages Sonar can **propose a new Game** (a confirm card). On confirm the client calls the existing `POST /api/modules/[moduleId]/games`. Games are made from whole files, not page ranges. |
+| Q13 | Four parallel agents, each in its own worktree, with the lead merging into `feat/73-sonar-coach`. |
+
+The drawer replaces the "/sonar page with chat" in § API and UI. Chat lives in the drawer and `/sonar` is the map. `POST /api/sonar/chat` returns `{ reply, actions: Action[] }` and takes `{ message?, context: PageContext }`. `GET /api/sonar/bubble?path=` returns `{ bubble }`.
+
+## Contracts and ownership (parallel build)
+
+Shared, written by the lead (change only via the lead): `lib/sonar/types.ts` (every shape), `lib/sonar/client.ts` (`openSonar()`, the `sonar:open` event), `lib/sonar/context-path.ts` (`contextFromPath`, `isRunScreen`), `lib/sonar/fixtures.ts` (the demo story as a fake model and reply), the Concepts and edges in `db/seed/courses/python-basics.sonar.json` (ids are fixed), `loadSonarModel(playerId, db?)` in `lib/sonar/queries.ts` (stub → A).
+
+| Agent | Owns |
+|---|---|
+| A: model | the `tags` and `pages` in the sidecar, `scripts/sonar-tag.mts`, `lib/sonar/{graph,model,diagnose,plan}.ts` + tests, the real `loadSonarModel`, `app/api/sonar/model/route.ts` |
+| B: agent | `lib/sonar/{agent,tools,mistakes,playable,page-context}.ts` + tests, `app/api/sonar/chat/route.ts` |
+| C: UI | `components/sonar/*` (mascot, drawer `SonarBuddy`, action cards, map), `app/sonar/page.tsx`, mounting `SonarBuddy` in `app/layout.tsx` |
+| D: demo and glue | `scripts/sonar-demo.mts` (+ npm script), `lib/sonar/bubble.ts` + tests, `app/api/sonar/bubble/route.ts`, the "Ask Sonar" links on the Reveal, Topic and Module pages |
+
 ## API and UI
 
 | Method | Route | Auth | Returns |

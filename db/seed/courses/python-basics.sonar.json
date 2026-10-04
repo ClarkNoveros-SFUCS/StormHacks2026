@@ -1,0 +1,63 @@
+{
+  "course": "python-basics",
+  "concepts": [
+    { "id": "print_output", "name": "print() and output", "topic": "hello-world-syntax", "summary": "print(), its separators and end, what gets displayed", "pages": [] },
+    { "id": "comments", "name": "Comments", "topic": "hello-world-syntax", "summary": "# comments and what Python ignores", "pages": [] },
+    { "id": "indentation_syntax", "name": "Indentation and blocks", "topic": "hello-world-syntax", "summary": "colons, indented blocks, IndentationError, pass", "pages": [] },
+    { "id": "errors_basics", "name": "Errors", "topic": "hello-world-syntax", "summary": "SyntaxError vs NameError vs runtime errors, when each is reported", "pages": [] },
+
+    { "id": "variables_assignment", "name": "Variables and assignment", "topic": "variables-types", "summary": "names, =, reassignment, naming rules", "pages": [] },
+    { "id": "data_types", "name": "Data types", "topic": "variables-types", "summary": "int, float, str, bool and type()", "pages": [] },
+    { "id": "type_conversion", "name": "Type conversion", "topic": "variables-types", "summary": "int(), float(), str(), input() returns a string", "pages": [] },
+    { "id": "strings_basics", "name": "Strings", "topic": "variables-types", "summary": "quotes, concatenation, f-strings, len()", "pages": [] },
+
+    { "id": "arithmetic_ops", "name": "Arithmetic operators", "topic": "operators-expressions", "summary": "+ - * / // % ** and what / vs // return", "pages": [] },
+    { "id": "comparison_ops", "name": "Comparison operators", "topic": "operators-expressions", "summary": "== != < <= > >=, boundaries, they return bool", "pages": [] },
+    { "id": "boolean_logic", "name": "Boolean logic", "topic": "operators-expressions", "summary": "and, or, not, short-circuiting", "pages": [] },
+    { "id": "operator_precedence", "name": "Operator precedence", "topic": "operators-expressions", "summary": "which operator runs first, parentheses", "pages": [] },
+
+    { "id": "if_elif_else", "name": "if / elif / else", "topic": "control-flow", "summary": "branches, order of checks, only one branch runs", "pages": [] },
+    { "id": "conditions_truthiness", "name": "Conditions and truthiness", "topic": "control-flow", "summary": "what counts as true or false, empty values", "pages": [] },
+
+    { "id": "range_fn", "name": "range()", "topic": "loops", "summary": "start, stop (excluded), step", "pages": [] },
+    { "id": "for_loops", "name": "for loops", "topic": "loops", "summary": "iterating over sequences and ranges", "pages": [] },
+    { "id": "while_loops", "name": "while loops", "topic": "loops", "summary": "loop conditions, termination, infinite loops", "pages": [] },
+    { "id": "break_continue", "name": "break and continue", "topic": "loops", "summary": "leaving a loop early, skipping an iteration", "pages": [] },
+
+    { "id": "def_and_call", "name": "Defining and calling functions", "topic": "functions", "summary": "def, calling, the function body", "pages": [] },
+    { "id": "parameters_arguments", "name": "Parameters and arguments", "topic": "functions", "summary": "positional, keyword and default arguments", "pages": [] },
+    { "id": "return_values", "name": "Return values", "topic": "functions", "summary": "return vs print, None", "pages": [] },
+    { "id": "scope", "name": "Scope", "topic": "functions", "summary": "local vs global names", "pages": [] }
+  ],
+  "edges": [
+    ["indentation_syntax", "if_elif_else"],
+    ["indentation_syntax", "for_loops"],
+    ["indentation_syntax", "while_loops"],
+    ["indentation_syntax", "def_and_call"],
+    ["variables_assignment", "data_types"],
+    ["variables_assignment", "arithmetic_ops"],
+    ["variables_assignment", "while_loops"],
+    ["variables_assignment", "parameters_arguments"],
+    ["data_types", "type_conversion"],
+    ["data_types", "strings_basics"],
+    ["data_types", "comparison_ops"],
+    ["data_types", "conditions_truthiness"],
+    ["arithmetic_ops", "operator_precedence"],
+    ["arithmetic_ops", "range_fn"],
+    ["comparison_ops", "boolean_logic"],
+    ["comparison_ops", "if_elif_else"],
+    ["comparison_ops", "while_loops"],
+    ["comparison_ops", "range_fn"],
+    ["boolean_logic", "conditions_truthiness"],
+    ["conditions_truthiness", "while_loops"],
+    ["if_elif_else", "break_continue"],
+    ["range_fn", "for_loops"],
+    ["for_loops", "break_continue"],
+    ["while_loops", "break_continue"],
+    ["def_and_call", "parameters_arguments"],
+    ["def_and_call", "return_values"],
+    ["def_and_call", "scope"],
+    ["print_output", "return_values"]
+  ],
+  "tags": {}
+}
