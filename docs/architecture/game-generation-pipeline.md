@@ -172,7 +172,7 @@ Planned, in order (each measured with F14's scorecard, which comes first):
 | ID | Change | Fixes | Cost |
 |---|---|---|---|
 | F14 (#24) | Scorecard over 3–4 real decks: kept Prompts, kinds, Answers per Open Prompt, quotes verified, drops by reason, time, cost; `--from` replays for free | judging changes by eye | none per Game |
-| F15 (#25) | Example Prompts from the seed fixture in the instructions, plus "bad → good" pairs | broad Prompts, give-away Hints, tier choice | a few hundred input tokens |
+| F15 (#25, done) | Example Prompts from the seed fixture in the instructions, plus "bad → good" pairs (§ Scorecard → F15) | broad Prompts, give-away Hints, steps as Answers, admin Prompts | ~1,100 input tokens |
 | F16 (#26) | Second Gemini call per document: does each quote show its Answer fits the Prompt? Is the Prompt clear, or a duplicate? | mentioned-but-wrong Answers, duplicates | ~+20 s, ~+$0.02 per document |
 | F17 (#27) | Ask for ~25 Prompts, keep the best 15–20 by code (Answers per Open Prompt, kind and page coverage, near-duplicates) | uneven quality and coverage | more output tokens |
 | F18 (#28, stretch) | pgvector on `source_pages`: per Open Prompt, retrieve the related pages and ask for every Answer they support, then merge and re-rank | too few Answers per Open Prompt, weak Rarity | embeddings at upload + one call per Open Prompt |
@@ -191,7 +191,7 @@ npm run generate:eval -- --live                one call per deck (≈ $0.20 for 
 - **Code change** (validate.ts, the checks): replay. It's free and the Gemini output is fixed, so any difference comes from your change.
 - **Prompt change** (`game-prompt.ts`, F15–F17): `--live --no-fallback`, then compare with the baseline below. Gemini varies run to run at temperature 0.4, so treat a difference of a Prompt or two per deck as noise. The table header shows the **prompt version** (a hash of the instructions, schema and temperature); a replay says when a saved response came from a different prompt.
 - **Decks** are listed in `eval/decks.json`. The course files aren't in git: put them in `eval/decks/` (gitignored) or set `EVAL_DECKS_DIR`. Ask Anton for the files. `sha256` in the manifest warns you if your copy differs. Without the files, only the seed deck can be scored; the others show "deck file missing".
-- **Saved responses** (`eval/responses/<deck>.json`, ~20 KB each) are committed, with the model, seconds, token usage and estimated cost of the call. They quote the decks only in short evidence quotes. `--save` from `generate:check` writes the same format.
+- **Saved responses** (`eval/responses/<deck>.json`, ~20 KB each; since F15, from the current prompt `a6b826d6`, F15 run 2) are committed, with the model, seconds, token usage and estimated cost of the call. They quote the decks only in short evidence quotes. `--save` from `generate:check` writes the same format.
 - **Cost** is an estimate: tokens × `GEMINI_PRICES_USD_PER_M` in `lib/gemini/pricing.ts` (3.6-flash: $0.75 input / $3.75 output per 1M tokens, thinking billed as output; 3.5-flash-lite: $0.30 / $2.50). Check ai.google.dev/pricing before trusting a total.
 
 Columns: **Prompts ret → kept** (⚠ under 7, a one-document Game would fail) · **Kinds** open/cloze/definition_to_term/ordered_recall/odd_one_out · **Ans/Open** mean kept Answers per Open Prompt · **Quotes ok** kept Answers whose evidence quote is on its page · **Hints removed** by check 5, of the Hints given on cloze, definition and odd-one-out Prompts · **Dropped P / A** Prompts / Answers dropped · **Drops by reason** short codes from `dropCode` in `lib/games/scorecard.ts` · **s**, **$** for the Gemini call.
@@ -216,6 +216,50 @@ What it shows (`--drops` lists every drop):
 - **Admin slides become Prompts** ("Name a requirement or rule for taking the midterm exam" on the PPTX). The instructions could say to skip course logistics.
 - Check 5 rarely fires (1 of 22 Hints removed), but it can't catch near give-aways (§ above), so read the Hints too.
 - **Latency is 60–100 s per deck**, more than the ~45 s measured earlier; the 94-page PDF took 101 s. 3.6-flash also answered 503 to the 94-page deck on three of four attempts within 25 minutes (each attempt is 4 tries over ~20 s). In the app, the fallback model would have taken over.
+
+#### F15: example Prompts (prompt version `a6b826d6`, 2026-10-04)
+
+`GAME_SYSTEM_INSTRUCTION` now ends with an **EXAMPLES** section (four seed-fixture Prompts from `GAME_PROMPT_EXAMPLES`: open, cloze, ordered_recall, odd_one_out, as one-line JSON, labelled "not content to reuse") and a **BAD → GOOD** section: step sentences as Open Answers → ordered_recall; symbol Answers; compound "X or Y" Open Prompts; Prompts about the document ("covered in this material"); odd-one-out options the deck doesn't name; course admin; give-away Hints (aliases, words from the Answer, spelled-out acronyms). Short matching rules sit in GROUNDING, open, odd_one_out and ANSWERS. That's ~+4,700 characters (~1,100 tokens, ≈ $0.001) of input per call. `lib/modes/examples.test.ts` runs every embedded example (Dive, Leap, Blitz, Pairs) through its Mode's checks on the seed pages, so an example never shows something the checks would drop. Leap, Blitz and Pairs each got one example, one BAD → GOOD line and the course-admin rule (not measured: the scorecard is Dive-only).
+
+`gemini-3.6-flash`, no fallback, one run per deck. Run 1 used prompt `ac43c27a` (examples + the first six pairs). Run 2 used the shipped prompt `a6b826d6` (plus the "about the document" and acronym-Hint lines) and is now the replay set in `eval/responses/`.
+
+| Deck | Kept: baseline → run 1 → run 2 | Dropped P / A: baseline → run 1 → run 2 | Quotes ok: baseline → run 1 → run 2 |
+|---|---|---|---|
+| seed-graph-algorithms | 16 → 16 → 16 | 0/0 → 0/0 → 0/0 | 100% → 100% → 100% |
+| cmpt354-sql-basics | 15 → 16 → 14 | 1/4 → 0/0 → 2/2 | 89% → 95% → 100% |
+| cmpt225-avl-trees | 13 → 16 → 14 | 3/1 → 0/1 → 2/1 | 100% → 100% → 98% |
+| ml-midterm-notes | 12 → 16 → 16 | 4/14 → 0/0 → 0/0 | 86% → 93% → 93% |
+| **Total** | **56 → 64 → 60** | **8/19 → 0/1 → 4/3** | **95% → 97% → 98%** |
+
+Run 1 (`ac43c27a`):
+
+| Deck | Pages | Prompts ret → kept | Kinds (o/c/d/r/x) | Open | Ans/Open | Quotes ok | Hints removed | Dropped P / A | Drops by reason | s | $ |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| seed-graph-algorithms (fixture) | 12 | 16 → 16 | 8/2/2/2/2 | 8 | 5.4 | 47/47 (100%) | 0/6 | 0 / 0 | – | 57 | 0.048 |
+| cmpt354-sql-basics (PDF) | 94 | 16 → 16 | 8/3/2/1/2 | 8 | 4.8 | 41/43 (95%) | 0/7 | 0 / 0 | – | 109 | 0.049 |
+| cmpt225-avl-trees (PPTX) | 73 | 16 → 16 | 8/2/2/2/2 | 8 | 4.5 | 40/40 (100%) | 0/6 | 0 / 1 | not-on-page 1 | 114 | 0.057 |
+| ml-midterm-notes (DOCX) | 3 | 16 → 16 | 8/2/3/1/2 | 8 | 5.1 | 43/46 (93%) | 2/7 | 0 / 0 | – | 65 | 0.051 |
+| **Total** | 182 | 64 → 64 | 32/9/9/6/8 | 32 | 4.9 | 171/176 (97%) | 2/26 | 0 / 1 | not-on-page 1 | 346 | 0.205 |
+
+Run 2 (`a6b826d6`, shipped):
+
+| Deck | Pages | Prompts ret → kept | Kinds (o/c/d/r/x) | Open | Ans/Open | Quotes ok | Hints removed | Dropped P / A | Drops by reason | s | $ |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| seed-graph-algorithms (fixture) | 12 | 16 → 16 | 8/2/2/2/2 | 8 | 5.5 | 48/48 (100%) | 0/6 | 0 / 0 | – | 101 | 0.051 |
+| cmpt354-sql-basics (PDF) | 94 | 16 → 14 | 8/2/2/1/1 | 8 | 5.3 | 46/46 (100%) | 0/5 | 2 / 2 | answer-dropped 2, unusable-name 2 | 65 | 0.066 |
+| cmpt225-avl-trees (PPTX) | 73 | 16 → 14 | 8/3/1/1/1 | 8 | 4.6 | 40/41 (98%) | 0/5 | 2 / 1 | answer-dropped 1, missing-page 1, not-on-page 1 | 67 | 0.056 |
+| ml-midterm-notes (DOCX) | 3 | 16 → 16 | 8/2/2/3/1 | 8 | 5.0 | 41/44 (93%) | 0/5 | 0 / 0 | – | 102 | 0.050 |
+| **Total** | 182 | 64 → 60 | 32/9/7/7/5 | 32 | 5.1 | 175/179 (98%) | 0/21 | 4 / 3 | answer-dropped 3, unusable-name 2, missing-page 1, not-on-page 1 | 334 | 0.222 |
+
+What changed. Read it with the noise in mind: there was one run per deck, and between run 1 and run 2 the PDF and PPTX each moved by 2 Prompts on almost the same prompt.
+- **More Prompts kept, more quotes verified:** 56 → 64 / 60 kept and 95% → 97% / 98% of quotes verified. Per deck, only run 2's PDF kept fewer than the baseline (14 vs 15), which is within noise. Its two drops were the symbol cloze Prompts below.
+- **The targeted faults are mostly gone.** Neither run has a "Name a step in …" Open Prompt. On the DOCX, run 2 turned K-means, KNN and decision trees into ordered_recall, and the baseline's 14 not-on-page Answer drops fell to 0. There are no course-admin Prompts on the PPTX, and every odd-one-out option is named in its deck (option-not-on-page went from 2 to 0). Open Prompts are now exactly half (32 of 64, up from 26), and kinds are more even.
+- **What's still there:**
+  - Symbol Answers came back once, in run 2, as cloze Prompts (`%` and `_` for LIKE). The rule says "never only symbols", but its BAD → GOOD line shows an open Prompt. The code already drops these Prompts.
+  - A few "X or Y" Open Prompts remain ("Name an operator or keyword used with subqueries"), down from about 10 in the baseline.
+  - Hints still lean on acronyms ("Its acronym is three letters long and starts with D") despite the new line. Check 5 can't see this, so F16's verification pass is the place to catch it.
+- **The seed deck now copies the examples:** its shortest-path, Dijkstra-steps, union-find and MST odd-one-out Prompts are the examples themselves. Judge prompt changes on the three course decks.
+- **Cost and latency** are the same within noise: ≈ $0.20–0.22 and 330–350 s per four-deck run. 3.6-flash often answered 503 during these runs. Each failed deck was retried 90–120 s later (up to 8 times), and failed calls aren't billed.
 
 ## Code layout
 
