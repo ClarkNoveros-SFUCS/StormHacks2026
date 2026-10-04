@@ -52,7 +52,7 @@ No invented stats or testimonials. In order:
 ## `/explore`, `/explore/[course]`, `/explore/[course]/[topic]` · F27 (#40)
 
 - **`/explore`:** course catalogue: cards with a pixel banner, level chip, Topic count and your progress; "coming soon" locked cards (e.g. SQL Basics, Data Structures).
-- **`/explore/[course]`:** banner hero (level chip, title, description, CTA), a numbered Topic timeline (vertical line, circled numbers) with accordions listing each Topic's Practice Games and their pass bars; locked Topics show a lock until the previous one is passed. Sidebar: `ProfileCard` mini, course progress, badges.
+- **`/explore/[course]`:** banner hero (level chip, title, description, CTA), a numbered Topic timeline (vertical line, circled numbers) with accordions listing each Topic's Practice Games and their pass bars; locked Topics show a lock until the previous one is passed. Sidebar: `ProfileCard` mini, course progress, badges. **`?passed=<topicSlug>`** replays that Topic's pass: the line below it fills, the next node pops open and the mascot cheers (course finished: confetti); the param is then removed from the URL. Mode Reveals link here from their "Topic passed" banner.
 - **`/explore/[course]/[topic]`:** the reading (markdown, code blocks) on the left with an optional "mark as read" (+20 XP, gates nothing), the learning resources (links), and a **Practice** panel with a `ModeTile` per Game (Dive, Apogee, Leap, Pairs, Blitz), the pass bar, your best result, and "Next topic" once passed. Passing plays a pixel burst, +150 XP, the Topic badge and the next Topic's unlock animation.
 
 ## `/daily`: Daily Dive hub · F28 (#41)
@@ -141,7 +141,7 @@ A results column scrolling over the sea from your final depth (`dive.md` §7):
 - **Daily Dive Runs** (`reveal.daily` / `reveal.crowd`, F28): title `DAILY #N COMPLETE`; a Daily block under the header (title, `✓ COUNTED` or `PRACTICE`, tier squares, Share); the distribution is today's counted players (histogram buckets, YOU marked, "BETTER THAN X% OF TODAY'S PLAYERS", players and median); each Answer in The Catch shows "% found" by today's players; buttons become "See today's leaderboard" (`/daily#leaderboard`; a past day: back to the archive) and "Practice dive"; Back goes to `/daily`. No Personal Best or Mastery block; Evidence is plain text (the fact sheet's Module is the system's). Confetti once on a fresh counted Reveal.
 - **Course practice Games:** when `reveal.topic` is set, Back goes to the Topic page, and `topic.passedNow` triggers the Topic-pass moment (pixel burst, +150 XP, the Topic Badge, then the next Topic's unlock animation when `topic.unlockedNext`; Course Badge when `topic.courseFinished`) (Q27).
 
-## `/explore`, `/explore/[course]`, `/explore/[course]/[topic]`: Courses (F22 backend, F27 UI)
+## `/explore`, `/explore/[course]`, `/explore/[course]/[topic]`: Courses data (F22 backend for the F27 UI)
 
 All three are public (Q24): signed out they render without progress and the Play buttons ask to sign in. Data and shapes: [`courses.md`](./courses.md) § API.
 
