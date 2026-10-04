@@ -19,14 +19,15 @@ Find your login with `gh api user --jq .login`. Separate folders mean two people
 - **Update** it after each meaningful chunk of work, and always before the session ends or the user switches tasks. Keep "Next steps" concrete enough that a fresh agent could continue without asking anything.
 - **Commit** it together with the code on the feature branch. If it isn't pushed, it can't be resumed on another machine.
 - **Resume:** at session start, read your login's files that aren't `Status: done`, switch to their branch, and continue from "Next steps".
-- **Ship:** set `Status: done` in the PR that closes the issue. The file stays as history.
+- **Hand over:** when the work is complete, set `Status: in-review` and ask the user to review it. Don't open a PR yet.
+- **Ship:** after the user approves, set `Status: done` in the PR that closes the issue. The file stays as history.
 
 ## Template
 
 ```md
 # #<issue> <title>
 
-Status: in-progress        <!-- in-progress | paused | done -->
+Status: in-progress        <!-- in-progress | paused | in-review | done -->
 Branch: feat/<issue>-<slug>
 Updated: YYYY-MM-DD HH:MM
 
