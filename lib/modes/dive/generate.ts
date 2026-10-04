@@ -3,7 +3,11 @@
 // quality work (F14–F17) tunes them; this file plugs them into the per-Mode pipeline.
 // Pure: relative .ts imports only (scripts/generate-check.ts loads it with Node).
 
-import { GAME_PROMPT_TEMPERATURE, GAME_RESPONSE_SCHEMA, GAME_SYSTEM_INSTRUCTION, gamePromptContents } from "../../gemini/game-prompt.ts";
+import {
+  GAME_OVERGENERATE_SYSTEM_INSTRUCTION, GAME_PROMPT_TEMPERATURE, GAME_RESPONSE_SCHEMA, GAME_SYSTEM_INSTRUCTION,
+  gameOvergenerateContents, gamePromptContents,
+} from "../../gemini/game-prompt.ts";
+import { selectPrompts } from "../../games/select.ts";
 import { validateDocument } from "../../games/validate.ts";
 import { keepAll, NOT_ENOUGH_CONTENT, type ModeGenerator } from "../generation.ts";
 import { MODES } from "../index.ts";
@@ -15,6 +19,9 @@ export const diveRequest = {
   contents: gamePromptContents,
 };
 
+/** F17: ask for about 25 Prompts; selectPrompts keeps the best 15-20 per document. */
+export const diveOvergenerateRequest = { ...diveRequest, systemInstruction: GAME_OVERGENERATE_SYSTEM_INSTRUCTION, contents: gameOvergenerateContents };
+
 export const diveGenerator: ModeGenerator = {
   request: diveRequest,
   minPrompts: MODES.dive.minPrompts,
@@ -24,4 +31,8 @@ export const diveGenerator: ModeGenerator = {
   },
   finalize: keepAll,
   notEnough: () => NOT_ENOUGH_CONTENT,
+  overgenerate: {
+    request: diveOvergenerateRequest,
+    select: (prompts, verification) => selectPrompts(prompts, { verification }),
+  },
 };

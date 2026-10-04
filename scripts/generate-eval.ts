@@ -14,6 +14,8 @@
 //                                               call per deck, saved to <save dir>/verify/
 //   ... --verify-from <dir>                     replay saved verifications instead (eval/verify, $0)
 //   ... --verify-model <model>                  the verifier's model (default GEMINI_VERIFY_MODEL, else GEMINI_MODEL)
+//   ... --overgenerate                          F17: ask for ~25 Prompts (--live) and keep the best 15-20 with
+//                                               selectPrompts, after the verification pass if any
 //   ... --drops                                 list every drop under the table
 //   ... --json                                  JSON instead of the table
 //
@@ -30,6 +32,8 @@ import {
   type RunInfo, type SavedResponse, type SavedVerification, type Scorecard, type ScorecardRow,
 } from "../lib/games/scorecard.ts";
 import { verifyDocument } from "../lib/games/verify.ts";
+import { GAME_OVERGENERATE_SYSTEM_INSTRUCTION } from "../lib/gemini/game-prompt.ts";
+import { diveOvergenerateRequest, diveRequest } from "../lib/modes/dive/generate.ts";
 import { loadEnv, loadFileDeck, loadSeedDeck, promptVersion, root, verifyVersion, type Deck } from "./deck-pages.ts";
 
 loadEnv();
@@ -50,6 +54,7 @@ if (args.includes("--no-fallback")) delete process.env.GEMINI_FALLBACK_MODEL;
 const verifyLive = args.includes("--verify");
 const verifyFrom = flag("--verify-from") && path.resolve(root, flag("--verify-from")!);
 if (flag("--verify-model")) process.env.GEMINI_VERIFY_MODEL = flag("--verify-model");
+const overgenerate = args.includes("--overgenerate");
 
 const manifest: { decks: EvalDeck[] } = JSON.parse(await readFile(path.join(root, "eval/decks.json"), "utf8"));
 const decks = manifest.decks.filter((d) => !only || only.includes(d.id));
@@ -58,7 +63,7 @@ if (!decks.length) {
   process.exit(1);
 }
 
-const version = promptVersion();
+const version = overgenerate ? promptVersion(GAME_OVERGENERATE_SYSTEM_INSTRUCTION) : promptVersion();
 const rows: ScorecardRow[] = [];
 const notes: string[] = [];
 let spent = 0;
@@ -76,7 +81,7 @@ for (const d of decks) {
     process.stderr.write(`${d.id}: calling Gemini on ${deck.pages.length} pages… `);
     const started = Date.now();
     try {
-      const out = await generateDocumentPrompts(deck.title, deck.pages);
+      const out = await generateDocumentPrompts(deck.title, deck.pages, overgenerate ? diveOvergenerateRequest : diveRequest);
       run = { model: out.model, seconds: (Date.now() - started) / 1000, usage: out.usage, costUsd: estimateCostUsd(out.model, out.usage) };
       response = out.response;
     } catch (err) {
@@ -102,7 +107,11 @@ for (const d of decks) {
     if (saved && saved.promptVersion !== version) notes.push(`${d.id}: saved with prompt version ${saved.promptVersion}; the current prompt is ${version}`);
   }
   const card = scoreDocument(response, deck.pages);
-  rows.push(verifyLive || verifyFrom ? await verified(d.id, deck, response, card, run) : { deck: d.id, pages: deck.pages.length, run, card });
+  rows.push(
+    verifyLive || verifyFrom
+      ? await verified(d.id, deck, response, card, run)
+      : { deck: d.id, pages: deck.pages.length, run, card: overgenerate ? scoreDocument(response, deck.pages, undefined, { select: true }) : card },
+  );
 }
 
 if (args.includes("--json")) {
@@ -110,7 +119,7 @@ if (args.includes("--json")) {
   console.log(JSON.stringify({ promptVersion: version, mode: live ? "live" : "replay", rows: out }, null, 2));
 } else {
   const source = live ? `live, saved to ${path.relative(root, saveDir)}/` : `replay of ${path.relative(root, fromDir)}/ (no Gemini call; s and $ are from when it was saved)`;
-  console.log(`Generation scorecard · prompt version ${version} · ${source}\n`);
+  console.log(`Generation scorecard · prompt version ${version}${overgenerate ? " (overgenerate + select)" : ""} · ${source}\n`);
   console.log(formatScorecardTable(rows));
   console.log(
     "\nKinds: open/cloze/definition_to_term/ordered_recall/odd_one_out. Ans/Open: mean kept Answers per Open Prompt." +
@@ -119,14 +128,15 @@ if (args.includes("--json")) {
       (verifyLive || verifyFrom
         ? "\nVerify removed A / P: Answers judged unsupported / Prompts removed by the verification pass (F16);" +
           " the other columns describe what survives it."
-        : ""),
+        : "") +
+      (overgenerate ? "\nSelected: Prompts selectPrompts chose from → kept (F17); the other columns describe what it kept." : ""),
   );
   for (const n of notes) console.log(`Note: ${n}`);
   if (args.includes("--drops")) {
     for (const r of rows) {
-      if (!r.card?.drops.length && !r.card?.verify?.drops.length) continue;
+      if (!r.card?.drops.length && !r.card?.verify?.drops.length && !r.card?.select?.drops.length) continue;
       console.log(`\n${r.deck}:`);
-      for (const drop of [...r.card.drops, ...(r.card.verify?.drops ?? [])]) console.log(`- "${drop.prompt}" · ${drop.what}: ${drop.reason}`);
+      for (const drop of [...r.card.drops, ...(r.card.verify?.drops ?? []), ...(r.card.select?.drops ?? [])]) console.log(`- "${drop.prompt}" · ${drop.what}: ${drop.reason}`);
     }
   }
   console.log(live || verifyLive ? `\nGemini spend this run: ≈ $${spent.toFixed(3)} USD` : "\nGemini spend this run: $0 (replay)");
@@ -143,7 +153,7 @@ async function verified(id: string, deck: Deck, response: unknown, card: Scoreca
     if (out.status !== "verified" || !out.model || !out.usage) {
       process.stderr.write("failed\n");
       notes.push(`${id}: verification ${out.status}: ${out.error ?? ""}`.slice(0, 200));
-      return { ...base, card };
+      return { ...base, card: overgenerate ? scoreDocument(response, deck.pages, undefined, { select: true }) : card };
     }
     const vrun = { model: out.model, seconds: out.seconds, usage: out.usage, costUsd: estimateCostUsd(out.model, out.usage) };
     spent += vrun.costUsd ?? 0;
@@ -164,7 +174,7 @@ async function verified(id: string, deck: Deck, response: unknown, card: Scoreca
     }
     if (saved.verifyVersion !== verifyVersion()) notes.push(`${id}: verified with verify version ${saved.verifyVersion}; the current one is ${verifyVersion()}`);
   }
-  return { ...base, card: scoreDocument(response, deck.pages, saved.response), verifyRun: saved.run };
+  return { ...base, card: scoreDocument(response, deck.pages, saved.response, { select: overgenerate }), verifyRun: saved.run };
 }
 
 /** The deck's pages, or why it can't be scored. */

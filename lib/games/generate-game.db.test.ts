@@ -165,6 +165,35 @@ describe("generateGame", () => {
       expect(await generateGame(gameId, { db: tx, generate: fake(fixture.game.prompts), verify })).toEqual({ status: "ready", promptCount: 12, dropped: 0 });
     }));
 
+  // ---- Overgenerate and select (F17) ----
+  it("overgenerate: asks for about 25 Prompts and stores only the selected ones", () =>
+    withFixture(async ({ tx, gameId }) => {
+      const reworded = { ...fixture.game.prompts[0], text: "Give an example of an algorithm on graphs" }; // same Answers
+      const requests: string[] = [];
+      const result = await generateGame(gameId, {
+        db: tx,
+        overgenerate: true,
+        generate: async (_title, pages, request) => (
+          requests.push(request.contents("deck", pages)), { response: { prompts: [...fixture.game.prompts, reworded] } }
+        ),
+      });
+      expect(requests[0]).toMatch(/Write about 25 Prompts/);
+      expect(result).toEqual({ status: "ready", promptCount: 12, dropped: 1 });
+      expect(await tx`select 1 from prompts where game_id = ${gameId} and text = ${reworded.text}`).toHaveLength(0);
+    }));
+
+  it("overgenerate off: the usual request and no selection", () =>
+    withFixture(async ({ tx, gameId }) => {
+      const requests: string[] = [];
+      const result = await generateGame(gameId, {
+        db: tx,
+        overgenerate: false,
+        generate: async (_title, pages, request) => (requests.push(request.contents("deck", pages)), { response: { prompts: fixture.game.prompts } }),
+      });
+      expect(requests[0]).toMatch(/Write 15-20 Prompts/);
+      expect(result).toEqual({ status: "ready", promptCount: 12, dropped: 0 });
+    }));
+
   // ---- Other Modes (F20): the Mode picks the Gemini request, the checks and the minimum ----
   const modePrompts = (mode: string) => modesFixture.games.find((g) => g.mode === mode)!.prompts!;
 

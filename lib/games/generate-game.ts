@@ -4,15 +4,16 @@ import type postgres from "postgres";
 import { sql } from "@/lib/db";
 import { generateDocumentPrompts, GeminiError } from "@/lib/gemini";
 import { geminiVerifyCall, verificationEnabled } from "@/lib/gemini/verify";
-import type { GeneratedPrompt, GenerationRequest } from "@/lib/modes/generation";
+import { overgenerateEnabled, type GeneratedPrompt, type GenerationRequest } from "@/lib/modes/generation";
 import { generatorFor } from "@/lib/modes/generators";
 import type { Db } from "@/lib/progress";
 import { dedupeAcrossDocuments, type DocumentPage, type Drop } from "./validate";
-import { verifyDocument } from "./verify";
+import { verifyDocument, type VerifyStatus } from "./verify";
 
 // The Game generation pipeline (docs/architecture/game-generation-pipeline.md, steps a-f):
 // one Gemini call per Source Document in parallel, code checks, a verification call per
-// document (F16, lib/games/verify.ts; GEMINI_VERIFY=off skips it), then one transaction. The
+// document (F16, lib/games/verify.ts; GEMINI_VERIFY=off skips it), with GEMINI_OVERGENERATE on
+// the best 15-20 per document (F17, lib/games/select.ts), then one transaction. The
 // Game's Mode picks the Gemini request, the checks and the minimum (lib/modes/<mode>/generate.ts).
 // Runs in `after()`, so it never throws: every failure ends with status 'failed' and a short
 // message the Player can read. A failed Game is deleted and created again (Games are immutable).
@@ -23,7 +24,11 @@ export { NOT_ENOUGH_CONTENT } from "@/lib/modes/generation";
 
 type Generate = (title: string, pages: DocumentPage[], request: GenerationRequest) => Promise<{ response: unknown }>;
 /** The verification pass for one document's checked Prompts. Never throws. */
-export type Verify = (title: string, pages: DocumentPage[], prompts: GeneratedPrompt[]) => Promise<{ prompts: GeneratedPrompt[]; dropped: Drop[] }>;
+export type Verify = (
+  title: string,
+  pages: DocumentPage[],
+  prompts: GeneratedPrompt[],
+) => Promise<{ prompts: GeneratedPrompt[]; dropped: Drop[]; /** per kept Prompt, when the pass ran */ statuses?: VerifyStatus[] }>;
 
 /**
  * The real verification pass: one Gemini call per document. A failed call keeps the
@@ -54,11 +59,17 @@ class UserFacingError extends Error {}
 /**
  * Generates a queued Game's Prompts. `db`, `generate` and `verify` are seams for tests: pass a
  * transaction to roll everything back, and fakes instead of Gemini. With a fake `generate` and
- * no `verify`, the verification pass is skipped, so tests never call Gemini.
+ * no `verify`, the verification pass is skipped, so tests never call Gemini. `overgenerate`
+ * overrides GEMINI_OVERGENERATE (F17; only Modes with an `overgenerate` hook use it).
  */
 export async function generateGame(
   gameId: string,
-  { db = sql, generate = generateDocumentPrompts, verify }: { db?: Db; generate?: Generate; verify?: Verify } = {},
+  {
+    db = sql,
+    generate = generateDocumentPrompts,
+    verify,
+    overgenerate = overgenerateEnabled(),
+  }: { db?: Db; generate?: Generate; verify?: Verify; overgenerate?: boolean } = {},
 ): Promise<GenerateResult> {
   const verifyPass = verify ?? (generate === generateDocumentPrompts ? verifyWithGemini : noVerify);
   // a. Claim the Game atomically so two calls never generate it at once
@@ -71,6 +82,9 @@ export async function generateGame(
   try {
     const generator = generatorFor(game.mode);
     if (!generator) throw new UserFacingError("This Game Mode can't be generated yet");
+    // F17: ask for ~25 Prompts and keep the best 15-20 per document
+    const over = overgenerate ? (generator.overgenerate ?? null) : null;
+    const request = over?.request ?? generator.request;
 
     // b. Each selected document's pages, then one Gemini call per document, in parallel
     const docs = await db<{ id: string; filename: string }[]>`
@@ -91,12 +105,15 @@ export async function generateGame(
           .filter((p) => p.source_document_id === doc.id)
           .map((p) => ({ pageNumber: p.page_number, contentMd: p.content_md }));
         if (!pages.length) return { doc, prompts: [] as GeneratedPrompt[], dropped: 0 };
-        const { response } = await generate(doc.filename, pages, generator.request);
+        const { response } = await generate(doc.filename, pages, request);
         // c. The Mode's per-document checks (Dive: 1-6, and Tiers for Open Prompts, step d),
-        //    then the verification pass (F16), which re-runs check 4 and Tiers on what it changes
+        //    then the verification pass (F16), which re-runs check 4 and Tiers on what it changes,
+        //    then (F17, overgenerating) the best 15-20 of what's left
         const result = generator.validate(response, pages);
         const verified = await verifyPass(doc.filename, pages, result.prompts);
-        return { doc, prompts: verified.prompts, dropped: result.dropped.length + verified.dropped.length };
+        const selected = over ? over.select(verified.prompts, verified.statuses) : { prompts: verified.prompts, dropped: [] };
+        if (over) console.log(`select: kept ${selected.prompts.length} of ${verified.prompts.length} Prompts`);
+        return { doc, prompts: selected.prompts, dropped: result.dropped.length + verified.dropped.length + selected.dropped.length };
       }),
     );
     // c. Check 7 across documents, then the Mode's Game-level checks (Pairs: one per term;

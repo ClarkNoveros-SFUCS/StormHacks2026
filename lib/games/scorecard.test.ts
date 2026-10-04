@@ -136,6 +136,32 @@ describe("verification pass in the scorecard (F16)", () => {
   });
 });
 
+describe("selection in the scorecard (F17)", () => {
+  // The seed deck's 12 Prompts plus a reworded copy of "Name a graph algorithm" with the same Answers
+  const response = { prompts: [...fixture.game.prompts, { ...fixture.game.prompts[0], text: "Give an example of an algorithm on graphs" }] };
+
+  it("scores what selectPrompts keeps and reports what it removed", () => {
+    const card = scoreDocument(response, seedPages, undefined, { select: true });
+    expect(card.kept).toBe(12);
+    expect(card.select).toMatchObject({ candidates: 13, removed: 1 });
+    expect(card.select!.drops[0].reason).toMatch(/^select: near-duplicate/);
+    expect(scoreDocument(response, seedPages).select).toBeNull();
+  });
+
+  it("adds a Selected column only when a card has selection", () => {
+    const run = { model: "gemini-3.6-flash", seconds: 60, usage: { inputTokens: 0, outputTokens: 0, thinkingTokens: 0 }, costUsd: 0.05 };
+    expect(formatScorecardTable([{ deck: "a", pages: 12, run, card: scoreDocument(response, seedPages) }])).not.toContain("Selected");
+    const card = scoreDocument(response, seedPages, undefined, { select: true });
+    const table = formatScorecardTable([
+      { deck: "a", pages: 12, run, card },
+      { deck: "b", pages: 12, run, card },
+    ]).split("\n");
+    expect(table[0]).toMatch(/\| \$ \| Selected \|$/);
+    expect(table[2]).toMatch(/\| 13 → 12 \|$/);
+    expect(table[4]).toMatch(/\| 26 → 24 \|$/);
+  });
+});
+
 describe("estimateCostUsd", () => {
   it("bills thinking as output and returns null for an unknown model", () => {
     expect(estimateCostUsd("gemini-3.6-flash", { inputTokens: 1e6, outputTokens: 5e5, thinkingTokens: 5e5 })).toBeCloseTo(0.75 + 3.75);

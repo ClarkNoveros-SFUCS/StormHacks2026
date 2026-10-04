@@ -7,6 +7,7 @@
 // Pure: relative .ts imports only, so scripts/generate-check.ts can load it with plain Node.
 
 import type { Drop, DocumentPage, ValidPrompt } from "../games/validate.ts";
+import type { VerifyStatus } from "../games/verify.ts";
 import { normalize } from "../matching/normalize.ts";
 import type { PromptKind } from "./index.ts";
 
@@ -41,7 +42,23 @@ export type ModeGenerator = {
   finalize<D>(kept: Tagged<D>[]): { kept: Tagged<D>[]; dropped: Drop[] };
   /** The user-facing error when too few Prompts survive. */
   notEnough(kept: number): string;
+  /**
+   * F17, Dive's engine only: a request for more Prompts than a Game needs, and how to keep the
+   * best per document after the checks and the verification pass. Used when GEMINI_OVERGENERATE is on.
+   */
+  overgenerate?: {
+    request: GenerationRequest;
+    select(prompts: GeneratedPrompt[], verification?: VerifyStatus[]): { prompts: GeneratedPrompt[]; dropped: Drop[] };
+  };
 };
+
+/**
+ * F17: ask for ~25 Prompts per document and keep the best 15-20 (Modes with `overgenerate`).
+ * Off by default. GEMINI_OVERGENERATE=on (or 1/true/yes) turns it on.
+ */
+export function overgenerateEnabled(): boolean {
+  return /^(on|1|true|yes)$/i.test(process.env.GEMINI_OVERGENERATE?.trim() ?? "");
+}
 
 export function notEnoughFor(modeName: string, what: string, min: number) {
   return (kept: number) =>

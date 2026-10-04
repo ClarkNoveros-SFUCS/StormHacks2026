@@ -5,6 +5,7 @@
 
 import type { GeminiUsage } from "../gemini.ts";
 import { dedupeAcrossDocuments, KINDS, RawPrompt, validateDocument, type DocumentPage, type Drop, type Kind, type ValidPrompt } from "./validate.ts";
+import { selectPrompts } from "./select.ts";
 import { applyVerdicts } from "./verify.ts";
 
 /** The Gemini call that produced a response, as recorded when it was saved. */
@@ -43,8 +44,17 @@ export type VerifyCard = {
   drops: Drop[];
 };
 
+/** The selection step's effect on one document (F17). */
+export type SelectCard = {
+  /** Prompts it chose from (after the checks and the verification pass). */
+  candidates: number;
+  /** Prompts it didn't keep. */
+  removed: number;
+  drops: Drop[];
+};
+
 export type Scorecard = {
-  /** The Prompts that survive the checks (and the verification pass, if run), as they'd be stored. */
+  /** The Prompts that survive the checks (and the verification pass and selection, if run), as they'd be stored. */
   prompts: ValidPrompt[];
   returned: number;
   kept: number;
@@ -71,6 +81,8 @@ export type Scorecard = {
   drops: Drop[];
   /** Null when no verification verdicts were given. */
   verify: VerifyCard | null;
+  /** Null unless selection (F17) was applied. */
+  select: SelectCard | null;
 };
 
 const HINT_CHECKED: readonly Kind[] = ["cloze", "definition_to_term", "odd_one_out"];
@@ -104,14 +116,17 @@ export function dropCode(reason: string): string {
 /**
  * Scores one document's response against its pages, exactly as generateGame checks it. With
  * `verdicts` (the verifier's raw response for the checked Prompts, in order), the verification
- * pass is applied too and the numbers describe what survives it. Throws if `verdicts` is malformed.
+ * pass is applied too, and with `select` (F17, overgenerating) then selectPrompts; the numbers
+ * describe what survives. Throws if `verdicts` is malformed.
  */
-export function scoreDocument(response: unknown, pages: DocumentPage[], verdicts?: unknown): Scorecard {
+export function scoreDocument(response: unknown, pages: DocumentPage[], verdicts?: unknown, { select = false } = {}): Scorecard {
   const result = validateDocument(response, pages);
   const { kept, dropped: duplicates } = dedupeAcrossDocuments([{ doc: 0, prompts: result.prompts }]);
   const checked = kept.map((k) => k.prompt);
   const applied = verdicts === undefined ? null : applyVerdicts(checked, verdicts);
-  const prompts = applied ? applied.prompts : checked;
+  const verified = applied ? applied.prompts : checked;
+  const selected = select ? selectPrompts(verified, { verification: applied?.statuses }) : null;
+  const prompts = selected ? selected.prompts : verified;
   const drops = [...result.dropped, ...duplicates];
   const rawPrompts = (response as { prompts?: unknown } | null)?.prompts;
   const raws = Array.isArray(rawPrompts) ? rawPrompts : [];
@@ -153,6 +168,7 @@ export function scoreDocument(response: unknown, pages: DocumentPage[], verdicts
       unverified: applied.unverified,
       drops: applied.dropped,
     },
+    select: selected && { candidates: verified.length, removed: selected.dropped.length, drops: selected.dropped },
   };
 }
 
@@ -173,10 +189,12 @@ const KIND_SHORT: Record<Kind, string> = { open: "o", cloze: "c", definition_to_
 /**
  * A markdown table, one row per deck plus a total, ready to paste into the spec. When any card
  * includes the verification pass, three columns are added: Answers / Prompts it removed, and
- * the verification call's seconds and cost.
+ * the verification call's seconds and cost. When any card includes selection (F17), a
+ * "Selected" column shows candidates → kept.
  */
 export function formatScorecardTable(rows: ScorecardRow[]): string {
   const verified = rows.some((r) => r.card?.verify);
+  const selected = rows.some((r) => r.card?.select);
   const head = [
     "Deck",
     "Pages",
@@ -192,6 +210,7 @@ export function formatScorecardTable(rows: ScorecardRow[]): string {
     "s",
     "$",
     ...(verified ? ["Verify removed A / P", "Verify s", "Verify $"] : []),
+    ...(selected ? ["Selected"] : []),
   ];
   const lines = [row(head), row(head.map(() => "---"))];
   const pct = (n: number, d: number) => (d ? `${n}/${d} (${Math.round((100 * n) / d)}%)` : "–");
@@ -223,6 +242,7 @@ export function formatScorecardTable(rows: ScorecardRow[]): string {
         run ? run.seconds.toFixed(0) : "?",
         money(run?.costUsd),
         ...(verified ? verifyCells(card.verify, rest.verifyRun) : []),
+        ...(selected ? [card.select ? `${card.select.candidates} → ${card.kept}` : "–"] : []),
       ]),
     );
   }
@@ -251,6 +271,7 @@ export function formatScorecardTable(rows: ScorecardRow[]): string {
         runs.every(Boolean) ? runs.reduce((n, r) => n + r!.seconds, 0).toFixed(0) : "?",
         runs.every((r) => r?.costUsd != null) ? money(runs.reduce((n, r) => n + r!.costUsd!, 0)) : "?",
         ...(verified ? verifyTotal() : []),
+        ...(selected ? [`${sum((c) => c.select?.candidates ?? c.kept)} → ${sum((c) => c.kept)}`] : []),
       ]),
     );
   }
