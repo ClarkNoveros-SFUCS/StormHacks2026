@@ -22,8 +22,9 @@
 import type { DiveFamilyModeId, ModeId, PromptKind } from "@/lib/modes";
 import type { Tier } from "@/lib/scoring/tiers";
 import type { TopicReveal } from "@/lib/courses/types";
+import type { CrowdReveal, DailyReveal } from "@/lib/daily/types";
 
-export type { DiveFamilyModeId, ModeId, PromptKind, Tier, TopicReveal };
+export type { CrowdReveal, DailyReveal, DiveFamilyModeId, ModeId, PromptKind, Tier, TopicReveal };
 export type RunStatus = "in_progress" | "finished" | "abandoned";
 export type PromptOutcome = "correct" | "wrong" | "timeout";
 
@@ -320,6 +321,10 @@ type RevealBase = {
   progress: RevealProgress;
   /** Set when the Game is a Course Topic's practice Game (F22): pass, unlock, Course finish. */
   topic: TopicReveal | null;
+  /** Set on a Daily Dive puzzle's Runs (F23): number, day, counted or practice, share text. Else null. */
+  daily?: DailyReveal | null;
+  /** Set on a Daily Dive puzzle's Runs (F23): that day's counted scores and Answer find rates. Else null. */
+  crowd?: CrowdReveal | null;
 };
 
 export type DiveReveal = RevealBase & { mode: DiveFamilyModeId; prompts: RevealPrompt[] };

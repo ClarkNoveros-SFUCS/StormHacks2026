@@ -1,5 +1,6 @@
 import "server-only";
 import { assertTopicUnlocked, recordTopicRun, topicReveal } from "@/lib/courses/progress";
+import { dailyReveal, recordDailyRun } from "@/lib/daily/record";
 import { onRunFinished } from "@/lib/social/xp";
 import { isDiveFamily, MODES, type ModeId } from "@/lib/modes";
 import { passedRun } from "@/lib/modes/rules";
@@ -19,7 +20,8 @@ import type {
 //
 // Every command that can finish a Run goes through `play()`, so whichever Mode or request
 // finishes it, `afterFinish()` runs exactly once, in the same transaction: XP and Badges
-// (F21's onRunFinished) and, on a Course Topic's practice Game, the Topic Pass (F22).
+// (F21's onRunFinished), on a Course Topic's practice Game the Topic Pass (F22), and on a
+// Daily puzzle the Counted Run (F23).
 
 export { RunError } from "./engines/common";
 export { GRACE_MS, EARLY_TIMEOUT_MS } from "./engines/common";
@@ -142,11 +144,14 @@ async function play<T>(tx: Tx, run: RunRow, command: () => Promise<T>): Promise<
   return result;
 }
 
-/** Once per finished Run (never an abandoned one): XP and Badges, then the Course Topic. */
+/** Once per finished Run (never an abandoned one): XP and Badges, the Course Topic, the Daily. */
 async function afterFinish(tx: Tx, run: RunRow) {
   const summary = await engineFor(run.mode).summary(tx, run);
   await onRunFinished(run.player_id, { runId: run.id, ...summary }, tx);
   await recordTopicRun(tx, run.player_id, { id: run.id, gameId: run.game_id, finishedAt: run.finished_at! }, summary);
+  await recordDailyRun(
+    tx, { id: run.id, playerId: run.player_id, gameId: run.game_id, startedAt: run.started_at, finishedAt: run.finished_at! }, summary,
+  );
 }
 
 // ---------------------------------------------------------------------------------------
@@ -167,7 +172,8 @@ export async function getReveal(tx: Tx, playerId: string, runId: string): Promis
   const summary = await engine.summary(tx, run);
   const progress = await revealProgress(tx, playerId, run.id);
   const topic = await topicReveal(tx, playerId, { id: run.id, gameId: run.game_id }, summary);
+  const { daily, crowd } = await dailyReveal(tx, playerId, { id: run.id, gameId: run.game_id, score: run.score });
   return engine.reveal(tx, run, {
-    runId: run.id, gameId: run.game_id, score: run.score, summary, passed: passedRun(summary), progress, topic,
+    runId: run.id, gameId: run.game_id, score: run.score, summary, passed: passedRun(summary), progress, topic, daily, crowd,
   });
 }

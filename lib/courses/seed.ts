@@ -193,7 +193,7 @@ export function buildCourseRows(checked: CheckedCourse) {
   return { course, module: moduleRow, topics };
 }
 
-function buildGameRows(g: CheckedGame, documentId: string, moduleId: string, pageId: (n: number) => string) {
+export function buildGameRows(g: CheckedGame, documentId: string, moduleId: string, pageId: (n: number) => string) {
   const gameId = seedUuid(`game:${documentId}:${g.mode}:${sha({ title: g.title, prompts: g.prompts })}`);
   const game = {
     id: gameId,
@@ -336,7 +336,7 @@ export async function seedCourse(tx: Tx, rows: CourseRows): Promise<SeedStats> {
   return stats;
 }
 
-async function insertGame(tx: Tx, g: ReturnType<typeof buildGameRows>, documentId: string) {
+export async function insertGame(tx: Tx, g: ReturnType<typeof buildGameRows>, documentId: string) {
   await tx`insert into games ${tx(g.game)}`;
   await tx`insert into game_sources (game_id, source_document_id) values (${g.game.id}, ${documentId})`;
   for (const p of g.prompts) {
