@@ -2,7 +2,7 @@
 
 Status: in-progress
 Branch: feat/64-split-generation (base `origin/feat/27-overgenerate-select`, PR #62; the generation code isn't on main yet)
-Updated: 2026-10-04 07:05
+Updated: 2026-10-04 07:45
 
 ## Goal
 Games take 60–120 s to generate. Latency is decode-bound (each call writes ~8–11k thinking + ~4–5k output tokens; input size doesn't predict it), so split Dive's (and Apogee's) one Gemini call per document into parallel calls that each write part of the Prompts: one writes the Open Prompts, one every other kind. Both see every page. Behind `GEMINI_SPLIT`. Spec: `docs/architecture/game-generation-pipeline.md` § Split generation (F30).
@@ -16,9 +16,17 @@ Games take 60–120 s to generate. Latency is decode-bound (each call writes ~8�
 - Scripts: `generateTimed` / `requestsVersion` in `scripts/deck-pages.ts`; `--split` on `generate:eval` and `generate:check`; `RunInfo.parts`.
 - Tests: `lib/modes/split.test.ts` (12), 3 DB tests in `generate-game.db.test.ts`. tsc, lint (0 errors), npm test 184, generate-game DB 17 pass.
 
+## Measurements so far (2026-10-04)
+- **3.6-flash was down** (503 "high demand" on every full-size request from ~07:00 to 07:35; tiny requests still answered). Two concurrent single-vs-split runs and a patient retry loop got only 2 of ~30 calls through. In the app those Games fall back to lite after the 2+5+12 s retries.
+- **Measured on gemini-3.5-flash instead** (same profile: 7–12k thinking + 3–4k output per call), single and split at the same time, lite verification. Saved in `eval/runs/f30-35-single/` and `eval/runs/f30-35-split/` (gitignored).
+  - Time: single 54/39/50/40 s (183 s) vs split 42/42/45/40 s (169 s): **−8 % only**.
+  - Why: the Open call thinks as much as the whole single call (9.6–11k thinking tokens); only output halves. The other-kinds call takes 16–22 s. Total thinking +40 %, input ×2.
+  - Quality: kept 63 → 67, **Open 27 → 35** (ML notes 3 → 9), Ans/Open 5.0 = 5.0, quotes 97 % → 96 %, verify removed 0 → 1 Prompt.
+- Thinking-level experiment (throwaway script, single call): `low` 10–11 s but 1–2 Open Prompts; `medium` ≈ default (37–47 s). **User decision: keep the current thinking level; no low thinking.**
+
 ## Next steps
-- Live eval: single vs split at the same time on the four eval decks (`eval/runs/f30-single`, `eval/split`), with lite verification.
-- Decide the `GEMINI_SPLIT` default from it; spec section, FEATURES F30, `.env.example`.
+- Ask the user whether to keep the split (more Open Prompts, ~8 % faster, +40 % thinking cost) and with which default; then fill the spec's Measurements, FEATURES F30, `.env.example` wording.
+- Other speed levers that keep thinking as is: faster fallback on 503, shorter per-attempt timeout / hedged fallback (option 3).
 - Full test:db + build, PR stacked on #62, merge into `overnight/demo`.
 
 ## Decisions & gotchas
