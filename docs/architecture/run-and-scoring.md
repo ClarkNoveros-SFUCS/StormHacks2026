@@ -114,6 +114,10 @@ For each of the 7 Prompts:
 
 It also shows the Run total and whether it's a new Personal Best, plus the Game's Mastery before → after.
 
+These come from `runProgress()` in `lib/progress.ts` (F07). Both use the Run's own timestamps, so an old Reveal keeps showing what was true then:
+- **Previous best:** the highest score of this Player's other finished Runs on the Game that finished before this one (`null` if none). **New Personal Best** = score > previous best (or > 0 when there is none). A tie isn't a new best.
+- **Mastery before:** Answers found by correct guesses made before this Run started. **Mastery after:** Answers found up to the moment this Run finished, so this Run's guesses are included. Abandoned Runs count toward both.
+
 ## Code layout
 
 | File | Responsibility |

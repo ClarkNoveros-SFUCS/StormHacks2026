@@ -360,7 +360,9 @@ describe.skipIf(!process.env.DATABASE_URL)("run engine", () => {
       await rejects(guess(f.tx, f.playerId, runId, { text: "x" }, f.clock.now()), 409);
 
       const reveal = await getReveal(f.tx, f.playerId, runId);
-      expect(reveal).toMatchObject({ runId, gameId: f.gameId, score: expected, progress: null });
+      expect(reveal).toMatchObject({ runId, gameId: f.gameId, score: expected });
+      // First finished Run; 6 of the Game's 12 Answers found (cloze2 timed out)
+      expect(reveal.progress).toEqual({ personalBest: expected, isNewPersonalBest: true, masteryBefore: 0, masteryAfter: 50 });
       const byKey: Record<string, RevealPrompt> = Object.fromEntries(reveal.prompts.map((p) => [KEY_BY_TEXT.get(p.text), p]));
       expect(byKey.open.answers!.map((a) => [a.answer, a.tier, a.found])).toEqual([
         ["BFS", "common", true], ["DFS", "solid", false], ["Dijkstra", "deep", false], ["Bellman-Ford", "rare", false],

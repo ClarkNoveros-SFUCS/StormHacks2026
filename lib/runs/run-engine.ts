@@ -2,6 +2,7 @@ import "server-only";
 import type postgres from "postgres";
 import { matchGuess } from "@/lib/matching/match-guess";
 import { normalize } from "@/lib/matching/normalize";
+import { runProgress } from "@/lib/progress";
 import { openPoints, singlePoints } from "@/lib/scoring/points";
 import { TIER_POINTS, type Tier } from "@/lib/scoring/tiers";
 import { seededShuffle, shuffleOutOfOrder } from "./shuffle";
@@ -398,7 +399,14 @@ export async function getReveal(tx: Tx, playerId: string, runId: string): Promis
     };
   });
 
-  return { runId: run.id, gameId: run.game_id, score: run.score, prompts: revealPrompts, progress: null };
+  const p = await runProgress(playerId, run.id, tx);
+  const progress = p && {
+    personalBest: Math.max(p.score, p.previousBest ?? 0), // as of this Run
+    isNewPersonalBest: p.isNewBest,
+    masteryBefore: p.masteryBefore.pct,
+    masteryAfter: p.masteryAfter.pct,
+  };
+  return { runId: run.id, gameId: run.game_id, score: run.score, prompts: revealPrompts, progress };
 }
 
 function formatChoice(choice: unknown): string {
