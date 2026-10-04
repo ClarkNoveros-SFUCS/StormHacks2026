@@ -1,5 +1,5 @@
 {
-  "_comment": "Hand-written Games in the other Modes for the demo Graph Algorithms Module, built on the pages of graph-algorithms.json. Each list uses its Mode's Gemini response shape and must pass that Mode's generation checks (npm run db:seed -- --check). Apogee reuses graph-algorithms.json's Dive Prompts.",
+  "_comment": "Hand-written Games in the other Modes for the demo Graph Algorithms Module, built on the pages of graph-algorithms.json. Each list uses its Mode's Gemini response shape and must pass that Mode's generation checks (npm run db:seed -- --check). Apogee reuses graph-algorithms.json's Dive Prompts; Arena reuses the Leap Game's questions (\"prompts_from\": \"leap\").",
   "games": [
     {
       "mode": "apogee",
@@ -318,6 +318,11 @@
         { "kind": "true_false", "text": "A DAG is a directed graph with no cycles.", "is_true": true, "tier": "common", "evidence_page": 1, "evidence_quote": "A DAG is a directed acyclic graph: a directed graph with no cycles.", "explanation": "DAG stands for directed acyclic graph." },
         { "kind": "true_false", "text": "A DAG is an undirected graph with no cycles.", "is_true": false, "tier": "common", "evidence_page": 1, "evidence_quote": "A DAG is a directed acyclic graph: a directed graph with no cycles.", "explanation": "A DAG is directed: a directed acyclic graph." }
       ]
+    },
+    {
+      "mode": "arena",
+      "title": "Graph Algorithms (Week 9) · Arena",
+      "prompts_from": "leap"
     }
   ]
 }

@@ -1,4 +1,6 @@
-// The generator for each Game Mode. Apogee uses Dive's. Pure: relative .ts imports only.
+// The generator for each Game Mode. Apogee uses Dive's; Arena uses Leap's (multiple_choice).
+// Pure: relative .ts imports only.
+import { arenaGenerator } from "./arena/generate.ts";
 import { blitzGenerator } from "./blitz/generate.ts";
 import { diveGenerator } from "./dive/generate.ts";
 import type { ModeGenerator } from "./generation.ts";
@@ -11,6 +13,7 @@ const BY_ENGINE: Record<(typeof MODES)[ModeId]["engine"], ModeGenerator> = {
   leap: leapGenerator,
   pairs: pairsGenerator,
   blitz: blitzGenerator,
+  arena: arenaGenerator,
 };
 
 /** The Mode's generator, or null for an unknown or not-yet-available Mode. */

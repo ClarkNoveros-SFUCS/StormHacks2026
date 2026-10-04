@@ -1,6 +1,7 @@
 import "server-only";
 import { isDiveFamily, MODES, type ModeId } from "@/lib/modes";
 import { passedRun } from "@/lib/modes/rules";
+import { arenaEngine, arenaHit } from "./engines/arena";
 import { blitzAnswer, blitzEngine } from "./engines/blitz";
 import { lockRun, readRun, requireInProgress, revealProgress, RunError, UUID, type ModeEngine, type RunRow, type Tx } from "./engines/common";
 import { diveEngine, diveGuess, diveHint } from "./engines/dive";
@@ -26,6 +27,7 @@ const ENGINES: Record<(typeof MODES)[ModeId]["engine"], ModeEngine> = {
   leap: leapEngine,
   pairs: pairsEngine,
   blitz: blitzEngine,
+  arena: arenaEngine,
 };
 
 function engineFor(mode: ModeId): ModeEngine {
@@ -92,10 +94,12 @@ export async function revealHint(tx: Tx, playerId: string, runId: string, now: D
   return diveHint(tx, run, now);
 }
 
-/** POST answer: Leap `{ optionId, position? }` or Blitz `{ value, position? }`. */
+/** POST answer: Leap `{ optionId, position? }`, Arena `{ optionId, position? }` (a hit) or Blitz `{ value, position? }`. */
 export async function answer(tx: Tx, playerId: string, runId: string, body: unknown, now: Date): Promise<AnswerResponse> {
-  const run = await lockFor(tx, playerId, runId, ["leap", "blitz"], "answer");
-  return run.mode === "leap" ? leapAnswer(tx, run, body, now) : blitzAnswer(tx, run, body, now);
+  const run = await lockFor(tx, playerId, runId, ["leap", "blitz", "arena"], "answer");
+  if (run.mode === "leap") return leapAnswer(tx, run, body, now);
+  if (run.mode === "arena") return arenaHit(tx, run, body, now);
+  return blitzAnswer(tx, run, body, now);
 }
 
 /** POST pair (Pairs): `{ termId, definitionId, board? }`. */

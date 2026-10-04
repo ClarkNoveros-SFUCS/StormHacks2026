@@ -69,11 +69,11 @@ export const MODE_UI: Record<ModeUiId, ModeUi> = {
   arena: {
     id: "arena",
     name: "Arena",
-    tagline: "Aim for the right answer.",
-    rules: "First-person · coming soon",
-    accent: "#9aa6c8",
-    accent2: "#6b7699",
-    verb: "ENTER",
+    tagline: "Shoot the right answer.",
+    rules: "10 targets · 20 s · wrong hits cost 3 s",
+    accent: "#ff4d6d",
+    accent2: "#4de3ff",
+    verb: "ENTER ARENA",
     icon: "✛",
   },
 };

@@ -2,7 +2,7 @@
 // Spec: docs/architecture/run-and-scoring.md § API. Errors come back as RunApiError with the
 // HTTP status and the server's `{ error }` message.
 import type { GuessBody, GuessResponse, HintResponse, Reveal, RunState } from "./types";
-import type { AnswerBody, AnswerResponse, BlitzAnswerBody, BlitzAnswerResponse, LeapAnswerBody, LeapAnswerResponse, LifelineResponse } from "./types";
+import type { AnswerBody, AnswerResponse, ArenaHitBody, ArenaHitResponse, BlitzAnswerBody, BlitzAnswerResponse, LeapAnswerBody, LeapAnswerResponse, LifelineResponse } from "./types";
 
 export class RunApiError extends Error {
   constructor(
@@ -55,6 +55,8 @@ export const runApi = {
   hint: (runId: string, clock?: Clock) => call<HintResponse>(`/api/runs/${runId}/hint`, post(), clock),
   /** Leap `{ optionId }` → LeapAnswerResponse; Blitz `{ value }` → BlitzAnswerResponse. */
   answer: answerCall,
+  /** Arena: the target that was hit, sent to POST /answer → ArenaHitResponse. */
+  hit: (runId: string, body: ArenaHitBody, clock?: Clock) => call<ArenaHitResponse>(`/api/runs/${runId}/answer`, post(body), clock),
   /** Leap's one 50/50 on the current question → { hiddenOptionIds, state }. */
   lifeline: (runId: string, clock?: Clock, position?: number) => call<LifelineResponse>(`/api/runs/${runId}/lifeline`, post(position === undefined ? undefined : { position }), clock),
   reveal: <R extends Reveal = Reveal>(runId: string) => call<R>(`/api/runs/${runId}/reveal`),
