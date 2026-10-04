@@ -28,8 +28,12 @@ generateGame:
      Then check 7 across documents, then the Mode's Game-level checks (Pairs: one Prompt per term; Blitz:
      true/false balance)
   d. assign Tiers to Open Prompt Answers (code, not Gemini; Dive only)
-  e. if fewer than the Mode's minimum survive (Dive/Apogee 7, Leap 10, Pairs 12, Blitz 30) → status = 'failed',
-     error = 'Not enough usable content to make a Game' (other Modes add: "a Leap Game needs 10 questions and only 6 passed the checks. Try adding more files")
+  e. if fewer than the Mode's minimum survive (Dive/Apogee 7, Leap 10, Pairs 12, Blitz 30): one top-up round (F38):
+     the same calls again for every document, told which Prompts were already kept so they write different ones
+     (temperature +0.2), through the same checks; both rounds are merged and checked again (check 7 drops repeats).
+     Still too few → status = 'failed', error = 'Not enough usable content to make a Game' (other Modes add:
+     "a Leap Game needs 10 questions and only 6 passed the checks. Add more files, or try Dive (it needs only 7)").
+     The top-up costs one more round of calls and roughly doubles the time, only for Games that would otherwise fail.
   f. one transaction: INSERT prompts (with is_true for true_false), answers, answer_keys; UPDATE games SET status = 'ready', prompt_count = n
   on any error: status = 'failed', error = <short user-facing message>
 ```
