@@ -1,6 +1,6 @@
 # #91 Sonar chat: resizable panel, chat history, message avatars
 
-Status: in-review
+Status: done
 Branch: feat/91-sonar-chat-ui (built on feat/83-sonar-module-scope, PR #85; merge after it)
 Updated: 2026-10-04
 
@@ -14,7 +14,7 @@ Make the Sonar drawer nicer: resize it by dragging, keep a history of chats, sho
 - Kept #85's "Now on this Module" dividers.
 
 ## Next steps
-1. User review. Then, after #85 merges: rebase/merge main, FEATURES.md row + section, worklog done, PR with Closes #91.
+None. PR is based on feat/83-sonar-module-scope; it retargets to main when #85 merges (FEATURES.md may need the usual row merge then).
 
 ## Decisions & gotchas
 - History is browser-only (user's choice). Server memory is an in-process MemorySaver, so an old chat reopened after a server restart shows its messages but Sonar no longer remembers them.
