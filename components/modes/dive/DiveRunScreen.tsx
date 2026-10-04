@@ -2,8 +2,9 @@
 // The Dive Run screen (/runs/[runId]), wired to the Run API. Same look and flow as
 // DivePlayground, but the server owns the clock and the score:
 //   card enters → POST start-prompt → play (countdown from deadlineAt + clock offset)
-//   → guess / hint / timeout → correct: chip sinks past the tier lines, the camera descends,
-//   catch screen (DESCEND ▼ / Enter / auto ~6 s) → next card enters → start-prompt …
+//   → guess / hint / timeout → correct: the chip drops and the camera follows it down past the
+//   tier lines to its own (one continuous Krillion descent), catch screen (DESCEND ▼ / Enter /
+//   auto ~6 s) → next card rises in → start-prompt … ; a timeout or one-try miss → NOTHING LANDED.
 //   → after Prompt 7: /runs/[runId]/reveal.
 // The clock is paused during the catch screen because start-prompt is only called after it.
 // Spec: docs/design/modes/dive.md §6, docs/architecture/run-and-scoring.md.
@@ -26,15 +27,15 @@ import { RoundCard, type RoundCardState } from "@/components/round/RoundCard";
 import { SonarTimer } from "@/components/round/SonarTimer";
 import { TypedInput } from "@/components/round/TypedInput";
 import { CatchScreen } from "./CatchScreen";
-import { DepthRuler } from "./DepthRuler";
-import { DiveCamera } from "./depth";
+import { DepthMarks } from "./DepthMarks";
+import { Descent, SKY_DEPTH, useSkyCarry, type Sink } from "./Descent";
+import { DiveCamera, screenYOf } from "./depth";
 import { DiveHud } from "./DiveHud";
 import { OceanStage, type OceanStageHandle } from "./OceanStage";
-import { TierLines, type Sink } from "./TierLines";
 import { depthForScore, TIER_UI } from "./tiers";
 
 /** How long the card's entry animation plays before the clock starts. */
-const ENTER_MS = 750;
+const ENTER_MS = 1100;
 const KIND_LINE: Record<PromptKind, string> = {
   open: "▼ rarer answers sink deeper ▼",
   cloze: "FILL THE BLANK · ONE ANSWER",
@@ -45,7 +46,7 @@ const KIND_LINE: Record<PromptKind, string> = {
   true_false: "TRUE OR FALSE",
 };
 
-type Phase = "entering" | "play" | "sinking" | "descending" | "catch" | "resolving" | "surfacing";
+type Phase = "entering" | "play" | "sinking" | "descending" | "catch" | "resolving" | "missed" | "surfacing";
 
 type Props = {
   initial: DiveRunState;
@@ -67,12 +68,21 @@ function squaresFrom(closed: Props["context"]["closed"]): SquareResult[] {
 export function DiveRunScreen({ initial, context }: Props) {
   const router = useRouter();
   const runId = initial.runId;
+  // A fresh Run opens up in the sky and pans down to the waterline as the first card comes up (Krillion).
+  const [fresh] = useState(() => initial.position === 1 && initial.score === 0 && !initial.prompt?.startedAt);
   const [camera] = useState(() => {
     const c = new DiveCamera();
-    c.set(depthForScore(initial.score), true);
+    if (fresh) {
+      c.min = SKY_DEPTH;
+      c.set(SKY_DEPTH, true);
+    } else c.set(depthForScore(initial.score), true);
     return c;
   });
   const stageRef = useRef<OceanStageHandle>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  /** The last wrong guess on this Prompt, quoted on the NOTHING LANDED screen. */
+  const lastGuess = useRef<string | null>(null);
   const [initialOffset] = useState(() => Date.parse(initial.serverNow) - Date.now());
   const clock = useRef<Clock>({ offset: initialOffset });
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -99,7 +109,8 @@ export function DiveRunScreen({ initial, context }: Props) {
   const [flashKey, setFlashKey] = useState(0);
   const [correction, setCorrection] = useState<string | null>(null);
   const [sink, setSink] = useState<Sink | null>(null);
-  const [cardState, setCardState] = useState<RoundCardState>("in");
+  const [cardState, setCardState] = useState<RoundCardState>(fresh ? "in" : "rise");
+  const [miss, setMiss] = useState<{ key: number; answer: string | null; verdict?: string } | null>(null);
   const [stamp, setStamp] = useState<string | null>(null);
   const [order, setOrder] = useState<string[]>(initial.prompt?.items ?? []);
   const [picked, setPicked] = useState<string | null>(null);
@@ -136,6 +147,13 @@ export function DiveRunScreen({ initial, context }: Props) {
     return () => pendingTimers.forEach(clearTimeout);
   }, []);
 
+  useSkyCarry(camera, cardRef, rootRef);
+  useEffect(() => {
+    if (!fresh) return;
+    const id = setTimeout(() => camera.set(0), 250);
+    return () => clearTimeout(id);
+  }, [fresh, camera]);
+
   // ------------------------------------------------------------------------------------
   // Moving between Prompts
 
@@ -162,7 +180,9 @@ export function DiveRunScreen({ initial, context }: Props) {
     setStamp(null);
     setCorrection(null);
     setSink(null);
-    setCardState("in");
+    setMiss(null);
+    lastGuess.current = null;
+    setCardState("rise");
     setCut({ ms: 0, key: 0 });
     setRemaining(PROMPT_MS);
     go(next.prompt.startedAt ? "play" : "entering");
@@ -207,8 +227,26 @@ export function DiveRunScreen({ initial, context }: Props) {
     setCorrection(null);
     setLocked(true);
     if (p.kind === "odd_one_out") setRightOption(result.answer);
-    setSink({ key: counter.current++, text: p.kind === "ordered_recall" ? "All in order" : result.answer, tier: scored, points: result.points, stale: result.stale, hinted });
+    setSink({
+      key: counter.current++,
+      text: p.kind === "ordered_recall" ? "All in order" : result.answer,
+      tier: scored,
+      points: result.points,
+      stale: result.stale,
+      hinted,
+      from: camera.depth,
+      startY: chipStartY(),
+    });
+    sfx.sink();
     go("sinking");
+  };
+
+  /** The chip drops in just under the prompt card. */
+  const chipStartY = () => {
+    const root = rootRef.current?.getBoundingClientRect();
+    const card = cardRef.current?.getBoundingClientRect();
+    if (!root || !card || card.height === 0) return undefined;
+    return card.bottom - root.top + 40;
   };
 
   const onLanded = (s: Sink) => {
@@ -217,16 +255,16 @@ export function DiveRunScreen({ initial, context }: Props) {
     setScore(newScore);
     markSquare(s.tier === "rare" ? "gold" : "done");
     stageRef.current?.mascot("happy");
-    stageRef.current?.bubbles({ xFrac: 0.5, yFrac: 0.55, count: s.tier === "rare" ? 24 : 10, gold: s.tier === "rare" });
+    const h = rootRef.current?.getBoundingClientRect().height ?? 0;
+    const yFrac = h ? screenYOf(camera.depth, camera.depth, h) / h : 0.45;
+    stageRef.current?.bubbles({ xFrac: 0.5, yFrac, count: s.tier === "rare" ? 24 : 12, gold: s.tier === "rare" });
     if (s.tier === "rare") setFlashKey((k) => k + 1);
-    camera.set(depthForScore(newScore));
-    sfx.sink();
-    setCardState("gone");
     go("descending");
-    later(() => go("catch"), 950);
+    later(() => go("catch"), 380);
   };
 
-  const fail = (next: DiveRunState, o: { stamp: string; correction: string; ms: number }) => {
+  /** A miss: a beat on the card (TIME! or the right option marked), then NOTHING LANDED. */
+  const fail = (next: DiveRunState, o: { stamp: string | null; correction: string; ms: number; answer: string | null; verdict?: string }) => {
     pending.current = next;
     go("resolving");
     setLocked(true);
@@ -235,13 +273,16 @@ export function DiveRunScreen({ initial, context }: Props) {
     setCorrection(o.correction);
     stageRef.current?.mascot("sad");
     markSquare("miss");
-    later(advance, o.ms);
+    later(() => {
+      setMiss({ key: counter.current++, answer: o.answer, verdict: o.verdict });
+      go("missed");
+    }, o.ms);
   };
 
   const failTimeout = (next: DiveRunState) => {
     sfx.timeout();
     setRemaining(0);
-    fail(next, { stamp: "TIME!", correction: "Time's up. The answers are in the Reveal.", ms: 1800 });
+    fail(next, { stamp: "TIME!", correction: "Time's up. The answers are in the Reveal.", ms: 900, answer: lastGuess.current });
   };
 
   const handleGuess = ({ result, state: next }: GuessResponse, text: string) => {
@@ -252,7 +293,8 @@ export function DiveRunScreen({ initial, context }: Props) {
       setCut((c) => ({ ms: result.penaltyMs, key: c.key + 1 }));
       setRejectKey((k) => k + 1);
       setPenaltyKey((k) => k + 1);
-      setCorrection(`${text} · not in your notes`);
+      lastGuess.current = text;
+      setCorrection(`“${text}”: no echo · try again`);
       // The −3 s ran the clock out: the server already closed the Prompt.
       if (next.status !== "in_progress" || next.position !== posRef.current) return failTimeout(next);
       setRun(next);
@@ -262,7 +304,13 @@ export function DiveRunScreen({ initial, context }: Props) {
     sfx.wrong();
     if (result.correctOrder) setRightOrder(result.correctOrder);
     else setRightOption(result.answer);
-    fail(next, { stamp: "MISSED", correction: result.correctOrder ? "One try · the right order is marked" : `One try · it was ${result.answer}`, ms: 2600 });
+    fail(next, {
+      stamp: null,
+      correction: result.correctOrder ? "One try · the right order is marked" : `One try · it was ${result.answer}`,
+      ms: 1800,
+      answer: text,
+      verdict: result.correctOrder ? "One try · the order was off." : `One try · it was ${result.answer}.`,
+    });
   };
 
   /** Errors: 409 means the server moved on (resync); 0 means the connection dropped (retry). */
@@ -422,21 +470,33 @@ export function DiveRunScreen({ initial, context }: Props) {
   const single = !!prompt && prompt.kind !== "open";
   const promptTier = single ? (prompt?.tier ?? null) : null;
   const tierLine: Tier | null = promptTier ? (prompt?.hintUsed ? (TIER_BELOW[promptTier] ?? "common") : promptTier) : null;
-  const showCard = !!prompt && phase !== "catch" && phase !== "surfacing";
+  const showCard = !!prompt && phase !== "catch" && phase !== "missed" && phase !== "surfacing";
+  const showDock = phase === "entering" || phase === "play" || phase === "resolving";
   const showChoices = showCard && (phase === "entering" || phase === "play" || phase === "resolving");
   const oneShot = prompt?.kind === "odd_one_out" || prompt?.kind === "ordered_recall";
 
   return (
-    <div data-theme="dive" className="relative isolate h-[100dvh] w-full overflow-hidden bg-bg font-hud text-text">
+    <div ref={rootRef} data-theme="dive" className="relative isolate h-[100dvh] w-full overflow-hidden bg-bg font-hud text-text">
       <OceanStage ref={stageRef} camera={camera} sky="day" showMascot />
-      <DepthRuler camera={camera} className="z-[1]" />
+      <DepthMarks camera={camera} className="z-[1]" />
+      <Descent
+        camera={camera}
+        sink={sink}
+        onLanded={onLanded}
+        onShift={(px) => {
+          if (cardRef.current) cardRef.current.style.transform = px ? `translate3d(0, ${px}px, 0)` : "";
+        }}
+        onTrail={(xFrac, yFrac) => stageRef.current?.bubbles({ xFrac, yFrac, count: 2 })}
+        fade={phase === "catch" || phase === "missed"}
+        className="z-[3]"
+      />
 
-      {/* hot clock edge + Trench flash */}
+      {/* hot clock: the top edge glows red (Krillion) + Trench flash */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[2]"
+        className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-28"
         style={{
-          boxShadow: "inset 0 0 70px 6px var(--accent)",
+          background: "linear-gradient(to bottom, color-mix(in srgb, var(--accent) 55%, transparent), transparent)",
           opacity: hot ? undefined : 0,
           animation: hot ? "edge-throb .8s ease-in-out infinite" : undefined,
         }}
@@ -446,7 +506,7 @@ export function DiveRunScreen({ initial, context }: Props) {
       )}
 
       <div className="absolute inset-x-0 top-2 z-20 flex justify-center px-2 sm:top-3">
-        <DiveHud depth={depthForScore(score)} score={score} current={position} total={total} results={results} />
+        <DiveHud depth={depthForScore(score)} score={score} current={position} total={total} results={results} camera={camera} />
       </div>
       <button
         type="button"
@@ -482,7 +542,7 @@ export function DiveRunScreen({ initial, context }: Props) {
       <div className="absolute inset-0 z-10 flex flex-col pr-16 pl-4 sm:px-24">
         {/* the card starts right under the waterline (25% down at the surface) */}
         <div className="min-h-[84px] shrink basis-[22%] sm:min-h-[100px] sm:basis-[25%]" />
-        <div className="mx-auto w-full max-w-[640px] pt-2">
+        <div ref={cardRef} className="mx-auto w-full max-w-[640px] pt-2 will-change-transform">
           {showCard && prompt && (
             <RoundCard
               key={position}
@@ -503,11 +563,8 @@ export function DiveRunScreen({ initial, context }: Props) {
           )}
         </div>
 
-        {/* play area: tier lines, and the one-try inputs sitting over them */}
+        {/* play area: the one-try inputs (the tier lines only appear in the water once you answer) */}
         <div className="relative mx-auto my-3 min-h-[120px] w-full max-w-[640px] flex-1">
-          <div className="absolute inset-0 transition-opacity duration-500" style={{ opacity: phase === "play" || phase === "entering" || phase === "sinking" || phase === "resolving" ? 1 : 0 }}>
-            <TierLines thisPrompt={tierLine} sink={sink} onLanded={onLanded} />
-          </div>
           {showChoices && prompt?.kind === "odd_one_out" && prompt.options && (
             <div className="relative z-10 max-h-full overflow-y-auto pt-2" style={{ animation: "rise-in .5s var(--ease-out) .2s both" }}>
               <OptionGrid options={prompt.options} onPick={pickOption} locked={locked || !playing} correct={rightOption} picked={picked} />
@@ -521,68 +578,78 @@ export function DiveRunScreen({ initial, context }: Props) {
         </div>
 
         {/* bottom dock */}
-        <div className="mx-auto w-full max-w-[720px] pb-[max(12px,env(safe-area-inset-bottom))] sm:pb-6" style={{ visibility: phase === "catch" || phase === "surfacing" ? "hidden" : undefined }}>
-          {notice && (
-            <p className="mb-2 text-center text-[18px] text-caution" role="status">
-              {notice}
-            </p>
-          )}
-          <div className="flex items-start gap-3 sm:gap-4">
-            <div className="relative">
-              <SonarTimer remainingMs={remaining} totalMs={PROMPT_MS} paused={!playing} size={56} className="sm:hidden" />
-              <SonarTimer remainingMs={remaining} totalMs={PROMPT_MS} paused={!playing} size={68} sound={false} className="hidden sm:block" />
-              {penaltyKey > 0 && (
-                <span key={penaltyKey} className="pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2 text-[22px] text-accent" style={{ animation: "float-up .9s ease-out forwards" }}>
-                  −3s
-                </span>
+        <div
+          className="mx-auto w-full max-w-[720px] pb-[max(12px,env(safe-area-inset-bottom))] transition-[opacity,transform] duration-300 sm:pb-6"
+          style={{ opacity: showDock ? 1 : 0, transform: showDock ? undefined : "translateY(24px)", pointerEvents: showDock ? undefined : "none" }}
+        >
+          <div key={position} style={{ animation: "dv-dock-in .6s var(--ease-out) .5s both" }}>
+            {notice && (
+              <p className="mb-2 text-center text-[18px] text-caution" role="status">
+                {notice}
+              </p>
+            )}
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div className="relative">
+                <SonarTimer remainingMs={remaining} totalMs={PROMPT_MS} paused={!playing} size={56} className="sm:hidden" />
+                <SonarTimer remainingMs={remaining} totalMs={PROMPT_MS} paused={!playing} size={68} sound={false} className="hidden sm:block" />
+                {penaltyKey > 0 && (
+                  <span key={penaltyKey} className="pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2 text-[22px] text-accent" style={{ animation: "float-up .9s ease-out forwards" }}>
+                    −3s
+                  </span>
+                )}
+              </div>
+              {oneShot ? (
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-3">
+                    {prompt?.kind === "ordered_recall" && (
+                      <button
+                        type="button"
+                        disabled={!playing || locked}
+                        onClick={lockOrder}
+                        className="h-12 px-5 text-[20px] tracking-[0.2em] text-text disabled:opacity-50 sm:h-14 sm:text-[24px]"
+                        style={{ background: "color-mix(in srgb, var(--accent) 45%, #2a0c18)", boxShadow: "inset 0 0 0 2px var(--accent), 0 4px 0 #3b0f22" }}
+                      >
+                        LOCK IN ▼
+                      </button>
+                    )}
+                    {prompt?.kind === "odd_one_out" && <span className="text-[18px] text-muted">pick the odd one out ▲ · keys 1–4</span>}
+                    {prompt?.kind === "ordered_recall" && <span className="hidden text-[16px] text-muted sm:inline">drag or ▲▼ · Enter locks in</span>}
+                  </div>
+                  <div className="mt-2">
+                    <Fuse remainingMs={remaining} totalMs={PROMPT_MS} />
+                  </div>
+                  <p className="mt-1 min-h-[22px] text-[16px] text-muted sm:text-[18px]" aria-live="polite">
+                    {correction ?? ""}
+                  </p>
+                </div>
+              ) : (
+                <TypedInput
+                  key={position}
+                  onSubmit={submitTyped}
+                  disabled={!playing}
+                  correction={correction}
+                  rejectKey={rejectKey}
+                  below={<Fuse remainingMs={remaining} totalMs={PROMPT_MS} cutMs={cut.ms} cutKey={cut.key} />}
+                />
               )}
             </div>
-            {oneShot ? (
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-3">
-                  {prompt?.kind === "ordered_recall" && (
-                    <button
-                      type="button"
-                      disabled={!playing || locked}
-                      onClick={lockOrder}
-                      className="h-12 px-5 text-[20px] tracking-[0.2em] text-text disabled:opacity-50 sm:h-14 sm:text-[24px]"
-                      style={{ background: "color-mix(in srgb, var(--accent) 45%, #2a0c18)", boxShadow: "inset 0 0 0 2px var(--accent), 0 4px 0 #3b0f22" }}
-                    >
-                      LOCK IN ▼
-                    </button>
-                  )}
-                  {prompt?.kind === "odd_one_out" && <span className="text-[18px] text-muted">pick the odd one out ▲ · keys 1–4</span>}
-                  {prompt?.kind === "ordered_recall" && <span className="hidden text-[16px] text-muted sm:inline">drag or ▲▼ · Enter locks in</span>}
-                </div>
-                <div className="mt-2">
-                  <Fuse remainingMs={remaining} totalMs={PROMPT_MS} />
-                </div>
-                <p className="mt-1 min-h-[22px] text-[16px] text-muted sm:text-[18px]" aria-live="polite">
-                  {correction ?? ""}
-                </p>
+            {single && promptTier && prompt?.hintAvailable && (
+              <div className="mt-1 flex justify-center">
+                <HintButton from={promptTier} to={TIER_BELOW[promptTier]} used={prompt.hintUsed || hintAsked || !playing} onUse={takeHint} />
               </div>
-            ) : (
-              <TypedInput
-                key={position}
-                onSubmit={submitTyped}
-                disabled={!playing}
-                correction={correction}
-                rejectKey={rejectKey}
-                below={<Fuse remainingMs={remaining} totalMs={PROMPT_MS} cutMs={cut.ms} cutKey={cut.key} />}
-              />
             )}
           </div>
-          {single && promptTier && prompt?.hintAvailable && (
-            <div className="mt-1 flex justify-center">
-              <HintButton from={promptTier} to={TIER_BELOW[promptTier]} used={prompt.hintUsed || hintAsked || !playing} onUse={takeHint} />
-            </div>
-          )}
         </div>
       </div>
 
       {phase === "catch" && sink && (
         <div className="absolute inset-0 z-20">
           <CatchScreen key={sink.key} tier={sink.tier} answer={sink.text} points={sink.points} sinkMetres={sink.points * 10} tags={{ hint: !!sink.hinted, stale: !!sink.stale }} onContinue={advance} />
+        </div>
+      )}
+      {phase === "missed" && miss && (
+        <div className="absolute inset-0 z-20">
+          <CatchScreen key={miss.key} tier="miss" answer={miss.answer} points={0} sinkMetres={0} verdict={miss.verdict} onContinue={advance} />
         </div>
       )}
 
@@ -593,7 +660,10 @@ export function DiveRunScreen({ initial, context }: Props) {
           </p>
         </div>
       )}
-      <style>{`@keyframes dv-flash { 0% { opacity: .55 } 100% { opacity: 0 } }`}</style>
+      <style>{`
+        @keyframes dv-flash { 0% { opacity: .22 } 100% { opacity: 0 } }
+        @keyframes dv-dock-in { from { opacity: 0; transform: translateY(40px) } }
+      `}</style>
     </div>
   );
 }

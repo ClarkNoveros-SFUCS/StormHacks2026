@@ -464,6 +464,15 @@ h4 {
     transform: translateY(46px) scale(0.92);
   }
 }
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22vh);
+  }
+  35% {
+    opacity: 1;
+  }
+}
 @keyframes card-gone {
   to {
     opacity: 0;
