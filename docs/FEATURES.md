@@ -13,7 +13,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F01 | Foundation: auth, DB, migrations | Platform | — | #1 | done |
 | F02 | Seed data: demo Module and Game | Platform | F01 | #2 | done |
 | F03 | Upload pipeline (Node extraction) | Pipelines | F01 | #3 | done |
-| F04 | Game generation (Gemini) | Pipelines | F01 (F02 for test pages) | #4 | planned |
+| F04 | Game generation (Gemini) | Pipelines | F01 (F02 for test pages) | #4 | done |
 | F05 | Answer matching | Gameplay | F01 | #5 | done |
 | F06 | Run engine and scoring API | Gameplay | F01, F05 | #6 | done |
 | F07 | Progress: Personal Best and Mastery | Gameplay | F01 | #7 | done |
@@ -23,6 +23,11 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F11 | Game page UI | Frontend | F07 | #11 | planned |
 | F12 | Deploy and demo prep | Platform | everything | #12 | planned |
 | F13 | Game Modes: `games.mode` and the Mode picker | Platform | F01 | #21 | planned |
+| F14 | Generation scorecard (eval on real decks) | Pipelines | F04 | #24 | planned |
+| F15 | Example Prompts in the generator instructions | Pipelines | F04 (F14 to measure) | #25 | planned |
+| F16 | Gemini verification pass for Answers | Pipelines | F04 (F14 to measure) | #26 | planned |
+| F17 | Overgenerate and select the best Prompts | Pipelines | F04, F14 | #27 | planned |
+| F18 | Open Prompt answer expansion with retrieval (pgvector, stretch) | Pipelines | F04, F14 | #28 | planned |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -98,16 +103,23 @@ Notes for others:
 
 ## F04 Game generation (Gemini)
 Spec: `docs/architecture/game-generation-pipeline.md` · **Setup:** `docs/setup/README.md` (Gemini)
-- [ ] Gemini API key created; `GEMINI_MODEL` picked and shared
-- [ ] `POST /api/modules/[moduleId]/games` (title + parsed doc ids) responds 202 and generates in `after()`
-- [ ] `lib/gemini.ts` uses structured JSON output with the spec's schema; one call per document, run in parallel
-- [ ] zod validation plus checks 1–7 from the spec; failing items are dropped, not the whole Game
+- [x] Gemini API key created; `GEMINI_MODEL` picked and shared (`gemini-3.6-flash`, fallback `gemini-3.5-flash-lite`)
+- [x] `POST /api/modules/[moduleId]/games` (title + parsed doc ids) responds 202 and generates in `after()`
+- [x] `lib/gemini.ts` uses structured JSON output with the spec's schema; one call per document, run in parallel
+- [x] zod validation plus checks 1–7 from the spec; failing items are dropped, not the whole Game
 - [x] Open Prompt Tier assignment in `lib/scoring/tiers.ts`, unit-tested with N = 4 and N = 11 (built in F02 as `assignOpenTiers`; tests in `tiers.test.ts`, #19)
-- [ ] `answer_keys` written using F05's `normalize()`
-- [ ] Fewer than 7 Prompts → `failed` with a readable error; otherwise `ready`
-- [ ] Tested on real lecture slides; spot-check that Evidence quotes appear on their pages
+- [x] `answer_keys` written using F05's `normalize()`
+- [x] Fewer than 7 Prompts → `failed` with a readable error; otherwise `ready`
+- [x] Tested on real lecture slides; spot-check that Evidence quotes appear on their pages (CMPT 354 SQL Basics PDF, 94 pages → ready Game, 16 Prompts covering all five kinds; quotes are verified in code)
 
-Entry points: — · Notes for others: —
+Entry points: `POST`/`GET /api/modules/[moduleId]/games`, `GET`/`DELETE /api/games/[gameId]`, `lib/games/generate-game.ts` (`generateGame(gameId, { db?, generate? })`), `lib/games/validate.ts` (`validateDocument`, `dedupeAcrossDocuments`), `lib/games/queries.ts` (`getPlayerGame`, `listModuleGames`), `lib/games/types.ts` (`GameSummary`, client-safe), `lib/gemini.ts` (`generateDocumentPrompts`), `lib/gemini/game-prompt.ts` (instructions + schema), `lib/modes/index.ts` (`MODES`), `npm run generate:check -- <file>|--seed`
+
+Notes for others:
+- **F08:** `POST` `{ title, mode?, sourceDocumentIds[] }` → 202 `{ game }`; poll `GET /api/modules/[id]/games` every ~3 s while any Game is `queued`/`generating` (both show as "Generating…"). `game.sources` gives the file chips; `game.error` is user-facing. 409 means a chosen file isn't Ready. A failed Game is deleted and made again (no retry). Full API: `game-generation-pipeline.md` § API.
+- **Generation takes ~45 s** for a 94-page deck (one Gemini call per file, in parallel). A Game unfinished after 10 minutes is marked `failed` on the next read.
+- **Gemini overload is the main risk:** 3.8-flash returned 503 on most long requests, hence 3.6-flash plus a Lite fallback (a weaker Game, but still a Game). Set `GEMINI_FALLBACK_MODEL` (`.env.example`).
+- **Tune the prompt** with `npm run generate:check -- <file> --save out.json`, then `--from out.json` to re-check for free. Quality work is planned in F14–F18.
+- **Tests:** `validate.test.ts` (unit, checks 1–7 and the seed fixture), `generate-game.db.test.ts` (DB, fake Gemini; needs the `games.mode` migration).
 
 ## F05 Answer matching
 Spec: `docs/architecture/answer-matching.md`
@@ -209,9 +221,53 @@ Entry points: — · Notes for others: —
 
 ## F13 Game Modes: `games.mode` and the Mode picker
 Spec: `docs/architecture/game-modes.md`, ADR-0004
-- [ ] Migration: `games.mode text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive'))`; `data-model.md` updated from "planned" to the real column
-- [ ] `lib/modes/index.ts` (`MODES`, `ModeId`); `POST /api/modules/[moduleId]/games` accepts `mode` (default `'dive'`) and validates it
-- [ ] Generation and the run engine read `game.mode` (assert `'dive'` for now)
+- [x] Migration: `games.mode text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive'))`; `data-model.md` updated from "planned" to the real column (shipped with F04; applied to stormhacks-dev)
+- [x] `lib/modes/index.ts` (`MODES`, `ModeId`); `POST /api/modules/[moduleId]/games` accepts `mode` (default `'dive'`) and validates it (shipped with F04)
+- [ ] Generation and the run engine read `game.mode` (assert `'dive'` for now). Generation: done in F04. Run engine: still open
 - [ ] New Game dialog: Mode tiles (Dive + locked "More modes soon"); Game cards and the Game page show the Mode badge
+
+Entry points: — · Notes for others: —
+
+## F14 Generation scorecard (eval on real decks)
+Spec: `docs/architecture/game-generation-pipeline.md` § Improving output quality · Issue #24 (do this first: F15–F17 are judged by it)
+- [ ] 3–4 real eval decks (PDF, PPTX, DOCX + the seed deck); Gemini responses saved with `--save`
+- [ ] A scorecard per deck: Prompts returned/kept, kinds, Open Prompts, Answers per Open Prompt, quotes verified, Hints removed, drops by reason, seconds, cost
+- [ ] Replays saved responses (`--from`) for free code-only comparisons
+- [ ] Baseline recorded in the spec
+
+Entry points: — · Notes for others: —
+
+## F15 Example Prompts in the generator instructions
+Spec: `docs/architecture/game-generation-pipeline.md` § Improving output quality · Issue #25
+- [ ] 3–4 example Prompts from the seed fixture in `lib/gemini/game-prompt.ts`
+- [ ] "Bad → good" pairs for compound Open Prompts and give-away Hints
+- [ ] F14 scorecard before/after
+
+Entry points: — · Notes for others: —
+
+## F16 Gemini verification pass for Answers
+Spec: `docs/architecture/game-generation-pipeline.md` § Improving output quality · Issue #26
+- [ ] One verification call per document: per-Answer "does the quote support it?", per-Prompt clear/duplicate
+- [ ] Drop unsupported Answers, re-run check 4 and Tier assignment; drop unclear Prompts and duplicates
+- [ ] A failed verification call keeps the unverified Prompts (logged), never fails the Game
+- [ ] Added time and cost measured; F14 scorecard before/after
+
+Entry points: — · Notes for others: —
+
+## F17 Overgenerate and select the best Prompts
+Spec: `docs/architecture/game-generation-pipeline.md` § Improving output quality · Issue #27
+- [ ] Ask for ~25 Prompts per document
+- [ ] `selectPrompts`: score by Answers, kind and page coverage, near-duplicates; keep the best 15–20; unit-tested
+- [ ] F14 scorecard before/after, including latency
+
+Entry points: — · Notes for others: —
+
+## F18 Open Prompt answer expansion with retrieval (pgvector, stretch)
+Spec: `docs/architecture/game-generation-pipeline.md` § Improving output quality · Issue #28 · Stretch; Tiger Data sponsor angle
+- [ ] Migration: pgvector (+ pgvectorscale) and `source_pages.embedding` (comment on the issue first: shared schema)
+- [ ] Pages embedded at upload; failures never fail the upload
+- [ ] Per Open Prompt: retrieve nearest pages → Gemini lists every supported Answer → merge, checks 1–3, re-rank, reassign Tiers
+- [ ] F14 scorecard before/after (Answers per Open Prompt, rare Answers from new pages)
+- [ ] README mentions the sponsor use (F12)
 
 Entry points: — · Notes for others: —

@@ -8,14 +8,14 @@ Turns the stored pages of chosen Source Documents into a **Game**: Prompts, Answ
 
 ```
 Module page → "New Game": Player picks ≥1 parsed Source Documents and a title
-  │  POST /api/modules/[moduleId]/games  { title, sourceDocumentIds[] }
+  │  POST /api/modules/[moduleId]/games  { title, mode?, sourceDocumentIds[] }   (mode defaults to 'dive')
   ▼
-1. Auth + validate: the Module is the Player's; every document belongs to it and is 'parsed'
-2. one transaction: INSERT games (status = 'queued'); INSERT game_sources rows  → respond 202 { game }
+1. Auth + validate: the Module is the Player's; every document belongs to it and is 'parsed' (else 409); mode is in MODES
+2. one transaction: INSERT games (status = 'queued', mode); INSERT game_sources rows  → respond 202 { game }
 3. after(async () => generateGame(gameId))
 
 generateGame:
-  a. status = 'generating'
+  a. claim it: UPDATE … SET status = 'generating' WHERE status = 'queued' (so it runs once); assert mode = 'dive'
   b. for each selected document, IN PARALLEL: load its source_pages, then call Gemini (one call per document)
   c. validate every returned Prompt (checks below); drop what fails, keep the rest
   d. assign Tiers to Open Prompt Answers (code, not Gemini)
@@ -26,10 +26,25 @@ generateGame:
 
 The Game card shows `Generating…` and re-fetches every ~3s until it's `ready` or `failed`. A failed Game can be deleted and created again; there's no retry-in-place, because Games are immutable.
 
+A Game still `queued`/`generating` 10 minutes after creation (the server restarted mid-way, say) is marked `failed` the next time the Player's Games are read.
+
+### API
+
+| Method + path | Body | Returns |
+|---|---|---|
+| `POST /api/modules/[moduleId]/games` | `{ title, mode?, sourceDocumentIds[] }` | 202 `{ game }` |
+| `GET /api/modules/[moduleId]/games` | — | `{ games }`, newest first (poll while any are queued/generating) |
+| `GET /api/games/[gameId]` | — | `{ game }` |
+| `DELETE /api/games/[gameId]` | — | 204. Any status; also deletes its Runs and `guess_events` |
+
+`game` is `GameSummary` from `lib/games/types.ts`: `id, module_id, title, mode, status, error, prompt_count, created_at, sources: { id, filename }[]`. Errors are `{ error }` with 400 (bad body, unknown mode, files not in this Module), 401, 404 and 409 (a file isn't Ready).
+
 ## Gemini call (one per Source Document)
 
-- SDK: `@google/genai`, server only, `lib/gemini.ts`. Model comes from `GEMINI_MODEL`.
-- **Structured output:** set the response MIME type to JSON and pass the schema below, so the output always parses. Check the current Gemini docs for the exact config field names (`responseMimeType` / `responseSchema` or `responseJsonSchema`) before coding.
+- SDK: `@google/genai`, server only, `lib/gemini.ts`. Model comes from `GEMINI_MODEL` (we use `gemini-3.6-flash`).
+- **Overload:** on 429/5xx (Gemini often answers 503 "high demand"), retry after 2, 5 and 12 s, then switch to `GEMINI_FALLBACK_MODEL` if set (we use `gemini-3.5-flash-lite`: weaker, fewer Open Prompts, but rarely overloaded). 3.8-flash was overloaded on most long requests during testing, which is why we use 3.6.
+- **Structured output:** `responseMimeType: "application/json"` plus `responseJsonSchema` (plain JSON Schema), so the output always parses. `answers`, `tier`, `hint` and `explanation` are **required** for every Prompt (empty when a kind doesn't use them): left optional, Gemini omits them from single-answer Prompts, which then get dropped.
+- Cost and speed with 3.6-flash: a 94-page lecture PDF took ~45 s and ~$0.05 USD. Don't lower the thinking level: `LOW` returned two Prompts with no Answers.
 - Input: the document's pages, each wrapped as `=== Page <page_number> ===\n<content_md>`, and the document title.
 - Ask for **15–20 Prompts per document**, in any mix of types, with at least half of them Open Prompts.
 - Temperature around 0.4: varied enough for interesting Prompts, low enough to stay grounded.
@@ -85,6 +100,8 @@ A flat shape (optional fields per `kind`) works more reliably with structured ou
 
 Validate the parsed response with a zod schema mirroring this shape. If one Prompt fails validation, drop it, not the whole document.
 
+`npm run generate:check -- <file> [--pages a-b] [--save out.json] [--from out.json]` runs extraction → Gemini → checks on a local file without the app or database and prints what was kept and dropped and why. Use it to tune the prompt; `--from` replays a saved response for free.
+
 ## Checks (code, after Gemini)
 
 All string comparisons use `normalize()` from `lib/matching/normalize.ts`, the same function used to match guesses (`answer-matching.md`). Checks run in this order:
@@ -92,12 +109,17 @@ All string comparisons use `normalize()` from `lib/matching/normalize.ts`, the s
 | # | Check | Applies to | On failure |
 |---|---|---|---|
 | 1 | `evidence_page` exists in this document | all | drop the Answer (or the Prompt, for ordered/odd-one-out) |
-| 2 | **Evidence:** the normalized page content contains the normalized canonical or one Alias | open, cloze, definition answers; odd_one_out `correct_option` | drop the Answer / Prompt |
-| 3 | **Alias hygiene:** dedupe; drop any key (canonical or Alias) that normalizes to the same string as a key of a *different* Answer in the same Prompt | open | drop that key; if it was a canonical, drop the Answer |
-| 4 | Open Prompt still has ≥ 4 Answers | open | drop the Prompt |
+| 2 | **Evidence:** the normalized page content contains the normalized canonical or one Alias, as whole words | open, cloze, definition answers; odd_one_out `correct_option` | drop the Answer / Prompt. odd_one_out first moves its Evidence to the first page that names the correct option (Gemini often cites the page about the other three); it's dropped only if no page does |
+| 3 | **Alias hygiene:** dedupe; a repeated canonical keeps its first Answer; drop any key (canonical or Alias) that normalizes to the same string as a key of a *different* Answer in the same Prompt | open | drop that key; if it was a canonical, drop the Answer |
+| 4 | Open Prompt still has ≥ 4 Answers; above 15, keep the 15 most obvious | open | drop the Prompt |
 | 5 | **Hint:** the normalized hint contains no key of the Prompt's Answer as a whole word (odd_one_out: not the correct option) | single-answer | set `hint = null`; the Hint button is hidden for that Prompt |
 | 6 | Shape sanity: 3–6 `items`; exactly 4 distinct `options` including `correct_option` | ordered, odd_one_out | drop the Prompt |
 | 7 | Exact-duplicate Prompt text across documents | all | keep the first |
+
+Two more rules apply before the checks above:
+
+- **Unusable keys:** a name that normalizes to nothing, or to one character from something longer (`A*` → `a`, `%`, `_`), can't be typed or matched safely: `a` is on every page and would match the word "a". The key is left out, and if it's the canonical, the Answer is dropped. A genuine one-letter name (`C`, `R`) is kept.
+- **Quotes:** an `evidence_quote` that isn't on its page (whitespace- and case-insensitive) or is over 200 characters is stored as null. The Answer is kept, because its page already passed check 2.
 
 ## Tier assignment for Open Prompts (code)
 
@@ -120,13 +142,35 @@ Examples:
 
 Points per Tier come from one constant table (`lib/scoring/tiers.ts`): common 10, solid 25, deep 60, rare 100. Gemini never sees or writes points.
 
+## Improving output quality (planned)
+
+What testing on real decks showed (seed deck and CMPT 354 SQL Basics, 94 pages):
+- **Mentioned ≠ correct.** Check 2 only confirms an Answer appears on its page. "Name an algorithm that handles negative edge weights" got Kruskal and Prim, both on the cited page and both wrong.
+- **Broad or compound Open Prompts** ("Name an SQL clause used to filter, order, or group records"), and two ordered_recall Prompts about the same thing.
+- **Hints that nearly give it away** through a plural or a related word ("disjoint sets" for union-find), which check 5's whole-word match misses.
+
+**Why not plain RAG:** retrieval is for material that doesn't fit in the model's context. A whole deck does (94 pages ≈ 13k tokens), and each document already gets its own call, so retrieving chunks would only show Gemini less. Retrieval does help one thing: finding *more* Answers for an Open Prompt across the deck (F18).
+
+Planned, in order (each measured with F14's scorecard, which comes first):
+
+| ID | Change | Fixes | Cost |
+|---|---|---|---|
+| F14 (#24) | Scorecard over 3–4 real decks: kept Prompts, kinds, Answers per Open Prompt, quotes verified, drops by reason, time, cost; `--from` replays for free | judging changes by eye | none per Game |
+| F15 (#25) | Example Prompts from the seed fixture in the instructions, plus "bad → good" pairs | broad Prompts, give-away Hints, tier choice | a few hundred input tokens |
+| F16 (#26) | Second Gemini call per document: does each quote show its Answer fits the Prompt? Is the Prompt clear, or a duplicate? | mentioned-but-wrong Answers, duplicates | ~+20 s, ~+$0.02 per document |
+| F17 (#27) | Ask for ~25 Prompts, keep the best 15–20 by code (Answers per Open Prompt, kind and page coverage, near-duplicates) | uneven quality and coverage | more output tokens |
+| F18 (#28, stretch) | pgvector on `source_pages`: per Open Prompt, retrieve the related pages and ask for every Answer they support, then merge and re-rank | too few Answers per Open Prompt, weak Rarity | embeddings at upload + one call per Open Prompt |
+
 ## Code layout
 
 | File | Responsibility |
 |---|---|
-| `app/api/modules/[moduleId]/games/route.ts` | POST create Game |
+| `app/api/modules/[moduleId]/games/route.ts` | POST create Game, GET list the Module's Games |
 | `app/api/games/[gameId]/route.ts` | GET status/details, DELETE |
 | `lib/gemini.ts`, `lib/gemini/game-prompt.ts` | Client and instructions |
 | `lib/games/generate-game.ts` | `generateGame` steps a–f |
-| `lib/games/validate.ts` | zod schema + checks 1–7 |
+| `lib/games/validate.ts` | zod schema + checks 1–7 (pure; shared checks 1–3 and 7, Dive's 4–6 + Tiers) |
+| `lib/games/queries.ts`, `lib/games/types.ts` | Game reads for the routes (`getPlayerGame`, `listModuleGames`), client-safe `GameSummary` |
+| `lib/modes/index.ts` | `MODES`, `ModeId`, `isModeId` |
+| `scripts/generate-check.ts` | `npm run generate:check`: tune the prompt on a local file |
 | `lib/scoring/tiers.ts` | Tier table + Open Prompt tier assignment |

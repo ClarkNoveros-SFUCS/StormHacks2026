@@ -15,10 +15,12 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --exclude \"**/*.db.test.ts\" --exclude \"**/node_modules/**\" --exclude \".claude/**\"",
     "test:db": "vitest run db.test",
-    "parse:check": "node scripts/parse-check.ts"
+    "parse:check": "node scripts/parse-check.ts",
+    "generate:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-check.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.10",
+    "@google/genai": "^2.27.0",
     "jszip": "^3.10.2",
     "mammoth": "^1.13.0",
     "next": "16.3.8",
@@ -26,7 +28,8 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",
-    "unpdf": "^1.8.1"
+    "unpdf": "^1.8.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

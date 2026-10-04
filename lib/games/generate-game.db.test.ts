@@ -1,0 +1,138 @@
+// Integration tests for generateGame against Tiger Data, with a fake Gemini. Run with
+// `npm run test:db` (needs DATABASE_URL in .env.local and the games.mode migration).
+// Every test builds its fixture inside a transaction that is rolled back.
+import { randomUUID } from "node:crypto";
+import type postgres from "postgres";
+import { describe, expect, it } from "vitest";
+import fixture from "@/db/seed/graph-algorithms.json";
+import { sql } from "@/lib/db";
+import { GeminiError } from "@/lib/gemini";
+import { normalize } from "@/lib/matching/normalize";
+import { generateGame, NOT_ENOUGH_CONTENT } from "./generate-game";
+
+type Fixture = { tx: postgres.TransactionSql; gameId: string; documentIds: string[] };
+
+class Rollback extends Error {}
+
+/** A Player, a Module, `docs` parsed copies of the seed deck, and a queued Game using all of them. */
+async function withFixture(fn: (f: Fixture) => Promise<void>, { docs = 1, status = "queued" } = {}) {
+  try {
+    await sql.begin(async (tx) => {
+      const playerId = `test_f04_${randomUUID()}`;
+      await tx`insert into players (id) values (${playerId})`;
+      const [mod] = await tx`insert into modules (player_id, name) values (${playerId}, 'F04 test') returning id`;
+      const documentIds: string[] = [];
+      for (let i = 0; i < docs; i++) {
+        const [doc] = await tx`
+          insert into source_documents (module_id, player_id, filename, mime_type, size_bytes, status, page_count)
+          values (${mod.id}, ${playerId}, ${`deck-${i}.pptx`}, ${fixture.document.mime_type}, 1, 'parsed',
+                  ${fixture.document.pages.length})
+          returning id`;
+        await tx`insert into source_pages ${tx(
+          fixture.document.pages.map((p) => ({
+            source_document_id: doc.id,
+            page_index: p.page_number - 1,
+            page_number: p.page_number,
+            content_md: p.content_md,
+          })),
+        )}`;
+        documentIds.push(doc.id);
+      }
+      const [game] = await tx`
+        insert into games (module_id, player_id, title, status) values (${mod.id}, ${playerId}, 'F04 test', ${status})
+        returning id`;
+      await tx`insert into game_sources ${tx(documentIds.map((id) => ({ game_id: game.id, source_document_id: id })))}`;
+      await fn({ tx, gameId: game.id, documentIds });
+      throw new Rollback();
+    });
+  } catch (e) {
+    if (!(e instanceof Rollback)) throw e;
+  }
+}
+
+const fake = (prompts: unknown[]) => async () => ({ response: { prompts } });
+const game = async (tx: postgres.TransactionSql, id: string) =>
+  (await tx`select status, error, prompt_count, mode from games where id = ${id}`)[0];
+
+describe("generateGame", () => {
+  it("stores a ready Game: Prompts, Answers with Tiers and Evidence, normalized answer_keys", () =>
+    withFixture(async ({ tx, gameId, documentIds }) => {
+      const result = await generateGame(gameId, { db: tx, generate: fake(fixture.game.prompts) });
+      expect(result).toEqual({ status: "ready", promptCount: 12, dropped: 0 });
+      expect(await game(tx, gameId)).toMatchObject({ status: "ready", error: null, prompt_count: 12, mode: "dive" });
+
+      const prompts = await tx`select * from prompts where game_id = ${gameId}`;
+      expect(prompts).toHaveLength(12);
+      expect(prompts.every((p) => p.source_document_id === documentIds[0])).toBe(true);
+      expect(prompts.filter((p) => p.kind === "open").every((p) => p.tier === null && p.hint === null)).toBe(true);
+      const ordered = prompts.find((p) => p.kind === "ordered_recall")!;
+      expect(Array.isArray(ordered.items)).toBe(true); // jsonb array, not a jsonb string
+      expect(ordered.evidence_page_id).not.toBeNull();
+
+      const answers = await tx`
+        select a.*, sp.page_number from answers a
+        join prompts p on p.id = a.prompt_id
+        join source_pages sp on sp.id = a.evidence_page_id
+        where p.game_id = ${gameId}`;
+      expect(answers).toHaveLength(30);
+      const graph = fixture.game.prompts[0];
+      const graphAnswers = answers
+        .filter((a) => graph.answers!.some((g) => g.canonical === a.canonical) && a.rarity_rank !== null)
+        .sort((a, b) => a.rarity_rank - b.rarity_rank);
+      expect(graphAnswers.at(-1)!.tier).toBe("rare");
+      expect(answers.find((a) => a.canonical === "BFS")).toMatchObject({ exact_only: true, page_number: 2 });
+
+      const keys = await tx`
+        select k.normalized, a.canonical from answer_keys k join answers a on a.id = k.answer_id
+        join prompts p on p.id = k.prompt_id where p.game_id = ${gameId}`;
+      expect(keys).toHaveLength(80);
+      expect(keys.every((k) => k.normalized === normalize(k.normalized))).toBe(true);
+      expect(keys).toContainEqual({ normalized: "breadth first search", canonical: "BFS" });
+    }));
+
+  it("dedupes the same Prompt across two documents (check 7) and calls Gemini once per document", () =>
+    withFixture(
+      async ({ tx, gameId }) => {
+        const calls: string[] = [];
+        const result = await generateGame(gameId, {
+          db: tx,
+          generate: async (title) => (calls.push(title), { response: { prompts: fixture.game.prompts } }),
+        });
+        expect(calls.sort()).toEqual(["deck-0.pptx", "deck-1.pptx"]);
+        expect(result).toEqual({ status: "ready", promptCount: 12, dropped: 12 });
+      },
+      { docs: 2 },
+    ));
+
+  it("fails with a readable error when fewer than 7 Prompts survive", () =>
+    withFixture(async ({ tx, gameId }) => {
+      const result = await generateGame(gameId, { db: tx, generate: fake(fixture.game.prompts.slice(0, 6)) });
+      expect(result).toEqual({ status: "failed", error: NOT_ENOUGH_CONTENT });
+      expect(await game(tx, gameId)).toMatchObject({ status: "failed", error: NOT_ENOUGH_CONTENT, prompt_count: null });
+      expect(await tx`select 1 from prompts where game_id = ${gameId}`).toHaveLength(0);
+    }));
+
+  it("fails with a user-facing message when Gemini fails", () =>
+    withFixture(async ({ tx, gameId }) => {
+      const result = await generateGame(gameId, {
+        db: tx,
+        generate: async () => {
+          throw new GeminiError("Gemini request failed 503: overloaded");
+        },
+      });
+      expect(result).toMatchObject({ status: "failed", error: expect.stringMatching(/question generator/) });
+      expect((await game(tx, gameId)).status).toBe("failed");
+    }));
+
+  it("leaves a Game that isn't queued alone", () =>
+    withFixture(
+      async ({ tx, gameId }) => {
+        let called = false;
+        const result = await generateGame(gameId, { db: tx, generate: async () => ((called = true), { response: {} }) });
+        expect(result).toEqual({ status: "skipped" });
+        expect(called).toBe(false);
+        expect((await game(tx, gameId)).status).toBe("ready");
+      },
+      { status: "ready" },
+    ));
+});
