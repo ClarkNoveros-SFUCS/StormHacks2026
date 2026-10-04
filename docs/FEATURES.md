@@ -11,12 +11,12 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | ID | Feature | Lane | Depends on | Issue | Status |
 |---|---|---|---|---|---|
 | F01 | Foundation: auth, DB, migrations | Platform | — | #1 | done |
-| F02 | Seed data: demo Module and Game | Platform | F01 | #2 | planned |
+| F02 | Seed data: demo Module and Game | Platform | F01 | #2 | done |
 | F03 | Upload pipeline (Node extraction) | Pipelines | F01 | #3 | planned |
 | F04 | Game generation (Gemini) | Pipelines | F01 (F02 for test pages) | #4 | planned |
-| F05 | Answer matching | Gameplay | F01 | #5 | planned |
-| F06 | Run engine and scoring API | Gameplay | F01, F05 | #6 | planned |
-| F07 | Progress: Personal Best and Mastery | Gameplay | F01 | #7 | planned |
+| F05 | Answer matching | Gameplay | F01 | #5 | done |
+| F06 | Run engine and scoring API | Gameplay | F01, F05 | #6 | done |
+| F07 | Progress: Personal Best and Mastery | Gameplay | F01 | #7 | done |
 | F08 | Modules list and Module page UI | Frontend | F01 (mock F03/F04) | #8 | planned |
 | F09 | Run screen and Reveal UI | Frontend | F06 (mock), F10 | #9 | planned |
 | F10 | Visual design system (Krillion style) | Frontend | design session | #10 | planned |
@@ -61,11 +61,20 @@ Notes for others:
 
 ## F02 Seed data: demo Module and Game
 Spec: `docs/architecture/data-model.md`
-- [ ] `npm run db:seed` creates, for a given Clerk user id, a "Graph Algorithms" Module, one parsed Source Document with ~10 pages, and one `ready` Game
-- [ ] The Game has ≥ 7 Prompts covering all five kinds, with Tiers, Hints, Evidence and `answer_keys` (use the original sample JSON's graph-algorithm content)
-- [ ] Idempotent: re-running replaces the demo data and nothing else
+- [x] `npm run db:seed` creates, for a given Clerk user id, a "Graph Algorithms" Module, one parsed Source Document with ~10 pages, and one `ready` Game
+- [x] The Game has ≥ 7 Prompts covering all five kinds, with Tiers, Hints, Evidence and `answer_keys` (use the original sample JSON's graph-algorithm content)
+- [x] Idempotent: re-running replaces the demo data and nothing else
 
-Entry points: — · Notes for others: —
+Entry points: `npm run db:seed -- <clerkUserId>` (or `SEED_PLAYER_ID=…`; `-- --check` validates the fixture without a DB), `scripts/seed.mts`, `db/seed/graph-algorithms.json`, `lib/scoring/tiers.ts` (`TIERS`, `Tier`, `TIER_POINTS`, `assignOpenTiers(n)`)
+
+Notes for others:
+- **What you get:** a 12-slide PPTX (one page per slide, `status 'parsed'`) and a `ready` Game with 12 Prompts: 3 open, 3 cloze, 2 definition_to_term, 2 ordered_recall, 2 odd_one_out. That's 30 Answers and 80 `answer_keys`. Every single-answer Prompt has a Tier, Hint and explanation. Get your Clerk user id from the Clerk dashboard → Users.
+- **Needs Node ≥ 22.18** (`engines` in package.json). The script runs `.mts` directly with Node's type stripping, so no `tsx` is needed. On a fresh clone, run `npx next typegen` before `npm run typecheck`.
+- **Re-seeding wipes the whole demo Module.** Its id is `md5('seed:graph-algorithms:' || playerId)` as a uuid. A re-run deletes that Module (cascade) plus its Games' `guess_events`, then inserts fresh rows, including anything you added inside it (for example Games while testing F04). Your other Modules, even one named "Graph Algorithms", are never touched. Game, Prompt and Answer ids change on every run, so don't hard-code them.
+- **F04:** the fixture's `game.prompts` use the Gemini response shape and pass checks 1–7, so you can use them as known-good input for `validate.ts`. Open Prompt Answers are listed most obvious first, and `assignOpenTiers` gives them their Tiers and `rarity_rank`. ordered_recall and odd_one_out get one Answer each (`'correct order'` or the correct option), with `evidence_page_id` set on both the Prompt and that Answer and no `answer_keys`.
+- **F05/F06:** "Name a graph algorithm" reproduces `answer-matching.md`'s worked examples. BFS and DFS are `exact_only`, and A* isn't an Answer.
+- **F03:** the seeded document has `stage_path = NULL` (it never went to Snowflake), so the delete and retry routes must handle that.
+- **postgres.js and jsonb:** pass arrays as `tx.json(arr)`. A pre-stringified value cast with `::jsonb` gets stored as a jsonb string.
 
 ## F03 Upload pipeline (Node extraction)
 Spec: `docs/architecture/upload-pipeline.md` · Decision: `docs/adr/0003-parse-uploads-in-node.md` (Snowflake trial blocks `AI_PARSE_DOCUMENT`)
@@ -95,31 +104,59 @@ Entry points: — · Notes for others: —
 
 ## F05 Answer matching
 Spec: `docs/architecture/answer-matching.md`
-- [ ] `lib/matching/normalize.ts` with unit tests for every row of the spec's examples table
-- [ ] `lib/matching/match-guess.ts`: `matchGuess(promptId, raw)` with exact → typo (length budget) → ambiguity rule; `exact_only` respected
-- [ ] Integration test against F02's seeded Prompt (BFS/DFS can't fuzzy-match each other)
+- [x] `lib/matching/normalize.ts` with unit tests for every row of the spec's examples table
+- [x] `lib/matching/match-guess.ts`: `matchGuess(promptId, raw)` with exact → typo (length budget) → ambiguity rule; `exact_only` respected
+- [ ] Integration test against F02's seeded Prompt (BFS/DFS can't fuzzy-match each other). Covered for now by `match-guess.db.test.ts` with its own rolled-back fixture (same graph-algorithm Answers and cases); a seeded-Prompt test follows once F02 merges.
 
-Entry points: — · Notes for others: —
+Entry points: `lib/matching/normalize.ts` (`normalize()`), `lib/matching/match-guess.ts` (`matchGuess(promptId, raw, db?)`, `MatchResult`, `Db`, `typoBudget()`), tests in `lib/matching/*.test.ts`, `vitest.config.mts`
+
+Notes for others:
+- **F04:** write every canonical name and Alias to `answer_keys` as `normalize(text)`, with `exact_only` copied from the Answer. Never normalize in SQL.
+- **F06:** call `matchGuess(promptId, raw, tx)` inside your transaction. `{ matched: false }` with `method: 'ambiguous'` is a wrong guess like `'none'`; log `method` and `distance` to `guess_events`. An empty normalized guess returns `'none'`: don't charge the −3 s for it.
+- Guesses over 255 normalized chars never typo-match (fuzzystrmatch limit); they still exact-match.
+- **Tests:** vitest 4 (vitest 5 needs `@types/node` ≥ 22). `npm test` runs unit tests; `npm run test:db` runs `*.db.test.ts` against `DATABASE_URL` from `.env.local` (skipped without it). `server-only` is aliased to `test/server-only-stub.ts`, so server modules import fine. Pattern for DB tests: build data inside `sql.begin()` and throw to roll back (see `withFixture` in `match-guess.db.test.ts`).
+- Fresh clone: run `npx next typegen` before `npm run typecheck`, or `LayoutProps` in `app/layout.tsx` fails.
 
 ## F06 Run engine and scoring API
 Spec: `docs/architecture/run-and-scoring.md`
-- [ ] `lib/scoring/points.ts`: `openPoints`, `singlePoints` (Staleness halving with a minimum of 1; Hint drops a Tier, common → 5), unit-tested
-- [ ] `lib/runs/run-engine.ts`: create (7 random Prompts, abandon other in-progress Runs), startPrompt, guess, hint, timeout, advance, finish
-- [ ] Server-owned clock: deadline, −3 s per wrong typed guess, 500 ms grace, late requests close the Prompt as timeout first
-- [ ] Put-in-order and odd-one-out are one-shot
-- [ ] Every guess is written to `guess_events`
-- [ ] All `/api/runs/...` routes and `GET /reveal`, returning the spec's `RunState`/`GuessResult` types; Answers and Hints never leak early
-- [ ] Shared types exported from `lib/runs/types.ts` for the frontend
+- [x] `lib/scoring/points.ts`: `openPoints`, `singlePoints` (Staleness halving with a minimum of 1; Hint drops a Tier, common → 5), unit-tested
+- [x] `lib/runs/run-engine.ts`: create (7 random Prompts, abandon other in-progress Runs), startPrompt, guess, hint, timeout, advance, finish
+- [x] Server-owned clock: deadline, −3 s per wrong typed guess, 500 ms grace, late requests close the Prompt as timeout first
+- [x] Put-in-order and odd-one-out are one-shot
+- [x] Every guess is written to `guess_events`
+- [x] All `/api/runs/...` routes and `GET /reveal`, returning the spec's `RunState`/`GuessResult` types; Answers and Hints never leak early
+- [x] Shared types exported from `lib/runs/types.ts` for the frontend
 
-Entry points: — · Notes for others: —
+Entry points: `lib/runs/run-engine.ts` (`createRun`, `getRunState`, `startPrompt`, `guess`, `revealHint`, `timeoutPrompt`, `getReveal`, `RunError`), `lib/runs/types.ts` (client-safe API types), `lib/runs/http.ts` (`runRoute`), `lib/scoring/points.ts`, `lib/scoring/tiers.ts`, routes `app/api/games/[gameId]/runs` and `app/api/runs/[runId]/{,start-prompt,guess,hint,timeout,reveal}`
+
+Notes for others:
+- **F09 flow:** `POST /api/games/[gameId]/runs` → `{ runId }`; per Prompt: `POST start-prompt` (starts the 25 s clock; idempotent), then `guess` / `hint`, and `POST timeout` when your countdown hits 0. A new Prompt shows `startedAt: null` until you call `start-prompt`, so you can play a transition first. After position 7 the state is `finished` with `prompt: null`; then `GET reveal`.
+- **Clock:** render from `deadlineAt` plus the offset `Date.parse(serverNow) − Date.now()`; every response carries a fresh `serverNow`. The server allows guesses 500 ms past the deadline and `/timeout` up to 250 ms early.
+- **Differences from the spec's types:**
+  - `GuessResult` adds `{ correct: false, timedOut: true }` (the guess arrived too late; the Prompt closed as a timeout) and `correctOrder` on a wrong put-in-order.
+  - Send `position` with each guess: a guess for an already-closed Prompt then gets 409 instead of landing on the next one.
+  - `RunState` adds `promptCount`, `hint` (once used, so reloads keep it) and `prompt: null` when the Run is over.
+- **Errors:** `{ error }` with 400 (bad body, empty guess), 401, 404 (not yours or malformed id), 409 (wrong state: not started, already closed, Run finished or abandoned, no Hint, Reveal before finish).
+- **F07:** `Reveal.progress` is `null`; fill it in `getReveal`. Abandoned Runs keep their `guess_events`, so they already count toward Mastery and Staleness.
+- **F04:** `lib/scoring/tiers.ts` owns the Tier table; add Open Prompt Tier assignment there.
+- **Engine functions** take `(tx, playerId, …, now)` and lock the run row; call them inside `sql.begin`. Tests drive them with a fake clock (`run-engine.db.test.ts`).
+- The one-submission rule for put-in-order and odd-one-out is confirmed but not yet in `CONTEXT.md`.
 
 ## F07 Progress: Personal Best and Mastery
 Spec: `docs/architecture/data-model.md` (Progress queries)
-- [ ] `lib/progress.ts`: `personalBest`, `mastery`, `masteryByTier`, `recentRuns`
-- [ ] The Reveal includes "new Personal Best?" and Mastery before → after
-- [ ] Optional: the `player_game_daily` continuous aggregate and a query for the stats chart
+- [x] `lib/progress.ts`: `personalBest`, `mastery`, `masteryByTier`, `recentRuns` (plus `progressForGames` for F08's cards)
+- [x] The Reveal includes "new Personal Best?" and Mastery before → after: `getReveal` fills `Reveal.progress` from `runProgress(playerId, runId, tx)`
+- [x] Optional: the `player_game_daily` continuous aggregate and a query for the stats chart (`dailyStats`). The migration is applied to Tiger Cloud `stormhacks-dev`
 
-Entry points: — · Notes for others: —
+Entry points: `lib/progress.ts` (`personalBest`, `mastery`, `masteryByTier`, `recentRuns`, `progressForGames`, `runProgress`, `dailyStats`; types `Mastery`, `RecentRun`, `GameProgress`, `RunProgress`, `DailyStat`, `Db`; `Tier` comes from `lib/scoring/tiers.ts`), `db/migrations/20261004T0316_player_game_daily.sql`, tests in `lib/progress.db.test.ts`
+
+Notes for others:
+- **All functions are server only and take `playerId` first.** Answers are counted only through Games the caller owns: another Player's `gameId` reads 0 of 0, and `runProgress` returns null. Pass real uuids; a malformed id makes Postgres throw `22P02`, so load or validate the Game/Run first.
+- **Reveal (F06/F09):** `GET /api/runs/[runId]/reveal` now returns `progress: { personalBest, isNewPersonalBest, masteryBefore, masteryAfter }` (percentages; `personalBest` is as of that Run). `runProgress` takes an optional transaction as its last argument. Keep setting `finished_at` with `status = 'finished'`; Runs without it get `progress: null`.
+- **F08:** `progressForGames(playerId, gameIds)` returns a `Map` of `{ personalBest, mastery }` for all cards in one query.
+- **F11:** `personalBest`, `mastery` (`pct` 0–100, rounded down), `masteryByTier` (every Tier present), `recentRuns` (finished only, newest first; link each to its Reveal), `dailyStats` (oldest first; `day` is Vancouver midnight as an instant, so format it with `timeZone: "America/Vancouver"`; days without guesses are left out).
+- **`player_game_daily`** is real-time (`materialized_only = false`), so a Run just played shows up immediately. Never refresh it by hand with a NULL end; see `data-model.md`.
+- Definitions of new Personal Best and Mastery before → after: `run-and-scoring.md` § Reveal.
 
 ## F08 Modules list and Module page UI
 Spec: `docs/architecture/ui-map.md`

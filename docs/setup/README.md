@@ -3,9 +3,10 @@
 ## Every teammate (5 min)
 
 1. `bash scripts/setup.sh`: GitHub CLI and login, for team coordination.
-2. `npm install`
+2. Node 22.18 or newer (`node --version`; the `db:seed` script needs it), then `npm install`
 3. Get `.env.local` from whoever set up the services (shared privately, never committed; `.env*` is gitignored).
 4. `npm run db:migrate` (once F01 has merged), then `npm run dev`.
+5. Optional demo data: `npm run db:seed -- <your Clerk user id>` (Clerk dashboard → Users) gives you a "Graph Algorithms" Module with a ready Game. Re-running it replaces that Module and everything inside it.
 
 ## Services (one person each, once for the team)
 
