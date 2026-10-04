@@ -41,6 +41,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F29 | Arena: three.js FPS study Mode (stretch) | Frontend | F20, F24 | #42 | done |
 | F30 | Split generation: parallel Open and other-kinds calls | Pipelines | F04, F14 (F17) | #64 | done |
 | F31 | Faster Gemini fallback: fewer retries on 503, fall back on timeout | Pipelines | F04 | #66 | done |
+| F32 | Sonar: AI study coach (LangGraph) over a per-concept learner model | Gameplay | F22 | #73 | in-progress |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -578,3 +579,15 @@ Notes for others:
 - **Verification** uses the same loop with its own model order (lite first) and 120 s timeout, so a stalled verifier also falls back to 3.6-flash now.
 - The SDK's own retries (`httpOptions.retryOptions`) stay off; all retrying is in `withFallback`.
 - Without `GEMINI_FALLBACK_MODEL` there's one model, and it keeps the full 2/5/12 s retries as before.
+
+## F32 Sonar: AI study coach (LangGraph) over a per-concept learner model
+Spec: `docs/architecture/sonar.md` · Issue #73
+- [ ] Python Basics concept graph and Prompt tags (sidecar JSON)
+- [ ] Learner model: Mode-aware BKT with noisy-AND blame, root cause, ranked next actions (pure, tested)
+- [ ] Sonar agent (LangGraph + Gemini) with tools; briefing and chat API
+- [ ] `/sonar` page: mastery map, chat, recommendation cards
+- [ ] Demo seed
+
+Entry points: (to fill)
+
+Notes for others: (to fill)
