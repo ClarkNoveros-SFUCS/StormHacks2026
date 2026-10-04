@@ -73,10 +73,9 @@ CREATE TABLE games (
   status        text NOT NULL CHECK (status IN ('queued','generating','ready','failed')),
   error         text,
   prompt_count  integer,
-  created_at    timestamptz NOT NULL DEFAULT now()
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  mode          text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive'))   -- Game Mode (ADR-0004); added by 20261004T0750_games_mode.sql
 );
--- Planned (ADR-0004, game-modes.md), not yet migrated:
--- ALTER TABLE games ADD COLUMN mode text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive'));
 
 CREATE TABLE game_sources (
   game_id             uuid NOT NULL REFERENCES games(id) ON DELETE CASCADE,
