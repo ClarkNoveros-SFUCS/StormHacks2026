@@ -10,6 +10,7 @@ import { TIERS } from "../../scoring/tiers.ts";
 import {
   containsWords, notEnoughFor, pagesAsText, type Drop, type GeneratedPrompt, type ModeGenerator, type Tagged,
 } from "../generation.ts";
+import { MATH_NOTATION_RULE } from "../../gemini/math-notation.ts";
 import { MODES } from "../index.ts";
 
 const MIN = MODES.pairs.minPrompts;
@@ -37,7 +38,7 @@ PAIRS (write 16-24, each about a DIFFERENT term)
 
 EXAMPLE (format and quality only, from a lecture on graph algorithms; not content to reuse)
 {"kind":"definition_to_term","text":"A structure that tracks which vertices already share a component, so an edge that would close a cycle can be skipped.","answers":[{"canonical":"union-find","aliases":["disjoint set"],"exact_only":false,"evidence_page":9,"evidence_quote":"Keeps track of which vertices are already in the same component."}],"tier":"solid","explanation":"With union by rank and path compression, each operation is almost O(1).","hint":""}
-BAD: a definition that uses the term or a word from it ("A set structure that is disjoint..."), or a term that is a sentence. GOOD: as above, a short named term and a definition that fits only it.`;
+BAD: a definition that uses the term or a word from it ("A set structure that is disjoint..."), or a term that is a sentence. GOOD: as above, a short named term and a definition that fits only it.${MATH_NOTATION_RULE}`;
 
 const answerSchema = {
   type: "object",

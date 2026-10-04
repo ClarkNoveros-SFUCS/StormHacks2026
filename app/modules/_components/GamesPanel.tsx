@@ -16,8 +16,6 @@ import s from "./modules.module.css";
 type Props = {
   games: GameRow[];
   progress: Record<string, CardProgress>;
-  hoverDocId: string | null;
-  onHover: (docId: string | null) => void;
   freshIds: Set<string>;
   removing: Set<string>;
   canCreate: boolean;
@@ -31,8 +29,6 @@ export const isGenerating = (g: GameRow) => g.status === "queued" || g.status ==
 export function GamesPanel({
   games,
   progress,
-  hoverDocId,
-  onHover,
   freshIds,
   removing,
   canCreate,
@@ -86,16 +82,13 @@ export function GamesPanel({
           )}
         </div>
       ) : (
-        <ul className="flex flex-col gap-3" onMouseLeave={() => onHover(null)}>
+        <ul className="flex flex-col gap-3">
           {games.map((g, i) => (
             <GameCard
               key={g.id}
               g={g}
               index={i}
               progress={progress[g.id]}
-              lit={!!hoverDocId && g.sources.some((src) => src.id === hoverDocId)}
-              hoverDocId={hoverDocId}
-              onHover={onHover}
               fresh={freshIds.has(g.id)}
               leaving={removing.has(g.id)}
               onOpenDoc={onOpenDoc}
@@ -126,9 +119,6 @@ function GameCard({
   g,
   index,
   progress,
-  lit,
-  hoverDocId,
-  onHover,
   fresh,
   leaving,
   onOpenDoc,
@@ -137,9 +127,6 @@ function GameCard({
   g: GameRow;
   index: number;
   progress: CardProgress | undefined;
-  lit: boolean;
-  hoverDocId: string | null;
-  onHover: (docId: string | null) => void;
   fresh: boolean;
   leaving: boolean;
   onOpenDoc: (docId: string) => void;
@@ -154,7 +141,7 @@ function GameCard({
     <li
       data-game={g.id}
       data-live={generating ? "true" : undefined}
-      className={`${s.gameCard} card ${generating ? s.generating : ""} ${lit ? s.lit : ""} ${leaving ? s.rowOut : fresh ? s.gameNew : s.rowIn} flex flex-col gap-3 p-3 transition sm:p-4`}
+      className={`${s.gameCard} card ${generating ? s.generating : ""} ${leaving ? s.rowOut : fresh ? s.gameNew : s.rowIn} flex flex-col gap-3 p-3 transition sm:p-4`}
       style={{ "--i": index, "--tile-accent": ui.accent } as React.CSSProperties}
     >
       <div className="flex gap-3">
@@ -195,16 +182,12 @@ function GameCard({
             <button
               key={src.id}
               type="button"
-              onMouseEnter={() => onHover(src.id)}
-              onFocus={() => onHover(src.id)}
               onClick={() => {
                 sfx.click();
                 onOpenDoc(src.id);
               }}
               title={`Built from ${src.filename}. Click to read it.`}
-              className={`inline-flex max-w-full items-center gap-1.5 rounded-sm border border-border bg-bg-2/70 px-2 py-1 text-[12px] text-muted transition hover:text-text ${
-                hoverDocId === src.id ? s.chipLit : ""
-              }`}
+              className={`inline-flex max-w-full items-center gap-1.5 rounded-sm border border-border bg-bg-2/70 px-2 py-1 text-[12px] text-muted transition hover:text-text`}
             >
               <DocIcon filename={src.filename} size={12} />
               <span className="truncate">{src.filename}</span>
