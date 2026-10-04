@@ -34,7 +34,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             >
               Skip to content
             </a>
-            <SiteNav initial={nav} />
+            {/* SiteNav seeds its state from `initial` once. Keyed so Clerk's router.refresh() after
+                sign-in/out remounts it with the new auth state instead of keeping the stale one. */}
+            <SiteNav key={nav.signedIn ? "signed-in" : "signed-out"} initial={nav} />
             <div id="main" className="flex flex-1 flex-col">
               <RouteTransition>{children}</RouteTransition>
             </div>
