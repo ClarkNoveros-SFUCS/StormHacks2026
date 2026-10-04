@@ -52,16 +52,7 @@ export async function personalBest(playerId: string, gameId: string): Promise<nu
 }
 
 /** Share of the Game's Answers ever found, in any Run (abandoned ones included). */
-export function mastery(playerId: string, gameId: string): Promise<Mastery> {
-  return masteryAsOf(playerId, gameId, {});
-}
-
-// `before` / `upTo` bound the guesses by time, for the Reveal's before → after.
-async function masteryAsOf(
-  playerId: string,
-  gameId: string,
-  { before, upTo }: { before?: Date; upTo?: Date },
-): Promise<Mastery> {
+export async function mastery(playerId: string, gameId: string): Promise<Mastery> {
   const [row] = await sql<{ found: number; total: number }[]>`
     select
       (select count(*)::int
@@ -74,9 +65,7 @@ async function masteryAsOf(
          join answers a on a.id = ge.matched_answer_id
          join prompts p on p.id = a.prompt_id and p.game_id = ge.game_id
          join games g on g.id = p.game_id and g.player_id = ge.player_id
-        where ge.player_id = ${playerId} and ge.game_id = ${gameId} and ge.is_correct
-          ${before ? sql`and ge.created_at < ${before}` : sql``}
-          ${upTo ? sql`and ge.created_at <= ${upTo}` : sql``}) as found`;
+        where ge.player_id = ${playerId} and ge.game_id = ${gameId} and ge.is_correct) as found`;
   return toMastery(row.found, row.total);
 }
 
@@ -111,6 +100,7 @@ export async function recentRuns(playerId: string, gameId: string, limit = 10): 
     select id as "runId", score, finished_at as "finishedAt"
     from runs
     where player_id = ${playerId} and game_id = ${gameId} and status = 'finished'
+      and finished_at is not null
     order by finished_at desc
     limit ${limit}`;
 }
@@ -148,35 +138,53 @@ export async function progressForGames(
  * Null unless the Run is the Player's and finished.
  */
 export async function runProgress(playerId: string, runId: string): Promise<RunProgress | null> {
+  // The time bounds stay in SQL: a JS Date drops microseconds, which would miss the final
+  // guess (F06 writes it in the same transaction, at the same now(), as finished_at).
   const [run] = await sql<
-    { gameId: string; score: number; startedAt: Date; finishedAt: Date; previousBest: number | null }[]
+    { score: number; previousBest: number | null; total: number; foundBefore: number; foundAfter: number }[]
   >`
-    select r.game_id as "gameId", r.score, r.started_at as "startedAt", r.finished_at as "finishedAt",
+    select r.score,
       (select max(o.score)::int
          from runs o
         where o.player_id = r.player_id and o.game_id = r.game_id and o.status = 'finished'
-          and o.id <> r.id and o.finished_at < r.finished_at) as "previousBest"
+          and o.id <> r.id and o.finished_at < r.finished_at) as "previousBest",
+      t.total, f.before as "foundBefore", f.after as "foundAfter"
     from runs r
-    where r.id = ${runId} and r.player_id = ${playerId} and r.status = 'finished'`;
+    cross join lateral (
+      select count(*)::int as total
+      from answers a
+      join prompts p on p.id = a.prompt_id
+      join games g on g.id = p.game_id
+      where g.id = r.game_id and g.player_id = r.player_id
+    ) t
+    cross join lateral (
+      select (count(distinct ge.matched_answer_id) filter (where ge.created_at < r.started_at))::int as before,
+             count(distinct ge.matched_answer_id)::int as after
+      from guess_events ge
+      join answers a on a.id = ge.matched_answer_id
+      join prompts p on p.id = a.prompt_id and p.game_id = ge.game_id
+      join games g on g.id = p.game_id and g.player_id = ge.player_id
+      where ge.player_id = r.player_id and ge.game_id = r.game_id and ge.is_correct
+        and ge.created_at <= r.finished_at
+    ) f
+    where r.id = ${runId} and r.player_id = ${playerId} and r.status = 'finished'
+      and r.finished_at is not null`;
   if (!run) return null;
 
-  const [masteryBefore, masteryAfter] = await Promise.all([
-    masteryAsOf(playerId, run.gameId, { before: run.startedAt }),
-    masteryAsOf(playerId, run.gameId, { upTo: run.finishedAt }),
-  ]);
   return {
     score: run.score,
     previousBest: run.previousBest,
     isNewBest: run.score > (run.previousBest ?? 0),
-    masteryBefore,
-    masteryAfter,
+    masteryBefore: toMastery(run.foundBefore, run.total),
+    masteryAfter: toMastery(run.foundAfter, run.total),
   };
 }
 
 /**
  * Guesses, accuracy and speed per day over the last `days` days, oldest first, for the Game
  * page's chart. Reads the `player_game_daily` continuous aggregate (Vancouver days, real-time,
- * so a Run just played is included). Days with no guesses are left out.
+ * so a Run just played is included). Days with no guesses are left out. `day` is the instant
+ * Vancouver's day starts (e.g. 07:00Z), so format it with timeZone "America/Vancouver".
  */
 export async function dailyStats(playerId: string, gameId: string, days = 30): Promise<DailyStat[]> {
   const rows = await sql<{ day: Date; guesses: number; correct: number; avgMsToCorrect: number | null }[]>`
@@ -184,7 +192,7 @@ export async function dailyStats(playerId: string, gameId: string, days = 30): P
     from player_game_daily d
     join games g on g.id = d.game_id and g.player_id = d.player_id
     where d.player_id = ${playerId} and d.game_id = ${gameId}
-      and d.day >= now() - make_interval(days => ${days})
+      and d.day >= now() - make_interval(days => ${Math.floor(days)})
     order by d.day`;
   return rows.map((r) => ({ ...r, accuracy: r.guesses === 0 ? 0 : r.correct / r.guesses }));
 }

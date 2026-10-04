@@ -20,10 +20,11 @@ describe.skipIf(!enabled)("progress", async () => {
   const at = (min: number) => new Date(t0.getTime() + min * 60 * 1000);
 
   const id = () => randomUUID();
-  const game = id(), emptyGame = id(), othersGame = id();
+  const game = id(), emptyGame = id(), othersGame = id(), statsGame = id(), finishGame = id();
   const a = { common: id(), solid: id(), deep: id(), rare: id(), cloze: id() };
   const openPrompt = id(), clozePrompt = id();
-  const run = { first: id(), abandoned: id(), tie: id(), best: id(), live: id(), zero: id() };
+  const run = { first: id(), abandoned: id(), tie: id(), best: id(), live: id(), zero: id(), noFinish: id() };
+  let finishPrompt = "", finishAnswer = "";
 
   beforeAll(async () => {
     await sql`insert into players (id) values (${me}), (${other})`;
@@ -34,7 +35,9 @@ describe.skipIf(!enabled)("progress", async () => {
     await sql`
       insert into games (id, module_id, player_id, title, status) values
         (${game}, ${module}, ${me}, 'Graph algorithms', 'ready'),
-        (${emptyGame}, ${module}, ${me}, 'Unplayed', 'ready')`;
+        (${emptyGame}, ${module}, ${me}, 'Unplayed', 'ready'),
+        (${statsGame}, ${module}, ${me}, 'Stats', 'ready'),
+        (${finishGame}, ${module}, ${me}, 'Finish', 'ready')`;
 
     await sql`
       insert into prompts (id, game_id, source_document_id, kind, text, tier) values
@@ -51,6 +54,11 @@ describe.skipIf(!enabled)("progress", async () => {
       insert into prompts (game_id, source_document_id, kind, text, tier)
       values (${emptyGame}, ${doc}, 'cloze', 'A ___ has no cycles', 'common') returning id`;
     await sql`insert into answers (prompt_id, canonical, tier) values (${emptyPrompt}, 'tree', 'common')`;
+    [{ id: finishPrompt }] = await sql`
+      insert into prompts (game_id, source_document_id, kind, text, tier)
+      values (${finishGame}, ${doc}, 'cloze', 'Kruskal builds a minimum ___ tree', 'solid') returning id`;
+    [{ id: finishAnswer }] = await sql`
+      insert into answers (prompt_id, canonical, tier) values (${finishPrompt}, 'spanning', 'solid') returning id`;
 
     const [{ id: othersModule }] = await sql`insert into modules (player_id, name) values (${other}, 'Other') returning id`;
     await sql`insert into games (id, module_id, player_id, title, status) values (${othersGame}, ${othersModule}, ${other}, 'Theirs', 'ready')`;
@@ -62,7 +70,8 @@ describe.skipIf(!enabled)("progress", async () => {
         (${run.tie},       ${me}, ${game},      'finished',    40,  ${at(20)}, ${at(25)}),
         (${run.best},      ${me}, ${game},      'finished',    100, ${at(30)}, ${at(35)}),
         (${run.live},      ${me}, ${game},      'in_progress', 10,  ${at(40)}, null),
-        (${run.zero},      ${me}, ${emptyGame}, 'finished',    0,   ${at(50)}, ${at(55)})`;
+        (${run.zero},      ${me}, ${emptyGame}, 'finished',    0,   ${at(50)}, ${at(55)}),
+        (${run.noFinish},  ${me}, ${finishGame},'finished',    7,   ${at(60)}, null)`; // F06 should never write this
 
     const guess = (
       min: number,
@@ -87,7 +96,6 @@ describe.skipIf(!enabled)("progress", async () => {
     await sql`insert into guess_events ${sql([
       guess(1, run.first, a.common, true),
       guess(2, run.first, null, false), // wrong guess
-      guess(-40 * 24 * 60, run.first, null, false), // 40 days ago: outside dailyStats' 30 days
       guess(11, run.abandoned, a.deep, true), // abandoned Runs still count toward Mastery
       guess(21, run.tie, a.common, true), // same Answer again counts once
       guess(31, run.best, a.cloze, true, me, clozePrompt),
@@ -95,12 +103,35 @@ describe.skipIf(!enabled)("progress", async () => {
       guess(33, run.best, randomUUID(), true), // orphan: Answer no longer exists
       guess(33, run.best, a.rare, true, other), // another Player's guess
     ])}`;
+
+    // dailyStats fixtures, relative to the DB clock. Today's rows sit above the aggregate's
+    // watermark (refreshes never reach the current day), so they're only visible in real time.
+    // Two days ago is always a complete earlier Vancouver day, even across DST.
+    const [{ now }] = await sql<{ now: Date }[]>`select now()`;
+    const daysAgo = (n: number) => new Date(now.getTime() - n * 24 * 60 * 60 * 1000);
+    const stat = (when: Date, isCorrect: boolean, ms: number, player = me) => ({
+      ...guess(0, run.first, isCorrect ? a.common : null, isCorrect, player),
+      created_at: when,
+      game_id: statsGame,
+      ms_into_prompt: ms,
+    });
+    await sql`insert into guess_events ${sql([
+      stat(now, true, 1000),
+      stat(now, true, 3000),
+      stat(now, false, 500),
+      stat(now, true, 9999, other), // another Player's guess
+      stat(daysAgo(2), true, 500),
+      stat(daysAgo(2), false, 800),
+      stat(daysAgo(40), false, 800), // outside the default 30 days
+    ])}`;
   });
 
   afterAll(async () => {
     await sql`delete from guess_events where player_id in (${me}, ${other})`;
     await sql`delete from players where id in (${me}, ${other})`; // cascades
-    await sql`call refresh_continuous_aggregate('player_game_daily', null, null)`; // drop their daily rows
+    // Drop their materialized daily rows. Like the policy, never refresh with a NULL end:
+    // that would materialize today and hide later guesses until tomorrow.
+    await sql`call refresh_continuous_aggregate('player_game_daily', null, now() - interval '1 minute')`;
     await sql.end();
   });
 
@@ -184,32 +215,47 @@ describe.skipIf(!enabled)("progress", async () => {
     expect(p).toMatchObject({ score: 0, previousBest: null, isNewBest: false });
   });
 
-  // Sums over days, since where Vancouver midnight falls relative to the fixtures varies
-  const totals = (days: { guesses: number; correct: number }[]) =>
-    days.reduce((s, d) => ({ guesses: s.guesses + d.guesses, correct: s.correct + d.correct }), {
-      guesses: 0,
-      correct: 0,
-    });
+  const day = (guesses: number, correct: number, avgMsToCorrect: number | null) =>
+    expect.objectContaining({ guesses, correct, avgMsToCorrect, accuracy: correct / guesses });
 
-  it("dailyStats covers the last 30 days, oldest first, real-time before any refresh", async () => {
-    const days = await progress.dailyStats(me, game);
-    // 7 of my guesses in range (the orphan counts as a correct guess; the 40-day-old one doesn't)
-    expect(totals(days)).toEqual({ guesses: 7, correct: 6 });
-    expect(days.map((d) => d.day.getTime())).toEqual(days.map((d) => d.day.getTime()).sort((x, y) => x - y));
-    for (const d of days) {
-      expect(d.accuracy).toBeCloseTo(d.correct / d.guesses);
-      expect(d.avgMsToCorrect).toBe(d.correct > 0 ? 1000 : null);
-    }
-    expect(totals(await progress.dailyStats(me, game, 60))).toEqual({ guesses: 8, correct: 6 });
+  it("dailyStats shows today's guesses in real time, before any refresh", async () => {
+    const days = await progress.dailyStats(me, statsGame);
+    expect(days.at(-1)).toEqual(day(3, 2, 2000)); // not the other Player's guess
   });
 
-  it("dailyStats is the same after the aggregate is materialized", async () => {
-    await sql`call refresh_continuous_aggregate('player_game_daily', null, null)`;
-    expect(totals(await progress.dailyStats(me, game))).toEqual({ guesses: 7, correct: 6 });
+  it("dailyStats after the aggregate is materialized: last 30 days, oldest first", async () => {
+    await sql`call refresh_continuous_aggregate('player_game_daily', null, now() - interval '1 minute')`;
+    expect(await progress.dailyStats(me, statsGame)).toEqual([day(2, 1, 500), day(3, 2, 2000)]);
+    expect(await progress.dailyStats(me, statsGame, 60)).toEqual([day(1, 0, null), day(2, 1, 500), day(3, 2, 2000)]);
   });
 
   it("dailyStats is empty for a Game the Player doesn't own", async () => {
-    expect(await progress.dailyStats(other, game)).toEqual([]);
+    expect(await progress.dailyStats(other, statsGame)).toEqual([]);
+  });
+
+  it("runProgress counts the final guess written in the same transaction as finished_at", async () => {
+    const runId = id();
+    await sql.begin(async (tx) => {
+      await tx`insert into runs (id, player_id, game_id, status) values (${runId}, ${me}, ${finishGame}, 'in_progress')`;
+      await tx`
+        insert into guess_events (player_id, game_id, run_id, prompt_id, position, raw_text,
+                                  matched_answer_id, match_method, is_correct, ms_into_prompt)
+        values (${me}, ${finishGame}, ${runId}, ${finishPrompt}, 7, 'spanning',
+                ${finishAnswer}, 'exact', true, 1000)`;
+      await tx`update runs set status = 'finished', score = 25, finished_at = now() where id = ${runId}`;
+    });
+    expect(await progress.runProgress(me, runId)).toEqual({
+      score: 25,
+      previousBest: null, // the Run without finished_at doesn't count
+      isNewBest: true,
+      masteryBefore: { found: 0, total: 1, pct: 0 },
+      masteryAfter: { found: 1, total: 1, pct: 100 },
+    });
+  });
+
+  it("a finished Run without finished_at gets no Reveal progress and isn't listed", async () => {
+    expect(await progress.runProgress(me, run.noFinish)).toBeNull();
+    expect((await progress.recentRuns(me, finishGame)).map((r) => r.runId)).not.toContain(run.noFinish);
   });
 
   it("runProgress is null for unfinished Runs and other Players", async () => {
