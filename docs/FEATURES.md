@@ -41,7 +41,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F29 | Arena: three.js FPS study Mode (stretch) | Frontend | F20, F24 | #42 | done |
 | F30 | Split generation: parallel Open and other-kinds calls | Pipelines | F04, F14 (F17) | #64 | done |
 | F31 | Faster Gemini fallback: fewer retries on 503, fall back on timeout | Pipelines | F04 | #66 | done |
-| F32 | Sonar: AI study coach (LangGraph) over a per-concept learner model | Gameplay | F22 | #73 | in-progress |
+| F32 | Sonar: AI study coach (LangGraph) over a per-concept learner model | Gameplay | F22 | #73 | done |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -582,12 +582,17 @@ Notes for others:
 
 ## F32 Sonar: AI study coach (LangGraph) over a per-concept learner model
 Spec: `docs/architecture/sonar.md` · Issue #73
-- [ ] Python Basics concept graph and Prompt tags (sidecar JSON)
-- [ ] Learner model: Mode-aware BKT with noisy-AND blame, root cause, ranked next actions (pure, tested)
-- [ ] Sonar agent (LangGraph + Gemini) with tools; briefing and chat API
-- [ ] `/sonar` page: mastery map, chat, recommendation cards
-- [ ] Demo seed
+- [x] Python Basics concept graph (22 Concepts, 28 prerequisite edges) and Prompt tags (447 Prompts, Gemini-tagged, sidecar JSON)
+- [x] Learner model: Mode-aware BKT with noisy-AND blame, root cause, ranked next actions (pure, tested)
+- [x] Sonar agent (LangGraph + Gemini) with tools; briefing and chat API
+- [x] `/sonar` page (mastery map), floating Sonar buddy (pixel dolphin) on every page except Run screens, speech bubbles, Ask Sonar buttons
+- [x] Demo seed (allowlisted to one account and `demo_sonar_*` test players)
 
-Entry points: (to fill)
+Entry points: `loadSonarModel(playerId)` in `lib/sonar/queries.ts` (the model); `runSonar({ playerId, message?, context })` in `lib/sonar/agent.ts`; `GET /api/sonar/model`, `POST /api/sonar/chat`, `GET /api/sonar/bubble?path=`; `openSonar({ message? })` in `lib/sonar/client.ts` opens the drawer from any client component; `components/sonar/AskSonarButton.tsx`; `npm run sonar:tag` (re-tag after editing the course), `npm run sonar:demo [-- demo_sonar_<x>]`.
 
-Notes for others: (to fill)
+Notes for others:
+- **AI never during a Run.** Sonar runs between Runs only; the buddy hides on `/runs/[runId]`. The numbers come from deterministic code (`lib/sonar/{model,diagnose,plan}.ts`); Gemini only explains and picks among checked options.
+- **No migration.** The model is computed on read by replaying `guess_events` (plus `run_prompts` timeouts) on the Course Module's Games, about 80 ms.
+- **Changing Python Basics content:** run `npm run sonar:tag` afterwards. Tags are keyed by a hash of the Prompt text; an untagged Prompt falls back to its Topic's weakest Concept at half weight.
+- **Agent memory** is an in-process `MemorySaver` (per Player, lost on restart).
+- `npm run sonar:demo` **deletes** the target's Python Basics Runs, guesses and Topic progress before seeding.
