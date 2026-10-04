@@ -2,7 +2,7 @@
 
 Read this first if you're a new session or your context was compacted. Decisions: `overnight-decisions.md` (same folder). Never redo an item marked `pr-open`.
 
-Phase: **1 — unattended (Anton said "go" ~03:00)**
+Phase: **done — queue finished; summary in overnight-summary.md**
 Main checkout sits on `chore/overnight-plan` (PR #43, docs only; all lanes branch from it). This file and `overnight-agent-protocol.md` are untracked here until the summary branch is made.
 Issues created: F19 #32 landing/shell, F20 #33 modes engine, F21 #34 social, F22 #35 courses, F23 #36 daily, F24 #37 apogee+leap UI, F25 #38 pairs+blitz UI, F26 #39 profile/friends/leaderboard UI, F27 #40 explore UI, F28 #41 daily hub UI, F29 #42 arena.
 Comments posted on #10 (direction), #9, #11 (AC), #8 (takeover, Clark unassigned), #21.
@@ -36,7 +36,8 @@ Comments posted on #10 (direction), #9, #11 (AC), #8 (takeover, Clark unassigned
 | U | 9 | F28 Daily hub + daily integrations | #41 | pr-open | feat/41-daily-hub | #59 | verified tsc/lint/238 tests; Anton has counted Daily #1 (315) |
 | — | 10 | F18 retrieval (stretch) | #28 | skipped | | | lower priority than Arena per Anton (Q7); not started |
 | — | 12 | F29 Arena (stretch) | #42 | pr-open | feat/42-arena | #61 | verified; pointer-lock needs a manual check |
-| — | 11 | F12 deploy prep (prep only) | #12 | todo | | | |
+| — | 11 | F12 deploy prep (prep only) | #12 | pr-open | feat/12-deploy-prep | #63 | docs; deploy needs human |
+| — | 13 | overnight/demo integration | — | done | overnight/demo | (none) | all PRs except F17 merged; checks + smoke test pass |
 
 ## Log
 - 2026-10-04 02:40 — decisions drafted; round 1 of grilling sent (Q1–Q16).
@@ -70,3 +71,4 @@ Gemini spend so far ≈ $0.37 + F15's (≤ $0.80).
 - 09:45 — F28 verified (#59), F16 verified (#60). Launched overnight/demo integration + F12 prep agent, and F17. Gemini total ≈ $1.5.
 - 10:05 — F29 Arena finished (PR #61).
 - 10:25 — F17 finished (PR #62). Usage limit near: summary written. overnight/demo + F12 agent still running.
+- 10:45 — overnight/demo pushed, F12 PR #63. Queue finished.

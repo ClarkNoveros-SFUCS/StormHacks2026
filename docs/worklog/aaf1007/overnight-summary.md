@@ -29,11 +29,23 @@ The indented ones are stacked on the PR above them. Merge each base first, or re
 
 I reran the checks myself on every PR except #62: a clean tree, tsc, lint with 0 errors, and unit tests. I also checked that each PR closes its issue and has no AI attribution. For #62 I only checked the PR's base, `Closes` line and attribution; its own agent reports all checks passing.
 
-**`overnight/demo`:** an agent was still merging every branch into one demo branch and writing the F12 deploy and demo docs when my usage limit hit. If it finished, the branch is pushed and `docs/worklog/aaf1007/overnight-demo.md` on it lists the conflict resolutions and `demo:` fixes. If it didn't, re-run it from `overnight-state.md`.
+**`overnight/demo` is pushed.** It's every PR branch merged together except F17 #62, which arrived too late and is flag-off anyway. Checks: tsc, lint, 335 tests, 92 DB tests and build all pass, and every route loads in a smoke test. Run it with `git switch overnight/demo && npm install && npm run dev`.
+
+`docs/worklog/aaf1007/overnight-demo.md` on that branch lists the conflict resolutions and 6 `demo:` integration fixes to port into their PRs:
+- the home Course card
+- one Topic-passed banner for all Modes
+- the Dive Reveal's Topic handling
+- Course-Game Evidence links pointing at the Topic page
+- `/runs/new` for non-Dive and public Games
+- the double header on Explore and Modules
+
+**#63 F12 deploy prep** (docs only, part of #12): a new README, `docs/deploy.md` and `docs/demo-script.md`.
+- **Hosting recommendation:** a container host (Railway, Render or Fly). Vercel's 4.5 MB body limit breaks the 25 MB uploads.
+- **Needs you:** create the host and production DB, set the production secrets, create the demo account, take the README screenshots.
 
 ## Blocked or skipped
 - **F18** (pgvector retrieval): skipped in favour of Arena, as you asked (Q7).
-- **F12** (deploy): prep only, as part of the integration agent's work. Deploying, production secrets and accounts are left for you.
+- **F12** (deploy): prep done in #63; the deploy itself needs you.
 
 ## Decisions to check
 These are the ones I'd look at first. Each PR body lists all of its own.
