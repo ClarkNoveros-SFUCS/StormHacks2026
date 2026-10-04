@@ -1,0 +1,46 @@
+# #2 F02 Seed data: demo Module and Game
+
+Status: in-review
+Branch: feat/2-seed-data
+Updated: 2026-10-03 20:30
+
+## Goal
+`npm run db:seed -- <clerkUserId>` gives a Player a "Graph Algorithms" Module holding one parsed Source Document and one ready Game, so gameplay and UI work runs without the upload and AI pipelines. Spec: `docs/architecture/data-model.md`; the fixture follows the Gemini response shape in `docs/architecture/game-generation-pipeline.md`.
+
+## Done so far
+- Agreed the data shape with Anton. It started from the original sample JSON, and every field maps to a column in the init migration. Dropped from the sample: block ids, prior/crowd rarity, quantiles, daily_set, submissions, rejected_queue, reveal_payload and user_cards.
+- `db/seed/graph-algorithms.json`: a 12-slide PPTX (one page per slide) and 12 Prompts: 3 open, 3 cloze, 2 definition_to_term, 2 ordered_recall, 2 odd_one_out. 28 Answers and 66 answer_keys.
+- `lib/scoring/tiers.ts`: `TIERS`, `Tier`, `TIER_POINTS`, `assignOpenTiers(n)`. Checked against the spec's examples (N=4 gives 1/1/1/1; N=11 gives 3 common, 4 solid, 3 deep, 1 rare).
+- `lib/matching/normalize.ts`: a stopgap copy of the spec's normalize (F05 owns this file, see below)
+- `scripts/seed.mts` plus `npm run db:seed`:
+  - `--check` validates the fixture without a database, using the same checks a generated Game must pass. A deliberately broken fixture was tested and every error was caught.
+  - The seed itself runs in one transaction.
+- Verified on `stormhacks-dev` with Anton's id (`user_3KD852awCV88LswW9l5jkVyo4gB`):
+  - ran twice, with the same counts both times
+  - a decoy Module also named "Graph Algorithms" survived the re-seed
+  - a fake guess_event on the old demo Game was deleted
+  - `items`/`options` are stored as jsonb arrays
+  - the answer-matching.md worked examples behave as documented (exact: dijkstra, breadth first search, dfs; no match: a, shortest path algorithm; typo: "bellman fod" → Bellman-Ford)
+  - Personal Best is 0 and Mastery is 0 of 28
+- typecheck and lint pass. The demo data is currently seeded on stormhacks-dev for Anton.
+
+## Next steps
+1. Anton reviews the branch. Don't open a PR until he approves.
+2. When approved, in the PR: tick F02 in `docs/FEATURES.md`, set Status `done`, fill in Entry points and Notes for others (use "Decisions & gotchas" below), set this file to `Status: done`, and put `Closes #2` in the body.
+3. If F05 (#5, hayman217) merges first, resolve the add/add conflict on `lib/matching/normalize.ts` by taking F05's version, then run `npm run db:seed -- --check`. It must still print "Fixture OK". If F05's export isn't a named `normalize(s: string): string`, update the import in `scripts/seed.mts`.
+
+## Decisions & gotchas
+- **Idempotency:** the demo Module id is `md5('seed:graph-algorithms:' || playerId)` formatted as a uuid. A re-seed deletes that Module (which cascades to everything under it) and that Module's Games' guess_events. Nothing else is touched, not even a real Module with the same name. Game, Prompt and Answer ids are new on every run, so old guesses can't count toward the new Game's Mastery.
+- **Open Prompt Answers are listed most obvious first.** Their Tiers and `rarity_rank` come from `assignOpenTiers` and are never written in the fixture.
+- **ordered_recall and odd_one_out** get one Answer each: `'correct order'` or the correct option. `evidence_page_id` is set on both the Prompt and that Answer, and `evidence_quote` is null. They have no answer_keys, because those kinds aren't typed.
+- **`stage_path` is NULL** on the seeded document because it never went to Snowflake. F03's delete and retry routes must handle that.
+- **jsonb with postgres.js:** pass arrays as `tx.json(arr)`. A pre-stringified value with `::jsonb` gets JSON-encoded again and stored as a jsonb *string*.
+- **How the script runs:** Node 24's type stripping runs `seed.mts` directly; the script uses `--disable-warning=MODULE_TYPELESS_PACKAGE_JSON` because the package has no `"type": "module"`. Importing `.ts` from a script needs `allowImportingTsExtensions` in tsconfig (allowed because `noEmit` is on). `seed.mts` can't import `lib/db.ts` (that's `server-only`), so it opens its own client, like `migrate.mjs`.
+- **Prompt text must be unique** (generation check 7), so the two odd_one_out Prompts have distinct texts.
+
+## Files touched
+- db/seed/graph-algorithms.json
+- scripts/seed.mts
+- lib/scoring/tiers.ts
+- lib/matching/normalize.ts (stopgap; F05 owns it)
+- package.json (`db:seed`), tsconfig.json (`allowImportingTsExtensions`)
