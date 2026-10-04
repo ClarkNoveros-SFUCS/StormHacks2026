@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { anchorY, DiveCamera, depthAtScreenY, screenYOf } from "./depth";
+import { anchorY, DiveCamera, depthAtScreenY, fallCurve, fallMs, screenYOf, worldShift } from "./depth";
 import { bearingIndex, depthForScore, depthZone, formatDepth, formatMetres } from "./tiers";
 
 describe("formatDepth", () => {
@@ -62,5 +62,52 @@ describe("DiveCamera", () => {
     cam.set(600);
     cam.step(1 / 60, true);
     expect(cam.depth).toBe(600);
+  });
+});
+
+describe("the answer's fall (Krillion timing)", () => {
+  it("covers ~a third by a third of the time, ~95% by two thirds, and rests at the end", () => {
+    expect(fallCurve(0)).toBe(0);
+    expect(fallCurve(0.35)).toBeGreaterThan(0.3);
+    expect(fallCurve(0.35)).toBeLessThan(0.45);
+    expect(fallCurve(0.68)).toBeGreaterThan(0.92);
+    expect(fallCurve(0.8)).toBe(1);
+    expect(fallCurve(1)).toBe(1);
+    for (let p = 0; p < 1; p += 0.05) expect(fallCurve(p + 0.05)).toBeGreaterThanOrEqual(fallCurve(p));
+  });
+
+  it("takes about 3 s whatever the depth", () => {
+    expect(fallMs(100)).toBeGreaterThanOrEqual(2900);
+    expect(fallMs(1000)).toBeLessThanOrEqual(3200);
+    expect(fallMs(5000)).toBe(fallMs(1000));
+  });
+
+  it("worldShift moves a world-attached element with the water", () => {
+    const H = 900;
+    expect(worldShift(0, 0, H)).toBe(0);
+    // whatever the camera does, the element keeps its offset from a world point
+    for (const cam of [50, 300, 1200]) {
+      expect(worldShift(0, cam, H)).toBeCloseTo(screenYOf(0, cam, H) - screenYOf(0, 0, H));
+    }
+  });
+
+  it("follow pins the camera; set releases it to the spring", () => {
+    const c = new DiveCamera();
+    c.follow(120, 400);
+    expect(c.depth).toBe(120);
+    expect(c.step(0.016)).toBe(true);
+    expect(c.depth).toBe(120);
+    c.set(150);
+    c.step(0.016);
+    expect(c.depth).not.toBe(120);
+  });
+
+  it("can start above the waterline when min allows it", () => {
+    const c = new DiveCamera();
+    c.set(-120, true);
+    expect(c.depth).toBe(0);
+    c.min = -120;
+    c.set(-120, true);
+    expect(c.depth).toBe(-120);
   });
 });

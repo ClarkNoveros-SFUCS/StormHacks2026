@@ -190,12 +190,14 @@ export function OceanStage({ depth, camera: cameraProp, sky = "day", showMascot 
           ctx.fillRect(Math.round(cx + 8), Math.round(cy - 4), Math.max(4, cw - 16), 2);
         }
         // boat
-        const boatX = Math.round(w * (W < 640 ? 0.12 : 0.27));
-        const bob = reduced ? 0 : Math.round(Math.sin(t * 1.6));
-        const boatY = Math.round(wl) - BOAT.length + 3 + bob;
+        // Krillion's boat is big: about a seventh of the screen wide on desktop.
+        const boatScale = W < 640 ? 1 : 2;
+        const boatX = Math.round(w * (W < 640 ? 0.12 : 0.17));
+        const bob = reduced ? 0 : Math.round(Math.sin(t * 1.6) * boatScale);
+        const boatY = Math.round(wl) - (BOAT.length - 3) * boatScale + bob;
         const pal = { k: S.boat, p: S.flag, f: S.flag, w: S.window };
         const flagFrame = !reduced && Math.floor(t * 2.5) % 2 === 0;
-        drawSprite(ctx, flagFrame ? BOAT_ALT : BOAT, pal, boatX, boatY);
+        drawSprite(ctx, flagFrame ? BOAT_ALT : BOAT, pal, boatX, boatY, { scale: boatScale });
       }
 
       // ── light rays (fade by 600 m) ──
@@ -276,7 +278,8 @@ export function OceanStage({ depth, camera: cameraProp, sky = "day", showMascot 
           s.x = Math.random() * w;
         }
         if (s.y < wl + 2) continue;
-        const streak = Math.min(5, Math.abs(camLow * s.z));
+        // Krillion's water stays calm on the way down: specks smear a little, never into rain.
+        const streak = Math.min(2, Math.abs(camLow * s.z) * 0.5);
         ctx.globalAlpha = 0.12 + s.z * 0.3;
         ctx.fillRect(Math.round(s.x), Math.round(s.y), 1, 1 + Math.round(streak));
       }
