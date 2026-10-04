@@ -9,7 +9,7 @@ On a custom Module page (or a Reveal/Game of a Module Game), Sonar recommended t
 
 ## Done so far
 - `lib/sonar/module-scope.ts` resolves the Player's own (non-Course) Module from the page.
-- Snapshot drops Python Basics data there; tools refuse planner ranks / other Modules' Games; new `suggest_reading`; `propose_game` takes the Module from the page.
+- Snapshot drops Python Basics data there; tools refuse planner ranks / other Modules' Games; new `suggest_reading` (up to 3 Read cards a turn, linking straight to the study page, so "can you direct me to these pages?" gets a card per page instead of "I can't link"); `propose_game` takes the Module from the page.
 - Player messages tagged `[Page: …]`; drawer re-briefs on a new page under a divider.
 - Verified end to end on the real CMPT 354 Module: Reveal and Module page both give Read SQLBasics p.89 + replay Apogee.
 

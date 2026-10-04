@@ -639,8 +639,8 @@ Notes for others:
 Issue #83
 - [x] A Reveal or Game page of a Game from the Player's own Module resolves that Module (files with documentIds, Games), like the Module page
 - [x] On the Player's own Module, the snapshot has no Python Basics model or planner; `recommend` refuses planner ranks and Games from other Modules
-- [x] `suggest_reading` tool: a Read card that opens one page of a Module file on its study page (`/modules/files/<docId>?page=N`), checked server-side
-- [x] `propose_game` takes the Module from the page, not from the model; one Game card and one Read card per turn
+- [x] `suggest_reading` tool: a Read card that opens one page of a Module file on its study page (`studyHref`, `/modules/<id>/study/<docId>?page=N`), checked server-side; up to 3 per turn, so "take me to these pages" gives a card per page
+- [x] `propose_game` takes the Module from the page, not from the model; one Game card and up to 3 Read cards per turn
 - [x] The agent decides: gaps in what a page teaches → read; slow recall / timeouts → replay or propose a Game; both when both help
 - [x] Each Player message is tagged with its page; the drawer re-briefs (under a "Now on this Module" divider) when opened on a different Module/Reveal/Topic/Game page
 - [x] DB test: Module resolution (not for Course Modules or other players), Module-scoped Game and page checks

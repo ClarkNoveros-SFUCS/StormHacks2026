@@ -3,6 +3,7 @@ import { tool } from "@langchain/core/tools";
 import { z } from "zod";
 import { getTopic } from "@/lib/courses/queries";
 import { sql } from "@/lib/db";
+import { studyHref } from "@/app/modules/_lib/files";
 import { isUuid, recentMistakes, type MistakeScope } from "./mistakes";
 import { mistakeLine } from "./page-context";
 import { customModuleFor, type CustomModule } from "./module-scope";
@@ -23,6 +24,9 @@ export function scopeFor(ctx: PageContext): MistakeScope {
   if (ctx.kind === "game" && ctx.gameId) return { kind: "game", gameId: ctx.gameId };
   return { kind: "course" };
 }
+
+/** Read cards per turn: enough for "take me to these pages". */
+const MAX_READ_CARDS = 3;
 
 /** One Game card (play or create) per turn. */
 const hasGameCard = (sink: Action[]) => sink.some((a) => a.kind === "play" || a.kind === "create_game");
@@ -192,16 +196,19 @@ export function buildTools(
     async ({ documentId, page, why }) => {
       const mod = await ownModule();
       if (!mod) return "suggest_reading only works on the Player's own Module. For Python Basics use a planner rank.";
-      if (sink.some((a) => a.kind === "read")) return "You already showed a Read card this turn.";
+      const reads = sink.filter((a) => a.kind === "read");
+      if (reads.length >= MAX_READ_CARDS) return `You already showed ${MAX_READ_CARDS} Read cards this turn.`;
+      const href = studyHref(mod.moduleId, documentId, page);
+      if (reads.some((a) => a.href === href)) return "That page already has a card.";
       const r = await checkReading(playerId, mod.moduleId, documentId, page);
       if (!r.ok) return `Can't suggest that page: ${r.reason}`;
-      sink.push({ kind: "read", href: `/modules/files/${documentId}?page=${page}`, title: `Read: ${r.filename} p.${page}`, why, source: "sonar" });
+      sink.push({ kind: "read", href, title: `Read: ${r.filename} p.${page}`, why, source: "sonar" });
       return "Suggested. The Player sees a Read card that opens the page; don't repeat the link.";
     },
     {
       name: "suggest_reading",
       description:
-        "Show the Player a Read card that opens one page of a file in their Module (the one this page belongs to) as study notes. Use it when misses show a gap in what the page teaches.",
+        "Show the Player a Read card that opens one page of a file in their Module (the one this page belongs to) as study notes. Use it when misses show a gap in what the page teaches, or when the Player asks to be taken to pages (call it once per page, up to 3).",
       schema: z.object({
         documentId: z.string().describe("A file's documentId from the Module"),
         page: z.number().int().min(1),
