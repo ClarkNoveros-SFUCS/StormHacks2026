@@ -1,8 +1,8 @@
 # #64 F30 Faster Game generation: split each document's Gemini call
 
-Status: in-progress
+Status: done
 Branch: feat/64-split-generation (base `origin/feat/27-overgenerate-select`, PR #62; the generation code isn't on main yet)
-Updated: 2026-10-04 07:45
+Updated: 2026-10-04 08:00
 
 ## Goal
 Games take 60–120 s to generate. Latency is decode-bound (each call writes ~8–11k thinking + ~4–5k output tokens; input size doesn't predict it), so split Dive's (and Apogee's) one Gemini call per document into parallel calls that each write part of the Prompts: one writes the Open Prompts, one every other kind. Both see every page. Behind `GEMINI_SPLIT`. Spec: `docs/architecture/game-generation-pipeline.md` § Split generation (F30).
@@ -25,18 +25,20 @@ Games take 60–120 s to generate. Latency is decode-bound (each call writes ~8�
 - Thinking-level experiment (throwaway script, single call): `low` 10–11 s but 1–2 Open Prompts; `medium` ≈ default (37–47 s). **User decision: keep the current thinking level; no low thinking.**
 
 ## Next steps
-- Ask the user whether to keep the split (more Open Prompts, ~8 % faster, +40 % thinking cost) and with which default; then fill the spec's Measurements, FEATURES F30, `.env.example` wording.
-- Other speed levers that keep thinking as is: faster fallback on 503, shorter per-attempt timeout / hedged fallback (option 3).
-- Full test:db + build, PR stacked on #62, merge into `overnight/demo`.
+None. PR stacked on #62. Follow-up (separate issue): faster fallback on 503 and a shorter per-attempt timeout.
 
 ## Decisions & gotchas
 - **Split by kind, not by pages:** Open Prompts need Answers from the whole deck (Ans/Open is the key metric), so both calls see every page and the schema's `kind` enum keeps each call to its kinds.
 - **One failed call doesn't fail the Game:** the other call's Prompts go through the checks; the Game fails only if every call fails (or too few Prompts survive).
 - **Fake `generate` defaults to no split** (like the verification pass), so existing DB tests see one call per document.
+- **Default on** (user decision after the measurement): ~8 % faster and Open 27 → 35 are worth +40–50 % generation tokens.
+- **Thinking level stays at the default** (user decision): `low` was 4× faster but lost Open Prompts.
+- Replay set committed as `eval/split/` (split) and `eval/split/single/` (the concurrent single run), both 3.5-flash.
 - Worked in a separate worktree (`../stormhacks2026-f30`) so the user's `overnight/demo` checkout stays untouched.
 
 ## Files touched
 - lib/gemini/game-prompt.ts, lib/modes/generation.ts, lib/modes/dive/generate.ts, lib/games/generate-game.ts, lib/games/scorecard.ts
 - lib/modes/split.test.ts, lib/games/generate-game.db.test.ts
 - scripts/deck-pages.ts, scripts/generate-eval.ts, scripts/generate-check.ts
+- eval/split/**, .env.example, docs/architecture/game-generation-pipeline.md, docs/FEATURES.md (F30 only)
 - this worklog

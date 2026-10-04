@@ -1,0 +1,382 @@
+{
+  "deck": "seed-graph-algorithms",
+  "createdAt": "2026-10-04T14:33:18.195Z",
+  "verifyVersion": "28c4606d",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 6.238,
+    "usage": {
+      "inputTokens": 5905,
+      "outputTokens": 2625,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.008334
+  },
+  "prompts": [
+    "Name an algorithm that can be used to find a minimum spanning tree (MST)",
+    "Name a graph algorithm that computes shortest paths",
+    "Name a graph algorithm that has a linear running time of O(V + E)",
+    "Name a graph algorithm whose running time contains a log V factor",
+    "Name a characteristic that graph edges can have",
+    "Name an operation or feature associated with the union-find (disjoint set) data structure",
+    "Name a graph algorithm that does not run in linear O(V + E) time",
+    "Name a data structure used by graph algorithms",
+    "Put the steps of Dijkstra's algorithm in order.",
+    "Put the steps of Kruskal's algorithm in order.",
+    "Which of the following algorithms does NOT build a minimum spanning tree?",
+    "Which of the following algorithms solves a different problem from the other three?",
+    "Kruskal uses ______ to check whether an edge would create a cycle.",
+    "On an unweighted graph, ______ is enough to find the shortest paths.",
+    "What is the term for a directed graph that contains no cycles?",
+    "What is a linear ordering of the vertices of a DAG such that for every edge (u, v), u comes before v?",
+    "What is a maximal set of vertices in which every vertex can reach every other vertex?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "Page 8 lists Kruskal's as an MST algorithm.",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "Page 8 lists Prim's as an MST algorithm.",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "Page 8 lists Boruvka's as an MST algorithm.",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "Page 8 lists Reverse-delete as an MST algorithm.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "Page 5 states Dijkstra finds shortest paths.",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "Page 2 states BFS finds shortest paths.",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "Page 6 states Bellman-Ford finds shortest paths.",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "Page 7 states Floyd-Warshall finds all-pairs shortest paths.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "Page 2 gives BFS running time as O(V + E).",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "Page 3 gives DFS running time as O(V + E).",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "Page 12 table gives topological sort time as O(V + E).",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "Page 10 states Tarjan's runs in O(V + E).",
+            "supports": true
+          },
+          {
+            "id": "P3.A5",
+            "reason": "Page 10 states Kosaraju's runs in O(V + E).",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "Page 5 gives Dijkstra's running time as O((V + E) log V).",
+            "supports": true
+          },
+          {
+            "id": "P4.A2",
+            "reason": "Page 12 table gives Kruskal's time as O(E log V).",
+            "supports": true
+          },
+          {
+            "id": "P4.A3",
+            "reason": "Page 12 table gives Prim's time as O(E log V).",
+            "supports": true
+          },
+          {
+            "id": "P4.A4",
+            "reason": "Page 12 table gives Boruvka's time as O(E log V).",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "Page 1 lists directed edges.",
+            "supports": true
+          },
+          {
+            "id": "P5.A2",
+            "reason": "Page 1 lists undirected edges.",
+            "supports": true
+          },
+          {
+            "id": "P5.A3",
+            "reason": "Page 1 lists weighted edges.",
+            "supports": true
+          },
+          {
+            "id": "P5.A4",
+            "reason": "Page 1 lists unweighted edges.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "Page 9 describes the find operation.",
+            "supports": true
+          },
+          {
+            "id": "P6.A2",
+            "reason": "Page 9 describes the union operation.",
+            "supports": true
+          },
+          {
+            "id": "P6.A3",
+            "reason": "Page 9 mentions union by rank.",
+            "supports": true
+          },
+          {
+            "id": "P6.A4",
+            "reason": "Page 9 mentions path compression.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "Page 5 gives Dijkstra time as O((V + E) log V), not linear.",
+            "supports": true
+          },
+          {
+            "id": "P7.A2",
+            "reason": "Page 12 table gives Kruskal time as O(E log V).",
+            "supports": true
+          },
+          {
+            "id": "P7.A3",
+            "reason": "Page 12 table gives Prim time as O(E log V).",
+            "supports": true
+          },
+          {
+            "id": "P7.A4",
+            "reason": "Page 6 gives Bellman-Ford time as O(V * E).",
+            "supports": true
+          },
+          {
+            "id": "P7.A5",
+            "reason": "Page 7 gives Floyd-Warshall time as O(V^3).",
+            "supports": true
+          },
+          {
+            "id": "P7.A6",
+            "reason": "Page 12 table gives Boruvka time as O(E log V).",
+            "supports": true
+          },
+          {
+            "id": "P7.A7",
+            "reason": "Page 11 gives Hopcroft-Karp time as O(E sqrt(V)).",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "Page 2 states BFS uses a queue.",
+            "supports": true
+          },
+          {
+            "id": "P8.A2",
+            "reason": "Page 3 states DFS uses a stack.",
+            "supports": true
+          },
+          {
+            "id": "P8.A3",
+            "reason": "Page 5 states Dijkstra uses a priority queue.",
+            "supports": true
+          },
+          {
+            "id": "P8.A4",
+            "reason": "Page 9 describes union-find data structure.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "Page 5 lists these exact steps in order.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "Page 8 lists these exact steps in order.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "Page 8 explicitly states Dijkstra is not an MST algorithm.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "Page 12 shows Kosaraju solves strongly connected components while the others solve shortest paths.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "Page 9 states Kruskal uses union-find.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "Page 12 states BFS is enough for unweighted shortest paths.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P15",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P15.A1",
+            "reason": "Page 1 defines DAG as a directed acyclic graph.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P16",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P16.A1",
+            "reason": "Page 4 defines topological sort.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P17",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P17.A1",
+            "reason": "Page 10 defines strongly connected component.",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -39,6 +39,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F27 | Explore, Course and Topic pages | Frontend | F10, F22 | #40 | planned |
 | F28 | Daily Dive hub page | Frontend | F09, F23 | #41 | planned |
 | F29 | Arena: three.js FPS study Mode (stretch) | Frontend | F20, F24 | #42 | planned |
+| F30 | Split generation: parallel Open and other-kinds calls | Pipelines | F04, F14 (F17) | #64 | done |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -381,3 +382,22 @@ Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #42 (checklist live
 - [ ] See the issue checklist
 
 Entry points: — · Notes for others: —
+
+## F30 Split generation: parallel Open and other-kinds calls
+Spec: `docs/architecture/game-generation-pipeline.md` § Split generation (F30) · Issue #64 · **On by default** (`GEMINI_SPLIT=off` sends one call)
+- [x] Shared mechanism: a Mode may give several requests per document (`ModeGenerator.split`); `generateGame` runs them in parallel and joins their `prompts` before the Mode's checks
+- [x] Dive/Apogee split by kind: one call writes the Open Prompts, one writes cloze / definition_to_term / ordered_recall / odd_one_out. Both see every page. Also when overgenerating (F17)
+- [x] Behind `GEMINI_SPLIT` (on/off), default decided by the measurement
+- [x] `generate:eval` / `generate:check` run the split calls too (`--split`), record wall time and per-call usage
+- [x] Unit/DB tests; F14 scorecard before/after (wall time, cost, Prompts kept, Open, Ans/Open, duplicates)
+
+Entry points: `splitEnabled()`, `generationPlan()`, `generateSplit()`, `joinResponses()` and the optional `ModeGenerator.split` / `overgenerate.split` hooks in `lib/modes/generation.ts`; `diveSplitRequests(counts)`, `diveSplitRequest`, `diveOvergenerateSplitRequest` in `lib/modes/dive/generate.ts`; `gameOpenSystemInstruction`, `gameOtherSystemInstruction`, `gameResponseSchema(kinds)`, `GAME_SPLIT_COUNTS` in `lib/gemini/game-prompt.ts`; `generateGame(gameId, { …, split })`; env `GEMINI_SPLIT`; `npm run generate:eval -- --split`, `npm run generate:check -- … --split`; `generateTimed`, `requestsVersion` in `scripts/deck-pages.ts`; replay set `eval/split/` (and `eval/split/single/`)
+
+Notes for others:
+- **It's only ~8 % faster.** Measured on gemini-3.5-flash (3.6 was 503ing): 183 → 169 s over four decks. The Open call thinks as much as the whole single call; thinking dominates and doesn't shrink with fewer Prompts. It's on for quality: Open Prompts 27 → 35 (informal notes 3 → 9), same Ans/Open and quotes, for +40–50 % generation tokens.
+- **Don't lower the thinking level** to go faster: `low` is 4× faster but returns 1–2 Open Prompts per deck. Decided to keep the default.
+- **One failed call doesn't fail the document:** the other call's Prompts are kept and a warning is logged; the Game fails only if both fail or too few Prompts survive.
+- **Tests:** a fake `generate` defaults to `split: false` (one call per document, like the verification pass); pass `split: true` to test the split. Fakes can tell the calls apart by `request.contents(...)`: `Write 8-10 "open" Prompts` vs `Write 7-10 non-"open" Prompts`.
+- **Leap/Pairs/Blitz don't split yet.** Give a `ModeGenerator` a `split: GenerationRequest[]` (whose `prompts` arrays add up to one call's) and `generateGame` runs it.
+- Fixed an order-dependent assertion in `generate-game.db.test.ts` (the seed fixture has two kinds of "BFS" Answer rows; the query had no order).
+- Gemini spend for F30 ≈ $0.5 (estimated at 3.6-flash rates; 3.5-flash has no listed price, and the many 503 attempts on 3.6-flash weren't billed).

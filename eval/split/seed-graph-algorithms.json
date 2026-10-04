@@ -1,0 +1,592 @@
+{
+  "deck": "seed-graph-algorithms",
+  "createdAt": "2026-10-04T14:33:11.936Z",
+  "promptVersion": "3ca5331d",
+  "run": {
+    "model": "gemini-3.5-flash",
+    "seconds": 42.484,
+    "usage": {
+      "inputTokens": 7524,
+      "outputTokens": 3061,
+      "thinkingTokens": 15638
+    },
+    "costUsd": null,
+    "parts": [
+      {
+        "model": "gemini-3.5-flash",
+        "seconds": 42.483,
+        "usage": {
+          "inputTokens": 3744,
+          "outputTokens": 1970,
+          "thinkingTokens": 10990
+        },
+        "costUsd": null
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "seconds": 19.595,
+        "usage": {
+          "inputTokens": 3780,
+          "outputTokens": 1091,
+          "thinkingTokens": 4648
+        },
+        "costUsd": null
+      }
+    ]
+  },
+  "response": {
+    "prompts": [
+      {
+        "kind": "open",
+        "text": "Name an algorithm that can be used to find a minimum spanning tree (MST)",
+        "answers": [
+          {
+            "canonical": "Kruskal's algorithm",
+            "aliases": [
+              "Kruskal"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Kruskal's algorithm adds edges from cheapest to most expensive, skipping any edge that would create a cycle:"
+          },
+          {
+            "canonical": "Prim's algorithm",
+            "aliases": [
+              "Prim"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Prim's algorithm grows one tree from a start vertex, always adding the cheapest edge that leaves the tree."
+          },
+          {
+            "canonical": "Borůvka's algorithm",
+            "aliases": [
+              "Boruvka",
+              "Borůvka"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Borůvka's algorithm: every component adds its cheapest outgoing edge at once, and the rounds repeat until one tree is left."
+          },
+          {
+            "canonical": "Reverse-delete",
+            "aliases": [
+              "reverse delete"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Reverse-delete: start with every edge and delete the heaviest edge that does not disconnect the graph."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a graph algorithm that computes shortest paths",
+        "answers": [
+          {
+            "canonical": "Dijkstra's algorithm",
+            "aliases": [
+              "Dijkstra"
+            ],
+            "exact_only": false,
+            "evidence_page": 5,
+            "evidence_quote": "Finds shortest paths from one source in a graph with non-negative edge weights."
+          },
+          {
+            "canonical": "BFS",
+            "aliases": [
+              "Breadth-first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 2,
+            "evidence_quote": "On an unweighted graph, BFS finds the shortest path (fewest edges) from the source to every vertex."
+          },
+          {
+            "canonical": "Bellman-Ford",
+            "aliases": [
+              "Bellman-Ford algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "Finds shortest paths from one source, and works with negative edge weights."
+          },
+          {
+            "canonical": "Floyd-Warshall",
+            "aliases": [
+              "Floyd-Warshall algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 7,
+            "evidence_quote": "Finds the shortest paths between every pair of vertices (all-pairs shortest paths)."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a graph algorithm that has a linear running time of O(V + E)",
+        "answers": [
+          {
+            "canonical": "BFS",
+            "aliases": [
+              "Breadth-first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 2,
+            "evidence_quote": "Running time: O(V + E)."
+          },
+          {
+            "canonical": "DFS",
+            "aliases": [
+              "Depth-first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 3,
+            "evidence_quote": "Running time: O(V + E)."
+          },
+          {
+            "canonical": "Topological sort",
+            "aliases": [
+              "topological sorting"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "Order a DAG | Topological sort | O(V + E)"
+          },
+          {
+            "canonical": "Tarjan's algorithm",
+            "aliases": [
+              "Tarjan"
+            ],
+            "exact_only": false,
+            "evidence_page": 10,
+            "evidence_quote": "Both run in O(V + E)."
+          },
+          {
+            "canonical": "Kosaraju's algorithm",
+            "aliases": [
+              "Kosaraju"
+            ],
+            "exact_only": false,
+            "evidence_page": 10,
+            "evidence_quote": "Both run in O(V + E)."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a graph algorithm whose running time contains a log V factor",
+        "answers": [
+          {
+            "canonical": "Dijkstra's algorithm",
+            "aliases": [
+              "Dijkstra"
+            ],
+            "exact_only": false,
+            "evidence_page": 5,
+            "evidence_quote": "Running time: O((V + E) log V) with a binary heap."
+          },
+          {
+            "canonical": "Kruskal's algorithm",
+            "aliases": [
+              "Kruskal"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "Minimum spanning tree | Kruskal, Prim, Borůvka | O(E log V)"
+          },
+          {
+            "canonical": "Prim's algorithm",
+            "aliases": [
+              "Prim"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "Minimum spanning tree | Kruskal, Prim, Borůvka | O(E log V)"
+          },
+          {
+            "canonical": "Borůvka's algorithm",
+            "aliases": [
+              "Boruvka",
+              "Borůvka"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "Minimum spanning tree | Kruskal, Prim, Borůvka | O(E log V)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a characteristic that graph edges can have",
+        "answers": [
+          {
+            "canonical": "directed",
+            "aliases": [
+              "directed edges"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Edges can be directed or undirected, and weighted or unweighted."
+          },
+          {
+            "canonical": "undirected",
+            "aliases": [
+              "undirected edges"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Edges can be directed or undirected, and weighted or unweighted."
+          },
+          {
+            "canonical": "weighted",
+            "aliases": [
+              "weighted edges"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Edges can be directed or undirected, and weighted or unweighted."
+          },
+          {
+            "canonical": "unweighted",
+            "aliases": [
+              "unweighted edges"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Edges can be directed or undirected, and weighted or unweighted."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an operation or feature associated with the union-find (disjoint set) data structure",
+        "answers": [
+          {
+            "canonical": "find",
+            "aliases": [
+              "find(x)"
+            ],
+            "exact_only": false,
+            "evidence_page": 9,
+            "evidence_quote": "find(x) returns the representative of x's set; union(x, y) merges two sets."
+          },
+          {
+            "canonical": "union",
+            "aliases": [
+              "union(x, y)"
+            ],
+            "exact_only": false,
+            "evidence_page": 9,
+            "evidence_quote": "find(x) returns the representative of x's set; union(x, y) merges two sets."
+          },
+          {
+            "canonical": "union by rank",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 9,
+            "evidence_quote": "With union by rank and path compression, each operation is almost O(1)."
+          },
+          {
+            "canonical": "path compression",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 9,
+            "evidence_quote": "With union by rank and path compression, each operation is almost O(1)."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a graph algorithm that does not run in linear O(V + E) time",
+        "answers": [
+          {
+            "canonical": "Dijkstra's algorithm",
+            "aliases": [
+              "Dijkstra"
+            ],
+            "exact_only": false,
+            "evidence_page": 5,
+            "evidence_quote": "Running time: O((V + E) log V) with a binary heap."
+          },
+          {
+            "canonical": "Kruskal's algorithm",
+            "aliases": [
+              "Kruskal"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "Minimum spanning tree | Kruskal, Prim, Borůvka | O(E log V)"
+          },
+          {
+            "canonical": "Prim's algorithm",
+            "aliases": [
+              "Prim"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "Minimum spanning tree | Kruskal, Prim, Borůvka | O(E log V)"
+          },
+          {
+            "canonical": "Bellman-Ford",
+            "aliases": [
+              "Bellman-Ford algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "Running time: O(V * E), slower than Dijkstra."
+          },
+          {
+            "canonical": "Floyd-Warshall",
+            "aliases": [
+              "Floyd-Warshall algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 7,
+            "evidence_quote": "Running time: O(V^3)."
+          },
+          {
+            "canonical": "Borůvka's algorithm",
+            "aliases": [
+              "Boruvka",
+              "Borůvka"
+            ],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "Minimum spanning tree | Kruskal, Prim, Borůvka | O(E log V)"
+          },
+          {
+            "canonical": "Hopcroft-Karp",
+            "aliases": [
+              "Hopcroft-Karp algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 11,
+            "evidence_quote": "Hopcroft-Karp finds a maximum matching in a bipartite graph faster than the basic augmenting path method: O(E sqrt(V))."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a data structure used by graph algorithms",
+        "answers": [
+          {
+            "canonical": "queue",
+            "aliases": [
+              "Queue"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "It uses a queue: take the vertex at the front, then add its unvisited neighbors to the back."
+          },
+          {
+            "canonical": "stack",
+            "aliases": [
+              "Stack"
+            ],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "It uses a stack, or recursion, which uses the call stack."
+          },
+          {
+            "canonical": "priority queue",
+            "aliases": [
+              "min-heap",
+              "min heap",
+              "Priority Queue"
+            ],
+            "exact_only": false,
+            "evidence_page": 5,
+            "evidence_quote": "Uses a priority queue (min-heap)."
+          },
+          {
+            "canonical": "union-find",
+            "aliases": [
+              "disjoint set",
+              "Union-find"
+            ],
+            "exact_only": false,
+            "evidence_page": 9,
+            "evidence_quote": "Kruskal uses union-find to check whether an edge would create a cycle."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of Dijkstra's algorithm in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "You must initialize the distances before you can select the first node.",
+        "explanation": "Dijkstra's algorithm begins by initializing distances, then repeatedly selects the closest unvisited node, relaxes its edges, and marks it visited.",
+        "items": [
+          "Set the source distance to 0 and every other distance to infinity",
+          "Pick the unvisited node with the smallest known distance",
+          "Relax the edges leaving that node",
+          "Mark the node visited and repeat until all nodes are done"
+        ],
+        "evidence_page": 5
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of Kruskal's algorithm in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "The algorithm starts by organizing all available edges by their cost.",
+        "explanation": "Kruskal's algorithm sorts all edges first, then greedily processes them from cheapest to most expensive while avoiding cycles.",
+        "items": [
+          "Sort the edges by weight",
+          "Take the cheapest edge that is left",
+          "Skip that edge if it would create a cycle",
+          "Stop once the tree has V - 1 edges"
+        ],
+        "evidence_page": 8
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which of the following algorithms does NOT build a minimum spanning tree?",
+        "answers": [],
+        "tier": "common",
+        "hint": "Three of these algorithms find a tree that spans all vertices with minimum total edge weight, while one finds paths from a single source.",
+        "explanation": "Kruskal, Prim, and Borůvka are designed to build minimum spanning trees, whereas Dijkstra computes shortest paths.",
+        "options": [
+          "Kruskal",
+          "Prim",
+          "Borůvka",
+          "Dijkstra"
+        ],
+        "correct_option": "Dijkstra",
+        "evidence_page": 8
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which of the following algorithms solves a different problem from the other three?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Three of these algorithms are used to find the shortest paths in a graph.",
+        "explanation": "Dijkstra, Bellman-Ford, and Floyd-Warshall are shortest-path algorithms, while Kosaraju finds strongly connected components.",
+        "options": [
+          "Dijkstra",
+          "Bellman-Ford",
+          "Floyd-Warshall",
+          "Kosaraju"
+        ],
+        "correct_option": "Kosaraju",
+        "evidence_page": 12
+      },
+      {
+        "kind": "cloze",
+        "text": "Kruskal uses ______ to check whether an edge would create a cycle.",
+        "answers": [
+          {
+            "canonical": "union-find",
+            "aliases": [
+              "disjoint set"
+            ],
+            "exact_only": false,
+            "evidence_page": 9,
+            "evidence_quote": "Kruskal uses union-find to check whether an edge would create a cycle."
+          }
+        ],
+        "tier": "solid",
+        "hint": "A data structure that maintains partition membership and merges sets.",
+        "explanation": "Kruskal's algorithm relies on a disjoint-set data structure to efficiently detect cycles when adding edges."
+      },
+      {
+        "kind": "cloze",
+        "text": "On an unweighted graph, ______ is enough to find the shortest paths.",
+        "answers": [
+          {
+            "canonical": "BFS",
+            "aliases": [
+              "breadth-first search"
+            ],
+            "exact_only": true,
+            "evidence_page": 12,
+            "evidence_quote": "Unweighted shortest paths: BFS is enough."
+          }
+        ],
+        "tier": "common",
+        "hint": "This level-by-level traversal uses a queue.",
+        "explanation": "For unweighted graphs, a simple breadth-first search finds the shortest path without needing more complex algorithms."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is the term for a directed graph that contains no cycles?",
+        "answers": [
+          {
+            "canonical": "DAG",
+            "aliases": [
+              "directed acyclic graph"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "A DAG is a directed acyclic graph: a directed graph with no cycles."
+          }
+        ],
+        "tier": "common",
+        "hint": "This three-letter acronym is often used when discussing topological sorting.",
+        "explanation": "A directed acyclic graph has directed edges and no paths that start and end at the same vertex."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is a linear ordering of the vertices of a DAG such that for every edge (u, v), u comes before v?",
+        "answers": [
+          {
+            "canonical": "topological sort",
+            "aliases": [
+              "topological ordering"
+            ],
+            "exact_only": false,
+            "evidence_page": 4,
+            "evidence_quote": "A topological sort is a linear ordering of the vertices of a DAG such that for every edge (u, v), u comes before v."
+          }
+        ],
+        "tier": "solid",
+        "hint": "This ordering is commonly used to schedule tasks with prerequisite dependencies.",
+        "explanation": "A topological sort orders vertices so that all dependency requirements are satisfied sequentially."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is a maximal set of vertices in which every vertex can reach every other vertex?",
+        "answers": [
+          {
+            "canonical": "strongly connected component",
+            "aliases": [
+              "SCC",
+              "strongly connected components"
+            ],
+            "exact_only": false,
+            "evidence_page": 10,
+            "evidence_quote": "An SCC is a maximal set of vertices in which every vertex can reach every other vertex."
+          }
+        ],
+        "tier": "solid",
+        "hint": "This concept is abbreviated as a three-letter acronym and can be found using Tarjan's or Kosaraju's algorithms.",
+        "explanation": "In a directed graph, a strongly connected component is a maximal subgraph where mutual reachability exists between all pairs of vertices."
+      }
+    ]
+  }
+}

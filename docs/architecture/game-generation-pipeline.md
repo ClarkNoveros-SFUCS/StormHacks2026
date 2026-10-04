@@ -182,6 +182,7 @@ Planned, in order (each measured with F14's scorecard, which comes first):
 | F15 (#25, done) | Example Prompts from the seed fixture in the instructions, plus "bad → good" pairs (§ Scorecard → F15) | broad Prompts, give-away Hints, steps as Answers, admin Prompts | ~1,100 input tokens |
 | F16 (#26), **done** | Second Gemini call per document: does each quote show its Answer fits the Prompt? Is the Prompt clear, or a duplicate? (§ Verification pass) | mentioned-but-wrong Answers, duplicates | measured +4–7 s, ≈ +$0.006–0.010 per document (flash-lite) |
 | F17 (#27), **done, off by default** | Ask for ~25 Prompts, keep the best 15–20 by code (Answers per Open Prompt, kind and page coverage, near-duplicates, verification) (§ Overgenerate and select) | uneven quality and coverage | measured +17–29 % generation cost, +5–15 % time; behind `GEMINI_OVERGENERATE` |
+| F30 (#64), **done, on by default** | Two parallel calls per document: Open Prompts and every other kind (§ Split generation) | slow generation, too few Open Prompts on informal notes | measured −8 % time, Open 27 → 35, +40–50 % generation tokens; behind `GEMINI_SPLIT` |
 | F18 (#28, stretch) | pgvector on `source_pages`: per Open Prompt, retrieve the related pages and ask for every Answer they support, then merge and re-rank | too few Answers per Open Prompt, weak Rarity | embeddings at upload + one call per Open Prompt |
 
 ### Scorecard (F14)
@@ -395,7 +396,21 @@ Both get Dive's full instructions; only the PROMPT KINDS line changes (`gameOpen
 
 ### Measurements (2026-10-04)
 
-MEASUREMENTS_PLACEHOLDER
+**3.6-flash was unavailable** during the test window (503 "high demand" on every full-size request for over 30 minutes, while tiny requests still answered), so the comparison ran on **`gemini-3.5-flash`**, which has the same profile (7–12k thinking + 3–4k output tokens and 40–55 s per deck). Single and split ran **at the same time** for each deck (so both met the same load), no fallback, flash-lite verification. Replay with `npm run generate:eval -- --split --from eval/split --verify-from eval/split/verify` (split, prompt version `3ca5331d`) and `npm run generate:eval -- --from eval/split/single --verify-from eval/split/single/verify` (single).
+
+| Deck | Seconds: single → split (Open call / other call) | Thinking tokens: single → Open call + other call | Output tokens | Kept | Open | Ans/Open | Quotes ok |
+|---|---|---|---|---|---|---|---|
+| seed-graph-algorithms (12 p) | 54 → **42** (42 / 20) | 12.0k → 11.0k + 4.6k | 4.3k → 2.0k + 1.1k | 16 → 17 | 8 → 8 | 4.3 → 4.5 | 89% → 100% |
+| cmpt354-sql-basics (94 p) | 39 → **42** (42 / 22) | 7.3k → 9.6k + 4.2k | 3.1k → 2.0k + 1.4k | 16 → 17 | 8 → 9 | 5.6 → 5.1 | 100% → 100% |
+| cmpt225-avl-trees (73 p) | 50 → **45** (45 / 22) | 10.3k → 10.5k + 4.3k | 4.1k → 2.0k + 1.7k | 16 → 16 | 8 → 9 | 4.6 → 4.9 | 100% → 94% |
+| ml-midterm-notes (3 p) | 40 → **40** (40 / 16) | 9.4k → 10.6k + 3.3k | 3.4k → 2.1k + 1.4k | 15 → 17 | 3 → 9 | 6.0 → 5.4 | 96% → 92% |
+| **Total** | **183 → 169 (−8 %)** | 39k → 58k (+49 %) | 14.9k → 13.7k | **63 → 67** | **27 → 35** | 5.0 → 5.0 | 97% → 96% |
+
+- **Time:** only −8 %. Splitting halves the output, but **the Open call thinks as much as the whole single call** (9.6–11k thinking tokens): the model's thinking doesn't shrink with fewer Prompts to write, and thinking is most of the time. The other-kinds call finishes in 16–22 s.
+- **Quality:** more Open Prompts (27 → 35; the informal ML notes 3 → 9, because the Open call can't fall back on single-answer kinds), the same Answers per Open Prompt, quotes within noise. The verifier removed one Prompt (0 before).
+- **Cost:** ≈ +40–50 % generation tokens (thinking +49 %, input ×2), roughly +$0.02–0.03 per document at 3.6-flash prices. Verification ≈ +$0.001.
+- **Thinking level is not the lever we use:** `thinkingLevel: "low"` took 10–11 s but returned 1–2 Open Prompts per deck (as in F04), and `"medium"` took about as long as the default. Thinking stays at the default.
+- **Default on** (product decision): more Open Prompts and a small speed gain are worth the extra tokens, and a 503 on one call no longer fails the document (the other's Prompts are kept). `GEMINI_SPLIT=off` restores one call.
 
 ## Code layout
 

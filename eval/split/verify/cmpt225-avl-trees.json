@@ -1,0 +1,417 @@
+{
+  "deck": "cmpt225-avl-trees",
+  "createdAt": "2026-10-04T14:35:08.967Z",
+  "verifyVersion": "28c4606d",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 5.941,
+    "usage": {
+      "inputTokens": 6667,
+      "outputTokens": 2556,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.008390100000000001
+  },
+  "prompts": [
+    "Name a private field in the AVLNode class implementation.",
+    "Name an operation supported by a priority queue.",
+    "Name a public method of a min-heap.",
+    "Name a suggested meaning of the letter \"B\" in B-trees.",
+    "Name a real-world scenario or application where a priority queue is used.",
+    "Name a system or filesystem that commonly uses B-trees.",
+    "Name a type of tree structure discussed in the study of balanced search trees and heaps.",
+    "Name an action or strategy used during B-tree deletion rebalancing when a leaf node becomes empty.",
+    "Name a term or concept associated with B-tree insertion or deletion operations.",
+    "An AVL tree is a Binary Search Tree where, for every vertex v, the absolute difference between the heights of its left and right subtrees is at most ______.",
+    "Name the propagation process in a min-heap where a newly added item is moved up the tree to satisfy the heap condition.",
+    "Name the propagation process in a min-heap where the root element is moved down the tree to restore the heap condition after a removal.",
+    "Put the steps of splitting an overfilled leaf node during B-tree insertion in order.",
+    "In an array representation of a heap, the left child of the element at index i is located at index ______.",
+    "In an array representation of a heap, the parent of the element at index j is located at index ______.",
+    "Put the steps of inserting an element into an AVL tree in the correct order.",
+    "What term is used to describe the condition when deleting a node from a B-tree leaf causes the leaf to become empty?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "listed as private field data",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "listed as private field leftChild",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "listed as private field rightChild",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "listed as private field parent",
+            "supports": true
+          },
+          {
+            "id": "P1.A5",
+            "reason": "listed as private field height",
+            "supports": true
+          },
+          {
+            "id": "P1.A6",
+            "reason": "listed as optional private field balance",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "listed as add item operation",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "listed as getTop operation",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "listed as removeTop operation",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "listed as getSize operation",
+            "supports": true
+          },
+          {
+            "id": "P2.A5",
+            "reason": "listed as isEmpty operation",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "listed as addElement method",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "listed as getMin method",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "listed as removeMin method",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "listed as getSize method",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "suggested meaning Boeing",
+            "supports": true
+          },
+          {
+            "id": "P4.A2",
+            "reason": "suggested meaning balanced",
+            "supports": true
+          },
+          {
+            "id": "P4.A3",
+            "reason": "suggested meaning broad",
+            "supports": true
+          },
+          {
+            "id": "P4.A4",
+            "reason": "suggested meaning bushy",
+            "supports": true
+          },
+          {
+            "id": "P4.A5",
+            "reason": "suggested meaning Bayer",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "example printer's queue",
+            "supports": true
+          },
+          {
+            "id": "P5.A2",
+            "reason": "example job scheduling",
+            "supports": true
+          },
+          {
+            "id": "P5.A3",
+            "reason": "example customer service line",
+            "supports": true
+          },
+          {
+            "id": "P5.A4",
+            "reason": "example stock market order book",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "B-trees used in databases",
+            "supports": true
+          },
+          {
+            "id": "P6.A2",
+            "reason": "B-trees used in file systems",
+            "supports": true
+          },
+          {
+            "id": "P6.A3",
+            "reason": "Apple filesystem HFS+",
+            "supports": true
+          },
+          {
+            "id": "P6.A4",
+            "reason": "Microsoft NTFS",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "Binary Search Tree discussed",
+            "supports": true
+          },
+          {
+            "id": "P7.A2",
+            "reason": "AVL tree discussed",
+            "supports": true
+          },
+          {
+            "id": "P7.A3",
+            "reason": "B-tree discussed",
+            "supports": true
+          },
+          {
+            "id": "P7.A4",
+            "reason": "2-3 tree discussed",
+            "supports": true
+          },
+          {
+            "id": "P7.A5",
+            "reason": "complete binary tree discussed",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "rebalancing action borrow right",
+            "supports": true
+          },
+          {
+            "id": "P8.A2",
+            "reason": "rebalancing action borrow left",
+            "supports": true
+          },
+          {
+            "id": "P8.A3",
+            "reason": "rebalancing action merge right",
+            "supports": true
+          },
+          {
+            "id": "P8.A4",
+            "reason": "rebalancing action merge left",
+            "supports": true
+          },
+          {
+            "id": "P8.A5",
+            "reason": "rebalancing action fix parent",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "term underflow",
+            "supports": true
+          },
+          {
+            "id": "P9.A2",
+            "reason": "term overfilled",
+            "supports": true
+          },
+          {
+            "id": "P9.A3",
+            "reason": "term predecessor",
+            "supports": true
+          },
+          {
+            "id": "P9.A4",
+            "reason": "term split",
+            "supports": true
+          },
+          {
+            "id": "P9.A5",
+            "reason": "term median",
+            "supports": true
+          },
+          {
+            "id": "P9.A6",
+            "reason": "term rebalance",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "difference is at most 1",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "propagation up is called heapifyUp",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "propagation down is called heapifyDown",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "steps match the slide order for splitting",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "left child is at 2i+1",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P15",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P15.A1",
+            "reason": "parent is at (j+1)/2-1",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P16",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P16.A1",
+            "reason": "steps match insertion flow",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P17",
+        "clear": true,
+        "duplicate_of": "P9",
+        "answers": [
+          {
+            "id": "P17.A1",
+            "reason": "empty leaf condition is called underflow",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}

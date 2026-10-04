@@ -1,0 +1,392 @@
+{
+  "deck": "ml-midterm-notes",
+  "createdAt": "2026-10-04T14:35:54.784Z",
+  "promptVersion": "a6b826d6",
+  "run": {
+    "model": "gemini-3.5-flash",
+    "seconds": 40.369,
+    "usage": {
+      "inputTokens": 3968,
+      "outputTokens": 3414,
+      "thinkingTokens": 9386
+    },
+    "costUsd": null
+  },
+  "response": {
+    "prompts": [
+      {
+        "kind": "open",
+        "text": "Name an evaluation metric used to measure model performance.",
+        "answers": [
+          {
+            "canonical": "Accuracy",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Accuracy: Proportion of all correct predictions"
+          },
+          {
+            "canonical": "Precision",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Precision: of all predicted positives, probability that a positive prediction is correct"
+          },
+          {
+            "canonical": "Recall",
+            "aliases": [
+              "sensitivity"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Recall (sensitivity): of all actual positive, probability that an actual positive outcome is predicted correctly"
+          },
+          {
+            "canonical": "Specificity",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Specificity: of all actual negatives, probability that an actual negative outcome is predicted correctly"
+          },
+          {
+            "canonical": "F1 score",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "F1 score: Combination of precision and recall (harmonic mean)"
+          },
+          {
+            "canonical": "Mean Absolute Error",
+            "aliases": [
+              "MAE"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Mean Absolute Error (MAE): Average of absolute difference between actual and prediction"
+          },
+          {
+            "canonical": "Root mean square error",
+            "aliases": [
+              "RMSE"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Root mean square error (RMSE): Average distance between predicted value from model and actual values in dataset:"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a machine learning algorithm or model.",
+        "answers": [
+          {
+            "canonical": "K-means",
+            "aliases": [
+              "K-means clustering",
+              "K-means algorithm"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "1. K-means clustering"
+          },
+          {
+            "canonical": "K-nearest neighbors",
+            "aliases": [
+              "K-NN",
+              "KNN"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "3. K-nearest neighbors (K-NN)"
+          },
+          {
+            "canonical": "Decision Trees",
+            "aliases": [
+              "Decision Tree"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Decision Trees: Make decisions by splitting up training set based on specific features"
+          },
+          {
+            "canonical": "Linear regression",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "8. Linear regression"
+          },
+          {
+            "canonical": "Linear classifiers",
+            "aliases": [
+              "Linear classifier"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "7. Linear classifiers"
+          },
+          {
+            "canonical": "Multilayer neural networks",
+            "aliases": [
+              "Multilayer neural network",
+              "neural networks"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "10. Multilayer neural networks"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a component, signal, or function in the anatomy of a neural network node.",
+        "answers": [
+          {
+            "canonical": "Input",
+            "aliases": [
+              "input signals"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Input: Multiple input signals + bias (constant)"
+          },
+          {
+            "canonical": "bias",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Input: Multiple input signals + bias (constant)"
+          },
+          {
+            "canonical": "Input function",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Input function: Apply weights to inputs"
+          },
+          {
+            "canonical": "activation function",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Activation function: Controls how strongly the “neuron” activates"
+          },
+          {
+            "canonical": "Output",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Output: single number"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "cloze",
+        "text": "A* search combines uniform cost search (UCS) and a ______.",
+        "answers": [
+          {
+            "canonical": "heuristic",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "A* combines UCS and heuristic"
+          }
+        ],
+        "tier": "common",
+        "hint": "An estimate of the cost from the current node to the goal.",
+        "explanation": "A* search uses both the path cost (from UCS) and a heuristic function to guide its search."
+      },
+      {
+        "kind": "cloze",
+        "text": "The ______ of a zero-one loss function is 0, meaning it cannot be used with gradient descent.",
+        "answers": [
+          {
+            "canonical": "Gradient",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Gradient of a zero-one loss function is 0 -> can't use gradient descent"
+          }
+        ],
+        "tier": "solid",
+        "hint": "This vector of partial derivatives represents the direction of steepest ascent.",
+        "explanation": "Because the gradient of a zero-one loss function is zero everywhere, gradient descent cannot be used to update the weights."
+      },
+      {
+        "kind": "cloze",
+        "text": "The ______ activation function compares the input value to 0 and returns the larger value.",
+        "answers": [
+          {
+            "canonical": "Rectified Linear Unit",
+            "aliases": [
+              "ReLU"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Rectified Linear Unit (ReLU): Compares bigger value between 0 and u"
+          }
+        ],
+        "tier": "solid",
+        "hint": "This function is zero for negative inputs and linear for positive inputs.",
+        "explanation": "ReLU outputs the maximum of 0 and the input value, which helps avoid the vanishing gradient problem."
+      },
+      {
+        "kind": "cloze",
+        "text": "In cross-validation, the training data is split such that for each fold, the training and test data are ______.",
+        "answers": [
+          {
+            "canonical": "disjoint",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Cross-validation: Split training data -> for each fold training + test data is disjoint"
+          }
+        ],
+        "tier": "solid",
+        "hint": "This means they share no common elements.",
+        "explanation": "Cross-validation ensures that the training set and testing set in any given fold do not overlap, preventing data leakage."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is the term for the average of the absolute differences between actual outcomes and predicted values?",
+        "answers": [
+          {
+            "canonical": "Mean Absolute Error",
+            "aliases": [
+              "MAE"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Mean Absolute Error (MAE): Average of absolute difference between actual and prediction"
+          }
+        ],
+        "tier": "solid",
+        "hint": "A metric that averages the non-negative differences between predictions and targets.",
+        "explanation": "Mean Absolute Error measures the average magnitude of errors in a set of predictions, without considering their direction."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is the term for the probability that an actual positive outcome is predicted correctly?",
+        "answers": [
+          {
+            "canonical": "Recall",
+            "aliases": [
+              "sensitivity"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Recall (sensitivity): of all actual positive, probability that an actual positive outcome is predicted correctly"
+          }
+        ],
+        "tier": "solid",
+        "hint": "A metric that measures the proportion of actual positives correctly identified.",
+        "explanation": "Recall measures the proportion of actual positives that were correctly identified by the model."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is the term for the difference or error between the predicted output and the true output?",
+        "answers": [
+          {
+            "canonical": "Loss function",
+            "aliases": [
+              "objective function"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Loss function (objective function): Difference / error between the predicted output and true output"
+          }
+        ],
+        "tier": "common",
+        "hint": "A function that quantifies the error of a model's predictions.",
+        "explanation": "The loss function quantifies the error between predicted and actual values."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is the term for the process of updating weights by working backwards using chain rules to determine each weight's contribution to the error?",
+        "answers": [
+          {
+            "canonical": "Backpropagation",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Backpropagation: Updates weights by working backwards using chain rules to figure out how much each weight contributed to the error"
+          }
+        ],
+        "tier": "common",
+        "hint": "The algorithm that calculates gradients backward through a network.",
+        "explanation": "Backpropagation calculates the gradient of the loss function with respect to each weight by applying the chain rule from the output layer backward."
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the phases of the K-means clustering algorithm in order.",
+        "answers": [],
+        "tier": "common",
+        "hint": "The algorithm starts by selecting initial centroids before assigning data points.",
+        "explanation": "K-means starts with initialization, then alternates between assigning points to the nearest mean and updating the means until convergence.",
+        "items": [
+          "Initialize K means (random points)",
+          "Assign each point in set to closest mean",
+          "Compute the new mean of all points assigned to each cluster",
+          "Repeat until means are not changed"
+        ],
+        "evidence_page": 1
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of a decision tree classification process in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "The process begins by evaluating which feature provides the most informative division of the dataset.",
+        "explanation": "A decision tree recursively splits data by choosing the best feature, creating nodes, and partitioning the dataset until a stopping criterion is reached.",
+        "items": [
+          "Select feature that gives best split",
+          "Create a new node in the tree based on the split",
+          "Separate data based on the split",
+          "Repeat steps until stopping criteria are met",
+          "Create a child node that represents the class"
+        ],
+        "evidence_page": 1
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which of the following evaluation metrics is specifically used for regression rather than classification?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Three of these metrics deal with discrete classes, while one measures the magnitude of continuous errors.",
+        "explanation": "Accuracy, Precision, and Recall are classification metrics, whereas Mean Absolute Error is used to evaluate regression models.",
+        "options": [
+          "Accuracy",
+          "Precision",
+          "Recall",
+          "Mean Absolute Error"
+        ],
+        "correct_option": "Mean Absolute Error",
+        "evidence_page": 1
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which of the following is NOT a component or function directly listed under the anatomy of a node?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Three of these are internal parts or inputs of an individual node, while the remaining one evaluates the network's overall error.",
+        "explanation": "Input function, activation function, and bias are part of a node's anatomy, whereas the loss function is defined externally to measure overall network error.",
+        "options": [
+          "Input function",
+          "activation function",
+          "bias",
+          "loss function"
+        ],
+        "correct_option": "loss function",
+        "evidence_page": 2
+      }
+    ]
+  }
+}

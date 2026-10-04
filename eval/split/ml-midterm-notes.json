@@ -1,0 +1,636 @@
+{
+  "deck": "ml-midterm-notes",
+  "createdAt": "2026-10-04T14:35:54.045Z",
+  "promptVersion": "3ca5331d",
+  "run": {
+    "model": "gemini-3.5-flash",
+    "seconds": 39.632,
+    "usage": {
+      "inputTokens": 7996,
+      "outputTokens": 3529,
+      "thinkingTokens": 13892
+    },
+    "costUsd": null,
+    "parts": [
+      {
+        "model": "gemini-3.5-flash",
+        "seconds": 39.631,
+        "usage": {
+          "inputTokens": 3980,
+          "outputTokens": 2093,
+          "thinkingTokens": 10577
+        },
+        "costUsd": null
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "seconds": 15.853,
+        "usage": {
+          "inputTokens": 4016,
+          "outputTokens": 1436,
+          "thinkingTokens": 3315
+        },
+        "costUsd": null
+      }
+    ]
+  },
+  "response": {
+    "prompts": [
+      {
+        "kind": "open",
+        "text": "Name a machine learning algorithm, model, or search method.",
+        "answers": [
+          {
+            "canonical": "K-means clustering",
+            "aliases": [
+              "K-means"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "1. K-means clustering"
+          },
+          {
+            "canonical": "K-nearest neighbors",
+            "aliases": [
+              "K-NN",
+              "KNN"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "3. K-nearest neighbors (K-NN)"
+          },
+          {
+            "canonical": "Decision Trees",
+            "aliases": [
+              "Decision Tree"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "5. Decision Trees"
+          },
+          {
+            "canonical": "Linear regression",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "8. Linear regression"
+          },
+          {
+            "canonical": "Multilayer neural networks",
+            "aliases": [
+              "neural networks"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "10. Multilayer neural networks"
+          },
+          {
+            "canonical": "Linear classifiers",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "7. Linear classifiers"
+          },
+          {
+            "canonical": "A* search",
+            "aliases": [
+              "A*"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "9. A* search"
+          },
+          {
+            "canonical": "Cross-validation",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "2. Cross-validation"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an evaluation metric used in machine learning.",
+        "answers": [
+          {
+            "canonical": "Accuracy",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Accuracy: Proportion of all correct predictions"
+          },
+          {
+            "canonical": "Precision",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Precision: of all predicted positives, probability that a positive prediction is correct"
+          },
+          {
+            "canonical": "Recall",
+            "aliases": [
+              "sensitivity"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Recall (sensitivity): of all actual positive, probability that an actual positive outcome is predicted correctly"
+          },
+          {
+            "canonical": "Specificity",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Specificity: of all actual negatives, probability that an actual negative outcome is predicted correctly"
+          },
+          {
+            "canonical": "F1 score",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "F1 score: Combination of precision and recall (harmonic mean)"
+          },
+          {
+            "canonical": "Mean Absolute Error",
+            "aliases": [
+              "MAE"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Mean Absolute Error (MAE): Average of absolute difference between actual and prediction"
+          },
+          {
+            "canonical": "Root mean square error",
+            "aliases": [
+              "RMSE"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Root mean square error (RMSE): Average distance between predicted value from model and actual values in dataset:"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an evaluation metric that measures classification performance.",
+        "answers": [
+          {
+            "canonical": "Accuracy",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Accuracy: Proportion of all correct predictions"
+          },
+          {
+            "canonical": "Precision",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Precision: of all predicted positives, probability that a positive prediction is correct"
+          },
+          {
+            "canonical": "Recall",
+            "aliases": [
+              "sensitivity"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Recall (sensitivity): of all actual positive, probability that an actual positive outcome is predicted correctly"
+          },
+          {
+            "canonical": "Specificity",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Specificity: of all actual negatives, probability that an actual negative outcome is predicted correctly"
+          },
+          {
+            "canonical": "F1 score",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "F1 score: Combination of precision and recall (harmonic mean)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a component, input, or function associated with the anatomy of a neural network node.",
+        "answers": [
+          {
+            "canonical": "Input",
+            "aliases": [
+              "input signals"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Input: Multiple input signals + bias (constant)"
+          },
+          {
+            "canonical": "bias",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Input: Multiple input signals + bias (constant)"
+          },
+          {
+            "canonical": "Input function",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Node: Input function and activation function"
+          },
+          {
+            "canonical": "Activation function",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Node: Input function and activation function"
+          },
+          {
+            "canonical": "Output",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Output: single number"
+          },
+          {
+            "canonical": "weights",
+            "aliases": [
+              "weight"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Input function: Apply weights to inputs"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a function (such as an activation or loss function) mentioned in the neural networks section.",
+        "answers": [
+          {
+            "canonical": "Logistic sigmoid",
+            "aliases": [
+              "sigmoid"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Logistic sigmoid:"
+          },
+          {
+            "canonical": "Rectified Linear Unit",
+            "aliases": [
+              "ReLU"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Rectified Linear Unit (ReLU): Compares bigger value between 0 and u"
+          },
+          {
+            "canonical": "Mean Squared Error",
+            "aliases": [
+              "MSE"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Mean Squared Error: Used for regression"
+          },
+          {
+            "canonical": "zero-one loss function",
+            "aliases": [
+              "zero-one loss"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Gradient of a zero-one loss function is 0"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a mathematical concept or rule used in computation graphs and backpropagation.",
+        "answers": [
+          {
+            "canonical": "Partial derivative",
+            "aliases": [
+              "Partial derivatives"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Partial derivative is simple"
+          },
+          {
+            "canonical": "Gradient",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Gradient of a function: vector function"
+          },
+          {
+            "canonical": "chain rule",
+            "aliases": [
+              "chain rule of derivative"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Also the chain rule of derivative:"
+          },
+          {
+            "canonical": "vector function",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Gradient of a function: vector function"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a variable or function component used in the mathematical representation of a single perceptron's backpropagation.",
+        "answers": [
+          {
+            "canonical": "loss function",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Let L be the loss function with a as the predicted output and y the actual output."
+          },
+          {
+            "canonical": "predicted output",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Let L be the loss function with a as the predicted output and y the actual output."
+          },
+          {
+            "canonical": "actual output",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Let L be the loss function with a as the predicted output and y the actual output."
+          },
+          {
+            "canonical": "activation function",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "where: a is the predicted output, g is the activation function"
+          },
+          {
+            "canonical": "weights",
+            "aliases": [
+              "weight"
+            ],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "the sum of all inputs with weights and bias."
+          },
+          {
+            "canonical": "bias",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "the sum of all inputs with weights and bias."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a term, cost, or property associated with A* search.",
+        "answers": [
+          {
+            "canonical": "heuristic",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "A* combines UCS and heuristic"
+          },
+          {
+            "canonical": "UCS",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 1,
+            "evidence_quote": "A* combines UCS and heuristic"
+          },
+          {
+            "canonical": "backward cost",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "backward cost = cost to reach node x"
+          },
+          {
+            "canonical": "Admissible",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Admissible:"
+          },
+          {
+            "canonical": "Relaxed",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Relaxed:"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an example of a neighbor label or target value mentioned in the K-nearest neighbors (KNN) section.",
+        "answers": [
+          {
+            "canonical": "cancerous",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Get the labels of these k neighbors (e.g., cancerous, noncancerous)"
+          },
+          {
+            "canonical": "noncancerous",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Get the labels of these k neighbors (e.g., cancerous, noncancerous)"
+          },
+          {
+            "canonical": "temp",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Get the target values of these k neighbors (e.g. temp, cost, etc.)"
+          },
+          {
+            "canonical": "cost",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Get the target values of these k neighbors (e.g. temp, cost, etc.)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of the K-means clustering algorithm in order.",
+        "answers": [],
+        "tier": "common",
+        "hint": "The algorithm begins by establishing the initial cluster centers.",
+        "explanation": "K-means starts by initializing K random means, assigns data points to the closest mean, updates the means based on the clusters, and repeats until convergence.",
+        "items": [
+          "Initialize K means (random points), one for each class",
+          "Assign each point in set to closest mean",
+          "For each cluster, compute the new mean of all points assigned to it",
+          "Repeat step 2 and 3 until means are not changed"
+        ],
+        "evidence_page": 1
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What metric is defined as the harmonic mean of precision and recall?",
+        "answers": [
+          {
+            "canonical": "F1 score",
+            "aliases": [
+              "F1-score"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "F1 score: Combination of precision and recall (harmonic mean)"
+          }
+        ],
+        "tier": "common",
+        "hint": "It is a single metric that balances both false positives and false negatives, named with a letter and a number.",
+        "explanation": "The F1 score is the harmonic mean of precision and recall, providing a balanced evaluation of a classifier's performance."
+      },
+      {
+        "kind": "cloze",
+        "text": "Since its slope is constant, ______ avoids the vanishing gradient problem that the logistic sigmoid function faces.",
+        "answers": [
+          {
+            "canonical": "ReLU",
+            "aliases": [
+              "Rectified Linear Unit"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Since slope is constant, avoids the vanishing gradient problem logistic sigmoid function faces"
+          }
+        ],
+        "tier": "solid",
+        "hint": "This activation function outputs the maximum of zero and the input value.",
+        "explanation": "ReLU has a constant slope for positive inputs, which prevents gradients from shrinking to zero during backpropagation."
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which of the following evaluation metrics is used specifically for regression rather than classification?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Three of these metrics deal with correct or incorrect categorical predictions, while one measures the average absolute distance of numerical predictions.",
+        "explanation": "Mean Absolute Error (MAE) measures the average magnitude of absolute differences in regression, whereas accuracy, precision, and recall evaluate classification.",
+        "options": [
+          "Accuracy",
+          "Precision",
+          "Recall",
+          "Mean Absolute Error"
+        ],
+        "correct_option": "Mean Absolute Error",
+        "evidence_page": 1
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What algorithm updates neural network weights by working backwards using chain rules to figure out how much each weight contributed to the error?",
+        "answers": [
+          {
+            "canonical": "Backpropagation",
+            "aliases": [
+              "backprop"
+            ],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Backpropagation: Updates weights by working backwards using chain rules to figure out how much each weight contributed to the error"
+          }
+        ],
+        "tier": "common",
+        "hint": "This process propagates the error gradient from the output layer back through the network.",
+        "explanation": "Backpropagation uses the chain rule to calculate gradients of the loss function with respect to each weight, moving backward through the network."
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of building a decision tree in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "The process begins by evaluating features to find the most informative division.",
+        "explanation": "A decision tree is built by finding the best feature split, creating a node, dividing the data, and recursively repeating the process.",
+        "items": [
+          "Select feature that gives best split",
+          "Create a new node in the tree based on the split",
+          "Separate data based on the split",
+          "For each group, repeat steps until stopping criteria are met"
+        ],
+        "evidence_page": 1
+      },
+      {
+        "kind": "cloze",
+        "text": "In ______, the training data is split such that for each fold, the training and test data are disjoint.",
+        "answers": [
+          {
+            "canonical": "Cross-validation",
+            "aliases": [
+              "cross validation"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Cross-validation: Split training data -> for each fold training + test data is disjoint"
+          }
+        ],
+        "tier": "common",
+        "hint": "This validation technique partitions data into multiple folds to evaluate model performance.",
+        "explanation": "Cross-validation splits training data into disjoint folds to ensure that training and testing sets do not overlap during evaluation."
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which of the following functions is used as a loss function rather than an activation function?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Three of these functions are applied to individual nodes to control their activation levels, whereas one measures the overall error of the model.",
+        "explanation": "Mean Squared Error is a loss function used to evaluate regression models, while logistic sigmoid and ReLU are activation functions.",
+        "options": [
+          "Logistic sigmoid",
+          "Rectified Linear Unit",
+          "Mean Squared Error",
+          "ReLU"
+        ],
+        "correct_option": "Mean Squared Error",
+        "evidence_page": 2
+      }
+    ]
+  }
+}
