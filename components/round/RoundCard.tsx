@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { steppedClip } from "./HudPlate";
 
-export type RoundCardState = "in" | "gone" | "shake" | "still";
+export type RoundCardState = "in" | "rise" | "gone" | "shake" | "still";
 
 type Props = {
   /** e.g. "PROMPT 1 OF 7" */
@@ -21,6 +21,8 @@ type Props = {
 
 const ANIM: Record<RoundCardState, string | undefined> = {
   in: "card-in .7s var(--ease-bounce) both",
+  /** Dive: the next card drifts up out of the water to its place (Krillion). */
+  rise: "card-rise 1.5s cubic-bezier(.2,.75,.25,1) both",
   gone: "card-gone .6s ease-in forwards",
   shake: "shake .5s ease-out",
   still: undefined,
