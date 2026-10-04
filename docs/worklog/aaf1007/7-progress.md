@@ -33,6 +33,11 @@ Server-only read functions in `lib/progress.ts` for Personal Best, Mastery, per-
 - Merged origin/main (F05 had added Vitest too): took main's `vitest.config.mts`, `package.json` and lockfile, and renamed the test to `lib/progress.db.test.ts` (F05's `test:db` convention). Dropped `TEST_DATABASE_URL`; a shell `DATABASE_URL` overrides `.env.local` for local runs
 - Unit 24/24, DB 23/23 (F05 + F07) on local TimescaleDB, typecheck, lint
 - FEATURES.md F07 done, Reveal definitions in run-and-scoring.md
+- Opened PR #17 (Anton approved). F06 merged meanwhile, so per the plan agreed on #7, F07 wires the Reveal:
+  - `getReveal` fills F06's `Reveal.progress` shape from `runProgress(playerId, runId, tx)` (new optional `db` param)
+  - `Tier` now comes from `lib/scoring/tiers.ts`
+  - F06's Reveal test expects new best, 0 → 50%
+  - unit 36/36, DB 36/36 (local), typecheck (after `npx next typegen`), lint, build
 
 ## Next steps
 - None. Merged via the PR that closes #7. Follow-ups belong to F06 (add `runProgress` to `/reveal`), F08 and F11 (see FEATURES.md Notes).
@@ -41,10 +46,9 @@ Server-only read functions in `lib/progress.ts` for Personal Best, Mastery, per-
 - **Mastery before** = correct `guess_events` with `created_at < run.started_at`; **after** = `created_at <= run.finished_at`. **previousBest** = max score of finished Runs with `finished_at < this.finished_at`; **isNewBest** = `score > coalesce(previousBest, 0)` (ties and a first Run scoring 0 aren't a new best). These use the Run's own timestamps, so an old Reveal stays stable.
 - `runProgress` returns null unless the Run is `finished`.
 - The total-answers count joins `games` on `player_id`, so another Player's `gameId` returns 0/0.
-- F06 owns `GET /api/runs/[runId]/reveal`. If F06 merges first, F07's PR adds `progress: RunProgress` to the route and `lib/runs/types.ts`; otherwise F06 calls `runProgress`.
+- F06 merged first and had already declared `Reveal.progress` (percentages only). F07 fills that shape rather than changing F06's contract.
 - Vitest is the team's test runner (F05's config on main; `server-only` → `test/server-only-stub.ts`).
 - Mastery `pct` rounds down (spec SQL used `round`), so 100% means every Answer was found.
-- `Tier` is defined in `lib/progress.ts` for now. Once F04/F06 add `lib/scoring/tiers.ts`, import it from there instead.
 - Invalid uuid strings make Postgres throw `22P02`. Callers should load or validate the Game/Run first.
 - Never pass DB timestamps back through JS `Date` as query bounds: microseconds are lost. Compare columns in SQL.
 - `player_game_daily`: manual refreshes must end at `now() - interval '1 minute'`, never NULL.

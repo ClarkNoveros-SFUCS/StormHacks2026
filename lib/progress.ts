@@ -1,4 +1,6 @@
 import "server-only";
+import type postgres from "postgres";
+import { TIERS, type Tier } from "@/lib/scoring/tiers";
 import { sql } from "./db";
 
 // Progress is measured against yourself: Personal Best (highest finished Run on a Game) and
@@ -6,8 +8,8 @@ import { sql } from "./db";
 // Every query filters by playerId. Answers are counted only through a Game the Player owns,
 // so someone else's gameId reads as 0 of 0.
 
-export type Tier = "common" | "solid" | "deep" | "rare";
-export const TIERS: readonly Tier[] = ["common", "solid", "deep", "rare"];
+/** The shared client, or a transaction (F06's getReveal calls runProgress inside its own). */
+export type Db = postgres.Sql | postgres.TransactionSql;
 
 /** `pct` is a whole number 0–100, rounded down so 100 means every Answer was found. */
 export type Mastery = { found: number; total: number; pct: number };
@@ -137,10 +139,10 @@ export async function progressForGames(
  * the Run's own start and finish times, so an old Reveal still shows what was true then.
  * Null unless the Run is the Player's and finished.
  */
-export async function runProgress(playerId: string, runId: string): Promise<RunProgress | null> {
-  // The time bounds stay in SQL: a JS Date drops microseconds, which would miss the final
-  // guess (F06 writes it in the same transaction, at the same now(), as finished_at).
-  const [run] = await sql<
+export async function runProgress(playerId: string, runId: string, db: Db = sql): Promise<RunProgress | null> {
+  // The time bounds stay in SQL: the final guess is written with the same timestamp as
+  // finished_at, and a JS Date round trip would drop any microseconds and miss it.
+  const [run] = await db<
     { score: number; previousBest: number | null; total: number; foundBefore: number; foundAfter: number }[]
   >`
     select r.score,

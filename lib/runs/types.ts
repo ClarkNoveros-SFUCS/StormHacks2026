@@ -70,11 +70,13 @@ export type Reveal = {
   gameId: string;
   score: number;
   prompts: RevealPrompt[];
-  // Personal Best and Mastery before → after. Filled in by F07 (lib/progress.ts); null until then.
+  // Personal Best and Mastery before → after, from runProgress() in lib/progress.ts (F07).
+  // Measured at this Run's start and finish, so an old Reveal shows what was true then.
+  // Null only if the Run has no finished_at.
   progress: {
-    personalBest: number;
-    isNewPersonalBest: boolean;
-    masteryBefore: number; //        0–100
+    personalBest: number; //         as of this Run: max(this score, earlier best)
+    isNewPersonalBest: boolean; //   beat every earlier finished Run (a tie doesn't count)
+    masteryBefore: number; //        0–100, rounded down
     masteryAfter: number;
   } | null;
 };
