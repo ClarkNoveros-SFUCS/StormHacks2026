@@ -66,7 +66,10 @@ export async function listModuleDocuments(playerId: string, moduleId: string): P
     select ${documentColumns} from source_documents
     where module_id = ${moduleId} and player_id = ${playerId}
     order by created_at desc`;
-  return rows.map((r) => ({ ...r, created_at: new Date(r.created_at).toISOString() }));
+  return rows.map((r) => ({
+    ...r,
+    created_at: new Date(r.created_at).toISOString(),
+  }));
 }
 
 /** Personal Best, Mastery and finished-Run count for each Game card. */
@@ -83,7 +86,11 @@ export async function cardProgress(playerId: string, gameIds: string[]): Promise
   const out: Record<string, CardProgress> = {};
   for (const id of gameIds) {
     const p = progress.get(id);
-    out[id] = { personalBest: p?.personalBest ?? 0, masteryPct: p?.mastery.pct ?? 0, runs: runsBy.get(id) ?? 0 };
+    out[id] = {
+      personalBest: p?.personalBest ?? 0,
+      masteryPct: p?.mastery.pct ?? 0,
+      runs: runsBy.get(id) ?? 0,
+    };
   }
   return out;
 }

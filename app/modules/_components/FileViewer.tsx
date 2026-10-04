@@ -115,7 +115,9 @@ export function FileViewer({ documentId, filename, initialPage, onClose, onPage 
         dialog.current?.querySelector<HTMLInputElement>("input[type=search]")?.focus();
       } else if (e.key === "Tab") {
         const f = Array.from(
-          dialog.current?.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input,[tabindex]:not([tabindex="-1"])') ?? [],
+          dialog.current?.querySelectorAll<HTMLElement>(
+            'a[href],button:not([disabled]),input,[tabindex]:not([tabindex="-1"])',
+          ) ?? [],
         );
         if (!f.length) return;
         if (e.shiftKey && document.activeElement === f[0]) {
@@ -168,7 +170,10 @@ export function FileViewer({ documentId, filename, initialPage, onClose, onPage 
           <div className="order-last flex w-full items-center gap-2 sm:order-none sm:w-auto">
             <label className="relative flex-1 sm:w-64 sm:flex-none">
               <span className="sr-only">Search in this file</span>
-              <span aria-hidden="true" className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 opacity-70">
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 opacity-70"
+              >
                 <PixelIcon name="eye" size={14} />
               </span>
               <input
@@ -200,10 +205,22 @@ export function FileViewer({ documentId, filename, initialPage, onClose, onPage 
                 <span className="font-hud text-lg whitespace-nowrap text-muted">
                   {total ? `${total} in ${hitPages} p.` : "no match"}
                 </span>
-                <button type="button" onClick={() => jump(-1)} disabled={!total} aria-label="Previous page with a match" className="grid h-9 w-8 place-items-center rounded-sm text-muted hover:bg-surface hover:text-text disabled:opacity-40">
+                <button
+                  type="button"
+                  onClick={() => jump(-1)}
+                  disabled={!total}
+                  aria-label="Previous page with a match"
+                  className="grid h-9 w-8 place-items-center rounded-sm text-muted hover:bg-surface hover:text-text disabled:opacity-40"
+                >
                   ▲
                 </button>
-                <button type="button" onClick={() => jump(1)} disabled={!total} aria-label="Next page with a match" className="grid h-9 w-8 place-items-center rounded-sm text-muted hover:bg-surface hover:text-text disabled:opacity-40">
+                <button
+                  type="button"
+                  onClick={() => jump(1)}
+                  disabled={!total}
+                  aria-label="Next page with a match"
+                  className="grid h-9 w-8 place-items-center rounded-sm text-muted hover:bg-surface hover:text-text disabled:opacity-40"
+                >
                   ▼
                 </button>
               </div>
@@ -222,8 +239,12 @@ export function FileViewer({ documentId, filename, initialPage, onClose, onPage 
         {/* Body */}
         <div className="flex min-h-0 flex-1 flex-col sm:flex-row">
           <nav aria-label="Pages" className="shrink-0 border-b border-border sm:w-64 sm:border-r sm:border-b-0">
-            <ol ref={list} className="flex gap-1.5 overflow-x-auto p-2 sm:h-full sm:flex-col sm:overflow-x-hidden sm:overflow-y-auto">
-              {!data && !error &&
+            <ol
+              ref={list}
+              className="flex gap-1.5 overflow-x-auto p-2 sm:h-full sm:flex-col sm:overflow-x-hidden sm:overflow-y-auto"
+            >
+              {!data &&
+                !error &&
                 Array.from({ length: 6 }, (_, i) => (
                   <li key={i} className={`${s.skeleton} h-10 w-20 shrink-0 sm:w-full`} />
                 ))}
@@ -242,14 +263,18 @@ export function FileViewer({ documentId, filename, initialPage, onClose, onPage 
                           : "border-transparent hover:border-border hover:bg-surface-2"
                       } ${dim ? "opacity-40" : ""}`}
                     >
-                      <span className={`w-7 shrink-0 text-right font-hud text-xl leading-none ${on ? "text-signal" : "text-faint"}`}>
+                      <span
+                        className={`w-7 shrink-0 text-right font-hud text-xl leading-none ${on ? "text-signal" : "text-faint"}`}
+                      >
                         {p.pageNumber}
                       </span>
                       <span className="hidden min-w-0 flex-1 truncate text-[13px] text-muted group-hover:text-text sm:block">
                         {titles[i]}
                       </span>
                       {query.trim() && hits[i] > 0 && (
-                        <span className="rounded-full bg-primary px-1.5 font-hud text-[15px] leading-tight text-primary-text">{hits[i]}</span>
+                        <span className="rounded-full bg-primary px-1.5 font-hud text-[15px] leading-tight text-primary-text">
+                          {hits[i]}
+                        </span>
                       )}
                     </button>
                   </li>
@@ -283,10 +308,24 @@ export function FileViewer({ documentId, filename, initialPage, onClose, onPage 
                     Page {page.pageNumber} of {data?.document.pageCount ?? pages.length}
                   </span>
                   <span className="flex gap-2">
-                    <button type="button" onClick={() => go(current - 1)} disabled={current === 0} className="px-btn h-8 px-3 text-[13px]" data-variant="ghost" aria-label="Previous page">
+                    <button
+                      type="button"
+                      onClick={() => go(current - 1)}
+                      disabled={current === 0}
+                      className="px-btn h-8 px-3 text-[13px]"
+                      data-variant="ghost"
+                      aria-label="Previous page"
+                    >
                       ← Prev
                     </button>
-                    <button type="button" onClick={() => go(current + 1)} disabled={current >= pages.length - 1} className="px-btn h-8 px-3 text-[13px]" data-variant="ghost" aria-label="Next page">
+                    <button
+                      type="button"
+                      onClick={() => go(current + 1)}
+                      disabled={current >= pages.length - 1}
+                      className="px-btn h-8 px-3 text-[13px]"
+                      data-variant="ghost"
+                      aria-label="Next page"
+                    >
                       Next →
                     </button>
                   </span>

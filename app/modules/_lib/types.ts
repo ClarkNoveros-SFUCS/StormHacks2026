@@ -31,7 +31,11 @@ export type DocRow = {
 };
 
 /** Progress shown on a Game card. */
-export type CardProgress = { personalBest: number; masteryPct: number; runs: number };
+export type CardProgress = {
+  personalBest: number;
+  masteryPct: number;
+  runs: number;
+};
 
 /** `GET /api/documents/[documentId]/pages`. */
 export type DocumentPages = {
@@ -43,4 +47,9 @@ export type DocumentPages = {
 export type GameRow = Omit<GameSummary, "created_at"> & { created_at: string };
 
 /** A file still being sent to the server (before it has a row). */
-export type UploadItem = { key: string; filename: string; size: number; progress: number };
+export type UploadItem = {
+  key: string;
+  filename: string;
+  size: number;
+  progress: number;
+};

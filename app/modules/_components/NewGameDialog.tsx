@@ -12,7 +12,11 @@ import type { DocRow } from "../_lib/types";
 import { DocIcon } from "./DocIcon";
 import s from "./modules.module.css";
 
-export type NewGameInput = { title: string; mode: AvailableModeId; sourceDocumentIds: string[] };
+export type NewGameInput = {
+  title: string;
+  mode: AvailableModeId;
+  sourceDocumentIds: string[];
+};
 
 type Props = {
   open: boolean;
@@ -58,7 +62,11 @@ function Dialog({ open, onClose, moduleName, readyDocs, onCreate }: Props) {
     setPending(true);
     setError(null);
     try {
-      await onCreate({ title: (title.trim() || placeholder).slice(0, 120), mode, sourceDocumentIds: chosen.map((d) => d.id) });
+      await onCreate({
+        title: (title.trim() || placeholder).slice(0, 120),
+        mode,
+        sourceDocumentIds: chosen.map((d) => d.id),
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Couldn't create the Game");
       sfx.error();
@@ -77,7 +85,12 @@ function Dialog({ open, onClose, moduleName, readyDocs, onCreate }: Props) {
           <Button variant="ghost" onClick={onClose} disabled={pending}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={create} disabled={!chosen.length || pending} icon={<span aria-hidden="true">{MODE_UI[mode].icon}</span>}>
+          <Button
+            variant="primary"
+            onClick={create}
+            disabled={!chosen.length || pending}
+            icon={<span aria-hidden="true">{MODE_UI[mode].icon}</span>}
+          >
             {pending ? "Creating…" : `Create ${m.name} Game`}
           </Button>
         </>
@@ -85,7 +98,9 @@ function Dialog({ open, onClose, moduleName, readyDocs, onCreate }: Props) {
     >
       <div className="flex flex-col gap-6">
         <fieldset className="flex flex-col gap-3">
-          <legend className="mb-3 font-display text-[13px] tracking-[.2em] text-muted uppercase">1 · Pick a Game Mode</legend>
+          <legend className="mb-3 font-display text-[13px] tracking-[.2em] text-muted uppercase">
+            1 · Pick a Game Mode
+          </legend>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {MODE_IDS.map((id: ModeId) => (
               <ModeTile
@@ -140,7 +155,9 @@ function Dialog({ open, onClose, moduleName, readyDocs, onCreate }: Props) {
             {readyDocs.length > 1 && (
               <button
                 type="button"
-                onClick={() => setPicked(picked.size === readyDocs.length ? new Set() : new Set(readyDocs.map((d) => d.id)))}
+                onClick={() =>
+                  setPicked(picked.size === readyDocs.length ? new Set() : new Set(readyDocs.map((d) => d.id)))
+                }
                 className="font-sans text-[13px] tracking-normal text-signal normal-case hover:underline"
               >
                 {picked.size === readyDocs.length ? "Select none" : "Select all"}
@@ -159,10 +176,17 @@ function Dialog({ open, onClose, moduleName, readyDocs, onCreate }: Props) {
                   <li key={d.id}>
                     <label
                       className={`flex cursor-pointer items-center gap-3 rounded-sm border px-3 py-2 transition ${
-                        on ? "border-signal bg-[color-mix(in_srgb,var(--signal)_8%,transparent)]" : "border-border hover:border-border-strong"
+                        on
+                          ? "border-signal bg-[color-mix(in_srgb,var(--signal)_8%,transparent)]"
+                          : "border-border hover:border-border-strong"
                       }`}
                     >
-                      <input type="checkbox" checked={on} onChange={() => toggle(d.id)} className="h-4 w-4 accent-[var(--signal)]" />
+                      <input
+                        type="checkbox"
+                        checked={on}
+                        onChange={() => toggle(d.id)}
+                        className="h-4 w-4 accent-[var(--signal)]"
+                      />
                       <DocIcon filename={d.filename} size={18} />
                       <span className="min-w-0 flex-1 truncate text-text">{d.filename}</span>
                       <span className="text-[13px] text-faint">{d.page_count ?? "?"} p.</span>
@@ -182,7 +206,10 @@ function Dialog({ open, onClose, moduleName, readyDocs, onCreate }: Props) {
         </fieldset>
 
         {error && (
-          <p role="alert" className="animate-shake rounded-sm bg-[color-mix(in_srgb,var(--danger)_12%,transparent)] px-3 py-2 text-sm text-danger">
+          <p
+            role="alert"
+            className="animate-shake rounded-sm bg-[color-mix(in_srgb,var(--danger)_12%,transparent)] px-3 py-2 text-sm text-danger"
+          >
             {error}
           </p>
         )}

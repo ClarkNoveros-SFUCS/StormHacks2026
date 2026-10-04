@@ -11,7 +11,12 @@ export type Inline =
   | { t: "em"; c: Inline[] }
   | { t: "link"; href: string; c: Inline[] };
 
-export type ListItem = { depth: number; ordered: boolean; marker: string; c: Inline[] };
+export type ListItem = {
+  depth: number;
+  ordered: boolean;
+  marker: string;
+  c: Inline[];
+};
 
 export type Block =
   | { t: "h"; level: 1 | 2 | 3 | 4 | 5 | 6; c: Inline[] }
@@ -56,7 +61,11 @@ export function parseMarkdown(md: string): Block[] {
 
     const h = line.match(HEADING);
     if (h) {
-      blocks.push({ t: "h", level: h[1].length as 1 | 2 | 3 | 4 | 5 | 6, c: parseInline(h[2]) });
+      blocks.push({
+        t: "h",
+        level: h[1].length as 1 | 2 | 3 | 4 | 5 | 6,
+        c: parseInline(h[2]),
+      });
       i++;
       continue;
     }

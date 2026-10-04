@@ -45,11 +45,7 @@
     border-color 0.2s,
     background 0.3s;
   background:
-    repeating-linear-gradient(
-      -45deg,
-      color-mix(in srgb, var(--primary) 5%, transparent) 0 10px,
-      transparent 10px 20px
-    ),
+    repeating-linear-gradient(-45deg, color-mix(in srgb, var(--primary) 5%, transparent) 0 10px, transparent 10px 20px),
     color-mix(in srgb, var(--surface) 70%, transparent);
 }
 .newCard:hover {
@@ -108,7 +104,9 @@
   animation: ants 0.4s linear infinite;
   transform: scale(1.02);
   background-color: color-mix(in srgb, var(--primary) 8%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 40%, transparent), 0 18px 40px -18px var(--primary);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--primary) 40%, transparent),
+    0 18px 40px -18px var(--primary);
 }
 @keyframes ants {
   to {

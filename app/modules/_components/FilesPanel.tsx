@@ -27,7 +27,18 @@ export function docStatus(d: DocRow): Status {
   return d.status === "parsed" ? "ready" : d.status === "failed" ? "failed" : "parsing";
 }
 
-export function FilesPanel({ docs, uploads, usedBy, hoverDocId, onHover, removing, freshIds, onFiles, onOpen, onDelete }: Props) {
+export function FilesPanel({
+  docs,
+  uploads,
+  usedBy,
+  hoverDocId,
+  onHover,
+  removing,
+  freshIds,
+  onFiles,
+  onOpen,
+  onDelete,
+}: Props) {
   const count = docs.length + uploads.length;
   return (
     <section aria-labelledby="files-title" className="card flex flex-col gap-4 p-4 sm:p-5">
@@ -49,8 +60,18 @@ export function FilesPanel({ docs, uploads, usedBy, hoverDocId, onHover, removin
                 <StatusPill status="uploading" />
               </div>
               <div className="flex items-center gap-3">
-                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-bg-2" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(u.progress * 100)} aria-label={`Uploading ${u.filename}`}>
-                  <div className={`${s.uploadBar} h-full rounded-full`} style={{ width: `${Math.max(4, u.progress * 100)}%` }} />
+                <div
+                  className="h-1.5 flex-1 overflow-hidden rounded-full bg-bg-2"
+                  role="progressbar"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.round(u.progress * 100)}
+                  aria-label={`Uploading ${u.filename}`}
+                >
+                  <div
+                    className={`${s.uploadBar} h-full rounded-full`}
+                    style={{ width: `${Math.max(4, u.progress * 100)}%` }}
+                  />
                 </div>
                 <span className="w-24 text-right font-hud text-lg leading-none text-muted">
                   {Math.round(u.progress * 100)}% · {formatBytes(u.size)}
@@ -141,7 +162,10 @@ function FileRow({
               </span>
             )}
             {ready && (
-              <span aria-hidden="true" className="hidden text-signal opacity-0 transition group-hover:opacity-100 sm:inline">
+              <span
+                aria-hidden="true"
+                className="hidden text-signal opacity-0 transition group-hover:opacity-100 sm:inline"
+              >
                 View text →
               </span>
             )}
@@ -185,7 +209,8 @@ function FileRow({
   );
 }
 
-const ACCEPT = ".pdf,.pptx,.docx,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const ACCEPT =
+  ".pdf,.pptx,.docx,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
 function DropZone({ onFiles, compact }: { onFiles: (files: File[]) => void; compact: boolean }) {
   const input = useRef<HTMLInputElement>(null);
@@ -232,7 +257,13 @@ function DropZone({ onFiles, compact }: { onFiles: (files: File[]) => void; comp
         </span>
       </span>
       <span className="flex flex-col gap-0.5">
-        <span className="font-display text-text">{over ? "Drop to upload" : compact ? "Drop more files, or click to choose" : "Drop your slides and notes here"}</span>
+        <span className="font-display text-text">
+          {over
+            ? "Drop to upload"
+            : compact
+              ? "Drop more files, or click to choose"
+              : "Drop your slides and notes here"}
+        </span>
         <span className="text-[13px] text-muted">PDF, PPTX or DOCX · up to 25 MB and 100 pages</span>
       </span>
       <input

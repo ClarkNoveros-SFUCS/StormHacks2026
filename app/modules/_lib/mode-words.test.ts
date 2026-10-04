@@ -6,7 +6,10 @@ describe("bestInWords", () => {
     expect(bestInWords("dive", 120).value).toBe("−1,200 m");
     expect(bestInWords("dive", 0).value).toBe("0 m");
     expect(bestInWords("apogee", 340).value).toBe("340 km");
-    expect(bestInWords("leap", 1450)).toEqual({ label: "Best climb", value: "1,450 pts" });
+    expect(bestInWords("leap", 1450)).toEqual({
+      label: "Best climb",
+      value: "1,450 pts",
+    });
     expect(bestInWords("pairs", 600).label).toBe("Best table");
     expect(bestInWords("blitz", 230).label).toBe("Best blitz");
   });

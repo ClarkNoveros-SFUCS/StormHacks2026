@@ -33,11 +33,21 @@ export function moduleTint(id: string) {
 export function ModuleBanner({ id, fileCount, modes }: { id: string; fileCount: number; modes: ModeId[] }) {
   const tint = moduleTint(id);
   const r = rand(hash(id));
-  const stars = Array.from({ length: 10 }, () => ({ x: Math.floor(r() * 160), y: Math.floor(r() * 30), o: 0.3 + r() * 0.6 }));
+  const stars = Array.from({ length: 10 }, () => ({
+    x: Math.floor(r() * 160),
+    y: Math.floor(r() * 30),
+    o: 0.3 + r() * 0.6,
+  }));
   const pages = Math.min(fileCount, 5);
   const moonX = 110 + Math.floor(r() * 36);
   return (
-    <svg viewBox="0 0 160 56" className={`${s.banner} block h-full w-full`} shapeRendering="crispEdges" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+    <svg
+      viewBox="0 0 160 56"
+      className={`${s.banner} block h-full w-full`}
+      shapeRendering="crispEdges"
+      aria-hidden="true"
+      preserveAspectRatio="xMidYMid slice"
+    >
       <rect width="160" height="56" fill="#0a0d1c" />
       <rect y="14" width="160" height="14" style={{ fill: `color-mix(in srgb, ${tint} 10%, #0a0d1c)` }} />
       <rect y="28" width="160" height="12" style={{ fill: `color-mix(in srgb, ${tint} 20%, #0a0d1c)` }} />
@@ -45,7 +55,14 @@ export function ModuleBanner({ id, fileCount, modes }: { id: string; fileCount: 
         <rect key={i} x={st.x} y={st.y} width="1" height="1" fill="#eef2ff" opacity={st.o} />
       ))}
       <rect x={moonX} y="6" width="8" height="8" fill="#eef2ff" opacity=".85" />
-      <rect x={moonX + 2} y="6" width="6" height="6" style={{ fill: `color-mix(in srgb, ${tint} 10%, #0a0d1c)` }} opacity=".9" />
+      <rect
+        x={moonX + 2}
+        y="6"
+        width="6"
+        height="6"
+        style={{ fill: `color-mix(in srgb, ${tint} 10%, #0a0d1c)` }}
+        opacity=".9"
+      />
       {/* sea */}
       <rect y="40" width="160" height="16" fill="#0d1a3a" />
       <g className={s.waves}>
@@ -68,7 +85,14 @@ export function ModuleBanner({ id, fileCount, modes }: { id: string; fileCount: 
       </g>
       {/* a flag per Mode */}
       {modes.slice(0, 5).map((m, i) => (
-        <g key={m} style={{ animation: `bob ${2.4 + i * 0.3}s ease-in-out ${i * 0.2}s infinite`, transformBox: "fill-box", transformOrigin: "bottom" }}>
+        <g
+          key={m}
+          style={{
+            animation: `bob ${2.4 + i * 0.3}s ease-in-out ${i * 0.2}s infinite`,
+            transformBox: "fill-box",
+            transformOrigin: "bottom",
+          }}
+        >
           <rect x={60 + i * 16} y="24" width="1" height="16" fill="#9aa6c8" />
           <rect x={61 + i * 16} y="24" width="8" height="5" fill={MODE_UI[m].accent} />
         </g>

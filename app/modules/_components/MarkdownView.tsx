@@ -7,9 +7,7 @@ import s from "./modules.module.css";
 function Text({ v, q }: { v: string; q: string }) {
   if (!q.trim()) return <>{v}</>;
   return (
-    <>
-      {splitMatches(v, q).map((p, i) => (p.hit ? <mark key={i}>{p.v}</mark> : <Fragment key={i}>{p.v}</Fragment>))}
-    </>
+    <>{splitMatches(v, q).map((p, i) => (p.hit ? <mark key={i}>{p.v}</mark> : <Fragment key={i}>{p.v}</Fragment>))}</>
   );
 }
 
@@ -38,7 +36,13 @@ function Inlines({ c, q }: { c: Inline[]; q: string }): ReactNode {
         );
       case "link":
         return (
-          <a key={i} href={n.href} target="_blank" rel="noopener noreferrer nofollow" className="text-signal underline underline-offset-2">
+          <a
+            key={i}
+            href={n.href}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="text-signal underline underline-offset-2"
+          >
             <Inlines c={n.c} q={q} />
           </a>
         );
@@ -86,7 +90,10 @@ function BlockView({ b, q }: { b: Block; q: string }) {
         <ul className="flex flex-col gap-1">
           {b.items.map((it, i) => (
             <li key={i} className="flex gap-2" style={{ paddingLeft: `${it.depth * 1.25}rem` }}>
-              <span aria-hidden="true" className={`shrink-0 ${it.ordered ? "font-hud text-[17px] text-signal" : "text-accent"}`}>
+              <span
+                aria-hidden="true"
+                className={`shrink-0 ${it.ordered ? "font-hud text-[17px] text-signal" : "text-accent"}`}
+              >
                 {it.ordered ? it.marker : it.depth > 0 ? "◦" : "▪"}
               </span>
               <span className="min-w-0">

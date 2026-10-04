@@ -28,14 +28,30 @@ type Props = {
 
 export const isGenerating = (g: GameRow) => g.status === "queued" || g.status === "generating";
 
-export function GamesPanel({ games, progress, hoverDocId, onHover, freshIds, removing, canCreate, onNewGame, onOpenDoc, onDelete }: Props) {
+export function GamesPanel({
+  games,
+  progress,
+  hoverDocId,
+  onHover,
+  freshIds,
+  removing,
+  canCreate,
+  onNewGame,
+  onOpenDoc,
+  onDelete,
+}: Props) {
   return (
     <section aria-labelledby="games-title" className="card flex flex-col gap-4 p-4 sm:p-5">
       <header className="flex items-center gap-3">
         <h2 id="games-title" className="label-line flex-1 !text-[13px]">
           Games <span className="text-faint">· {games.length}</span>
         </h2>
-        <Button variant="primary" size="sm" onClick={onNewGame} icon={<span className="text-base leading-none">+</span>}>
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={onNewGame}
+          icon={<span className="text-base leading-none">+</span>}
+        >
           New Game
         </Button>
       </header>
@@ -44,7 +60,15 @@ export function GamesPanel({ games, progress, hoverDocId, onHover, freshIds, rem
         <div className="flex flex-col items-center gap-3 rounded-md border border-dashed border-border px-6 py-10 text-center">
           <div className="flex gap-2">
             {(["dive", "apogee", "leap", "pairs", "blitz"] as const).map((m, i) => (
-              <span key={m} className="font-display text-2xl animate-bob" style={{ color: MODE_UI[m].accent, animationDelay: `${i * 0.15}s` }} aria-hidden="true">
+              <span
+                key={m}
+                className="font-display text-2xl animate-bob"
+                style={{
+                  color: MODE_UI[m].accent,
+                  animationDelay: `${i * 0.15}s`,
+                }}
+                aria-hidden="true"
+              >
                 {MODE_UI[m].icon}
               </span>
             ))}
@@ -91,7 +115,11 @@ function Elapsed({ since }: { since: string }) {
     return () => clearInterval(id);
   }, []);
   const sec = Math.max(0, Math.floor((now - Date.parse(since)) / 1000));
-  return <span className="font-hud text-lg leading-none text-muted tabular-nums">{sec < 60 ? `${sec}s` : `${Math.floor(sec / 60)}m ${sec % 60}s`}</span>;
+  return (
+    <span className="font-hud text-lg leading-none text-muted tabular-nums">
+      {sec < 60 ? `${sec}s` : `${Math.floor(sec / 60)}m ${sec % 60}s`}
+    </span>
+  );
 }
 
 function GameCard({
@@ -130,7 +158,9 @@ function GameCard({
       style={{ "--i": index, "--tile-accent": ui.accent } as React.CSSProperties}
     >
       <div className="flex gap-3">
-        <div className={`${s.scene} aspect-[5/3] w-24 shrink-0 overflow-hidden rounded-sm border border-border sm:w-28`}>
+        <div
+          className={`${s.scene} aspect-[5/3] w-24 shrink-0 overflow-hidden rounded-sm border border-border sm:w-28`}
+        >
           <ModeScene mode={g.mode} />
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-2">
@@ -199,7 +229,9 @@ function GameCard({
 
       {g.status === "failed" && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-[color-mix(in_srgb,var(--danger)_35%,transparent)] bg-[color-mix(in_srgb,var(--danger)_8%,transparent)] px-3 py-2">
-          <p className="min-w-0 flex-1 text-sm text-danger">{g.error ?? "Making this Game failed. Delete it and make it again."}</p>
+          <p className="min-w-0 flex-1 text-sm text-danger">
+            {g.error ?? "Making this Game failed. Delete it and make it again."}
+          </p>
           <Button variant="danger" size="sm" onClick={() => onDelete(g)}>
             Delete
           </Button>
@@ -209,7 +241,9 @@ function GameCard({
       {g.status === "ready" && (
         <div className="flex flex-wrap items-end gap-x-5 gap-y-3 border-t border-dashed border-border pt-3">
           <div className="flex min-w-[96px] flex-col gap-1">
-            <span className="font-display text-[11px] tracking-widest text-faint uppercase">{best ? best.label : "Personal best"}</span>
+            <span className="font-display text-[11px] tracking-widest text-faint uppercase">
+              {best ? best.label : "Personal best"}
+            </span>
             <span className={`font-hud text-[26px] leading-none ${best ? "text-reward" : "text-faint"}`}>
               {best ? best.value : "—"}
             </span>

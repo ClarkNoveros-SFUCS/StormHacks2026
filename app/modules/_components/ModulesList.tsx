@@ -26,7 +26,10 @@ function relative(iso: string | null) {
   if (days <= 0) return "today";
   if (days === 1) return "yesterday";
   if (days < 7) return `${days} days ago`;
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 export function ModulesList({ modules }: { modules: ModuleCardData[] }) {
@@ -47,7 +50,11 @@ export function ModulesList({ modules }: { modules: ModuleCardData[] }) {
         {modules.length > 0 && (
           <dl className="flex gap-3">
             {[
-              { label: "Modules", value: modules.length, color: "var(--signal)" },
+              {
+                label: "Modules",
+                value: modules.length,
+                color: "var(--signal)",
+              },
               { label: "Files", value: files, color: "var(--violet)" },
               { label: "Games", value: games, color: "var(--reward)" },
             ].map((st) => (
@@ -167,7 +174,12 @@ function NewModuleCard({ big = false }: { big?: boolean }) {
       }
       burstFrom(formRef.current, { count: 36 });
       sfx.reward();
-      toast({ title: `${name.trim()} created`, body: "Now drop your notes in.", tone: "success", icon: "sparkle" });
+      toast({
+        title: `${name.trim()} created`,
+        body: "Now drop your notes in.",
+        tone: "success",
+        icon: "sparkle",
+      });
       router.push(`/modules/${res.id}`);
     });
   };
@@ -185,7 +197,9 @@ function NewModuleCard({ big = false }: { big?: boolean }) {
           big ? "min-h-[180px]" : "min-h-[230px]"
         }`}
       >
-        <span className={`${s.plus} grid h-14 w-14 place-items-center rounded-md bg-primary font-display text-3xl text-primary-text shadow-[0_4px_0_var(--primary-drop)]`}>
+        <span
+          className={`${s.plus} grid h-14 w-14 place-items-center rounded-md bg-primary font-display text-3xl text-primary-text shadow-[0_4px_0_var(--primary-drop)]`}
+        >
           +
         </span>
         <span className="font-display text-lg text-text">New Module</span>

@@ -36,7 +36,10 @@ export default async function ModulePage(props: PageProps<"/modules/[moduleId]">
       key={mod.id}
       module={mod}
       initialDocuments={documents}
-      initialGames={games.map((g) => ({ ...g, created_at: new Date(g.created_at).toISOString() }))}
+      initialGames={games.map((g) => ({
+        ...g,
+        created_at: new Date(g.created_at).toISOString(),
+      }))}
       progress={progress}
       initialViewer={doc ? { docId: doc, page: Number.isInteger(page) && page > 0 ? page : 1 } : null}
     />

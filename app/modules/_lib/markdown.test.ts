@@ -3,7 +3,9 @@ import { countMatches, inlineText, pageTitle, parseInline, parseMarkdown, safeHr
 
 describe("parseMarkdown", () => {
   it("parses headings, bullets and paragraphs with line breaks", () => {
-    const blocks = parseMarkdown("# Graphs\n\n- BFS uses a queue\n  - level by level\n- DFS uses a stack\n\nLine one\nLine two");
+    const blocks = parseMarkdown(
+      "# Graphs\n\n- BFS uses a queue\n  - level by level\n- DFS uses a stack\n\nLine one\nLine two",
+    );
     expect(blocks.map((b) => b.t)).toEqual(["h", "list", "p"]);
     const list = blocks[1];
     if (list.t !== "list") throw new Error();
@@ -18,8 +20,16 @@ describe("parseMarkdown", () => {
   });
 
   it("parses numbered lists and markdown tables", () => {
-    const blocks = parseMarkdown("1. First\n2. Second\n\n| Algo | Time |\n|---|---|\n| BFS | O(V+E) |\n| Dijkstra | O(E log V) |");
-    expect(blocks[0]).toMatchObject({ t: "list", items: [{ ordered: true, marker: "1." }, { ordered: true, marker: "2." }] });
+    const blocks = parseMarkdown(
+      "1. First\n2. Second\n\n| Algo | Time |\n|---|---|\n| BFS | O(V+E) |\n| Dijkstra | O(E log V) |",
+    );
+    expect(blocks[0]).toMatchObject({
+      t: "list",
+      items: [
+        { ordered: true, marker: "1." },
+        { ordered: true, marker: "2." },
+      ],
+    });
     const table = blocks[1];
     if (table.t !== "table") throw new Error();
     expect(table.head.map(inlineText)).toEqual(["Algo", "Time"]);
@@ -30,8 +40,14 @@ describe("parseMarkdown", () => {
   });
 
   it("keeps code fences verbatim and collects speaker notes", () => {
-    const blocks = parseMarkdown("```python\nfor v in graph:\n    visit(v)\n```\nSpeaker notes: mention the queue\nand the visited set");
-    expect(blocks[0]).toEqual({ t: "code", lang: "python", v: "for v in graph:\n    visit(v)" });
+    const blocks = parseMarkdown(
+      "```python\nfor v in graph:\n    visit(v)\n```\nSpeaker notes: mention the queue\nand the visited set",
+    );
+    expect(blocks[0]).toEqual({
+      t: "code",
+      lang: "python",
+      v: "for v in graph:\n    visit(v)",
+    });
     const notes = blocks[1];
     if (notes.t !== "notes") throw new Error();
     expect(notes.lines.map(inlineText)).toEqual(["mention the queue", "and the visited set"]);

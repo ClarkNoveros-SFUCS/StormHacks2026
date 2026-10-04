@@ -7,7 +7,10 @@ export function bestInWords(mode: ModeId, score: number): { label: string; value
   const n = (x: number) => x.toLocaleString("en-US");
   switch (mode) {
     case "dive":
-      return { label: "Deepest dive", value: score > 0 ? `−${n(score * 10)} m` : "0 m" };
+      return {
+        label: "Deepest dive",
+        value: score > 0 ? `−${n(score * 10)} m` : "0 m",
+      };
     case "apogee":
       return { label: "Highest launch", value: `${n(score)} km` };
     case "leap":
@@ -35,7 +38,14 @@ export const KIND_LABEL: Record<PromptKind, string> = {
  * Below roughly this many parsed pages a Mode may not find enough material for its minimum
  * Prompt count (Pairs needs 12 definitions, Blitz 30 statements). Only a hint: never blocks.
  */
-const THIN_PAGES: Record<ModeId, number> = { dive: 3, apogee: 3, leap: 5, pairs: 8, blitz: 10, arena: 5 };
+const THIN_PAGES: Record<ModeId, number> = {
+  dive: 3,
+  apogee: 3,
+  leap: 5,
+  pairs: 8,
+  blitz: 10,
+  arena: 5,
+};
 
 export function thinMaterialHint(mode: ModeId, selectedPages: number, selectedFiles: number): string | null {
   if (selectedFiles === 0 || selectedPages >= THIN_PAGES[mode]) return null;

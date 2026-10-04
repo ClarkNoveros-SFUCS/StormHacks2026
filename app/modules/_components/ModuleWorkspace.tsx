@@ -18,6 +18,7 @@ import { FileViewer } from "./FileViewer";
 import { GamesPanel, isGenerating } from "./GamesPanel";
 import { moduleTint } from "./ModuleBanner";
 import { NewGameDialog, type NewGameInput } from "./NewGameDialog";
+import { Portal } from "./Portal";
 
 type Props = {
   module: { id: string; name: string };
@@ -29,7 +30,10 @@ type Props = {
 
 type Confirm = { kind: "doc"; doc: DocRow } | { kind: "game"; game: GameRow } | null;
 
-const toRow = (g: GameSummary | GameRow): GameRow => ({ ...g, created_at: new Date(g.created_at).toISOString() });
+const toRow = (g: GameSummary | GameRow): GameRow => ({
+  ...g,
+  created_at: new Date(g.created_at).toISOString(),
+});
 
 /** Mirror the open file (and page) in the URL so it can be shared and deep-linked. */
 function setViewerUrl(v: { docId: string; page: number } | null) {
@@ -101,12 +105,26 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
       const was = before.get(d.id);
       if (!was || was === d.status) continue;
       if (d.status === "parsed") {
-        toast({ title: `${d.filename} is ready`, body: `${d.page_count ?? 0} pages parsed. Click it to read them.`, tone: "reward", icon: "check" });
+        toast({
+          title: `${d.filename} is ready`,
+          body: `${d.page_count ?? 0} pages parsed. Click it to read them.`,
+          tone: "reward",
+          icon: "check",
+        });
         mascot.current?.react("happy");
         markFresh(d.id);
-        requestAnimationFrame(() => burstFrom(document.querySelector(`[data-doc="${d.id}"]`), { count: 18, kind: "spark" }));
+        requestAnimationFrame(() =>
+          burstFrom(document.querySelector(`[data-doc="${d.id}"]`), {
+            count: 18,
+            kind: "spark",
+          }),
+        );
       } else if (d.status === "failed") {
-        toast({ title: `Couldn't read ${d.filename}`, body: d.error ?? undefined, tone: "danger" });
+        toast({
+          title: `Couldn't read ${d.filename}`,
+          body: d.error ?? undefined,
+          tone: "danger",
+        });
         mascot.current?.react("sad");
       }
     }
@@ -121,12 +139,25 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
       const was = before.get(g.id);
       if (!was || was === g.status) continue;
       if (g.status === "ready") {
-        toast({ title: `${g.title} is ready to play`, body: `${g.prompt_count ?? 0} prompts from your notes.`, tone: "reward", icon: "star" });
+        toast({
+          title: `${g.title} is ready to play`,
+          body: `${g.prompt_count ?? 0} prompts from your notes.`,
+          tone: "reward",
+          icon: "star",
+        });
         mascot.current?.react("wow");
         markFresh(g.id);
-        requestAnimationFrame(() => burstFrom(document.querySelector(`[data-game="${g.id}"]`), { count: 40 }));
+        requestAnimationFrame(() =>
+          burstFrom(document.querySelector(`[data-game="${g.id}"]`), {
+            count: 40,
+          }),
+        );
       } else if (g.status === "failed") {
-        toast({ title: `${g.title} couldn't be made`, body: g.error ?? undefined, tone: "danger" });
+        toast({
+          title: `${g.title} couldn't be made`,
+          body: g.error ?? undefined,
+          tone: "danger",
+        });
         mascot.current?.react("sad");
       }
     }
@@ -139,7 +170,11 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
       try {
         validateUpload(file.name, file.type, file.size);
       } catch (e) {
-        toast({ title: `Can't upload ${file.name}`, body: (e as Error).message, tone: "danger" });
+        toast({
+          title: `Can't upload ${file.name}`,
+          body: (e as Error).message,
+          tone: "danger",
+        });
         continue;
       }
       const key = `${file.name}-${file.size}-${Math.random()}`;
@@ -156,7 +191,11 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
         })
         .catch((e: Error) => {
           setUploads((u) => u.filter((x) => x.key !== key));
-          toast({ title: `Couldn't upload ${file.name}`, body: e.message, tone: "danger" });
+          toast({
+            title: `Couldn't upload ${file.name}`,
+            body: e.message,
+            tone: "danger",
+          });
         });
     }
   };
@@ -166,7 +205,10 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
     const d = docs.find((x) => x.id === docId);
     if (!d) return;
     if (d.status !== "parsed") {
-      toast({ title: "Still reading that file", body: "It opens once it's Ready." });
+      toast({
+        title: "Still reading that file",
+        body: "It opens once it's Ready.",
+      });
       return;
     }
     const v = { docId, page };
@@ -208,7 +250,11 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
         toast({ title: `Deleted ${g.title}`, tone: "info", icon: "cross" });
       }
     } catch (e) {
-      toast({ title: "Couldn't delete that", body: (e as Error).message, tone: "danger" });
+      toast({
+        title: "Couldn't delete that",
+        body: (e as Error).message,
+        tone: "danger",
+      });
       setConfirm(null);
     } finally {
       setBusy(false);
@@ -227,8 +273,18 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
     markFresh(game.id);
     sfx.reward();
     mascot.current?.say(`Writing your ${MODES[game.mode].name} Game…`, 3000);
-    toast({ title: `Making ${game.title}`, body: "About a minute. You can keep uploading meanwhile.", tone: "info", icon: "sparkle" });
-    requestAnimationFrame(() => burstFrom(document.querySelector(`[data-game="${game.id}"]`), { count: 30, kind: "spark" }));
+    toast({
+      title: `Making ${game.title}`,
+      body: "About a minute. You can keep uploading meanwhile.",
+      tone: "info",
+      icon: "sparkle",
+    });
+    requestAnimationFrame(() =>
+      burstFrom(document.querySelector(`[data-game="${game.id}"]`), {
+        count: 30,
+        kind: "spark",
+      }),
+    );
   };
 
   const ready = readyDocs.length;
@@ -245,7 +301,11 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
             / <span className="text-faint">Module</span>
           </nav>
           <h1 className="text-[28px] leading-tight break-words text-text sm:text-[36px]">
-            <span aria-hidden="true" className="mr-2 inline-block h-3 w-3 translate-y-[-4px] rounded-[2px]" style={{ background: tint, boxShadow: `0 0 12px ${tint}` }} />
+            <span
+              aria-hidden="true"
+              className="mr-2 inline-block h-3 w-3 translate-y-[-4px] rounded-[2px]"
+              style={{ background: tint, boxShadow: `0 0 12px ${tint}` }}
+            />
             {mod.name}
           </h1>
           <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted">
@@ -264,7 +324,12 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
           <div className="hidden sm:block">
             <Mascot ref={mascot} size={72} bubbleSide="left" sleepAfterMs={40000} />
           </div>
-          <Button variant="primary" onClick={() => setNewGameOpen(true)} disabled={!ready} title={ready ? undefined : "Upload a file first"}>
+          <Button
+            variant="primary"
+            onClick={() => setNewGameOpen(true)}
+            disabled={!ready}
+            title={ready ? undefined : "Upload a file first"}
+          >
             + New Game
           </Button>
         </div>
@@ -297,48 +362,52 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
         />
       </div>
 
-      <NewGameDialog
-        open={newGameOpen}
-        onClose={() => setNewGameOpen(false)}
-        moduleName={mod.name}
-        readyDocs={readyDocs}
-        onCreate={createGame}
-      />
-
-      <Modal
-        open={!!confirm}
-        onClose={() => !busy && setConfirm(null)}
-        title={confirm?.kind === "doc" ? `Delete ${confirm.doc.filename}?` : confirm ? `Delete ${confirm.game.title}?` : ""}
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setConfirm(null)} disabled={busy}>
-              Keep it
-            </Button>
-            <Button variant="danger" onClick={confirmDelete} disabled={busy}>
-              {busy ? "Deleting…" : "Delete"}
-            </Button>
-          </>
-        }
-      >
-        <p className="text-muted">
-          {confirm?.kind === "doc"
-            ? "Its parsed pages go with it. You can upload the file again any time."
-            : "Its Runs, Personal Best and Mastery go with it. This can't be undone."}
-        </p>
-      </Modal>
-
-      {viewer && viewerDoc && (
-        <FileViewer
-          documentId={viewerDoc.id}
-          filename={viewerDoc.filename}
-          initialPage={viewer.page}
-          onPage={(page) => setViewerUrl({ docId: viewerDoc.id, page })}
-          onClose={() => {
-            setViewer(null);
-            setViewerUrl(null);
-          }}
+      <Portal>
+        <NewGameDialog
+          open={newGameOpen}
+          onClose={() => setNewGameOpen(false)}
+          moduleName={mod.name}
+          readyDocs={readyDocs}
+          onCreate={createGame}
         />
-      )}
+
+        <Modal
+          open={!!confirm}
+          onClose={() => !busy && setConfirm(null)}
+          title={
+            confirm?.kind === "doc" ? `Delete ${confirm.doc.filename}?` : confirm ? `Delete ${confirm.game.title}?` : ""
+          }
+          footer={
+            <>
+              <Button variant="ghost" onClick={() => setConfirm(null)} disabled={busy}>
+                Keep it
+              </Button>
+              <Button variant="danger" onClick={confirmDelete} disabled={busy}>
+                {busy ? "Deleting…" : "Delete"}
+              </Button>
+            </>
+          }
+        >
+          <p className="text-muted">
+            {confirm?.kind === "doc"
+              ? "Its parsed pages go with it. You can upload the file again any time."
+              : "Its Runs, Personal Best and Mastery go with it. This can't be undone."}
+          </p>
+        </Modal>
+
+        {viewer && viewerDoc && (
+          <FileViewer
+            documentId={viewerDoc.id}
+            filename={viewerDoc.filename}
+            initialPage={viewer.page}
+            onPage={(page) => setViewerUrl({ docId: viewerDoc.id, page })}
+            onClose={() => {
+              setViewer(null);
+              setViewerUrl(null);
+            }}
+          />
+        )}
+      </Portal>
     </div>
   );
 }
