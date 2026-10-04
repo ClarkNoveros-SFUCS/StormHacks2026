@@ -12,21 +12,21 @@
 //                                                               one more Gemini call, any Mode
 //   ... --overgenerate                                          F17 (Dive, Apogee): ask for ~25 Prompts and
 //                                                               keep the best 15-20 (selectPrompts)
+//   ... --split                                                 F30 (Dive, Apogee): the Mode's parallel calls,
+//                                                               joined, as with GEMINI_SPLIT on
 //
 // For the scorecard over every eval deck, use npm run generate:eval (scripts/generate-eval.ts).
 
 import { readFile, writeFile } from "node:fs/promises";
-import { generateDocumentPrompts } from "../lib/gemini.ts";
 import { estimateCostUsd } from "../lib/gemini/pricing.ts";
 import { geminiVerifyCall } from "../lib/gemini/verify.ts";
 import { formatScorecardTable, scoreDocument, unwrapSaved, type RunInfo, type SavedResponse } from "../lib/games/scorecard.ts";
 import { dedupeAcrossDocuments, type DocumentPage } from "../lib/games/validate.ts";
 import { verifyDocument } from "../lib/games/verify.ts";
-import type { GeneratedPrompt } from "../lib/modes/generation.ts";
+import { generationPlan, type GeneratedPrompt } from "../lib/modes/generation.ts";
 import { generatorFor } from "../lib/modes/generators.ts";
 import { MODES, type ModeId } from "../lib/modes/index.ts";
-import { GAME_OVERGENERATE_SYSTEM_INSTRUCTION } from "../lib/gemini/game-prompt.ts";
-import { charCount, loadEnv, loadFileDeck, loadSeedDeck, promptVersion } from "./deck-pages.ts";
+import { charCount, generateTimed, loadEnv, loadFileDeck, loadSeedDeck, requestsVersion } from "./deck-pages.ts";
 
 loadEnv();
 
@@ -38,7 +38,7 @@ const flag = (name: string) => {
 const valueFlags = new Set(["--pages", "--save", "--from", "--mode"].map((f) => flag(f)));
 const file = args.find((a) => !a.startsWith("--") && !valueFlags.has(a));
 const usage =
-  "Usage: npm run generate:check -- <file.pdf|pptx|docx> | --seed  [--mode dive|apogee|leap|pairs|blitz] [--pages 1-20] [--save out.json] [--from out.json] [--verify] [--overgenerate]";
+  "Usage: npm run generate:check -- <file.pdf|pptx|docx> | --seed  [--mode dive|apogee|leap|pairs|blitz] [--pages 1-20] [--save out.json] [--from out.json] [--verify] [--overgenerate] [--split]";
 if (!file && !args.includes("--seed")) {
   console.error(usage);
   process.exit(1);
@@ -50,9 +50,10 @@ if (!generator) {
   process.exit(1);
 }
 
-const over = args.includes("--overgenerate") ? (generator.overgenerate ?? null) : null;
-if (args.includes("--overgenerate") && !over) console.warn(`${MODES[mode].name} doesn't overgenerate (Dive and Apogee only); ignoring --overgenerate`);
-const version = over ? promptVersion(GAME_OVERGENERATE_SYSTEM_INSTRUCTION) : promptVersion();
+const plan = generationPlan(generator, { overgenerate: args.includes("--overgenerate"), split: args.includes("--split") });
+if (args.includes("--overgenerate") && !plan.select) console.warn(`${MODES[mode].name} doesn't overgenerate (Dive and Apogee only); ignoring --overgenerate`);
+if (args.includes("--split") && plan.requests.length === 1) console.warn(`${MODES[mode].name} doesn't split its call (Dive and Apogee only); ignoring --split`);
+const version = requestsVersion(plan.requests);
 
 // ---- pages ----
 const deck = file ? await loadFileDeck(file) : await loadSeedDeck();
@@ -73,17 +74,17 @@ if (from) {
   const made = saved ? ` (made by ${saved.run.model}, prompt version ${saved.promptVersion}; current ${version})` : "";
   console.log(`Replaying ${from}${made}: no Gemini call\n`);
 } else {
-  const started = Date.now();
-  const out = await generateDocumentPrompts(title, pages, over?.request ?? generator.request);
+  const out = await generateTimed(title, pages, plan.requests);
   response = out.response;
-  const seconds = (Date.now() - started) / 1000;
-  const { inputTokens, outputTokens, thinkingTokens } = out.usage;
-  const cost = estimateCostUsd(out.model, out.usage);
+  run = out.run;
+  const { inputTokens, outputTokens, thinkingTokens } = run.usage;
+  const cost = run.costUsd;
+  const parts = run.parts ? ` (${run.parts.length} calls in parallel: ${run.parts.map((p) => `${p.seconds.toFixed(1)} s`).join(", ")})` : "";
   console.log(
-    `${out.model}: ${seconds.toFixed(1)} s, tokens in ${inputTokens} / out ${outputTokens} / thinking ${thinkingTokens}` +
+    `${run.model}: ${run.seconds.toFixed(1)} s${parts}, tokens in ${inputTokens} / out ${outputTokens} / thinking ${thinkingTokens}` +
       (cost === null ? "" : `, ≈ $${cost.toFixed(4)} USD`) + "\n",
   );
-  run = { model: out.model, seconds, usage: out.usage, costUsd: cost };
+  for (const err of out.failed) console.warn(`One split call failed; checking the others' Prompts: ${err instanceof Error ? err.message : err}`);
   const save = flag("--save");
   if (save) {
     const saved: SavedResponse = { deck: title, createdAt: new Date().toISOString(), promptVersion: version, run, response };
@@ -113,7 +114,7 @@ if (verify) {
 }
 // ---- selection (F17, --overgenerate), as generateGame runs it ----
 const verified = verify ? verify.prompts : result.prompts;
-const selected = over ? over.select(verified, verify?.statuses) : null;
+const selected = plan.select ? plan.select(verified, verify?.statuses) : null;
 if (selected) console.log(`Selection: kept ${selected.prompts.length} of ${verified.length} Prompts\n`);
 const deduped = dedupeAcrossDocuments([{ doc: title, prompts: selected ? selected.prompts : verified }]);
 const final = generator.finalize(deduped.kept);
@@ -140,7 +141,7 @@ console.log(
 );
 // The F14 scorecard row scores Dive's checks (lib/games/validate.ts), so only Dive-engine Modes get one
 if (MODES[mode].engine === "dive") {
-  console.log("\n" + formatScorecardTable([{ deck: title, pages: pages.length, run, card: scoreDocument(response, pages, verify?.status === "verified" ? verify.response : undefined, { select: !!over }), verifyRun: verifyRun() }]));
+  console.log("\n" + formatScorecardTable([{ deck: title, pages: pages.length, run, card: scoreDocument(response, pages, verify?.status === "verified" ? verify.response : undefined, { select: !!plan.select }), verifyRun: verifyRun() }]));
 }
 console.log(
   prompts.length >= generator.minPrompts

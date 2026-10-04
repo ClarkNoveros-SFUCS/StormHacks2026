@@ -4,8 +4,9 @@
 // Pure: relative .ts imports only (scripts/generate-check.ts loads it with Node).
 
 import {
-  GAME_OVERGENERATE_SYSTEM_INSTRUCTION, GAME_PROMPT_TEMPERATURE, GAME_RESPONSE_SCHEMA, GAME_SYSTEM_INSTRUCTION,
-  gameOvergenerateContents, gamePromptContents,
+  GAME_OPEN_RESPONSE_SCHEMA, GAME_OTHER_RESPONSE_SCHEMA, GAME_OVERGENERATE_SPLIT_COUNTS, GAME_OVERGENERATE_SYSTEM_INSTRUCTION,
+  GAME_PROMPT_TEMPERATURE, GAME_RESPONSE_SCHEMA, GAME_SPLIT_COUNTS, GAME_SYSTEM_INSTRUCTION, gameOpenSystemInstruction,
+  gameOtherSystemInstruction, gameOvergenerateContents, gamePromptContents, gamePromptContentsFor,
 } from "../../gemini/game-prompt.ts";
 import { selectPrompts } from "../../games/select.ts";
 import { validateDocument } from "../../games/validate.ts";
@@ -22,8 +23,19 @@ export const diveRequest = {
 /** F17: ask for about 25 Prompts; selectPrompts keeps the best 15-20 per document. */
 export const diveOvergenerateRequest = { ...diveRequest, systemInstruction: GAME_OVERGENERATE_SYSTEM_INSTRUCTION, contents: gameOvergenerateContents };
 
+/** F30: Dive's call as two parallel ones, Open Prompts and every other kind, for `counts` Prompts. */
+export function diveSplitRequests(counts: { open: string; other: string }) {
+  return [
+    { ...diveRequest, systemInstruction: gameOpenSystemInstruction(counts.open), responseSchema: GAME_OPEN_RESPONSE_SCHEMA, contents: gamePromptContentsFor(`${counts.open} "open"`) },
+    { ...diveRequest, systemInstruction: gameOtherSystemInstruction(counts.other), responseSchema: GAME_OTHER_RESPONSE_SCHEMA, contents: gamePromptContentsFor(`${counts.other} non-"open"`) },
+  ];
+}
+export const diveSplitRequest = diveSplitRequests(GAME_SPLIT_COUNTS);
+export const diveOvergenerateSplitRequest = diveSplitRequests(GAME_OVERGENERATE_SPLIT_COUNTS);
+
 export const diveGenerator: ModeGenerator = {
   request: diveRequest,
+  split: diveSplitRequest,
   minPrompts: MODES.dive.minPrompts,
   validate(response, pages) {
     const result = validateDocument(response, pages);
@@ -33,6 +45,7 @@ export const diveGenerator: ModeGenerator = {
   notEnough: () => NOT_ENOUGH_CONTENT,
   overgenerate: {
     request: diveOvergenerateRequest,
+    split: diveOvergenerateSplitRequest,
     select: (prompts, verification) => selectPrompts(prompts, { verification }),
   },
 };

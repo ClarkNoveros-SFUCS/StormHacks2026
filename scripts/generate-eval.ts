@@ -16,6 +16,8 @@
 //   ... --verify-model <model>                  the verifier's model (default GEMINI_VERIFY_MODEL, else GEMINI_MODEL)
 //   ... --overgenerate                          F17: ask for ~25 Prompts (--live) and keep the best 15-20 with
 //                                               selectPrompts, after the verification pass if any
+//   ... --split                                 F30: send each deck as Dive's parallel calls (--live), as
+//                                               generateGame does with GEMINI_SPLIT on; s is the wall time
 //   ... --drops                                 list every drop under the table
 //   ... --json                                  JSON instead of the table
 //
@@ -24,7 +26,6 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { generateDocumentPrompts } from "../lib/gemini.ts";
 import { estimateCostUsd } from "../lib/gemini/pricing.ts";
 import { geminiVerifyCall } from "../lib/gemini/verify.ts";
 import {
@@ -32,9 +33,9 @@ import {
   type RunInfo, type SavedResponse, type SavedVerification, type Scorecard, type ScorecardRow,
 } from "../lib/games/scorecard.ts";
 import { verifyDocument } from "../lib/games/verify.ts";
-import { GAME_OVERGENERATE_SYSTEM_INSTRUCTION } from "../lib/gemini/game-prompt.ts";
-import { diveOvergenerateRequest, diveRequest } from "../lib/modes/dive/generate.ts";
-import { loadEnv, loadFileDeck, loadSeedDeck, promptVersion, root, verifyVersion, type Deck } from "./deck-pages.ts";
+import { diveGenerator } from "../lib/modes/dive/generate.ts";
+import { generationPlan } from "../lib/modes/generation.ts";
+import { generateTimed, loadEnv, loadFileDeck, loadSeedDeck, requestsVersion, root, verifyVersion, type Deck } from "./deck-pages.ts";
 
 loadEnv();
 
@@ -55,6 +56,8 @@ const verifyLive = args.includes("--verify");
 const verifyFrom = flag("--verify-from") && path.resolve(root, flag("--verify-from")!);
 if (flag("--verify-model")) process.env.GEMINI_VERIFY_MODEL = flag("--verify-model");
 const overgenerate = args.includes("--overgenerate");
+const split = args.includes("--split");
+const { requests } = generationPlan(diveGenerator, { overgenerate, split });
 
 const manifest: { decks: EvalDeck[] } = JSON.parse(await readFile(path.join(root, "eval/decks.json"), "utf8"));
 const decks = manifest.decks.filter((d) => !only || only.includes(d.id));
@@ -63,7 +66,7 @@ if (!decks.length) {
   process.exit(1);
 }
 
-const version = overgenerate ? promptVersion(GAME_OVERGENERATE_SYSTEM_INSTRUCTION) : promptVersion();
+const version = requestsVersion(requests);
 const rows: ScorecardRow[] = [];
 const notes: string[] = [];
 let spent = 0;
@@ -78,19 +81,20 @@ for (const d of decks) {
   let response: unknown;
   let run: RunInfo | null;
   if (live) {
-    process.stderr.write(`${d.id}: calling Gemini on ${deck.pages.length} pages… `);
-    const started = Date.now();
+    process.stderr.write(`${d.id}: calling Gemini (${requests.length} call${requests.length > 1 ? "s" : ""}) on ${deck.pages.length} pages… `);
     try {
-      const out = await generateDocumentPrompts(deck.title, deck.pages, overgenerate ? diveOvergenerateRequest : diveRequest);
-      run = { model: out.model, seconds: (Date.now() - started) / 1000, usage: out.usage, costUsd: estimateCostUsd(out.model, out.usage) };
+      const out = await generateTimed(deck.title, deck.pages, requests);
+      run = out.run;
       response = out.response;
+      for (const err of out.failed) notes.push(`${d.id}: one split call failed, scored the others: ${err instanceof Error ? err.message.slice(0, 120) : err}`);
     } catch (err) {
       process.stderr.write("failed\n");
       rows.push({ deck: d.id, pages: deck.pages.length, run: null, card: null, note: `Gemini failed: ${err instanceof Error ? err.message.slice(0, 80) : err}` });
       continue;
     }
     spent += run.costUsd ?? 0;
-    process.stderr.write(`${run.seconds.toFixed(0)} s, ${run.model}\n`);
+    const parts = run.parts ? ` (calls: ${run.parts.map((p) => `${p.seconds.toFixed(0)} s`).join(", ")})` : "";
+    process.stderr.write(`${run.seconds.toFixed(0)} s, ${run.model}${parts}\n`);
     const saved: SavedResponse = { deck: d.id, createdAt: new Date().toISOString(), promptVersion: version, run, response };
     await writeFile(path.join(saveDir, `${d.id}.json`), JSON.stringify(saved, null, 2) + "\n");
   } else {
@@ -119,7 +123,7 @@ if (args.includes("--json")) {
   console.log(JSON.stringify({ promptVersion: version, mode: live ? "live" : "replay", rows: out }, null, 2));
 } else {
   const source = live ? `live, saved to ${path.relative(root, saveDir)}/` : `replay of ${path.relative(root, fromDir)}/ (no Gemini call; s and $ are from when it was saved)`;
-  console.log(`Generation scorecard · prompt version ${version}${overgenerate ? " (overgenerate + select)" : ""} · ${source}\n`);
+  console.log(`Generation scorecard · prompt version ${version}${overgenerate ? " (overgenerate + select)" : ""}${split ? " (split)" : ""} · ${source}\n`);
   console.log(formatScorecardTable(rows));
   console.log(
     "\nKinds: open/cloze/definition_to_term/ordered_recall/odd_one_out. Ans/Open: mean kept Answers per Open Prompt." +

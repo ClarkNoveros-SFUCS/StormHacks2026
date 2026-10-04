@@ -8,8 +8,11 @@ import { dedupeAcrossDocuments, KINDS, RawPrompt, validateDocument, type Documen
 import { selectPrompts } from "./select.ts";
 import { applyVerdicts } from "./verify.ts";
 
-/** The Gemini call that produced a response, as recorded when it was saved. */
-export type RunInfo = { model: string; seconds: number; usage: GeminiUsage; costUsd: number | null };
+/**
+ * The Gemini call that produced a response, as recorded when it was saved. For a split request
+ * (F30): wall seconds, summed usage and cost, models joined with "+", and each call in `parts`.
+ */
+export type RunInfo = { model: string; seconds: number; usage: GeminiUsage; costUsd: number | null; parts?: RunInfo[] };
 
 /** What scripts write with --save: the raw response plus how it was made. */
 export type SavedResponse = {
