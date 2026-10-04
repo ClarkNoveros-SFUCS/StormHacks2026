@@ -11,7 +11,7 @@ The screens and what each one shows and does. The **visual style** (Krillion-lik
                 └── /runs/[runId]/reveal   Reveal (results)
 ```
 
-Every route except `/` is protected in `proxy.ts` (Clerk). A signed-in user visiting `/` is redirected to `/modules`.
+Every route except `/`, `/sign-in` and `/sign-up` (Clerk's pages) is protected at the top of its page (`requirePlayer()`) or route handler (`getApiPlayer()`), both in `lib/auth.ts`. A signed-in user visiting `/` is redirected to `/modules`.
 
 ## `/modules`: Modules list
 

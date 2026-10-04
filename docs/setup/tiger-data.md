@@ -41,15 +41,7 @@ psql "$DATABASE_URL" -c "create extension if not exists fuzzystrmatch; select le
 npm install postgres
 ```
 
-```ts
-import 'server-only';
-import postgres from 'postgres';
-
-// One client per server process; reused across requests (avoid creating it per request)
-const globalForDb = globalThis as unknown as { sql?: postgres.Sql };
-export const sql = globalForDb.sql ?? postgres(process.env.DATABASE_URL!, { ssl: 'require', max: 5 });
-if (process.env.NODE_ENV !== 'production') globalForDb.sql = sql;   // survives dev hot reloads
-```
+F01 already ships it: `import { sql } from "@/lib/db"`. It's one client per server process, and SSL comes from `?sslmode=require` in the URL.
 
 Usage. Tagged templates parameterize values, so this is safe from SQL injection:
 

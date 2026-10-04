@@ -11,7 +11,7 @@ A solo, Krillion-style study game. A Player uploads course files into a **Module
 | Concern | Choice | Notes |
 |---|---|---|
 | App | Next.js 16 (App Router), React 19, Tailwind 4 | Read `node_modules/next/dist/docs/` before writing Next code: v16 renamed `middleware.ts` to `proxy.ts`, among other changes. |
-| Auth | Clerk | Clerk user id is the Player id. Route protection goes in `proxy.ts`. |
+| Auth | Clerk | Clerk user id is the Player id. `proxy.ts` runs `clerkMiddleware()` only; each page and server action protects itself with `requirePlayer()`, and each route handler with `getApiPlayer()` (401 when null), both from `lib/auth.ts`. Clerk deprecated path-matching checks in the proxy. |
 | File storage + parsing | Snowflake | Internal stage holds original files; `AI_PARSE_DOCUMENT` turns them into per-page markdown. MLH Snowflake track. |
 | Prompt generation | Gemini API | Structured JSON output; reads parsed pages, writes Prompts/Answers/Aliases/Tiers/Hints. |
 | App database | Tiger Data (Tiger Cloud, Postgres + TimescaleDB) | All app data. Guess history is a hypertable. MLH Tiger Data track. |
@@ -52,7 +52,7 @@ Nothing talks to Snowflake or Gemini during a Run. A Run touches only Tiger Data
 - **Rarity is fixed.** It's set at generation and never changes from play (ADR-0001).
 - **Games are immutable.** No regeneration and no adding files later. A change means a new Game.
 - **The server owns the clock and the score.** The browser never receives Answers or Hints before they're earned or revealed.
-- **Everything is private to its Player.** Every query filters by the Clerk user id.
+- **Everything is private to its Player.** Every page and server action starts with `requirePlayer()`, every route handler with `getApiPlayer()` (`lib/auth.ts`), and every query filters by the returned id.
 
 ## Environment variables
 

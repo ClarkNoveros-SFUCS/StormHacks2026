@@ -10,7 +10,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 
 | ID | Feature | Lane | Depends on | Issue | Status |
 |---|---|---|---|---|---|
-| F01 | Foundation: auth, DB, migrations | Platform | — | #1 | planned |
+| F01 | Foundation: auth, DB, migrations | Platform | — | #1 | done |
 | F02 | Seed data: demo Module and Game | Platform | F01 | #2 | planned |
 | F03 | Upload pipeline (Snowflake) | Pipelines | F01 | #3 | planned |
 | F04 | Game generation (Gemini) | Pipelines | F01 (F02 for test pages) | #4 | planned |
@@ -40,15 +40,24 @@ F01 goes first and should be small: get the schema merged within the first coupl
 
 ## F01 Foundation: auth, DB, migrations
 Spec: `docs/architecture/overview.md`, `docs/architecture/data-model.md` · **Setup:** `docs/setup/tiger-data.md`, `docs/setup/README.md` (Clerk)
-- [ ] Tiger Cloud service created and `DATABASE_URL` shared with the team (follow `docs/setup/tiger-data.md`)
-- [ ] Clerk installed; `proxy.ts` protects every route except `/`; signed-in `/` redirects to `/modules`
-- [ ] `lib/db.ts` (`postgres` client, server only) and `lib/auth.ts` (`requirePlayer()` returns the Clerk id and upserts `players`)
-- [ ] `scripts/migrate.mjs` plus the `schema_migrations` table; `npm run db:migrate`
-- [ ] Initial migration = the full schema from `data-model.md`, including the `guess_events` hypertable and `fuzzystrmatch`
-- [ ] `.env.example` listing every variable from `overview.md`
-- [ ] Applied cleanly to a Tiger Cloud service
+- [x] Tiger Cloud service created (`stormhacks-dev`, follow `docs/setup/tiger-data.md`)
+- [ ] `DATABASE_URL` shared with the team privately (ask Anton)
+- [x] Clerk installed; every route except `/` is protected (per resource, see Notes); signed-in `/` redirects to `/modules`
+- [x] `lib/db.ts` (`postgres` client, server only) and `lib/auth.ts` (`requirePlayer()` / `getApiPlayer()` return the Clerk id and upsert `players`)
+- [x] `scripts/migrate.mjs` plus the `schema_migrations` table; `npm run db:migrate`
+- [x] Initial migration = the full schema from `data-model.md`, including the `guess_events` hypertable and `fuzzystrmatch`
+- [x] `.env.example` listing every variable from `overview.md`
+- [x] Applied cleanly to a Tiger Cloud service (`stormhacks-dev`, us-west-2, 1 CPU, TimescaleDB 2.30.2)
 
-Entry points: — · Notes for others: —
+Entry points: `lib/db.ts` (`sql`), `lib/auth.ts` (`requirePlayer()`, `getApiPlayer()`), `proxy.ts`, `scripts/migrate.mjs` (`npm run db:migrate`, `-- --status`), `db/migrations/20261003T1830_init.sql`, `.env.example`, placeholder `app/modules/page.tsx`
+
+Notes for others:
+- **Auth is per resource, not in the proxy.** Clerk v7 deprecated `createRouteMatcher` checks in `proxy.ts`, so it only runs `clerkMiddleware()`. Start every page and server action with `const playerId = await requirePlayer()` (signed out → redirect to sign-in). Start every route handler with `const playerId = await getApiPlayer(); if (!playerId) return Response.json({ error: "Not signed in" }, { status: 401 });`. Don't use `requirePlayer()` in route handlers: Clerk would answer a signed-out `fetch` with a redirect to the sign-in page. Then filter every query by `playerId`.
+- **Clerk v7 (Core 3):** `<SignedIn>`/`<SignedOut>` are gone; use `<Show when="signed-in">`. `<ClerkProvider>` sits inside `<body>`. The root layout shows a `<UserButton>` header when signed in (restyle freely, F10). Sign-in and sign-up live at `/sign-in` and `/sign-up` (scaffolded by `clerk init`). Getting keys: `docs/setup/README.md`.
+- **DB:** `import { sql } from "@/lib/db"` and use tagged templates (parameterized). Transactions: `sql.begin(async (tx) => …)`.
+- **Migrations:** add `db/migrations/<YYYYMMDDTHHMM>_<name>.sql`; each file runs in one transaction (many statements are fine; no `BEGIN`/`COMMIT` in the file). Never edit an applied file. Create continuous aggregates `WITH NO DATA` so they can run inside a transaction.
+- **Deferred FKs:** the four FKs from the games branch into source documents and pages are `DEFERRABLE INITIALLY DEFERRED`, so deleting a Module or Player cascades cleanly. Deleting a file a Game uses still fails (`23503`), but only at commit inside a transaction, so F03 should check `game_sources` first and return 409. Details in `data-model.md`.
+- `app/modules/page.tsx` is a placeholder for F08 to replace.
 
 ## F02 Seed data: demo Module and Game
 Spec: `docs/architecture/data-model.md`
