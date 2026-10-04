@@ -1,8 +1,8 @@
 # #4 F04 Game generation (Gemini)
 
-Status: in-progress
+Status: in-review
 Branch: feat/4-game-generation
-Updated: 2026-10-04 01:25
+Updated: 2026-10-04 01:40
 
 ## Goal
 Turn a Module's chosen parsed Source Documents into a `ready` Game via one Gemini call per document, then code checks, Tier assignment and one insert transaction. Spec: `docs/architecture/game-generation-pipeline.md`.
@@ -16,16 +16,16 @@ Turn a Module's chosen parsed Source Documents into a `ready` Game via one Gemin
 - Step 0 (code only): `db/migrations/20261004T0750_games_mode.sql`, `lib/modes/index.ts` (`MODES`, `ModeId`, `isModeId`), `data-model.md` shows the column. **Not applied to stormhacks-dev yet.** The user OK'd it, but the agent's permission classifier blocks writes to the shared DB, so the user runs `! npm run db:migrate` themselves.
 - Step 1: `lib/games/validate.ts` (`validateDocument`, `dedupeAcrossDocuments`, types `ValidPrompt`/`ValidAnswer`/`Drop`) plus `validate.test.ts` (19 tests; the seed fixture drops nothing).
 - Step 2: `lib/gemini/game-prompt.ts` (`GAME_SYSTEM_INSTRUCTION`, `gamePromptContents`, `GAME_RESPONSE_SCHEMA`) and `lib/gemini.ts` (`generateDocumentPrompts(title, pages)` → `{ response, usage, model }`, `GeminiError`). Retries 429/5xx 3× (2/5/12 s), then `GEMINI_FALLBACK_MODEL`.
+- Step 4: `lib/games/generate-game.ts` (`generateGame(gameId, { db?, generate? })` → `{ status: ready|failed|skipped }`), `lib/games/queries.ts`, `lib/games/types.ts`, plus `generate-game.db.test.ts` (5 tests, fake Gemini).
+- Step 5: routes `app/api/modules/[moduleId]/games/route.ts` (POST, GET) and `app/api/games/[gameId]/route.ts` (GET, DELETE). The API shape is posted on #8 and #4.
+- Verified: 85 unit tests and 45 DB tests on both a local TimescaleDB (docker) and stormhacks-dev; `npm run build` OK; a real-deck end-to-end (SQL Basics PDF → real Gemini → local DB) gave a ready Game with 16 Prompts covering all kinds, 52 Answers and 61 keys. The `games.mode` migration is applied on stormhacks-dev (the user ran it).
+- Spec updated: game-generation-pipeline.md (API, overload/fallback, required fields, extra rules, code layout) and setup/README.md.
 - Step 3: `scripts/generate-check.ts` (`npm run generate:check -- <file>|--seed [--pages a-b] [--save f] [--from f]`). Tuned on the seed deck: 16 returned → 15 kept, all five kinds.
 
 ## Next steps
-0. ~~F13 backend~~ (done in code; apply with `npm run db:migrate` once the user OKs it): migration `db/migrations/<ts>_games_mode.sql` (`ALTER TABLE games ADD COLUMN mode text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive'))`), apply it, update `data-model.md`; `lib/modes/index.ts` per `game-modes.md`.
-1. ~~validate.ts~~ done. `lib/games/validate.ts` (pure, relative `.ts` imports, no `server-only`): per-Prompt zod `safeParse`, checks 1–6 per document, check 7 across documents. Keep the shared checks (1–3, 7) separate from Dive's (4–6 + Tiers), per `game-modes.md`. Output: kept Prompts with Tiers assigned plus a list of drop reasons. Test: `validate.test.ts`. The seed fixture (`db/seed/graph-algorithms.json`) must pass with zero drops, plus one failing case per check.
-2. ~~Gemini client~~ done. `lib/gemini/game-prompt.ts` (instructions + page wrapping) and `lib/gemini.ts` (`generateDocumentPrompts`: `responseMimeType: "application/json"`, `responseJsonSchema`, temperature 0.4, timeout, one retry on 429/5xx).
-3. ~~Real deck~~ done (CMPT 354 SQL Basics, 94 pages; see Decisions). `scripts/generate-check.ts` + `npm run generate:check -- <file>`: extract → Gemini → validate, print kept/dropped and Evidence spot-checks. Run on real lecture slides and tune the prompt.
-4. `lib/games/generate-game.ts`: read `game.mode`, assert 'dive'; claim `queued → generating`, load pages, parallel Gemini calls, validate, build rows (prompts/answers/answer_keys via `normalize()`), one transaction → `ready`; < 7 → `failed`. Generator injectable for tests. `generate-game.db.test.ts` with a fake generator.
-5. Routes: `POST`/`GET /api/modules/[moduleId]/games` (POST body `{ title, mode?, sourceDocumentIds[] }`, mode defaults to 'dive'), `GET`/`DELETE /api/games/[gameId]` (DELETE clears `guess_events` by hand). Comment API shapes on #4 and #8 first.
-6. Hand over for review. After approval: FEATURES.md F04 section, spec updates, worklog done, PR `Closes #4`.
+1. **Waiting for the user's review.** Don't open a PR until they explicitly approve.
+2. After approval, on this branch: in `docs/FEATURES.md` § F04, tick the boxes (the real-slides box too) and set Status `done`. Fill Entry points: `POST`/`GET /api/modules/[moduleId]/games`, `GET`/`DELETE /api/games/[gameId]`, `lib/games/generate-game.ts` (`generateGame`), `lib/games/validate.ts`, `lib/games/queries.ts`, `lib/games/types.ts` (`GameSummary`), `lib/gemini.ts`, `npm run generate:check`. Fill Notes for others from the "Decisions" below. In § F13, tick the migration, `lib/modes` and POST-`mode` boxes, and note the run-engine assert and UI are still open on #21. Set this worklog to `Status: done`. Then `gh pr create` with `Closes #4` and `Refs #21`.
+3. Don't commit `.claude/settings.json`: the user added local permission rules to it, and they're not for the team.
 
 ## Decisions & gotchas
 - **Gemini overload:** on 2026-10-04 around 01:00, 3.8-flash and 3.7-flash returned 503 "high demand" for minutes at a time; 3.6-flash and the Lite models answered. `.env.example` suggests `GEMINI_FALLBACK_MODEL=gemini-3.6-flash`.
@@ -47,4 +47,5 @@ Turn a Module's chosen parsed Source Documents into a `ready` Game via one Gemin
 - docs/worklog/aaf1007/4-game-generation.md, package.json, package-lock.json
 - db/migrations/20261004T0750_games_mode.sql, lib/modes/index.ts, docs/architecture/data-model.md
 - lib/games/validate.ts, lib/games/validate.test.ts
+- lib/games/generate-game.ts, generate-game.db.test.ts, queries.ts, types.ts; app/api/modules/[moduleId]/games/route.ts; app/api/games/[gameId]/route.ts; docs/architecture/game-generation-pipeline.md; docs/setup/README.md
 - lib/gemini.ts, lib/gemini/game-prompt.ts, scripts/generate-check.ts, package.json (`generate:check`), .env.example

@@ -13,14 +13,14 @@
 | Service | Used by | Guide | Env vars |
 |---|---|---|---|
 | Tiger Data (Postgres + TimescaleDB) | everything (F01+) | [`tiger-data.md`](./tiger-data.md) | `DATABASE_URL` |
-| Gemini API | F04 game generation | below | `GEMINI_API_KEY`, `GEMINI_MODEL` |
+| Gemini API | F04 game generation | below | `GEMINI_API_KEY`, `GEMINI_MODEL`, `GEMINI_FALLBACK_MODEL` |
 | Clerk (auth) | F01 | below | `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` |
 
 ### Gemini
 
 1. Google AI Studio (https://aistudio.google.com) → **Get API key** → create a key.
-2. `GEMINI_API_KEY=…`, plus `GEMINI_MODEL=` set to a current model that supports structured JSON output (pick from the models list in AI Studio).
-3. `npm install @google/genai`. Server-only usage is described in `docs/architecture/game-generation-pipeline.md`.
+2. `GEMINI_API_KEY=…`, `GEMINI_MODEL=gemini-3.6-flash`, and optionally `GEMINI_FALLBACK_MODEL=gemini-3.5-flash-lite`, used when the main model is overloaded (why: `game-generation-pipeline.md` § Gemini call). Check it works with `npm run generate:check -- --seed` (one call, about $0.05).
+3. `@google/genai` is already in package.json. Server-only usage is described in `docs/architecture/game-generation-pipeline.md`.
 
 ### Clerk
 
