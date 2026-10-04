@@ -6,7 +6,8 @@
 //   with misses on while termination and range() stop boundaries, so Sonar's root cause is
 //   comparison operators.
 //
-// Usage: npm run sonar:demo -- <playerId>
+// Usage: npm run sonar:demo                    the allowlisted demo account (DEMO_PLAYERS)
+//        npm run sonar:demo -- <playerId>     an allowlisted id, or a test id demo_sonar_*
 //
 // Resets first (one transaction): the Player's Runs, run_prompts, guess_events and
 // topic_progress on the Python Basics Games only. Then writes finished Runs exactly as the
@@ -25,9 +26,18 @@ for (const file of [".env.local", ".env"]) {
   } catch {}
 }
 
-const playerId = process.argv.slice(2).find((a) => !a.startsWith("--"));
-if (!playerId) {
-  console.error("Usage: npm run sonar:demo -- <playerId>");
+// Fake history is only ever written for these accounts (the demo owner's own), plus synthetic
+// test Players whose id starts with DEMO_TEST_PREFIX. Anything else is refused before the DB.
+const DEMO_PLAYERS: Record<string, string> = { user_3KD852awCV88LswW9l5jkVyo4gB: "antonflorendo7@gmail.com" };
+const DEMO_TEST_PREFIX = "demo_sonar_";
+const DEFAULT_PLAYER = "user_3KD852awCV88LswW9l5jkVyo4gB";
+
+const playerId: string = process.argv.slice(2).find((a) => !a.startsWith("--")) ?? DEFAULT_PLAYER;
+if (!Object.hasOwn(DEMO_PLAYERS, playerId) && !playerId.startsWith(DEMO_TEST_PREFIX)) {
+  console.error(
+    `Refusing to write demo data for ${playerId}: only ${Object.keys(DEMO_PLAYERS).join(", ")} ` +
+      `or test ids starting with "${DEMO_TEST_PREFIX}" are allowed (DEMO_PLAYERS in scripts/sonar-demo.mts).`,
+  );
   process.exit(1);
 }
 if (!process.env.DATABASE_URL) {

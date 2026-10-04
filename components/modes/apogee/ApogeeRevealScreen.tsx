@@ -22,6 +22,7 @@ import { LiveValue } from "./live";
 import { MissionLogChart } from "./MissionLogChart";
 import "./apogee.css";
 import { revealLinks } from "../shared/reveal-links";
+import { AskSonarButton } from "@/components/sonar/AskSonarButton";
 
 type Props = {
   reveal: DiveReveal;
@@ -183,6 +184,7 @@ export function ApogeeRevealScreen({ reveal, context, history }: Props) {
             <button type="button" onClick={() => router.push(links.backHref)} className="ap-btn">
               {links.backLabel}
             </button>
+            <AskSonarButton size="sm" message="What should I learn from this run?" />
           </div>
           {error && <p className="text-[14px] text-danger">{error}</p>}
 
