@@ -20,6 +20,7 @@ import { FilesPanel } from "./FilesPanel";
 import { GamesPanel, isGenerating } from "./GamesPanel";
 import { moduleTint } from "./ModuleBanner";
 import { NewGameDialog, type NewGameInput } from "./NewGameDialog";
+import { SONAR_GAME_CREATED_EVENT, type SonarGameCreatedDetail } from "@/lib/sonar/client";
 import { Portal } from "./Portal";
 
 type Props = {
@@ -86,6 +87,19 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
     return map;
   }, [games]);
   const readyDocs = docs.filter((d) => d.status === "parsed");
+
+  // A Game made from Sonar's card (F32): add it as Generating; the polling below takes it to Ready.
+  useEffect(() => {
+    const onCreated = (e: Event) => {
+      const { game } = (e as CustomEvent<SonarGameCreatedDetail>).detail;
+      if (game.module_id !== mod.id) return;
+      setGames((gs) => (gs.some((g) => g.id === game.id) ? gs : [toRow(game), ...gs]));
+      markFresh(game.id);
+      mascot.current?.say(`Writing your ${MODES[game.mode].name} Game…`, 3000);
+    };
+    window.addEventListener(SONAR_GAME_CREATED_EVENT, onCreated);
+    return () => window.removeEventListener(SONAR_GAME_CREATED_EVENT, onCreated);
+  }, [mod.id, markFresh]);
 
   // ---- Polling -------------------------------------------------------------------------------
   const docsBusy = docs.some((d) => d.status === "uploaded" || d.status === "parsing");

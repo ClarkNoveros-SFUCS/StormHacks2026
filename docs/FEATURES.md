@@ -45,6 +45,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F33 | Dive matches Krillion: continuous descent, catch and miss screens, intro pan | Frontend | F09 | #72 | done |
 | F34 | Clerk sign-in and sign-up match the site style | Frontend | F10, F19 | #77 | done |
 | F36 | Pop-up when a friend accepts your request | Platform | F21, F26 | #79 | done |
+| F38 | Sonar-made Games show up live; generation tops up when short | Pipelines | F04, F32 | #86 | done |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -633,6 +634,21 @@ Notes for others:
 - Applies to every Clerk component (SignIn, SignUp, the modals from `SignInButton`/`SignUpButton`, UserButton, UserProfile). Style a new one by adding its element key to `elements`, or a `.cl-<element>` rule in globals.css.
 - Colours are hex copies of the :root tokens: Clerk derives shades from them and can't read CSS variables. Change both if the palette changes.
 - "Secured by Clerk" stays (removing it needs a paid Clerk plan).
+
+## F38 Sonar-made Games show up live; generation tops up when short
+Issue #86
+- [x] Sonar's **Make this Game** card remembers it was pressed for the session, so it still says Generating after the drawer is closed and reopened
+- [x] The new Game appears in the Module's Games panel at once as Generating, and the page polls it to Ready (toast and burst), with no reload
+- [x] Generation: when fewer than the Mode's minimum Prompts survive the checks, one top-up round asks Gemini for different Prompts before failing
+- [x] The failure message suggests Dive (needs 7) as well as adding files
+- [x] DB test: a short first round plus a top-up round makes a ready Game
+
+Entry points: `topUp` and step e' in `lib/games/generate-game.ts`; `SONAR_GAME_CREATED_EVENT`, `announceGameCreated`, `createdGameFor` in `lib/sonar/client.ts`; the listener in `app/modules/_components/ModuleWorkspace.tsx`; `components/sonar/ActionCard.tsx`
+
+Notes for others:
+- The top-up only runs for Games that would otherwise fail, and costs one more round of Gemini calls (about as long again).
+- `notEnoughFor` text changed: "Add more files, or try Dive (it needs only 7)".
+- The "ready" toast for a Sonar-made Game shows only while you're on that Module page (it uses the page's polling).
 
 ## F36 Pop-up when a friend accepts your request
 Issue #79
