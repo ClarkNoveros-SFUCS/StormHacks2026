@@ -17,5 +17,14 @@
     "commit": "",
     "pr": ""
   },
-  "includeCoAuthoredBy": false
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Bash(npm run db:migrate)",
+      "Bash(npm run db:migrate:*)",
+      "Bash(npm run test:db)",
+      "Bash(npm run test:db:*)",
+      "Bash(npm run generate:check:*)"
+    ]
+  }
 }
