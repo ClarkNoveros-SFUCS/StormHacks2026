@@ -11,6 +11,7 @@ Site pages (landing, home, Explore, Daily, social, Modules) share one look. The 
 │   └── /explore/[course]          Course page: Topic timeline            (public)
 │       └── /explore/[course]/[topic]   Topic: reading + Practice Games   (reading public, play signed in)
 ├── /daily                         Daily Dive hub
+├── /sonar                         Sonar mastery map (Python Basics)
 ├── /leaderboard                   Leaderboards (Daily, Weekly XP, Course; Global / Friends)
 ├── /friends                       Friends, requests, search
 ├── /profile                       → /u/[me]
@@ -148,6 +149,24 @@ All three are public (Q24): signed out they render without progress and the Play
 - **`/explore`** (`GET /api/courses`): a card per Course with banner, level chip, topic count, minutes, Modes and, signed in, progress (`passed / total`, Continue → `nextTopicSlug`).
 - **`/explore/[course]`** (`GET /api/courses/[slug]`): banner hero (title, level, description, CTA to the next Topic), numbered Topic timeline (each Topic: number, title, summary, minutes, Mode icons, state locked / unlocked / passed and read), sidebar with progress and the Topic and Course Badges (`badgeInfo(badgeId)`).
 - **`/explore/[course]/[topic]`** (`GET /api/courses/[slug]/topics/[topicSlug]`): the reading page by page (markdown with code blocks) with an optional **Mark as read** (`POST …/read`, +20 XP, gates nothing); resources (title, source, link); a **Practice** panel with one tile per Mode (pass bar text, your best and a passed tick), and Play → `POST /api/games/[gameId]/runs` (403 = locked: show "Pass Topic N−1 first"); prev/next Topic links, "Next topic" highlighted once passed.
+
+## `/sonar`: Sonar mastery map · F32 (#73)
+
+Signed in (`requirePlayer()`), linked from the nav ("Sonar") and the buddy drawer. Spec: [`sonar.md`](./sonar.md). Data: `loadSonarModel(playerId)`, the same model as `GET /api/sonar/model`.
+
+- **Header:** the dolphin, "Your weak spot: <Concept> (pEff %)", the root cause sentence (which misses it is behind and its share of the blame), how many guesses the map is built from, and **Ask Sonar why** (opens the drawer with that question).
+- **Map:** Concepts in Topic lanes with prerequisite arrows. Each node shows its status colour (mastered / learning / weak / unseen) and a ring that gets brighter with more guesses; the root cause is outlined in red with dashes showing blame flowing back to it; the top pick is lit. A chip marks Topics the Course counts as passed but Sonar doesn't. Hover or tap a Concept for its numbers.
+- **What to do next:** the planner's top 3 as action cards (Start → a new Run), plus a "Reading the map" legend that explains that the Mode sets the guess rate.
+- **Empty:** "Your map is still dark" until the Player has played a Python Basics Topic.
+
+## Sonar buddy (every signed-in page) · F32 (#73)
+
+`components/sonar/SonarBuddy.tsx`, mounted in `app/layout.tsx` for signed-in Players.
+
+- **Where:** a pixel-dolphin button bottom-right on every site page. **Hidden during a Run** (`/runs/[runId]` and `/runs/new`, `isRunScreen`), so AI never runs during play. It shows again on the Reveal.
+- **Drawer:** a right panel (bottom sheet on mobile) with the chat. It opens with a briefing for the current page (`POST /api/sonar/chat`, page context from the URL), then the Player can ask anything. Replies can carry action cards: **Top pick** (the planner's) or **Sonar's pick** (checked by the server), each with Start; on a Module page, a confirm card to make a new Game. The transcript lasts the browser session. A link goes to `/sonar`.
+- **Speech bubbles:** on Reveal, Topic and Module pages a short bubble pops from the dolphin (`GET /api/sonar/bubble?path=`, templated from the model, no LLM), at most once per page per session. Clicking it opens the drawer with that question.
+- **Ask Sonar buttons:** `AskSonarButton` on every Mode's Reveal, the Topic page and the Module page opens the drawer with a question about that page. Any client component can do the same with `openSonar({ message })` (`lib/sonar/client.ts`).
 
 ## `/styleguide` (dev only) · F10 (#10)
 
