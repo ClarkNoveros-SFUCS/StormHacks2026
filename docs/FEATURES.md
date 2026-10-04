@@ -73,7 +73,6 @@ Notes for others:
 - **Re-seeding wipes the whole demo Module.** Its id is `md5('seed:graph-algorithms:' || playerId)` as a uuid. A re-run deletes that Module (cascade) plus its Games' `guess_events`, then inserts fresh rows, including anything you added inside it (for example Games while testing F04). Your other Modules, even one named "Graph Algorithms", are never touched. Game, Prompt and Answer ids change on every run, so don't hard-code them.
 - **F04:** the fixture's `game.prompts` use the Gemini response shape and pass checks 1–7, so you can use them as known-good input for `validate.ts`. Open Prompt Answers are listed most obvious first, and `assignOpenTiers` gives them their Tiers and `rarity_rank`. ordered_recall and odd_one_out get one Answer each (`'correct order'` or the correct option), with `evidence_page_id` set on both the Prompt and that Answer and no `answer_keys`.
 - **F05/F06:** "Name a graph algorithm" reproduces `answer-matching.md`'s worked examples. BFS and DFS are `exact_only`, and A* isn't an Answer.
-- **F03:** the seeded document has `stage_path = NULL` (it never went to Snowflake), so the delete and retry routes must handle that.
 - **postgres.js and jsonb:** pass arrays as `tx.json(arr)`. A pre-stringified value cast with `::jsonb` gets stored as a jsonb string.
 
 ## F03 Upload pipeline (Node extraction)
@@ -102,7 +101,7 @@ Spec: `docs/architecture/game-generation-pipeline.md` · **Setup:** `docs/setup/
 - [ ] `POST /api/modules/[moduleId]/games` (title + parsed doc ids) responds 202 and generates in `after()`
 - [ ] `lib/gemini.ts` uses structured JSON output with the spec's schema; one call per document, run in parallel
 - [ ] zod validation plus checks 1–7 from the spec; failing items are dropped, not the whole Game
-- [ ] Open Prompt Tier assignment in `lib/scoring/tiers.ts`, unit-tested with N = 4 and N = 11
+- [x] Open Prompt Tier assignment in `lib/scoring/tiers.ts`, unit-tested with N = 4 and N = 11 (built in F02 as `assignOpenTiers`; tests in `tiers.test.ts`, #19)
 - [ ] `answer_keys` written using F05's `normalize()`
 - [ ] Fewer than 7 Prompts → `failed` with a readable error; otherwise `ready`
 - [ ] Tested on real lecture slides; spot-check that Evidence quotes appear on their pages
@@ -113,7 +112,7 @@ Entry points: — · Notes for others: —
 Spec: `docs/architecture/answer-matching.md`
 - [x] `lib/matching/normalize.ts` with unit tests for every row of the spec's examples table
 - [x] `lib/matching/match-guess.ts`: `matchGuess(promptId, raw)` with exact → typo (length budget) → ambiguity rule; `exact_only` respected
-- [ ] Integration test against F02's seeded Prompt (BFS/DFS can't fuzzy-match each other). Covered for now by `match-guess.db.test.ts` with its own rolled-back fixture (same graph-algorithm Answers and cases); a seeded-Prompt test follows once F02 merges.
+- [x] Integration test against F02's seeded Prompt (BFS/DFS can't fuzzy-match each other): `match-guess.seed.db.test.ts` builds the seed fixture's typed Prompts in a rolled-back transaction (#19)
 
 Entry points: `lib/matching/normalize.ts` (`normalize()`), `lib/matching/match-guess.ts` (`matchGuess(promptId, raw, db?)`, `MatchResult`, `Db`, `typoBudget()`), tests in `lib/matching/*.test.ts`, `vitest.config.mts`
 
@@ -130,7 +129,7 @@ Spec: `docs/architecture/run-and-scoring.md`
 - [x] `lib/runs/run-engine.ts`: create (7 random Prompts, abandon other in-progress Runs), startPrompt, guess, hint, timeout, advance, finish
 - [x] Server-owned clock: deadline, −3 s per wrong typed guess, 500 ms grace, late requests close the Prompt as timeout first
 - [x] Put-in-order and odd-one-out are one-shot
-- [x] Every guess is written to `guess_events`
+- [x] Every accepted guess is written to `guess_events`
 - [x] All `/api/runs/...` routes and `GET /reveal`, returning the spec's `RunState`/`GuessResult` types; Answers and Hints never leak early
 - [x] Shared types exported from `lib/runs/types.ts` for the frontend
 
@@ -139,13 +138,10 @@ Entry points: `lib/runs/run-engine.ts` (`createRun`, `getRunState`, `startPrompt
 Notes for others:
 - **F09 flow:** `POST /api/games/[gameId]/runs` → `{ runId }`; per Prompt: `POST start-prompt` (starts the 25 s clock; idempotent), then `guess` / `hint`, and `POST timeout` when your countdown hits 0. A new Prompt shows `startedAt: null` until you call `start-prompt`, so you can play a transition first. After position 7 the state is `finished` with `prompt: null`; then `GET reveal`.
 - **Clock:** render from `deadlineAt` plus the offset `Date.parse(serverNow) − Date.now()`; every response carries a fresh `serverNow`. The server allows guesses 500 ms past the deadline and `/timeout` up to 250 ms early.
-- **Differences from the spec's types:**
-  - `GuessResult` adds `{ correct: false, timedOut: true }` (the guess arrived too late; the Prompt closed as a timeout) and `correctOrder` on a wrong put-in-order.
-  - Send `position` with each guess: a guess for an already-closed Prompt then gets 409 instead of landing on the next one.
-  - `RunState` adds `promptCount`, `hint` (once used, so reloads keep it) and `prompt: null` when the Run is over.
+- **Types and edge cases:** `run-and-scoring.md` (API, edge cases, Reveal) now matches the code; `lib/runs/types.ts` is the source of truth. Send `position` with each guess: a guess for an already-closed Prompt then gets 409 instead of landing on the next one.
 - **Errors:** `{ error }` with 400 (bad body, empty guess), 401, 404 (not yours or malformed id), 409 (wrong state: not started, already closed, Run finished or abandoned, no Hint, Reveal before finish).
-- **F07:** `Reveal.progress` is `null`; fill it in `getReveal`. Abandoned Runs keep their `guess_events`, so they already count toward Mastery and Staleness.
-- **F04:** `lib/scoring/tiers.ts` owns the Tier table; add Open Prompt Tier assignment there.
+- **Reveal progress:** F07 fills `Reveal.progress` in `getReveal`. Abandoned Runs keep their `guess_events`, so they count toward Mastery and Staleness.
+- **F04:** `lib/scoring/tiers.ts` owns the Tier table and already has Open Prompt Tier assignment (`assignOpenTiers`, from F02).
 - **Engine functions** take `(tx, playerId, …, now)` and lock the run row; call them inside `sql.begin`. Tests drive them with a fake clock (`run-engine.db.test.ts`).
 - The one-submission rule for put-in-order and odd-one-out is confirmed but not yet in `CONTEXT.md`.
 

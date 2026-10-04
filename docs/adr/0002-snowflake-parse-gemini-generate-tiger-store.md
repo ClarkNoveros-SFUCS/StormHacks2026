@@ -1,5 +1,7 @@
 # Snowflake parses, Gemini generates, Tiger Data stores
 
+> **Parsing part superseded by [ADR-0003](./0003-parse-uploads-in-node.md):** uploads are parsed in Node, and Snowflake isn't used. The Gemini and Tiger Data parts still stand.
+
 Three services each do one job. **Snowflake** holds uploaded files in an internal stage and turns them into per-page markdown with `AI_PARSE_DOCUMENT` (layout mode, page split), once per file. **Gemini** turns stored pages into Prompts/Answers/Hints, once per Game. **Tiger Data** (Postgres + TimescaleDB) holds all app data, plus every guess as a hypertable event. Nothing calls Snowflake or Gemini during a Run, so play depends only on the database.
 
 We chose this split to use both MLH partner tracks (Snowflake, Tiger Data) for something each is genuinely good at. Snowflake's parser gives us page numbers for Evidence for free; Tiger's hypertables suit an append-only guess log and its continuous aggregates. Gemini was the team's choice of generator.

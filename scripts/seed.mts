@@ -169,7 +169,7 @@ function buildRows(f: Fixture, player: string) {
     filename: f.document.filename,
     mime_type: f.document.mime_type,
     size_bytes: f.document.size_bytes,
-    stage_path: null, // never uploaded to Snowflake
+    stage_path: null, // unused since ADR-0003 (files aren't kept)
     status: "parsed",
     page_count: f.document.pages.length,
   };

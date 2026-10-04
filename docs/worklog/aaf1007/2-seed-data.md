@@ -33,13 +33,13 @@ Updated: 2026-10-03 20:40
 
 ## Next steps
 None. Anton approved, and the PR closes #2. F05 merged first; `origin/main` was merged into this branch, keeping F05's `normalize.ts` and both sets of package.json scripts. Afterwards `--check`, typecheck, lint, `npm test` (24) and `npm run test:db` (7) passed, and the demo data was re-seeded with F05's `normalize`.
-Follow-up for F05's open checkbox: a `matchGuess` integration test against the seeded "Name a graph algorithm" Prompt.
+Follow-up for F05's open checkbox (a `matchGuess` integration test against the seeded "Name a graph algorithm" Prompt): done in #19, `lib/matching/match-guess.seed.db.test.ts`.
 
 ## Decisions & gotchas
 - **Idempotency:** the demo Module id is `md5('seed:graph-algorithms:' || playerId)` formatted as a uuid. A re-seed deletes that Module (which cascades to everything under it) and that Module's Games' guess_events. Nothing else is touched, not even a real Module with the same name. Game, Prompt and Answer ids are new on every run, so old guesses can't count toward the new Game's Mastery.
 - **Open Prompt Answers are listed most obvious first.** Their Tiers and `rarity_rank` come from `assignOpenTiers` and are never written in the fixture.
 - **ordered_recall and odd_one_out** get one Answer each: `'correct order'` or the correct option. `evidence_page_id` is set on both the Prompt and that Answer, and `evidence_quote` is null. They have no answer_keys, because those kinds aren't typed.
-- **`stage_path` is NULL** on the seeded document because it never went to Snowflake. F03's delete and retry routes must handle that.
+- **`stage_path` is NULL** on the seeded document. Since ADR-0003 it's always NULL (files aren't kept, no Retry).
 - **jsonb with postgres.js:** pass arrays as `tx.json(arr)`. A pre-stringified value with `::jsonb` gets JSON-encoded again and stored as a jsonb *string*.
 - **How the script runs:** Node 24's type stripping runs `seed.mts` directly; the script uses `--disable-warning=MODULE_TYPELESS_PACKAGE_JSON` because the package has no `"type": "module"`. Importing `.ts` from a script needs `allowImportingTsExtensions` in tsconfig (allowed because `noEmit` is on). `seed.mts` can't import `lib/db.ts` (that's `server-only`), so it opens its own client, like `migrate.mjs`.
 - **Re-seeding wipes the whole demo Module**, including any Games or uploads a teammate added inside it (for example while testing F04). Put that in the FEATURES.md notes.

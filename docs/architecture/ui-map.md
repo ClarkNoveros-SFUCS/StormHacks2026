@@ -25,7 +25,7 @@ Two panels side by side; stacked on mobile.
 
 **Files panel**
 - Drop zone and file picker: PDF, PPTX, DOCX, ≤ 25 MB, ≤ 100 pages.
-- One row per Source Document: filename, page count, a status pill (`Uploading`, `Parsing…`, `Ready`, `Failed`, with Retry), and **"Used by N Games"**.
+- One row per Source Document: filename, page count, a status pill (`Uploading`, `Parsing…`, `Ready`, `Failed` with its error message; the Player deletes it and uploads again), and **"Used by N Games"**.
 - Delete is disabled while the file is used, with a tooltip: "Used by Graphs Midterm, Week 9 Drill. Delete those Games first."
 
 **Games panel**

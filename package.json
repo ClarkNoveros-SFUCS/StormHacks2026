@@ -13,7 +13,7 @@
     "db:migrate": "node scripts/migrate.mjs",
     "db:seed": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/seed.mts",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --exclude \"**/*.db.test.ts\"",
+    "test": "vitest run --exclude \"**/*.db.test.ts\" --exclude \"**/node_modules/**\" --exclude \".claude/**\"",
     "test:db": "vitest run db.test",
     "parse:check": "node scripts/parse-check.ts"
   },
