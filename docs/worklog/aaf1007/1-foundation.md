@@ -1,8 +1,8 @@
 # #1 F01 Foundation: auth, DB, migrations
 
-Status: in-progress
+Status: done
 Branch: feat/1-foundation
-Updated: 2026-10-03 19:30
+Updated: 2026-10-03 19:35
 
 ## Goal
 Clerk auth, the Postgres client, a migration runner and the initial schema, so every other feature can build on them. Spec: `docs/architecture/overview.md`, `docs/architecture/data-model.md`.
@@ -26,10 +26,11 @@ Clerk auth, the Postgres client, a migration runner and the initial schema, so e
 - Clerk linked via `clerk init --app app_3KD2aK00S1UcQuDBmQNjW62B79Y`: added `/sign-in` and `/sign-up` pages, the `/__clerk` matcher and a UserButton header. `clerk doctor` passes.
 - Tiger Cloud service `stormhacks-dev` (us-west-2, 1 CPU / 4 GiB, Development, no pooler) created; init migration applied. Verified the hypertable, extensions and all 13 tables.
 
+- Manual auth test passed: Anton signed up, landed on `/modules`, and a `players` row exists on Tiger Cloud. Anton approved the work; PR #13 marked ready.
+
 ## Next steps
-1. Human: manual auth test. Sign up at http://localhost:3000, land on `/modules` with the Player id, and check a `players` row exists.
-2. Human: share `DATABASE_URL` with the team privately, then tick the first F01 box. Consider resetting the Tiger password, since it was pasted into an agent chat.
-3. Set FEATURES.md F01 Status to `done`, set this worklog to `Status: done`, mark PR #13 ready, and merge.
+1. Human: share `DATABASE_URL` with the team privately and tick that F01 box. Consider resetting the Tiger password, since it was pasted into an agent chat.
+2. Next feature in the Platform lane: F02 seed data (#2).
 
 ## Decisions & gotchas
 - `RESTRICT` (and even `NO ACTION`) on `game_sources.source_document_id` refuses deleting a Module or Player mid-cascade. Fixed by making the four cross-branch FKs `DEFERRABLE INITIALLY DEFERRED`.
