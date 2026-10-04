@@ -7,6 +7,7 @@ import path from "node:path";
 import { extractPages } from "../lib/documents/extract/index.ts";
 import { toParsedPages, validateUpload } from "../lib/documents/parsed-pages.ts";
 import { GAME_PROMPT_TEMPERATURE, GAME_RESPONSE_SCHEMA, GAME_SYSTEM_INSTRUCTION } from "../lib/gemini/game-prompt.ts";
+import { VERIFY_RESPONSE_SCHEMA, VERIFY_SYSTEM_INSTRUCTION, VERIFY_TEMPERATURE } from "../lib/gemini/verify.ts";
 import type { DocumentPage } from "../lib/games/validate.ts";
 
 export const root = path.resolve(import.meta.dirname, "..");
@@ -46,4 +47,12 @@ export function promptVersion(): string {
     .slice(0, 8);
 }
 
-export const charCount = (pages: DocumentPage[]) => pages.reduce((n, p) => n + p.contentMd.length, 0);
+/** Short hash of what the verifier is asked (F16): tells saved verifications apart. */
+export function verifyVersion(): string {
+  return createHash("sha256")
+    .update(`${VERIFY_SYSTEM_INSTRUCTION}\n${JSON.stringify(VERIFY_RESPONSE_SCHEMA)}\n${VERIFY_TEMPERATURE}`)
+    .digest("hex")
+    .slice(0, 8);
+}
+
+export const charCount =(pages: DocumentPage[]) => pages.reduce((n, p) => n + p.contentMd.length, 0);

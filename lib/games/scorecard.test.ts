@@ -99,6 +99,43 @@ describe("formatScorecardTable", () => {
   });
 });
 
+describe("verification pass in the scorecard (F16)", () => {
+  // The verifier rejects one Answer of "Name a graph algorithm" (13 → 12) and the first cloze's only Answer
+  const verdicts = {
+    prompts: fixture.game.prompts.map((p, i) => ({
+      id: `P${i + 1}`,
+      clear: true,
+      duplicate_of: "",
+      answers: (p.answers ?? [{}]).map((_, j) => ({ id: `P${i + 1}.A${j + 1}`, supports: !(i === 0 && j === 0) && i !== 3 })),
+    })),
+  };
+
+  it("scores what survives the pass and counts its removals apart from the code checks", () => {
+    const card = scoreDocument({ prompts: fixture.game.prompts }, seedPages, verdicts);
+    expect(card.kept).toBe(11);
+    expect(card.verify).toMatchObject({ answersRemoved: 2, promptsRemoved: 1, unverified: 0 });
+    expect(card.verify!.drops).toHaveLength(2);
+    expect(card.promptsDropped).toBe(0);
+    expect(card.drops).toEqual([]);
+    expect(scoreDocument({ prompts: fixture.game.prompts }, seedPages).verify).toBeNull();
+  });
+
+  it("adds the verification columns only when a card has the pass", () => {
+    const run = { model: "gemini-3.6-flash", seconds: 60, usage: { inputTokens: 0, outputTokens: 0, thinkingTokens: 0 }, costUsd: 0.05 };
+    const verifyRun = { ...run, seconds: 20, costUsd: 0.01 };
+    const plain = scoreDocument({ prompts: fixture.game.prompts }, seedPages);
+    expect(formatScorecardTable([{ deck: "a", pages: 12, run, card: plain }])).not.toContain("Verify");
+    const card = scoreDocument({ prompts: fixture.game.prompts }, seedPages, verdicts);
+    const table = formatScorecardTable([
+      { deck: "a", pages: 12, run, card, verifyRun },
+      { deck: "b", pages: 12, run, card, verifyRun },
+    ]).split("\n");
+    expect(table[0]).toMatch(/\| s \| \$ \| Verify removed A \/ P \| Verify s \| Verify \$ \|$/);
+    expect(table[2]).toMatch(/\| 12 → 11 .*\| 60 \| 0\.050 \| 2 \/ 1 \| 20 \| 0\.010 \|$/);
+    expect(table[4]).toMatch(/\| 120 \| 0\.100 \| 4 \/ 2 \| 40 \| 0\.020 \|$/);
+  });
+});
+
 describe("estimateCostUsd", () => {
   it("bills thinking as output and returns null for an unknown model", () => {
     expect(estimateCostUsd("gemini-3.6-flash", { inputTokens: 1e6, outputTokens: 5e5, thinkingTokens: 5e5 })).toBeCloseTo(0.75 + 3.75);

@@ -9,7 +9,8 @@ import modesFixture from "@/db/seed/graph-algorithms-modes.json";
 import { sql } from "@/lib/db";
 import { GeminiError } from "@/lib/gemini";
 import { normalize } from "@/lib/matching/normalize";
-import { generateGame, NOT_ENOUGH_CONTENT } from "./generate-game";
+import { generateGame, NOT_ENOUGH_CONTENT, type Verify } from "./generate-game";
+import { verifyDocument } from "./verify";
 
 type Fixture = { tx: postgres.TransactionSql; gameId: string; documentIds: string[] };
 
@@ -123,6 +124,45 @@ describe("generateGame", () => {
       });
       expect(result).toMatchObject({ status: "failed", error: expect.stringMatching(/question generator/) });
       expect((await game(tx, gameId)).status).toBe("failed");
+    }));
+
+  // ---- Verification pass (F16) ----
+  /** A Verify that runs the real merge/drop logic with a fake verifier rejecting the given Answer ids. */
+  const verifyRejecting =
+    (...rejected: string[]): Verify =>
+    (title, pages, prompts) =>
+      verifyDocument(title, pages, prompts, async (_t, input) => ({
+        response: {
+          prompts: input.questions.map((q) => ({
+            id: q.id,
+            clear: true,
+            duplicate_of: "",
+            answers: q.answers.map((a) => ({ id: a.id, supports: !rejected.includes(a.id) })),
+          })),
+        },
+      }));
+
+  it("verification pass: unsupported Answers and their single-answer Prompts aren't stored; Tiers are reassigned", () =>
+    withFixture(async ({ tx, gameId }) => {
+      // P1 "Name a graph algorithm" loses one of its 13 Answers; P4 (a cloze) loses its only Answer
+      const result = await generateGame(gameId, { db: tx, generate: fake(fixture.game.prompts), verify: verifyRejecting("P1.A2", "P4.A1") });
+      expect(result).toEqual({ status: "ready", promptCount: 11, dropped: 2 });
+      const graph = await tx`
+        select a.canonical, a.tier, a.rarity_rank from answers a join prompts p on p.id = a.prompt_id
+        where p.game_id = ${gameId} and p.text = ${fixture.game.prompts[0].text} order by a.rarity_rank`;
+      expect(graph.map((a) => a.canonical)).not.toContain(fixture.game.prompts[0].answers![1].canonical);
+      expect(graph.map((a) => a.rarity_rank)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+      expect(graph.at(-1)!.tier).toBe("rare");
+      expect(await tx`select 1 from prompts where game_id = ${gameId} and text = ${fixture.game.prompts[3].text}`).toHaveLength(0);
+    }));
+
+  it("verification pass: a failed verification call keeps the unverified Prompts and the Game is ready", () =>
+    withFixture(async ({ tx, gameId }) => {
+      const verify: Verify = (title, pages, prompts) =>
+        verifyDocument(title, pages, prompts, async () => {
+          throw new GeminiError("Gemini request failed 503: overloaded");
+        });
+      expect(await generateGame(gameId, { db: tx, generate: fake(fixture.game.prompts), verify })).toEqual({ status: "ready", promptCount: 12, dropped: 0 });
     }));
 
   // ---- Other Modes (F20): the Mode picks the Gemini request, the checks and the minimum ----

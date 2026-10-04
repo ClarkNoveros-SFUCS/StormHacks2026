@@ -25,7 +25,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F13 | Game Modes: `games.mode` and the Mode picker | Platform | F01 | #21 | planned |
 | F14 | Generation scorecard (eval on real decks) | Pipelines | F04 | #24 | done |
 | F15 | Example Prompts in the generator instructions | Pipelines | F04 (F14 to measure) | #25 | done |
-| F16 | Gemini verification pass for Answers | Pipelines | F04 (F14 to measure) | #26 | planned |
+| F16 | Gemini verification pass for Answers | Pipelines | F04 (F14 to measure) | #26 | done |
 | F17 | Overgenerate and select the best Prompts | Pipelines | F04, F14 | #27 | planned |
 | F18 | Open Prompt answer expansion with retrieval (pgvector, stretch) | Pipelines | F04, F14 | #28 | planned |
 | F19 | Landing page and site-wide UI overhaul | Frontend | F10 | #32 | done |
@@ -332,13 +332,22 @@ Notes for others:
 - Prompt version is now `a6b826d6`, and `eval/responses/` holds its run (F15 run 2), so a plain `npm run generate:eval` replays the current prompt. The F14 baseline is kept as tables in the spec. The examples add ~1,100 input tokens per call.
 
 ## F16 Gemini verification pass for Answers
-Spec: `docs/architecture/game-generation-pipeline.md` § Improving output quality · Issue #26
-- [ ] One verification call per document: per-Answer "does the quote support it?", per-Prompt clear/duplicate
-- [ ] Drop unsupported Answers, re-run check 4 and Tier assignment; drop unclear Prompts and duplicates
-- [ ] A failed verification call keeps the unverified Prompts (logged), never fails the Game
-- [ ] Added time and cost measured; F14 scorecard before/after
+Spec: `docs/architecture/game-generation-pipeline.md` § Verification pass (F16) · Issue #26
+- [x] After the Mode's checks, one verification call per document: each kept Prompt with its Answers, quotes and the text of the cited pages; structured verdict per Answer (`supports`) and per Prompt (`clear`, `duplicate_of`). Every Mode: Leap's correct option, Blitz's truth value, Pairs' term, ordered_recall's order and odd_one_out's option are checked too
+- [x] Drop unsupported Answers, then re-run check 4 (≥ 4 Open Answers) and Tier assignment; drop unclear Prompts and duplicates
+- [x] If the verification call fails (e.g. overload), keep the unverified Prompts rather than failing the Game; log it. `GEMINI_VERIFY=off` turns the pass off (on by default)
+- [x] Added time and cost measured (+4–8 s, ≈ +$0.006–0.010 per document with flash-lite, vs the estimated +20 s / +$0.02) and the F14 scorecard before/after (verification columns added)
+- [x] Unit tests for the merge/drop logic with a fake verifier (+ DB tests through `generateGame`)
 
-Entry points: — · Notes for others: —
+Entry points: `lib/games/verify.ts` (`verificationInput`, `applyVerdicts`, `verifyDocument`, types `VerifyCall`, `VerifyInput`), `lib/gemini/verify.ts` (`VERIFY_SYSTEM_INSTRUCTION`, `VERIFY_RESPONSE_SCHEMA`, `geminiVerifyCall`, `verificationEnabled`, `verifyModels`), `generateGame(gameId, { db, generate, verify })` and `verifyWithGemini` in `lib/games/generate-game.ts`; `generateDocumentPrompts(title, pages, request?, { models?, timeoutMs? })` in `lib/gemini.ts`; env `GEMINI_VERIFY`, `GEMINI_VERIFY_MODEL`; `npm run generate:eval -- --verify | --verify-from eval/verify [--verify-model m]`, `npm run generate:check -- … --verify` (any Mode); saved verdicts `eval/verify/`, planted-errors set `eval/planted/`
+
+Notes for others:
+- **It's a safety net, not a scorecard win.** On the F15 replay set (and the F14 baseline) it removed nothing: the generator's Answers are already right on these decks. On 9 hand-planted bad Prompts that pass every code check (mentioned-but-wrong Answers, wrong cloze/definition/odd-one-out Answers, rewordings, a slide-figure Prompt, a compound one) it removed 8–9 per run with no false positives on the 16 real ones; on planted Leap/Blitz errors 3/3 and 4/4. Details and per-run numbers in the spec.
+- **Model:** the verifier uses `GEMINI_VERIFY_MODEL`, else `GEMINI_FALLBACK_MODEL` (flash-lite), then `GEMINI_MODEL`. 3.6-flash found nothing more on the real decks, cost 2–3× as much, took 11–31 s and was overloaded on 4 of 7 calls.
+- **Tests:** `generateGame` with a fake `generate` and no `verify` skips the pass, so DB tests (yours too) never call Gemini. To test the pass, pass `verify: (t, pages, prompts) => verifyDocument(t, pages, prompts, fakeCall)`.
+- **Daily Dive (F23)** wants "a second Gemini call verifies Answers": reuse `verifyDocument(title, pages, prompts, geminiVerifyCall)` on the fact-sheet pages.
+- **Follow-ups:** give-away Hints (acronym letters/length) aren't caught: a Hint verdict was tried and dropped because lite never flagged them; a code rule in check 5 would. Lite varies run to run at temperature 0. Duplicates are judged within a document only.
+- **F17:** the pass runs after the Mode's checks and before check 7 / `finalize`, so a selection step belongs after it (or before it, to verify fewer Prompts). If you change the generator prompt, re-run `npm run generate:eval -- --live --verify` and commit the new `eval/verify/` with the new `eval/responses/` (a replay notes when saved verdicts belong to other Prompts).
 
 ## F17 Overgenerate and select the best Prompts
 Spec: `docs/architecture/game-generation-pipeline.md` § Improving output quality · Issue #27

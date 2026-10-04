@@ -24,6 +24,8 @@ export class GeminiError extends Error {}
 
 export type GeminiUsage = { inputTokens: number; outputTokens: number; thinkingTokens: number };
 export type GeneratedPrompts = { response: unknown; usage: GeminiUsage; model: string };
+/** Per-call overrides: the models to try in order (default GEMINI_MODEL, then GEMINI_FALLBACK_MODEL) and the per-attempt timeout. */
+export type GeminiCallOptions = { models?: string[]; timeoutMs?: number };
 
 let client: GoogleGenAI | undefined;
 
@@ -32,22 +34,32 @@ function config() {
   const model = process.env.GEMINI_MODEL;
   if (!apiKey || !model) throw new GeminiError("GEMINI_API_KEY and GEMINI_MODEL must be set (see .env.example)");
   client ??= new GoogleGenAI({ apiKey });
-  // Optional second model, used only when GEMINI_MODEL is still overloaded after its retries
-  const fallback = process.env.GEMINI_FALLBACK_MODEL || null;
-  return { ai: client, models: fallback && fallback !== model ? [model, fallback] : [model] };
+  return { ai: client, model, fallback: process.env.GEMINI_FALLBACK_MODEL || null };
+}
+
+/**
+ * The default models to try in order: GEMINI_MODEL, then the optional GEMINI_FALLBACK_MODEL,
+ * used only when GEMINI_MODEL is still overloaded after its retries.
+ */
+export function defaultModels(): string[] {
+  const { model, fallback } = config();
+  return fallback && fallback !== model ? [model, fallback] : [model];
 }
 
 /**
  * Asks Gemini for one document's Prompts. Returns the parsed JSON unvalidated (validate.ts
  * checks it). Retries a rate limit or server error up to 3 times, then tries
- * GEMINI_FALLBACK_MODEL if set; throws GeminiError otherwise.
+ * GEMINI_FALLBACK_MODEL if set; throws GeminiError otherwise. `request` and `options` let other
+ * calls (another Mode, the verification pass in lib/gemini/verify.ts) reuse the retries.
  */
 export async function generateDocumentPrompts(
   title: string,
   pages: { pageNumber: number; contentMd: string }[],
   mode: GenerationRequest = DIVE_REQUEST,
+  options: GeminiCallOptions = {},
 ): Promise<GeneratedPrompts> {
-  const { ai, models } = config();
+  const { ai } = config();
+  const models = options.models?.length ? [...new Set(options.models)] : defaultModels();
   const request = (model: string) =>
     ai.models.generateContent({
       model,
@@ -57,7 +69,7 @@ export async function generateDocumentPrompts(
         temperature: mode.temperature,
         responseMimeType: "application/json",
         responseJsonSchema: mode.responseSchema,
-        httpOptions: { timeout: TIMEOUT_MS },
+        httpOptions: { timeout: options.timeoutMs ?? TIMEOUT_MS },
       },
     });
 

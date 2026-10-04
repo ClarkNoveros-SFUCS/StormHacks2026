@@ -5,6 +5,7 @@
 
 import type { GeminiUsage } from "../gemini.ts";
 import { dedupeAcrossDocuments, KINDS, RawPrompt, validateDocument, type DocumentPage, type Drop, type Kind, type ValidPrompt } from "./validate.ts";
+import { applyVerdicts } from "./verify.ts";
 
 /** The Gemini call that produced a response, as recorded when it was saved. */
 export type RunInfo = { model: string; seconds: number; usage: GeminiUsage; costUsd: number | null };
@@ -19,8 +20,31 @@ export type SavedResponse = {
   response: unknown;
 };
 
+/** What scripts write for a verification call (F16): the verifier's raw response plus how it was made. */
+export type SavedVerification = {
+  deck: string;
+  createdAt: string;
+  /** Hash of the verification instructions, schema and temperature (verifyVersion in scripts/deck-pages.ts). */
+  verifyVersion: string;
+  run: RunInfo;
+  /** The texts of the Prompts it judged, in order: verdicts only apply to these exact Prompts. */
+  prompts: string[];
+  response: unknown;
+};
+
+/** The verification pass's effect on one document (F16). */
+export type VerifyCard = {
+  /** Answers the verifier judged unsupported. */
+  answersRemoved: number;
+  /** Prompts it removed: unclear, duplicate, unsupported single Answer, or under 4 Open Answers. */
+  promptsRemoved: number;
+  /** Prompts it gave no usable verdict for (kept). */
+  unverified: number;
+  drops: Drop[];
+};
+
 export type Scorecard = {
-  /** The Prompts that survive the checks, as they'd be stored. */
+  /** The Prompts that survive the checks (and the verification pass, if run), as they'd be stored. */
   prompts: ValidPrompt[];
   returned: number;
   kept: number;
@@ -43,7 +67,10 @@ export type Scorecard = {
   dropsByReason: Record<string, number>;
   /** At least 7 Prompts, enough for a one-document Game. */
   enoughForGame: boolean;
+  /** Code-check drops only; the verification pass's are in `verify.drops`. */
   drops: Drop[];
+  /** Null when no verification verdicts were given. */
+  verify: VerifyCard | null;
 };
 
 const HINT_CHECKED: readonly Kind[] = ["cloze", "definition_to_term", "odd_one_out"];
@@ -74,11 +101,17 @@ export function dropCode(reason: string): string {
   return DROP_CODES.find(([re]) => re.test(reason))?.[1] ?? reason.replace(/\d+/g, "N");
 }
 
-/** Scores one document's response against its pages, exactly as generateGame checks it. */
-export function scoreDocument(response: unknown, pages: DocumentPage[]): Scorecard {
+/**
+ * Scores one document's response against its pages, exactly as generateGame checks it. With
+ * `verdicts` (the verifier's raw response for the checked Prompts, in order), the verification
+ * pass is applied too and the numbers describe what survives it. Throws if `verdicts` is malformed.
+ */
+export function scoreDocument(response: unknown, pages: DocumentPage[], verdicts?: unknown): Scorecard {
   const result = validateDocument(response, pages);
   const { kept, dropped: duplicates } = dedupeAcrossDocuments([{ doc: 0, prompts: result.prompts }]);
-  const prompts = kept.map((k) => k.prompt);
+  const checked = kept.map((k) => k.prompt);
+  const applied = verdicts === undefined ? null : applyVerdicts(checked, verdicts);
+  const prompts = applied ? applied.prompts : checked;
   const drops = [...result.dropped, ...duplicates];
   const rawPrompts = (response as { prompts?: unknown } | null)?.prompts;
   const raws = Array.isArray(rawPrompts) ? rawPrompts : [];
@@ -114,6 +147,12 @@ export function scoreDocument(response: unknown, pages: DocumentPage[]): Scoreca
     dropsByReason,
     enoughForGame: prompts.length >= MIN_GAME_PROMPTS,
     drops,
+    verify: applied && {
+      answersRemoved: applied.answersRemoved,
+      promptsRemoved: applied.promptsRemoved,
+      unverified: applied.unverified,
+      drops: applied.dropped,
+    },
   };
 }
 
@@ -126,12 +165,18 @@ export function unwrapSaved(json: unknown): { response: unknown; saved: SavedRes
 
 // ---------- Table ----------
 
-export type ScorecardRow = { deck: string; pages: number; run: RunInfo | null; card: Scorecard | null; note?: string };
+/** `verifyRun`: the verification call (F16), when the card includes the pass. */
+export type ScorecardRow = { deck: string; pages: number; run: RunInfo | null; card: Scorecard | null; note?: string; verifyRun?: RunInfo | null };
 
 const KIND_SHORT: Record<Kind, string> = { open: "o", cloze: "c", definition_to_term: "d", ordered_recall: "r", odd_one_out: "x" };
 
-/** A markdown table, one row per deck plus a total, ready to paste into the spec. */
+/**
+ * A markdown table, one row per deck plus a total, ready to paste into the spec. When any card
+ * includes the verification pass, three columns are added: Answers / Prompts it removed, and
+ * the verification call's seconds and cost.
+ */
 export function formatScorecardTable(rows: ScorecardRow[]): string {
+  const verified = rows.some((r) => r.card?.verify);
   const head = [
     "Deck",
     "Pages",
@@ -146,6 +191,7 @@ export function formatScorecardTable(rows: ScorecardRow[]): string {
     "Drops by reason",
     "s",
     "$",
+    ...(verified ? ["Verify removed A / P", "Verify s", "Verify $"] : []),
   ];
   const lines = [row(head), row(head.map(() => "---"))];
   const pct = (n: number, d: number) => (d ? `${n}/${d} (${Math.round((100 * n) / d)}%)` : "–");
@@ -156,7 +202,7 @@ export function formatScorecardTable(rows: ScorecardRow[]): string {
       .map(([k, n]) => `${k} ${n}`)
       .join(", ") || "–";
 
-  for (const { deck, pages, run, card, note } of rows) {
+  for (const { deck, pages, run, card, note, ...rest } of rows) {
     if (!card) {
       lines.push(row([deck, String(pages || "–"), "–", note ?? "skipped", ...Array(head.length - 4).fill("")]));
       continue;
@@ -176,6 +222,7 @@ export function formatScorecardTable(rows: ScorecardRow[]): string {
         reasons(card.dropsByReason),
         run ? run.seconds.toFixed(0) : "?",
         money(run?.costUsd),
+        ...(verified ? verifyCells(card.verify, rest.verifyRun) : []),
       ]),
     );
   }
@@ -203,10 +250,26 @@ export function formatScorecardTable(rows: ScorecardRow[]): string {
         reasons(total),
         runs.every(Boolean) ? runs.reduce((n, r) => n + r!.seconds, 0).toFixed(0) : "?",
         runs.every((r) => r?.costUsd != null) ? money(runs.reduce((n, r) => n + r!.costUsd!, 0)) : "?",
+        ...(verified ? verifyTotal() : []),
       ]),
     );
   }
   return lines.join("\n");
+
+  function verifyCells(v: VerifyCard | null, vr: RunInfo | null | undefined) {
+    if (!v) return ["–", "", ""];
+    return [`${v.answersRemoved} / ${v.promptsRemoved}`, vr ? vr.seconds.toFixed(0) : "?", money(vr?.costUsd)];
+  }
+
+  function verifyTotal() {
+    const vs = scored.filter((r) => r.card.verify);
+    const vruns = vs.map((r) => r.verifyRun);
+    return [
+      `${vs.reduce((n, r) => n + r.card.verify!.answersRemoved, 0)} / ${vs.reduce((n, r) => n + r.card.verify!.promptsRemoved, 0)}`,
+      vruns.every(Boolean) ? vruns.reduce((n, r) => n + r!.seconds, 0).toFixed(0) : "?",
+      vruns.every((r) => r?.costUsd != null) ? money(vruns.reduce((n, r) => n + r!.costUsd!, 0)) : "?",
+    ];
+  }
 
   function row(cells: string[]) {
     return `| ${cells.map((c) => c.replace(/\|/g, "\\|")).join(" | ")} |`;
