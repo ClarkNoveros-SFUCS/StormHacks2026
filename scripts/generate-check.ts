@@ -20,6 +20,7 @@ const PRICES: Record<string, { input: number; output: number }> = {
   "gemini-3.8-flash": { input: 0.75, output: 3.75 },
   "gemini-3.7-flash": { input: 0.75, output: 3.75 },
   "gemini-3.6-flash": { input: 0.75, output: 3.75 },
+  "gemini-3.5-flash-lite": { input: 0.3, output: 2.5 },
 };
 
 const root = path.resolve(import.meta.dirname, "..");
