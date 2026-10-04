@@ -19,11 +19,15 @@ import s from "./sonar.module.css";
 type Msg =
   | { id: number; role: "player"; text: string }
   | { id: number; role: "sonar"; text: string; actions: Action[] }
-  | { id: number; role: "error"; text: string; retry: string | null };
+  | { id: number; role: "error"; text: string; retry: string | null }
+  | { id: number; role: "divider"; text: string };
 
 const STORE = "sonar:transcript";
 const SEEN = "sonar:bubbles";
+const BRIEFED = "sonar:briefed";
 const BUBBLE_KINDS = new Set(["reveal", "topic", "module"]);
+/** Pages that get a fresh briefing when the drawer opens there after a chat on another page. */
+const REBRIEF_KINDS: Record<string, string> = { reveal: "this Run", topic: "this Topic", module: "this Module", game: "this Game" };
 
 function load<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -69,6 +73,7 @@ export function SonarBuddy() {
 
   const send = useCallback(async (message?: string, opts: { echo?: boolean } = {}) => {
     if (pendingRef.current) return;
+    save(BRIEFED, contextFromPath(pathRef.current).path);
     const text = message?.trim() || undefined;
     if (text && opts.echo !== false) setMsgs((m) => [...m, { id: ++nextId, role: "player", text }]);
     pendingRef.current = true;
@@ -110,6 +115,15 @@ export function SonarBuddy() {
       sfx.unlock();
       if (detail.message) void send(detail.message);
       else if (msgsRef.current.length === 0) void send();
+      else {
+        // A chat from another page: brief again for this one, under a divider.
+        const ctx = contextFromPath(pathRef.current);
+        const label = REBRIEF_KINDS[ctx.kind];
+        if (label && load<string | null>(BRIEFED, null) !== ctx.path && !pendingRef.current) {
+          setMsgs((m) => [...m, { id: ++nextId, role: "divider", text: `Now on ${label}` }]);
+          void send();
+        }
+      }
     },
     [send],
   );
@@ -273,6 +287,12 @@ export function SonarBuddy() {
                     {m.actions.map((a, i) => (
                       <ActionCard key={i} action={a} index={i} onNavigate={() => setOpen(false)} />
                     ))}
+                  </div>
+                ) : m.role === "divider" ? (
+                  <div key={m.id} className="flex items-center gap-2 text-[12px] text-faint" role="separator">
+                    <span className="h-px flex-1 bg-border" />
+                    {m.text}
+                    <span className="h-px flex-1 bg-border" />
                   </div>
                 ) : (
                   <div key={m.id} className="mr-6 rounded-md border border-caution/50 bg-caution/10 px-3 py-2 text-[14px] text-text">

@@ -6,6 +6,7 @@ import { Annotation, END, MemorySaver, MessagesAnnotation, START, StateGraph } f
 import { ToolNode, toolsCondition } from "@langchain/langgraph/prebuilt";
 import { recentMistakes } from "./mistakes";
 import { describeContext, mistakeLine } from "./page-context";
+import { customModuleFor, type CustomModule } from "./module-scope";
 import { loadSonarModel } from "./queries";
 import { buildTools, scopeFor } from "./tools";
 import type { Action, ChatResponse, PageContext, SonarModel } from "./types";
@@ -22,20 +23,25 @@ Voice: warm, playful, brief. Under 90 words unless the Player asks you to explai
 Be specific: quote the Player's own wrong answers and the reading.
 Never invent numbers or facts. Percentages and counts come only from the snapshot or your tools. If you don't know, say so or use a tool.
 To explain a concept, read it first (read_topic for Python Basics, read_source_page for the Player's own files) and quote it.
-To suggest what to play, call recommend (prefer a planner rank; a gameId of your own needs a reason) or propose_game. Never write links or URLs; the card is the link.
-Python Basics has a concept map in the snapshot. For the Player's own Modules there is no map: reason from their mistakes and pages.
-On a Module page, when misses cluster in one file, offer propose_game for that file in a Mode that fits the weakness: recognition → leap, recall → dive, misconceptions → blitz.`;
+Cards are the links: never write links or URLs. At most 3 Read cards and one Game card per turn. When the Player asks to go to pages, give a Read card per page; never say you can't link.
+Each Player message starts with a [Page: …] tag. Earlier messages may be from other pages: act on the current page (the snapshot), not an old one.
+Python Basics: the snapshot has a concept map and the planner's ranked actions; call recommend with a rank (or a gameId with a reason).
+The Player's own Module (its page, or a Reveal/Game of one of its Games): there is no concept map and no planner. Stay on that Module and never bring up Python Basics unless asked. Reason from their misses and the pages they came from (read_source_page), then decide:
+- Gaps in what a page teaches (wrong answers clustered on a few pages) → suggest_reading for the page with the most misses.
+- Recall or speed (timeouts, near-misses, or they've read it already) → recommend one of this Module's ready Games (gameId), or propose_game on that file in a Mode that fits: recognition → leap, recall → dive, misconceptions → blitz.
+Show both a Read and a Game card when both help; say which to do first and why.`;
 
-export function briefingFor(ctx: PageContext): string {
+/** `custom`: the page belongs to the Player's own Module (lib/sonar/module-scope.ts). */
+export function briefingFor(ctx: PageContext, custom = false): string {
   const where =
     ctx.kind === "module" ? "in this Module"
     : ctx.kind === "reveal" ? "after this Run"
     : ctx.kind === "topic" ? "on this Topic"
+    : custom ? "in this Module"
     : "in Python Basics";
-  const then =
-    ctx.kind === "module"
-      ? "then call recommend with a gameId of one of this Module's ready Games, or propose_game for the file their misses cluster in"
-      : "then call recommend";
+  const then = custom
+    ? "then decide between reading and playing: suggest_reading for the page their misses cluster on, and/or recommend one of this Module's ready Games or propose_game for that file"
+    : "then call recommend";
   return `(Briefing) Brief the Player on where they stand ${where}, in 3–4 short sentences, ${then}.`;
 }
 
@@ -122,11 +128,18 @@ export function trimHistory(messages: BaseMessage[], max = HISTORY): BaseMessage
 
 export class SonarModelError extends Error {}
 
+/** The Player's message as stored in history, tagged with the page it was sent from. */
+export function tagPage(text: string, ctx: PageContext, mod: CustomModule | null): string {
+  return `[Page: ${ctx.kind} ${ctx.path}${mod ? `, Module "${mod.name}"` : ""}]\n${text}`;
+}
+
 export async function runSonar({ playerId, message, context }: { playerId: string; message?: string; context: PageContext }): Promise<ChatResponse> {
   const sink: Action[] = [];
   let modelP: Promise<SonarModel> | undefined;
   const getModel = () => (modelP ??= loadSonarModel(playerId));
-  const tools = buildTools(playerId, context, sink, getModel);
+  const moduleP = customModuleFor(playerId, context);
+  const getModule = () => moduleP;
+  const tools = buildTools(playerId, context, sink, getModel, getModule);
 
   const [first, ...rest] = coachModels().map((m) => m.bindTools(tools));
   if (!first) throw new SonarModelError("Set LANGSMITH_API_KEY (Claude via the LangSmith gateway) or GEMINI_API_KEY and GEMINI_MODEL");
@@ -134,17 +147,16 @@ export async function runSonar({ playerId, message, context }: { playerId: strin
 
   const observe = async () => {
     const scope = scopeFor(context);
+    const mod = await moduleP;
     const [m, page, misses] = await Promise.all([
-      getModel(),
-      describeContext(playerId, context),
+      mod ? null : getModel(),
+      describeContext(playerId, context, mod),
       recentMistakes(playerId, scope, 8),
     ]);
     const snapshot = [
       `Now: ${new Date().toISOString()}`,
       page,
-      context.kind === "module"
-        ? `(Background only: stay on this Module and don't bring up Python Basics unless asked.)\n${modelSnapshot(m)}`
-        : modelSnapshot(m),
+      m ? modelSnapshot(m) : `This page is the Player's own Module "${mod!.name}": no Python Basics data, no planner ranks.`,
       misses.length ? `Latest ${misses.length} mistakes (${scope.kind === "course" ? "Python Basics" : `this ${scope.kind}`}; a sample, not a total, so don't count them as one):\n${misses.map(mistakeLine).join("\n")}` : "No recent mistakes in this scope.",
     ].join("\n\n");
     return { snapshot };
@@ -170,7 +182,8 @@ export async function runSonar({ playerId, message, context }: { playerId: strin
     .addEdge("tools", "coach")
     .compile({ checkpointer });
 
-  const text = message?.trim() || briefingFor(context);
+  const mod = await moduleP;
+  const text = tagPage(message?.trim() || briefingFor(context, !!mod), context, mod);
   const out = await graph.invoke(
     { messages: [new HumanMessage(text)] },
     { configurable: { thread_id: `sonar:${playerId}` }, recursionLimit: 12 },
