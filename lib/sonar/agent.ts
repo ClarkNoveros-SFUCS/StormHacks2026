@@ -31,7 +31,11 @@ export function briefingFor(ctx: PageContext): string {
     : ctx.kind === "reveal" ? "after this Run"
     : ctx.kind === "topic" ? "on this Topic"
     : "in Python Basics";
-  return `(Briefing) Brief the Player on where they stand ${where}, in 3–4 short sentences, then call recommend${ctx.kind === "module" ? " or propose_game" : ""}.`;
+  const then =
+    ctx.kind === "module"
+      ? "then call recommend with a gameId of one of this Module's ready Games, or propose_game for the file their misses cluster in"
+      : "then call recommend";
+  return `(Briefing) Brief the Player on where they stand ${where}, in 3–4 short sentences, ${then}.`;
 }
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
@@ -106,8 +110,10 @@ export async function runSonar({ playerId, message, context }: { playerId: strin
     const snapshot = [
       `Now: ${new Date().toISOString()}`,
       page,
-      modelSnapshot(m),
-      misses.length ? `Recent mistakes (${scope.kind === "course" ? "Python Basics" : `this ${scope.kind}`}):\n${misses.map(mistakeLine).join("\n")}` : "No recent mistakes in this scope.",
+      context.kind === "module"
+        ? `(Background only: stay on this Module and don't bring up Python Basics unless asked.)\n${modelSnapshot(m)}`
+        : modelSnapshot(m),
+      misses.length ? `Latest ${misses.length} mistakes (${scope.kind === "course" ? "Python Basics" : `this ${scope.kind}`}; a sample, not a total, so don't count them as one):\n${misses.map(mistakeLine).join("\n")}` : "No recent mistakes in this scope.",
     ].join("\n\n");
     return { snapshot };
   };
