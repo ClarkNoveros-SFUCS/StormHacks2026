@@ -1,6 +1,8 @@
 // Which client screen plays and reveals each Game Mode. One line per Mode: when a Mode's screen
 // lands (F24 Apogee/Leap, F25 Pairs/Blitz), replace its placeholder case below. Every screen
 // gets the live RunState (or the Reveal) plus the page context from app/runs/queries.ts.
+import { ApogeeRevealScreen } from "@/components/modes/apogee/ApogeeRevealScreen";
+import { ApogeeRunScreen } from "@/components/modes/apogee/ApogeeRunScreen";
 import { DiveRevealScreen } from "@/components/modes/dive/DiveRevealScreen";
 import { DiveRunScreen } from "@/components/modes/dive/DiveRunScreen";
 import type { Reveal, RunState } from "@/lib/runs/types";
@@ -12,7 +14,8 @@ export function RunScreen({ state, context }: { state: RunState; context: RunCon
   switch (state.mode) {
     case "dive":
       return <DiveRunScreen initial={state} context={context} />;
-    case "apogee": // F24
+    case "apogee":
+      return <ApogeeRunScreen initial={state} context={context} />;
     case "leap": //   F24
     case "pairs": //  F25
     case "blitz": //  F25
@@ -24,7 +27,8 @@ export function RevealScreen({ reveal, context, history }: { reveal: Reveal; con
   switch (reveal.mode) {
     case "dive":
       return <DiveRevealScreen reveal={reveal} context={context} history={history} />;
-    case "apogee": // F24
+    case "apogee":
+      return <ApogeeRevealScreen reveal={reveal} context={context} history={history} />;
     case "leap": //   F24
     case "pairs": //  F25
     case "blitz": //  F25
