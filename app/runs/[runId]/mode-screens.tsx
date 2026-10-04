@@ -5,6 +5,8 @@ import { ApogeeRevealScreen } from "@/components/modes/apogee/ApogeeRevealScreen
 import { ApogeeRunScreen } from "@/components/modes/apogee/ApogeeRunScreen";
 import { DiveRevealScreen } from "@/components/modes/dive/DiveRevealScreen";
 import { DiveRunScreen } from "@/components/modes/dive/DiveRunScreen";
+import { LeapRevealScreen } from "@/components/modes/leap/LeapRevealScreen";
+import { LeapRunScreen } from "@/components/modes/leap/LeapRunScreen";
 import type { Reveal, RunState } from "@/lib/runs/types";
 import { modeUi } from "@/lib/ui/modes";
 import type { DiveHistory, RunContext } from "../queries";
@@ -16,7 +18,8 @@ export function RunScreen({ state, context }: { state: RunState; context: RunCon
       return <DiveRunScreen initial={state} context={context} />;
     case "apogee":
       return <ApogeeRunScreen initial={state} context={context} />;
-    case "leap": //   F24
+    case "leap":
+      return <LeapRunScreen initial={state} context={context} />;
     case "pairs": //  F25
     case "blitz": //  F25
       return <ModeComingSoon mode={state.mode} context={context} />;
@@ -29,7 +32,8 @@ export function RevealScreen({ reveal, context, history }: { reveal: Reveal; con
       return <DiveRevealScreen reveal={reveal} context={context} history={history} />;
     case "apogee":
       return <ApogeeRevealScreen reveal={reveal} context={context} history={history} />;
-    case "leap": //   F24
+    case "leap":
+      return <LeapRevealScreen reveal={reveal} context={context} history={history} />;
     case "pairs": //  F25
     case "blitz": //  F25
       return <ModeComingSoon mode={reveal.mode} context={context} />;
