@@ -23,7 +23,7 @@ GROUNDING
 - Use only terms and facts stated in the pages you are given. Never add outside knowledge.
 - Each pair's Answer is the term. It cites the page the term appears on (evidence_page, the number from its "=== Page N ===" marker) and evidence_quote: a short passage copied character for character from that page, at most 200 characters, that shows what the term means. Copy it exactly.
 - The term (its canonical name or one of its aliases) must appear on the cited page.
-- Skip pages with no study content (title slides, agendas, outlines, references).
+- Skip pages with no study content (title slides, agendas, outlines, references). Course administration (exams, grading, deadlines, policies) is never a pair.
 
 PAIRS (write 16-24, each about a DIFFERENT term)
 - "kind": always "definition_to_term".
@@ -33,7 +33,11 @@ PAIRS (write 16-24, each about a DIFFERENT term)
 - "tier": how obscure the term is for a student in this course: "common", "solid", "deep" or "rare".
 - "explanation": one sentence shown after the game, adding a detail about the term.
 - "hint": leave empty.
-- Write in the language of the document.`;
+- Write in the language of the document.
+
+EXAMPLE (format and quality only, from a lecture on graph algorithms; not content to reuse)
+{"kind":"definition_to_term","text":"A structure that tracks which vertices already share a component, so an edge that would close a cycle can be skipped.","answers":[{"canonical":"union-find","aliases":["disjoint set"],"exact_only":false,"evidence_page":9,"evidence_quote":"Keeps track of which vertices are already in the same component."}],"tier":"solid","explanation":"With union by rank and path compression, each operation is almost O(1).","hint":""}
+BAD: a definition that uses the term or a word from it ("A set structure that is disjoint..."), or a term that is a sentence. GOOD: as above, a short named term and a definition that fits only it.`;
 
 const answerSchema = {
   type: "object",

@@ -21,7 +21,7 @@ export const BLITZ_SYSTEM_INSTRUCTION = `You write true/false statements for a r
 GROUNDING
 - Use only facts stated in the pages you are given. Never add outside knowledge.
 - Every statement cites evidence_page (the number from its "=== Page N ===" marker) and evidence_quote: a short passage copied character for character from that page, at most 200 characters, that shows whether the statement is true or false. Copy it exactly.
-- Skip pages with no study content (title slides, agendas, outlines, references).
+- Skip pages with no study content (title slides, agendas, outlines, references). Course administration (exams, grading, deadlines, policies) is never a statement.
 
 STATEMENTS (write 36-45, about half true and half false)
 - "text": one short, self-contained statement (at most 20 words), readable at a glance. Never mention pages, slides, "the document" or "the lecture".
@@ -32,7 +32,12 @@ STATEMENTS (write 36-45, about half true and half false)
 - "explanation": one sentence shown afterwards: for a false statement, the correct fact.
 - "tier": how obscure the fact is for a student in this course: "common", "solid", "deep" or "rare".
 - Cover many different pages and facts; don't state the same fact twice.
-- Write in the language of the document.`;
+- Write in the language of the document.
+
+EXAMPLES (format and quality only, from a lecture on graph algorithms; not content to reuse)
+{"kind":"true_false","text":"BFS uses a queue to visit vertices level by level.","is_true":true,"explanation":"BFS takes the vertex at the front of a queue and adds its unvisited neighbors to the back.","tier":"common","evidence_page":2,"evidence_quote":"It uses a queue: take the vertex at the front, then add its unvisited neighbors to the back."}
+{"kind":"true_false","text":"Dijkstra's algorithm works correctly with negative edge weights.","is_true":false,"explanation":"Dijkstra needs non-negative weights; Bellman-Ford handles negative ones.","tier":"solid","evidence_page":5,"evidence_quote":"Dijkstra breaks on graphs that have negative edge weights"}
+BAD false statement: "BFS never uses a stack in any situation." (an "always/never" trap). GOOD: swap one real detail, as in the second example.`;
 
 export const BLITZ_RESPONSE_SCHEMA = {
   type: "object",

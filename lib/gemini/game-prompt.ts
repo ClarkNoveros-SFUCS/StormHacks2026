@@ -8,6 +8,61 @@ import { TIERS } from "../scoring/tiers.ts";
 
 export const GAME_PROMPT_TEMPERATURE = 0.4;
 
+/**
+ * Worked examples shown to Gemini (F15), one per kind except definition_to_term, taken from
+ * the seed fixture (db/seed/graph-algorithms.json). Models copy examples more reliably than
+ * they follow rules. game-prompt.test.ts checks that each one passes validateDocument on the
+ * seed pages, so an example never teaches something the checks would drop.
+ */
+export const GAME_PROMPT_EXAMPLES = [
+  {
+    kind: "open",
+    text: "Name a shortest-path algorithm",
+    answers: [
+      { canonical: "Dijkstra", aliases: ["Dijkstra's algorithm"], exact_only: false, evidence_page: 5, evidence_quote: "Finds shortest paths from one source in a graph with non-negative edge weights." },
+      { canonical: "BFS", aliases: ["breadth-first search"], exact_only: true, evidence_page: 12, evidence_quote: "Unweighted shortest paths: BFS is enough." },
+      { canonical: "Bellman-Ford", aliases: [], exact_only: false, evidence_page: 6, evidence_quote: "Finds shortest paths from one source, and works with negative edge weights." },
+      { canonical: "Floyd-Warshall", aliases: [], exact_only: false, evidence_page: 7, evidence_quote: "Finds the shortest paths between every pair of vertices (all-pairs shortest paths)." },
+    ],
+    tier: "common",
+    hint: "",
+    explanation: "",
+  },
+  {
+    kind: "cloze",
+    text: "Kruskal uses ______ to check whether an edge would create a cycle.",
+    answers: [
+      { canonical: "union-find", aliases: ["disjoint set"], exact_only: false, evidence_page: 9, evidence_quote: "Kruskal uses union-find to check whether an edge would create a cycle." },
+    ],
+    tier: "solid",
+    hint: "A structure that tracks which vertices already share a component.",
+    explanation: "If both ends of an edge already share a component, adding the edge would close a cycle, and union-find answers that almost in O(1).",
+  },
+  {
+    kind: "ordered_recall",
+    text: "Put the steps of Dijkstra's algorithm in order.",
+    items: ["Set the source distance to 0", "Pick the closest unvisited node", "Relax its outgoing edges", "Mark it visited and repeat"],
+    evidence_page: 5,
+    answers: [],
+    tier: "solid",
+    hint: "Before exploring anything, you need one distance you already know.",
+    explanation: "Dijkstra starts from the source at distance 0, then repeatedly settles the closest unvisited node and relaxes its edges.",
+  },
+  {
+    kind: "odd_one_out",
+    text: "Which one solves a different problem from the other three?",
+    options: ["Kruskal", "Prim", "Borůvka", "Dijkstra"],
+    correct_option: "Dijkstra",
+    evidence_page: 8,
+    answers: [],
+    tier: "common",
+    hint: "Three of them build the same kind of tree.",
+    explanation: "Kruskal, Prim and Borůvka build minimum spanning trees; Dijkstra computes shortest paths.",
+  },
+] as const;
+
+const examples = GAME_PROMPT_EXAMPLES.map((e) => JSON.stringify(e)).join("\n");
+
 export const GAME_SYSTEM_INSTRUCTION = `You write questions for a timed study game. A student uploaded their own course file; you turn it into Prompts they answer by typing a few words within 25 seconds.
 
 GROUNDING
@@ -16,17 +71,18 @@ GROUNDING
 - The quote must show that this Answer fits this Prompt, not just that the Answer is mentioned. For "Name an algorithm that handles negative edge weights", the quote must say the algorithm handles negative edge weights. If no passage shows that, leave the Answer out.
 - The Answer itself (its canonical name or one of its aliases) must appear on the cited page.
 - Skip pages with no study content (title slides, agendas, outlines, references, "questions?").
+- Course administration is never a Prompt: exams, midterm rules, grading, deadlines, office hours, course policies, contact details.
 
 PROMPT TEXT
 - Each Prompt stands on its own, like a quiz question. Never mention pages, slides, "the document", "the lecture", "the course", "the summary" or "according to".
 - Ask about the subject, not about the document: "Name a minimum spanning tree algorithm", never "Name a topic listed this week".
 
 PROMPT KINDS (write 15-20 Prompts in total, at least half of them "open", and include some of every kind the material supports)
-- "open": a category with many valid Answers, e.g. "Name a graph algorithm", "Give an example of a greedy algorithm", "Name a property of a heap". List 4-15 Answers in "answers", ordered from the most obvious to the most obscure for a student in this course. That order is the only rarity signal; never output scores or points. Only make an open Prompt when the pages support at least 4 distinct Answers that each truly fit it. Fields: kind, text, answers.
+- "open": a category with many valid Answers, e.g. "Name a graph algorithm", "Give an example of a greedy algorithm", "Name a property of a heap". List 4-15 Answers in "answers", ordered from the most obvious to the most obscure for a student in this course. That order is the only rarity signal; never output scores or points. Only make an open Prompt when the pages support at least 4 distinct Answers that each truly fit it. One category per Prompt: no "or" joining two categories. Fields: kind, text, answers.
 - "cloze": a statement from the material with one key term replaced by "______". Exactly 1 Answer. Fields: kind, text, answers, tier, hint, explanation.
 - "definition_to_term": a definition or description in your own words; the Answer is the term. Exactly 1 Answer. Don't put the term in the text. Fields: kind, text, answers, tier, hint, explanation.
 - "ordered_recall": "Put the steps of X in order" (or stages, phases, events). "items" holds 3-6 short steps in the correct order. evidence_page is the page that lists them. Fields: kind, text, items, evidence_page, tier, hint, explanation.
-- "odd_one_out": "options" holds exactly 4 short, distinct options; "correct_option" is the one that doesn't belong, copied exactly from "options". The text says how three of them belong together without naming them (e.g. "Which one solves a different problem from the other three?"). evidence_page is the page that names the correct option. Fields: kind, text, options, correct_option, evidence_page, tier, hint, explanation.
+- "odd_one_out": "options" holds exactly 4 short, distinct options; "correct_option" is the one that doesn't belong, copied exactly from "options". The text says how three of them belong together without naming them (e.g. "Which one solves a different problem from the other three?"). All four options are named in the pages; the odd one differs in what it is or does, never in whether the document mentions it. evidence_page is the page that names the correct option. Fields: kind, text, options, correct_option, evidence_page, tier, hint, explanation.
 
 EVERY KIND EXCEPT "open" MUST HAVE tier, hint AND explanation
 - For "open", set tier to "common" and leave hint and explanation empty; they're ignored.
@@ -35,14 +91,26 @@ EVERY KIND EXCEPT "open" MUST HAVE tier, hint AND explanation
 - "explanation": one sentence shown after the Prompt, saying why the Answer is right.
 
 ANSWERS ("open", "cloze", "definition_to_term")
-- "canonical": the name the game shows. Keep it short (1-4 words).
+- "canonical": the name the game shows. Keep it short (1-4 words): the name of a thing (an algorithm, term, structure, property), written as it appears on the cited page. Never a sentence or a paraphrase, and never only symbols ("+", "*", "<=", "->"): the student types a name.
 - "aliases": other accepted names: abbreviations, expansions, alternative spellings and names ("BFS" / "breadth-first search", "Dijkstra" / "Dijkstra's algorithm"). Not typos; typos are handled by the game. An alias must never also fit a different Answer in the same Prompt.
 - "exact_only": true for short acronyms (4 letters or fewer) and for any Answer within a couple of letters of another Answer in the same Prompt (BFS / DFS). Otherwise false.
 
 QUALITY
 - Each Prompt must be answerable in 25 seconds by typing a few words, and have a clear right answer.
 - Don't repeat a Prompt, and don't ask the same fact twice in different kinds.
-- Write the Prompt text in the language of the document.`;
+- Write the Prompt text in the language of the document.
+
+EXAMPLES
+These show the format and the quality to aim for, on a lecture about graph algorithms. They are not content to reuse: write your Prompts about the document you are given.
+${examples}
+
+BAD → GOOD
+- Steps are not Answers. BAD open "Name a step in Dijkstra's algorithm" with answers like "Pick the unvisited node with the smallest known distance": sentences students can't type, and paraphrases that aren't on the page. GOOD: an ordered_recall "Put the steps of Dijkstra's algorithm in order", as in the example above. Use open only when each Answer is a short name.
+- Names, not symbols. BAD "Name an arithmetic operator that returns NULL on null values" with answers "+", "-", "*", "/". GOOD: skip it, or ask for things with word names that appear on the page.
+- One category. BAD "Name an algorithm that finds shortest paths or builds a spanning tree". GOOD: "Name a minimum spanning tree algorithm" (Kruskal, Prim, Borůvka, ...).
+- Odd one out from the deck. BAD "Which algorithm was NOT covered in the lecture?" with an option no page names. GOOD: four options the pages all name, where one does something different, as in the example above.
+- Study content only. BAD "Name a rule for taking the midterm exam". GOOD: no Prompt from that slide.
+- Hints that don't give it away. BAD hint for union-find: "A disjoint-set structure" (an alias) or "Its operations are find and union" (words from the Answer). GOOD: "A structure that tracks which vertices already share a component."`;
 
 /** The document's pages as Gemini sees them. */
 export function gamePromptContents(title: string, pages: { pageNumber: number; contentMd: string }[]): string {
