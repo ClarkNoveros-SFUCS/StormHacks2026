@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Meter } from "@/components/ui/Meter";
 import { ModeBadge, ModeScene } from "@/components/ui/ModeTile";
@@ -11,6 +10,7 @@ import { sfx } from "@/lib/ui/sfx";
 import { bestInWords } from "../_lib/mode-words";
 import type { CardProgress, GameRow } from "../_lib/types";
 import { DocIcon } from "./DocIcon";
+import { GenSteps } from "./GenSteps";
 import s from "./modules.module.css";
 
 type Props = {
@@ -101,20 +101,6 @@ export function GamesPanel({
   );
 }
 
-function Elapsed({ since }: { since: string }) {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
-  const sec = Math.max(0, Math.floor((now - Date.parse(since)) / 1000));
-  return (
-    <span className="font-hud text-lg leading-none text-muted tabular-nums">
-      {sec < 60 ? `${sec}s` : `${Math.floor(sec / 60)}m ${sec % 60}s`}
-    </span>
-  );
-}
-
 function GameCard({
   g,
   index,
@@ -196,19 +182,7 @@ function GameCard({
         </div>
       )}
 
-      {generating && (
-        <div className="flex items-center justify-between gap-3 rounded-sm bg-bg-2/60 px-3 py-2">
-          <span className="text-sm text-muted">
-            Writing prompts from your files
-            <span className={s.writing} aria-hidden="true">
-              <span>.</span>
-              <span>.</span>
-              <span>.</span>
-            </span>
-          </span>
-          <Elapsed since={g.created_at} />
-        </div>
-      )}
+      {generating && <GenSteps since={g.created_at} />}
 
       {g.status === "failed" && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-[color-mix(in_srgb,var(--danger)_35%,transparent)] bg-[color-mix(in_srgb,var(--danger)_8%,transparent)] px-3 py-2">

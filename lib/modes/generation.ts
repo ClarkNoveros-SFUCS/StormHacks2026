@@ -115,7 +115,7 @@ export async function generateSplit<R extends { response: unknown }>(
 
 export function notEnoughFor(modeName: string, what: string, min: number) {
   return (kept: number) =>
-    `${NOT_ENOUGH_CONTENT}: a ${modeName} Game needs ${min} ${what} and only ${kept} passed the checks. Try adding more files`;
+    `${NOT_ENOUGH_CONTENT}: a ${modeName} Game needs ${min} ${what} and only ${kept} passed the checks. Add more files, or try Dive (it needs only 7)`;
 }
 
 export const collapse = (s: string) => s.replace(/\s+/g, " ").trim();

@@ -45,7 +45,9 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F33 | Dive matches Krillion: continuous descent, catch and miss screens, intro pan | Frontend | F09 | #72 | done |
 | F34 | Clerk sign-in and sign-up match the site style | Frontend | F10, F19 | #77 | done |
 | F36 | Pop-up when a friend accepts your request | Platform | F21, F26 | #79 | done |
-| F37 | Sonar stays on custom Modules: Read + Game cards, no Python Basics leak | Gameplay | F32, F35 | #83 | done |
+| F38 | Sonar-made Games show up live; generation tops up when short | Pipelines | F04, F32 | #86 | done |
+| F37 | Generating Game card: step-by-step text animation | Frontend | F08 | #87 | done |
+| F39 | Sonar stays on custom Modules: Read + Game cards, no Python Basics leak | Gameplay | F32, F35 | #83 | done |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -61,6 +63,23 @@ Status values: `planned` · `done` · `blocked`. "In progress" is shown by the G
 F01 goes first and should be small: get the schema merged within the first couple of hours so everyone can build on it.
 
 ---
+
+## F39 Sonar stays on custom Modules: Read + Game cards, no Python Basics leak
+Issue #83
+- [x] A Reveal or Game page of a Game from the Player's own Module resolves that Module (files with documentIds, Games), like the Module page
+- [x] On the Player's own Module, the snapshot has no Python Basics model or planner; `recommend` refuses planner ranks and Games from other Modules
+- [x] `suggest_reading` tool: a Read card that opens one page of a Module file on its study page (`studyHref`, `/modules/<id>/study/<docId>?page=N`), checked server-side; up to 3 per turn, so "take me to these pages" gives a card per page
+- [x] `propose_game` takes the Module from the page, not from the model; one Game card and up to 3 Read cards per turn
+- [x] The agent decides: gaps in what a page teaches → read; slow recall / timeouts → replay or propose a Game; both when both help
+- [x] Each Player message is tagged with its page; the drawer re-briefs (under a "Now on this Module" divider) when opened on a different Module/Reveal/Topic/Game page
+- [x] DB test: Module resolution (not for Course Modules or other players), Module-scoped Game and page checks
+
+Entry points: `customModuleFor` in `lib/sonar/module-scope.ts`; `checkReading` and `checkPlayable(…, moduleId)` in `lib/sonar/playable.ts`; `suggest_reading` in `lib/sonar/tools.ts`; `briefingFor(ctx, custom)` and `tagPage` in `lib/sonar/agent.ts`
+
+Notes for others:
+- **Contract:** `Mistake.evidence` gains `documentId`; `describeContext(playerId, ctx, mod?, db?)` (new third arg); `propose_game` no longer takes `moduleId`.
+- Python Basics pages behave as before.
+- Follow-up #84: a concept map for custom Modules, so the planner can work there too.
 
 ## F01 Foundation: auth, DB, migrations
 Spec: `docs/architecture/overview.md`, `docs/architecture/data-model.md` · **Setup:** `docs/setup/tiger-data.md`, `docs/setup/README.md` (Clerk)
@@ -635,22 +654,20 @@ Notes for others:
 - Colours are hex copies of the :root tokens: Clerk derives shades from them and can't read CSS variables. Change both if the palette changes.
 - "Secured by Clerk" stays (removing it needs a paid Clerk plan).
 
-## F37 Sonar stays on custom Modules: Read + Game cards, no Python Basics leak
-Issue #83
-- [x] A Reveal or Game page of a Game from the Player's own Module resolves that Module (files with documentIds, Games), like the Module page
-- [x] On the Player's own Module, the snapshot has no Python Basics model or planner; `recommend` refuses planner ranks and Games from other Modules
-- [x] `suggest_reading` tool: a Read card that opens one page of a Module file on its study page (`studyHref`, `/modules/<id>/study/<docId>?page=N`), checked server-side; up to 3 per turn, so "take me to these pages" gives a card per page
-- [x] `propose_game` takes the Module from the page, not from the model; one Game card and up to 3 Read cards per turn
-- [x] The agent decides: gaps in what a page teaches → read; slow recall / timeouts → replay or propose a Game; both when both help
-- [x] Each Player message is tagged with its page; the drawer re-briefs (under a "Now on this Module" divider) when opened on a different Module/Reveal/Topic/Game page
-- [x] DB test: Module resolution (not for Course Modules or other players), Module-scoped Game and page checks
+## F38 Sonar-made Games show up live; generation tops up when short
+Issue #86
+- [x] Sonar's **Make this Game** card remembers it was pressed for the session, so it still says Generating after the drawer is closed and reopened
+- [x] The new Game appears in the Module's Games panel at once as Generating, and the page polls it to Ready (toast and burst), with no reload
+- [x] Generation: when fewer than the Mode's minimum Prompts survive the checks, one top-up round asks Gemini for different Prompts before failing
+- [x] The failure message suggests Dive (needs 7) as well as adding files
+- [x] DB test: a short first round plus a top-up round makes a ready Game
 
-Entry points: `customModuleFor` in `lib/sonar/module-scope.ts`; `checkReading` and `checkPlayable(…, moduleId)` in `lib/sonar/playable.ts`; `suggest_reading` in `lib/sonar/tools.ts`; `briefingFor(ctx, custom)` and `tagPage` in `lib/sonar/agent.ts`
+Entry points: `topUp` and step e' in `lib/games/generate-game.ts`; `SONAR_GAME_CREATED_EVENT`, `announceGameCreated`, `createdGameFor` in `lib/sonar/client.ts`; the listener in `app/modules/_components/ModuleWorkspace.tsx`; `components/sonar/ActionCard.tsx`
 
 Notes for others:
-- **Contract:** `Mistake.evidence` gains `documentId`; `describeContext(playerId, ctx, mod?, db?)` (new third arg); `propose_game` no longer takes `moduleId`.
-- Python Basics pages behave as before.
-- Follow-up #84: a concept map for custom Modules, so the planner can work there too.
+- The top-up only runs for Games that would otherwise fail, and costs one more round of Gemini calls (about as long again).
+- `notEnoughFor` text changed: "Add more files, or try Dive (it needs only 7)".
+- The "ready" toast for a Sonar-made Game shows only while you're on that Module page (it uses the page's polling).
 
 ## F36 Pop-up when a friend accepts your request
 Issue #79
@@ -682,3 +699,14 @@ Notes for others:
 - Notes use the fast model first (GEMINI_FALLBACK_MODEL, ~1 s a page), then GEMINI_MODEL. Re-parsing a file resets its notes; `update source_pages set notes_md = null` regenerates them after a prompt change.
 - The FileViewer modal is gone. Old `/modules/<id>?doc=&page=` and `/modules/files/<docId>?page=` links redirect to the study page; Evidence links point there too.
 - New generator instructions in any Mode should keep `${MATH_NOTATION_RULE}` at the end. `math:backfill` only rewrites `prompts.text/hint/explanation`: options and answers are what matching uses.
+
+## F37 Generating Game card: step-by-step text animation
+Issue #87
+- [x] One line that rolls through five steps: reading files, spotting key ideas, writing prompts, checking answers, picking the best
+- [x] `n/5` counter and progress ticks (ticks hidden on phones); no timer
+- [x] Replaces the old "Writing prompts from your files..." line and seconds counter
+
+Entry points: `GenSteps` in `app/modules/_components/GenSteps.tsx`, used by `GameCard` in `GamesPanel.tsx`
+
+Notes for others:
+- Steps are time-based (0/5/12/30/48 s after `created_at`) because generation reports only `generating`. If the pipeline ever reports a real stage, feed it into `GenSteps` instead of the elapsed time.
