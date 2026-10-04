@@ -142,6 +142,32 @@ _Avoid_: High score, ranking
 The share of a Game's Answers the Player has ever found.
 _Avoid_: Progress, completion
 
+## Sonar (docs/architecture/sonar.md)
+
+**Sonar**:
+The study coach, shown as a pixel dolphin buddy. It reads the Player's Concept mastery, explains their mistakes and recommends what to play next. It runs between Runs, never during one, and never invents a number.
+_Avoid_: Tutor, assistant, chatbot, the AI
+
+**Concept**:
+One skill a Prompt tests, such as `range` or `comparison_ops`. Concepts form a prerequisite graph, and each belongs to one Topic. Python Basics has 22; each Prompt is tagged with 1–3 of them.
+_Avoid_: Skill, knowledge component, tag (a tag links a Prompt to a Concept)
+
+**Concept mastery**:
+The probability a Player knows a Concept, worked out from their own guesses (`p`). `pEff` is `p` after forgetting: it halves every 72 hours since the Concept was last seen. The status (mastered, learning, weak, unseen) comes from `pEff`.
+_Avoid_: Mastery (that is a Game's share of Answers found), score, level
+
+**Blame**:
+How much one missed Prompt counts against each Concept it tests. A miss on a Prompt with several Concepts blames the weaker ones more.
+_Avoid_: Fault, error weight
+
+**Root cause**:
+A weak or learning prerequisite of the Concepts a Player keeps missing that holds at least 40% of the blame on their last 10 misses. It is what Sonar tells the Player to fix first.
+_Avoid_: Weak spot (UI copy only), underlying problem
+
+**Top pick**:
+An action the planner ranked (one of the top 3: a Concept and a Practice Game to play). **Sonar's pick** is a Game Sonar chose itself instead; it needs a reason and must pass the server's check (the Game exists, the Player can play it, its Topic isn't locked). Action cards are labelled with which one they are.
+_Avoid_: Suggestion, recommendation (for the card label)
+
 ## Social (ADR-0005, docs/architecture/social.md)
 
 **Profile**:

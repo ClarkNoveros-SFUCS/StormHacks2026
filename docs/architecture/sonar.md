@@ -7,6 +7,20 @@ Sonar is a coach and buddy that knows where a Player stands in their material. I
 
 Terms: `CONTEXT.md` (Player, Course, Topic, Practice Game, Run, Prompt, Game Mode). New terms: **Concept**, **Concept mastery**, **Root cause** (below).
 
+![Sonar pipeline: guesses → learner model (deterministic) → Sonar agent (LLM) → buddy, bubbles and /sonar map → a new Run](../img/sonar-pipeline.png)
+
+Source: `docs/img/sonar-pipeline.excalidraw` (open it at excalidraw.com; `.svg` beside it).
+
+## What was built (v0 vs. this plan)
+
+The rest of this doc is the plan. Where v0 differs:
+
+- **The drawer replaced the chat page.** Chat lives in the floating buddy's drawer on every page (hidden during a Run); `/sonar` is the mastery map and its action cards (Decisions Q4, Q9).
+- **Root cause counts every Concept a missed Prompt tested,** not only the Concept the miss was on: a Concept qualifies when it is a prerequisite of any of them.
+- **The demo story is `range()` boundaries.** `npm run sonar:demo` gives the Loops Topic misses on `range()`'s stop, start and step (and on `while` termination), with comparison misses in Topic 3, so the root cause Sonar names is comparison operators, a Topic the Course already counts as passed.
+- **The planner ranks on `p`; the UI shows `pEff`.** Forgetting changes what the map and cards display, not the order of the ranked actions (except the fading-Concept review).
+- **The model is chosen by `SONAR_MODEL`** (falling back to `GEMINI_MODEL`, then `GEMINI_FALLBACK_MODEL`). The agent also has `read_source_page` and `propose_game` for Module pages.
+
 ## v0 scope (hackathon, ~2.5 h)
 
 Python Basics only, because its content is known, hand-checked and already has a Practice Game per Mode for every Topic.
