@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { requirePlayer } from "@/lib/auth";
 import { listModuleGames } from "@/lib/games/queries";
+import { studyHref } from "../_lib/files";
 import { cardProgress, getModule, listModuleDocuments } from "../_lib/queries";
 import { ModuleWorkspace } from "../_components/ModuleWorkspace";
 
@@ -11,7 +12,7 @@ export async function generateMetadata(props: PageProps<"/modules/[moduleId]">):
   return { title: mod ? `${mod.name} · SYLLABYSS` : "Module · SYLLABYSS" };
 }
 
-/** Module page: Files (upload, viewer) + Games (cards, New Game). `?doc=&page=` opens the file viewer. */
+/** Module page: Files (upload) + Games (cards, New Game). Old `?doc=&page=` links go to the file's study page. */
 export default async function ModulePage(props: PageProps<"/modules/[moduleId]">) {
   const playerId = await requirePlayer();
   const { moduleId } = await props.params;
@@ -30,6 +31,7 @@ export default async function ModulePage(props: PageProps<"/modules/[moduleId]">
 
   const doc = typeof search.doc === "string" ? search.doc : null;
   const page = Number(typeof search.page === "string" ? search.page : 1);
+  if (doc && documents.some((d) => d.id === doc)) redirect(studyHref(mod.id, doc, Number.isInteger(page) ? page : 1));
 
   return (
     <ModuleWorkspace
@@ -41,7 +43,7 @@ export default async function ModulePage(props: PageProps<"/modules/[moduleId]">
         created_at: new Date(g.created_at).toISOString(),
       }))}
       progress={progress}
-      initialViewer={doc ? { docId: doc, page: Number.isInteger(page) && page > 0 ? page : 1 } : null}
+      missingDoc={!!doc}
     />
   );
 }

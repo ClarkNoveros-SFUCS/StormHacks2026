@@ -1,6 +1,6 @@
 // Study notes for one parsed page (#75): Gemini rewrites the raw text layer of a slide into tidy
 // markdown (headings, lists, tables, bold key terms, readable formulas) without adding content.
-// Shown in the Reveal's slide panel and the Module file viewer; content_md stays the source of
+// Shown in the Reveal's slide panel and the file's study page; content_md stays the source of
 // truth for generation and Evidence.
 //
 // Server only in the app, but no "server-only" import, like the other lib/gemini files.

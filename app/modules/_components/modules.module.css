@@ -201,16 +201,7 @@
   animation-delay: 0.4s;
 }
 
-/* ---------- File viewer ---------- */
-.viewer {
-  animation: viewer-in 0.4s var(--ease-out) both;
-}
-@keyframes viewer-in {
-  from {
-    opacity: 0;
-    transform: translateY(24px) scale(0.98);
-  }
-}
+/* ---------- Study notes ---------- */
 .pageIn {
   animation: page-in 0.3s var(--ease-out) both;
 }

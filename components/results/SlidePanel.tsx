@@ -2,7 +2,7 @@
 // The slide panel (#75): on a Reveal, an Evidence link opens its page in a drawer on the right
 // instead of leaving the page. It shows Gemini's tidy study notes for the page (written on first
 // view, then stored; the parsed text if they can't be written), ←/→ between pages, and a link to
-// the full file viewer on the Module page. EvidenceLine opens it through `useSlidePanel`.
+// the file's study page. EvidenceLine opens it through `useSlidePanel`.
 import Link from "next/link";
 import { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { DocIcon } from "@/app/modules/_components/DocIcon";
@@ -241,8 +241,8 @@ function SlidePanel({ target, onClose }: { target: Open; onClose: () => void }) 
           <span className="flex-1">
             {!notesFailed ? "Notes tidied by AI from your file's text. Check the original if in doubt." : "Text as parsed from your file."}
           </span>
-          <Link href={`${href.replace(/([?&])page=\d+/, `$1page=${page}`)}`} className="text-signal underline-offset-2 hover:underline">
-            Open in Module →
+          <Link href={`${href.split("?")[0]}?page=${page}`} className="text-signal underline-offset-2 hover:underline">
+            Study the whole file →
           </Link>
         </footer>
       </aside>

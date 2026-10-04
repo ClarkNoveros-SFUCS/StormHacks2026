@@ -1,5 +1,5 @@
 "use client";
-// Study notes for a parsed page (#75), fetched once per tab and shared by the file viewer and the
+// Study notes for a parsed page (#75), fetched once per tab and shared by the study page and the
 // Reveal's slide panel. Resolves null when they couldn't be written (not cached, so a retry can work).
 import { api } from "./client";
 

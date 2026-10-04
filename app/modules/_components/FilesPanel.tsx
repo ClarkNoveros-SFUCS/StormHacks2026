@@ -130,7 +130,7 @@ function FileRow({
         }}
         onMouseEnter={() => ready && sfx.hover()}
         className="group flex min-w-0 flex-1 items-center gap-3 rounded-sm text-left disabled:cursor-default"
-        aria-label={ready ? `View the parsed text of ${doc.filename}` : doc.filename}
+        aria-label={ready ? `Study the notes of ${doc.filename}` : doc.filename}
       >
         <span className="transition group-enabled:group-hover:-translate-y-0.5 group-enabled:group-hover:rotate-[-4deg]">
           <DocIcon filename={doc.filename} />
@@ -154,7 +154,7 @@ function FileRow({
                 aria-hidden="true"
                 className="hidden text-signal opacity-0 transition group-hover:opacity-100 sm:inline"
               >
-                View text →
+                Study notes →
               </span>
             )}
           </span>

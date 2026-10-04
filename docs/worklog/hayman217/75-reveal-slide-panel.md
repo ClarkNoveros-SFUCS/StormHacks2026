@@ -2,7 +2,7 @@
 
 Status: in-review
 Branch: feat/75-reveal-slide-panel
-Updated: 2026-10-04 09:40
+Updated: 2026-10-04 10:05
 
 ## Goal
 On the Reveal, an Evidence link (`Week2.pdf · p.12`) opens that page in a side panel instead of
@@ -19,12 +19,17 @@ readable formulas), with the raw parsed text one toggle away. Issue #75.
   ←/→ pages, Esc, quote callout on the Evidence page, "Open in Module →"). Dims the page below `lg` only.
 - `EvidenceLine` opens the panel when inside the provider and the link goes to `/modules/…`
   (course Topic links and modified clicks still navigate). `RevealScreen` wraps every Mode in the provider.
-- Module `FileViewer`: notes only; search finds pages by parsed text and highlights matches in the notes.
 - `MarkdownView` `variant="notes"`: formulas in the body font (the pixel code font has no math glyphs).
 - Markdown tables: pipes inside `code` spans no longer split cells (`P(A|B)`).
 - Review round 1 (user): removed the "Original text" toggle everywhere (notes only; the parsed text
   shows only if Gemini fails), removed the file ↔ Game hover glow on the Module page, and banned
   LaTeX-style `lim_{n→∞}` in the notes prompt.
+- Review round 2 (user): "View text" opens a real study page instead of a pop-up.
+  `/modules/[moduleId]/study/[documentId]?page=N` (`StudyNotes.tsx`): the whole file as continuous
+  notes, sticky contents with scroll spy and progress (page picker on phones), ←/→ between pages,
+  notes loaded lazily as pages near the screen (3 at a time), "Test yourself" links to the Games
+  built from the file. The FileViewer modal is deleted; old `?doc=&page=` and `/modules/files/<id>`
+  links redirect to the study page; Evidence links and the slide panel's footer point there too.
 - Verified in the browser (dev server on :3100 with DEV_PLAYER_ID) on the Week2 deck.
 
 ## Next steps
@@ -43,4 +48,6 @@ readable formulas), with the raw parsed text one toggle away. Issue #75.
 - components/results/SlidePanel.tsx, components/results/EvidenceLine.tsx
 - app/runs/[runId]/mode-screens.tsx
 - app/modules/_lib/notes.ts, app/modules/_lib/markdown.ts (+ test)
-- app/modules/_components/MarkdownView.tsx, app/modules/_components/FileViewer.tsx
+- app/modules/_components/MarkdownView.tsx, StudyNotes.tsx (new), FileViewer.tsx (deleted)
+- app/modules/[moduleId]/study/[documentId]/page.tsx, app/modules/[moduleId]/page.tsx, app/modules/files/[documentId]/page.tsx
+- app/modules/_components/ModuleWorkspace.tsx, FilesPanel.tsx, GamesPanel.tsx; components/modes/shared/reveal-links.ts
