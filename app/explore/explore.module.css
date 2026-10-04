@@ -1,0 +1,450 @@
+/* Explore, Course and Topic pages (F27). Site tokens from app/globals.css.
+   Every animation here is stopped by the global prefers-reduced-motion rule. */
+
+/* ── Pixel banner art ─────────────────────────── */
+.art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  shape-rendering: crispEdges;
+}
+.layer {
+  transition: transform 0.6s var(--ease-out);
+  will-change: transform;
+}
+.seg {
+  animation: slither 1.8s ease-in-out infinite;
+  transform-box: fill-box;
+}
+@keyframes slither {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+.tongue {
+  animation: tongue 2.4s steps(1) infinite;
+}
+@keyframes tongue {
+  0%,
+  70%,
+  100% {
+    opacity: 0;
+  }
+  75%,
+  90% {
+    opacity: 1;
+  }
+}
+.vine {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: sway 5s ease-in-out infinite;
+}
+.leaf {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: sway 4s ease-in-out infinite;
+}
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+.firefly {
+  animation:
+    blink 2.2s ease-in-out infinite,
+    hover 5s ease-in-out infinite;
+}
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes hover {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(3px, -4px);
+  }
+  66% {
+    transform: translate(-2px, -2px);
+  }
+}
+.twinkle {
+  animation: blink 3s ease-in-out infinite;
+}
+.pulseNode {
+  animation: blink 1.6s ease-in-out infinite;
+}
+.cursor {
+  animation: tongue 1s steps(1) infinite;
+}
+.floaty {
+  animation: hover 6s ease-in-out infinite;
+}
+.drift {
+  animation: drift-x 40s linear infinite;
+}
+@keyframes drift-x {
+  from {
+    transform: translateX(-20%);
+  }
+  to {
+    transform: translateX(120%);
+  }
+}
+
+/* ── Catalogue ─────────────────────────────────── */
+.wiggle {
+  animation: wiggle 0.55s var(--ease-out);
+}
+@keyframes wiggle {
+  15% {
+    transform: rotate(-3deg) translateX(-4px);
+  }
+  35% {
+    transform: rotate(2.5deg) translateX(4px);
+  }
+  55% {
+    transform: rotate(-1.5deg) translateX(-2px);
+  }
+  75% {
+    transform: rotate(1deg) translateX(1px);
+  }
+}
+.ring {
+  transition: stroke-dashoffset 1.4s var(--ease-out);
+}
+
+/* ── Timeline ──────────────────────────────────── */
+.rail {
+  position: absolute;
+  left: 23px;
+  top: 48px;
+  bottom: -14px;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  overflow: hidden;
+}
+.railFill {
+  position: absolute;
+  inset: 0;
+  transform-origin: top;
+  background: linear-gradient(180deg, var(--primary), var(--reward));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--primary) 60%, transparent);
+}
+.railFilling {
+  animation: rail-fill 1.1s var(--ease-io) 0.4s both;
+}
+@keyframes rail-fill {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+.node {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+  font-family: var(--f-display);
+  font-size: 20px;
+  border: 3px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--muted);
+  transition:
+    transform 0.3s var(--ease-snap),
+    border-color 0.3s,
+    background 0.3s;
+}
+.node[data-state="passed"] {
+  border-color: var(--primary-drop);
+  background: radial-gradient(circle at 35% 30%, #fff3b0, var(--primary) 50%, var(--primary-drop));
+  color: var(--primary-text);
+  box-shadow: 0 0 18px -4px color-mix(in srgb, var(--primary) 80%, transparent);
+}
+.node[data-state="current"] {
+  border-color: var(--signal);
+  color: var(--text);
+  background: color-mix(in srgb, var(--signal) 14%, var(--surface-2));
+}
+.node[data-state="current"]::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 999px;
+  border: 2px solid var(--signal);
+  animation: node-ping 1.8s var(--ease-out) infinite;
+}
+@keyframes node-ping {
+  from {
+    opacity: 0.8;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+.node[data-state="locked"] {
+  border-style: dashed;
+  background: var(--bg-2);
+  color: var(--faint);
+}
+.nodePop {
+  animation: node-pop 0.8s var(--ease-snap) 1.4s both;
+}
+@keyframes node-pop {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(0.7) rotate(-8deg);
+  }
+  65% {
+    transform: scale(1.3) rotate(4deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.unlockGlow {
+  animation: unlock-glow 2.4s var(--ease-out) 1.4s both;
+}
+@keyframes unlock-glow {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 0%, transparent);
+  }
+  30% {
+    box-shadow: 0 0 0 3px var(--primary), 0 0 40px -6px var(--primary);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+.chevron {
+  transition: transform 0.3s var(--ease-out);
+}
+.chevron[data-open="true"] {
+  transform: rotate(180deg);
+}
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s var(--ease-out);
+}
+.panel[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+.panel > div {
+  overflow: hidden;
+}
+
+/* ── Reading ───────────────────────────────────── */
+.prose {
+  font-size: 16px;
+  line-height: 1.75;
+  color: color-mix(in srgb, var(--text) 92%, var(--muted));
+}
+.prose p {
+  margin: 0.9em 0;
+}
+.prose h2 {
+  font-size: 26px;
+  color: var(--text);
+  margin: 0 0 0.4em;
+  scroll-margin-top: 96px;
+}
+.prose h3,
+.prose h4 {
+  font-size: 19px;
+  color: var(--text);
+  margin: 1.4em 0 0.4em;
+}
+.prose ul,
+.prose ol {
+  margin: 0.8em 0;
+  padding-left: 1.4em;
+}
+.prose ul {
+  list-style: none;
+  padding-left: 1.1em;
+}
+.prose ul > li {
+  position: relative;
+}
+.prose ul > li::before {
+  content: "";
+  position: absolute;
+  left: -1em;
+  top: 0.72em;
+  width: 6px;
+  height: 6px;
+  background: var(--signal);
+}
+.prose ol {
+  list-style: decimal;
+}
+.prose ol > li::marker {
+  font-family: var(--f-display);
+  color: var(--signal);
+}
+.prose li {
+  margin: 0.3em 0;
+}
+.prose :not(pre) > code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88em;
+  padding: 0.12em 0.4em;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--signal) 10%, var(--bg-2));
+  border: 1px solid color-mix(in srgb, var(--signal) 22%, transparent);
+  color: #c8f6ff;
+  white-space: nowrap;
+}
+.prose a {
+  color: var(--signal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose strong {
+  color: var(--text);
+}
+
+.code {
+  position: relative;
+  margin: 1.1em 0;
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  background: #070a17;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+.codeBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--f-display);
+  font-size: 12px;
+  color: var(--faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+.code pre {
+  margin: 0;
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #dfe6ff;
+  tab-size: 4;
+}
+.tk-comment {
+  color: #7d8bb5;
+  font-style: italic;
+}
+.tk-string {
+  color: #a5f3a0;
+}
+.tk-number {
+  color: #ffb86b;
+}
+.tk-keyword {
+  color: #ff79c6;
+  font-weight: 600;
+}
+.tk-constant {
+  color: #ffb86b;
+  font-weight: 600;
+}
+.tk-builtin {
+  color: #8be9fd;
+}
+.tk-function {
+  color: #ffd84d;
+}
+.tk-decorator {
+  color: #9d7bff;
+}
+.tk-operator {
+  color: #ff9f43;
+}
+.tk-punct {
+  color: #aab4d6;
+}
+
+.callout {
+  position: relative;
+  margin: 1.4em 0;
+  padding: 14px 16px 12px 18px;
+  border-radius: var(--r);
+  border: 1px solid color-mix(in srgb, var(--c) 45%, transparent);
+  background: linear-gradient(100deg, color-mix(in srgb, var(--c) 14%, var(--surface)), var(--surface) 70%);
+}
+.callout::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 0 3px 3px 0;
+  background: var(--c);
+}
+.callout ul > li::before {
+  background: var(--c);
+}
+
+.progressTrack {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 60;
+  pointer-events: none;
+}
+.progressFill {
+  height: 100%;
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--signal), var(--primary));
+  box-shadow: 0 0 10px var(--signal);
+}
+
+/* ── Topic passed banner ───────────────────────── */
+.passBanner {
+  animation: banner-in 0.7s var(--ease-snap) both;
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0 10px, transparent 10px 20px),
+    linear-gradient(100deg, color-mix(in srgb, var(--primary) 26%, var(--surface)), var(--surface) 75%);
+}

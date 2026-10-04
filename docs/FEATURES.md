@@ -36,7 +36,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F24 | Apogee and Leap screens (three.js) | Frontend | F10, F20 | #37 | planned |
 | F25 | Pairs and Blitz screens | Frontend | F10, F20 | #38 | planned |
 | F26 | Profile, Friends and Leaderboard pages | Frontend | F10, F21 | #39 | planned |
-| F27 | Explore, Course and Topic pages | Frontend | F10, F22 | #40 | planned |
+| F27 | Explore, Course and Topic pages | Frontend | F10, F22 | #40 | done |
 | F28 | Daily Dive hub page | Frontend | F09, F23 | #41 | planned |
 | F29 | Arena: three.js FPS study Mode (stretch) | Frontend | F20, F24 | #42 | planned |
 
@@ -389,10 +389,22 @@ Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #39 (checklist live
 Entry points: — · Notes for others: —
 
 ## F27 Explore, Course and Topic pages
-Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #40 (checklist lives on the issue until this feature ships)
-- [ ] See the issue checklist
+Spec: `docs/architecture/ui-map.md` § Explore, `docs/architecture/courses.md` (decisions: overnight-decisions §5, Q24, Q27, §14) · Issue #40
+- [x] /explore catalogue (Python Basics + locked coming-soon cards), public
+- [x] /explore/[course]: banner hero, numbered Topic timeline with accordions, sidebar progress/badges
+- [x] /explore/[course]/[topic]: reading, resources, mark as read, Practice Mode tiles, pass bar, celebration + unlock animation
+- [x] Also: `?passed=<topicSlug>` replays the unlock animation on the Course page; SEO metadata on all three pages; 375 px; reduced motion
 
-Entry points: — · Notes for others: —
+Entry points: `app/explore/page.tsx` (catalogue), `app/explore/[courseSlug]/page.tsx` (Course page), `app/explore/[courseSlug]/[topicSlug]/page.tsx` (Topic page), `app/explore/layout.tsx` (SkyBackdrop + signed-out bar), `app/explore/_components/` (`art.tsx` pixel banners `PythonBanner`/`CourseArt`, `TopicTimeline`, `CourseSidebar`, `ReadingView`, `Markdown` (`CodeBlock`), `TopicClient` (`PracticePanel`, `MarkAsRead`, `TopicPassedBanner`), `CatalogueCards`, `ProgressRing`, `Parallax`, `SignInCta`/`useSignInPrompt`), `app/explore/_lib/` (`markdown.ts` tiny parser, `python-highlight.ts` tokenizer, `modes.ts` `passLabel`/`bestLabel`, `server.ts` cached data loaders), tests `app/explore/_lib/explore.test.ts`
+
+Notes for others:
+- **Reveal → unlock animation (F09, F24, F25):** when a Reveal has `topic.passedNow`, link its "Topic passed" banner / Back button to `/explore/${topic.courseSlug}?passed=${topic.topicSlug}`. The Course page then fills the line below that Topic, pops the next node open with a burst, and the mascot says "Topic N unlocked!" (or confetti + "You finished the whole course!" when `courseFinished`). It only animates if the Topic really is passed for the viewer, and strips `?passed` from the URL afterwards. For a plain "back to the Topic" link use `/explore/${courseSlug}/${topicSlug}`; the Topic page shows a "Topic passed!" banner (confetti once per session) whenever `passed_at` is set.
+- **Play:** the Practice panel `POST`s `/api/games/[gameId]/runs` and `router.push('/runs/<runId>')` (F09's screens). Signed out it opens Clerk's sign-in modal (returning to the same page); 403 shows "Pass Topic N−1 first".
+- **Pages read data directly** (`lib/courses/queries.ts` via `app/explore/_lib/server.ts`) with `getApiPlayer()` (null signed out), not via fetch. Per-Mode bests on the Course timeline come from one extra read-only query on `topic_progress.modes` (`topicRecords()`), so the Courses API contract is unchanged.
+- **Markdown:** readings are rendered by a ~100-line parser (headings, paragraphs, ```python fences, lists, blockquotes, `code`, **bold**, links). A blockquote starting with `**Common mistakes**` becomes the orange callout. Single `*` is never emphasis (readings use `*`/`**` as Python operators in prose). New seed content should stick to that subset.
+- **Coming-soon cards** (SQL Basics, Data Structures, Web Basics) are hard-coded in `app/explore/page.tsx` (decision §5 CHECK). A real second Course just needs seeding; give it a `banner` id (`sql`, `tree`, `web` already have art; anything else falls back to the jungle python).
+- **Nav:** F19 should add "Explore" to the site nav. Signed out, `app/explore/layout.tsx` shows its own small bar (Logo + Sign in) because the root header only renders when signed in.
+- Integration fix outside `app/explore`: `components/results/ResultList.tsx` `KIND_LABEL` gained `multiple_choice` and `true_false` (tsc failed after merging F20's Prompt kinds into F10; same fix as F09's branch).
 
 ## F28 Daily Dive hub page
 Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #41 (checklist lives on the issue until this feature ships)
