@@ -9,7 +9,7 @@ export const ROOT_CAUSE_SHARE = 0.4;
 
 /**
  * Over the last 10 misses, sums each Concept's blame. A Root cause is weak or learning, is a
- * (direct or indirect) prerequisite of a Concept the misses were on (a miss's primary Concept),
+ * (direct or indirect) prerequisite of a Concept the misses were on (any Concept a missed Prompt tested),
  * and holds ≥ 40 % of the blame. The highest share wins; null when none qualifies.
  */
 export function diagnose(concepts: readonly ConceptState[], misses: readonly Miss[], edges: readonly Edge[]): RootCause | null {
@@ -23,7 +23,8 @@ export function diagnose(concepts: readonly ConceptState[], misses: readonly Mis
       if (b > 0) count.set(id, (count.get(id) ?? 0) + 1);
     }
   }
-  const missedOn = [...new Set(recent.map((m) => m.on))];
+  // Every Concept a missed Prompt tested, so a for-loop Prompt whose miss blames range() counts as a miss on for loops.
+  const missedOn = [...new Set(recent.flatMap((m) => [m.on, ...Object.keys(m.blame)]))];
 
   let best: RootCause | null = null;
   for (const c of concepts) {

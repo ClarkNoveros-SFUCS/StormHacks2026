@@ -118,7 +118,7 @@ export function planActions(input: PlanInput): Action[] {
     const after = deps ? ` ${deps} ${deps > 1 ? "Concepts build" : "Concept builds"} on it.` : "";
     forConcept(c, c.n === 0
       ? `Next up: ${c.name}. Its prerequisites are solid.${after}`
-      : `${c.name} is at ${pct(c.p)} after ${c.n} guesses (${c.wrong} wrong), and its prerequisites are solid.${after}`);
+      : `${c.name} is at ${pct(c.pEff)} after ${c.n} guesses (${c.wrong} wrong), and its prerequisites are solid.${after}`);
   }
 
   // 3. A fading Concept → a quick review
@@ -133,7 +133,7 @@ export function planActions(input: PlanInput): Action[] {
   const rest = concepts.filter((c) => c.n > 0 && c.p < 0.85 && !topicOf(c)?.locked).sort((a, b) => a.p - b.p);
   for (const c of rest) {
     if (out.length >= MAX_ACTIONS) break;
-    forConcept(c, `${c.name} is at ${pct(c.p)} after ${c.n} guesses (${c.wrong} wrong).`);
+    forConcept(c, `${c.name} is at ${pct(c.pEff)} after ${c.n} guesses (${c.wrong} wrong).`);
   }
   return rank(out);
 }

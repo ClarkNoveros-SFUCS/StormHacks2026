@@ -65,8 +65,8 @@ const blitzPoints = (comboBefore: number) => (comboBefore >= BLITZ_COMBO_AT ? 20
 
 /** Comparisons and boundaries: the root cause. */
 const COMPARISON = /<=|>=|==|!=|(^|[^-])<|(^|[^-])>(?!=)|comparison|equal/i;
-/** Loops misses that trace back to comparisons: while termination, range() stop boundaries. */
-const LOOP_BOUNDARY = /range\(|while|stop|inclusive|off-by-one|one time too many|infinite|runs forever|up to/i;
+/** Loops misses on range()'s boundaries (stop excluded, start, step): for loops miss because of range(). */
+const LOOP_BOUNDARY = /total|Adding up|range\(|stop|inclusive|off-by-one|one time too many|up to/i;
 
 type Plan = {
   topic: number;
