@@ -3,6 +3,7 @@
 import { describe, expect, it } from "vitest";
 import pool from "@/db/seed/daily/pool.json";
 import { DAILY_EPOCH, nextVancouverMidnight, startOfVancouverDay, vancouverDay } from "./days";
+import { alignEvidence, applyVerdicts, capOpenAnswers, cleanTitle, kindErrors, themeFor, verificationItems } from "./generate";
 import { buildPuzzleRows, checkPuzzle, type PuzzleFile } from "./puzzle";
 import { formatDepth, shareText, siteUrl, tierSquares } from "./share";
 
@@ -68,7 +69,7 @@ describe("share text", () => {
 
 describe("puzzle checks", () => {
   const puzzles = pool.puzzles as unknown as (PuzzleFile & { number: number })[];
-  const clone = (p: PuzzleFile) => JSON.parse(JSON.stringify(p)) as PuzzleFile & { prompts: Record<string, unknown>[] };
+  const clone = (p: PuzzleFile) => JSON.parse(JSON.stringify(p)) as Omit<PuzzleFile, "prompts"> & { prompts: Record<string, unknown>[] };
 
   it("passes every hand-written pool puzzle strictly", () => {
     for (const p of puzzles) {
@@ -121,5 +122,58 @@ describe("puzzle checks", () => {
     expect(open[0].tier).toBe("common");
     expect(open.at(-1)!.tier).toBe("rare");
     expect(buildPuzzleRows(c, 2).game.game.id).not.toBe(a.game.game.id); // the number is in the title
+  });
+});
+
+describe("generation helpers", () => {
+  const p1 = pool.puzzles[0] as unknown as PuzzleFile;
+
+  it("rotates Q23's themes by puzzle number, Computing first", () => {
+    expect(themeFor(1)).toBe("Computing");
+    expect(themeFor(2)).toBe("Science");
+    expect(themeFor(7)).toBe("Art & Music");
+    expect(themeFor(8)).toBe("Computing");
+    expect(themeFor(13)).toBe("Mathematics");
+  });
+
+  it("requires the fixed kind order", () => {
+    expect(kindErrors(p1)).toEqual([]);
+    expect(kindErrors({ ...p1, prompts: [...p1.prompts].reverse() })[0]).toMatch(/expected open, open, open/);
+  });
+
+  it("asks to verify every Open Answer and every single-answer Prompt", () => {
+    const items = verificationItems(p1);
+    const open = (p1.prompts as { kind: string; answers?: unknown[] }[]).filter((p) => p.kind === "open");
+    expect(items).toHaveLength(open.reduce((n, p) => n + p.answers!.length, 0) + 4);
+    expect(items[0]).toMatchObject({ id: "P1.A1", prompt: 1, claim: "Answer: Bubble sort" });
+    expect(items.find((x) => x.id === "P6")!.claim).toMatch(/^Correct order: Fortran → COBOL/);
+    expect(items.find((x) => x.id === "P7")!.claim).toMatch(/The odd one out is: CSS$/);
+  });
+
+  it("drops unsupported Open Answers and fails the puzzle on an unsupported single answer", () => {
+    const verdicts = verificationItems(p1).map((x) => ({ id: x.id, supported: x.id !== "P1.A2", reason: "r" }));
+    const ok = applyVerdicts(p1, verdicts);
+    expect(ok.failed).toEqual([]);
+    expect(ok.dropped).toEqual(['P1 "Merge sort": r']);
+    expect((ok.puzzle.prompts[0] as { answers: unknown[] }).answers).toHaveLength(11);
+    const bad = applyVerdicts(p1, verdicts.filter((v) => v.id !== "P4"));
+    expect(bad.failed[0]).toMatch(/^P4 .*no verdict/);
+  });
+
+  it("points Prompt N's Evidence at page N and strips a 'Daily Dive' title prefix", () => {
+    const shuffled = JSON.parse(JSON.stringify(p1)) as PuzzleFile;
+    (shuffled.prompts[0] as { answers: { evidence_page: number }[] }).answers[0].evidence_page = 5;
+    (shuffled.prompts[6] as { evidence_page: number }).evidence_page = 2;
+    const aligned = alignEvidence(shuffled);
+    expect(checkPuzzle(aligned, { strict: true }).errors).toEqual([]);
+    expect(cleanTitle({ ...p1, title: "Daily Dive #9: Star Charts" }).title).toBe("Star Charts");
+    expect(cleanTitle({ ...p1, title: "Daily Dive" }).title).toBe("Daily Dive");
+  });
+
+  it("caps Open Prompts at 12 Answers, keeping the most obvious", () => {
+    const answers = Array.from({ length: 14 }, (_, i) => ({ canonical: `a${i}` }));
+    const capped = capOpenAnswers({ ...p1, prompts: [{ kind: "open", text: "x", answers }] });
+    const kept = (capped.prompts[0] as { answers: { canonical: string }[] }).answers.map((a) => a.canonical);
+    expect(kept).toEqual(answers.slice(0, 12).map((a) => a.canonical));
   });
 });

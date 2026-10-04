@@ -47,6 +47,8 @@ Every command in `lib/runs/run-engine.ts` that can finish a Run (any Mode: state
    - updates `topic_progress.modes[mode] = { best, passed, runs }`;
    - on the Topic's **first** Pass: sets `passed_at`, `passed_run_id`, `passed_mode`, calls `onTopicPassed` (+150 XP, Badge `topic-<course>-<n>`); if every Topic of the Course is now passed, `onCourseFinished` (+500 XP, Badge `course-<course>`).
 
+3. `recordDailyRun(tx, run, summary)` (`lib/daily/record.ts`, F23), only for a Daily puzzle's Game: the Player's first Run finished on the puzzle's day becomes the Counted Run (`daily_results`, `onDailyPlayed`). See [`daily-dive.md`](./daily-dive.md).
+
 The hooks are idempotent ((player, reason, ref) once), so a repeat Pass awards nothing.
 
 The Reveal (`GET /api/runs/[runId]/reveal`) of a Topic Game carries `topic: TopicReveal`: `{ courseSlug, courseTitle, topicSlug, topicNumber, topicTitle, passed, passedNow, passedBefore, nextTopicSlug, unlockedNext, courseFinished }` (`null` for any other Game). `passedNow` = this Run is the Topic's first Pass; `unlockedNext` = it unlocked `nextTopicSlug`; `courseFinished` = it completed the Course. The UI uses them for the pixel burst, +150 XP, Badge and unlock animation (Q27).

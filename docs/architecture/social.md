@@ -67,7 +67,7 @@ Catalogue in code (`BADGES`), held in `player_badges`. Each Badge has `id`, `nam
 | `level-5`, `level-10` | Reef Regular, Deep Veteran | Level 5 / 10 | every hook |
 | `topic-<course>-<n>` | e.g. "Python Basics: Topic 3" | Topic n passed | `onTopicPassed` |
 | `course-<course>` | e.g. "Python Basics Graduate" | Course finished | `onCourseFinished` |
-| `daily-top-10` | Daily Top 10 | top 10 of a Daily Dive | F23 calls `awardBadge(playerId, "daily-top-10", day)` |
+| `daily-top-10` | Daily Top 10 | top 10 of a Daily Dive | F23: `award_daily_top10()` in SQL once the day is over (place ≤ 10, ref = day) |
 
 `badgeInfo(id)` resolves any of these, including generated Topic/Course ids. `badgeCatalogue()` lists them for a "locked badges" view.
 
@@ -131,6 +131,6 @@ await onDailyPlayed(playerId, "2026-10-04", tx);
 await awardBadge(playerId, "daily-top-10", "2026-10-04", tx); // when the day's top 10 is known
 ```
 
-**Wired (F22):** `onRunFinished` and the Topic/Course hooks are called by the run engine itself, in `afterFinish()` in `lib/runs/run-engine.ts`, once per finished Run of any Mode on any Game, inside the finishing transaction (`courses.md` § What happens when a Run finishes). F23 adds `onDailyPlayed` there too.
+**Wired (F22):** `onRunFinished` and the Topic/Course hooks are called by the run engine itself, in `afterFinish()` in `lib/runs/run-engine.ts`, once per finished Run of any Mode on any Game, inside the finishing transaction (`courses.md` § What happens when a Run finishes). F23 calls `onDailyPlayed` there too, for the Counted Run only (`recordDailyRun` in `lib/daily/record.ts`), and hands out `daily-top-10` in SQL once a day is over (`award_daily_top10`, [`daily-dive.md`](./daily-dive.md)).
 
 Each returns `XpAward { xpAwarded, totalXp, levelBefore, levelAfter, leveledUp, newBadges, streak }`; the Reveal can show "+104 XP", a level-up burst and new Badges. Runs that finished without the hook (or before it existed) get their XP from `npm run social:backfill` (idempotent).

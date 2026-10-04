@@ -189,3 +189,25 @@ _Avoid_: Lesson, chapter, unit
 **Practice Game**:
 A Public Game attached to a Topic, built from that Topic's reading. A Topic has at most one per Game Mode, and Passing any of them Passes the Topic.
 _Avoid_: Exercise, quiz
+
+## Daily Dive (docs/architecture/daily-dive.md, ADR-0006)
+
+**Daily Dive**:
+The once-a-day shared Dive: every America/Vancouver day one Daily Puzzle goes live at midnight, the same for every Player. Each Player gets one Counted Run per day; the day's Leaderboard, crowd stats and share grid come from Counted Runs. Daily #1 was 2026-10-04.
+_Avoid_: Daily challenge, daily quiz
+
+**Daily Puzzle**:
+One day's Daily Dive: a Public Dive Game of 7 Prompts (three Open, then one of each single-answer kind) played in a fixed order, with its Fact Sheet. It waits in the pool until it is given a day, and becomes playable (live) on that day. Its number is "Daily #N".
+_Avoid_: Daily game (it is a Game, but say Daily Puzzle when you mean the day's entry)
+
+**Fact Sheet**:
+The Source Document that comes with a Daily Puzzle: seven short pages, page N stating every accepted Answer of Prompt N. It is the Evidence for the puzzle's Answers, written with the puzzle and checked by a separate verification step.
+_Avoid_: Answer key, source notes
+
+**Counted Run**:
+A Player's first Run of a Daily Puzzle that finishes on that puzzle's day. It is the one that goes on the day's Leaderboard, earns Daily XP and the share grid, and feeds the crowd stats. Only one per Player per day.
+_Avoid_: Official run, attempt
+
+**Practice Run**:
+Any other Run of a Daily Puzzle: a replay the same day, or a past day's puzzle played from the archive. It earns normal Run XP but never counts for the day.
+_Avoid_: Replay (fine in UI copy, but say Practice Run in code and docs)

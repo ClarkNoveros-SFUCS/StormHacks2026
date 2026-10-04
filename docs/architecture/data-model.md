@@ -24,6 +24,12 @@ Course 1──1 Module         (owned by the system Player 'system')
 Course 1──N Course Topic 1──1 Source Document   (the reading)
 Course Topic 1──N topic_games N──1 Game          (one per Mode; the Game is public)
 Player 1──N topic_progress N──1 Course Topic
+
+Daily Dive (F23, daily-dive.md):
+Daily Puzzle 1──1 Game             (Dive, 7 Prompts, owned by 'system' in the "Daily Dive" Module; public once live)
+Daily Puzzle 1──1 Source Document  (the fact sheet, via the Game's game_sources)
+Player 1──N daily_results          (hypertable: one Counted Run per day)  → daily_score_stats (cagg)
+Player 1──N daily_answer_finds     (hypertable: Answers found by Counted Runs) → daily_answer_rates (cagg)
 ```
 
 ## Conventions
@@ -383,3 +389,41 @@ CREATE TABLE topic_progress (              -- written by "mark as read" and by e
 ```
 
 Unlocks aren't stored. Topic N+1 is unlocked when the Player's `topic_progress` row for Topic N has `passed_at` (`lockedTopics()` in `lib/courses/rules.ts`). Topic and Course XP and Badges live in `xp_events` and `player_badges`, written by F21's hooks: `topic_passed` (ref `<course>:<n>`), `course_finished` (ref `<course>`) and `topic_read` (ref `<course>:<n>`).
+
+## Daily Dive tables (F23)
+
+Migration: `db/migrations/20261004T1200_daily_dive.sql`. Code: `lib/daily/`. Behaviour (day assignment, Counted Runs, Reveal crowd stats, seed, generation, API): [`daily-dive.md`](./daily-dive.md).
+
+```sql
+CREATE TABLE daily_puzzles (
+  number integer PRIMARY KEY,               -- "Daily #N"
+  day date UNIQUE,                          -- America/Vancouver day; null while in the pool
+  theme text NOT NULL, title text NOT NULL,
+  game_id uuid NOT NULL UNIQUE REFERENCES games(id),   -- system-owned Dive Game, private until live
+  prompt_ids uuid[] NOT NULL,               -- the 7 Prompts in play order (fact sheet page order)
+  status text NOT NULL CHECK (status IN ('pool','scheduled','live')),
+  source text NOT NULL CHECK (source IN ('seed','gemini')),
+  live_at timestamptz, top10_awarded_at timestamptz, created_at timestamptz NOT NULL DEFAULT now(),
+  CHECK ((status = 'pool') = (day IS NULL))
+);
+
+-- Hypertables partitioned by the date `day`, so the unique key can include the time column
+CREATE TABLE daily_results (               -- one Counted Run per Player per day
+  day date NOT NULL, player_id text NOT NULL, number integer NOT NULL, run_id uuid NOT NULL,
+  score integer NOT NULL, finished_at timestamptz NOT NULL,
+  tiers jsonb NOT NULL,                     -- per Prompt: "common".."rare" or null (miss); the share grid
+  UNIQUE (player_id, day)
+);
+CREATE TABLE daily_answer_finds (          -- Answers each Counted Run found (from its guess_events)
+  day date NOT NULL, player_id text NOT NULL, answer_id uuid NOT NULL,
+  UNIQUE (player_id, day, answer_id)
+);
+
+-- Real-time continuous aggregates (policy: hourly, up to 1 day ago; today is computed live)
+daily_score_stats  (day, players, pct = percentile_agg(score), hist = histogram(score, 0, 1000, 20), top)
+daily_answer_rates (day, answer_id, finds)
+```
+
+**Functions and the job.** `claim_daily_puzzle(day) → number` (per-day advisory lock 727004; the scheduled puzzle, else the lowest pool puzzle with `SKIP LOCKED`; sets it live and its Game public; then `award_daily_top10(day)`), `award_daily_top10(today) → int` (the `daily-top-10` Badge for each finished day's `rank() <= 10`, once per day via `top10_awarded_at`), and the procedure `assign_daily_puzzle(job_id, config)` registered with `add_job` to run daily at Vancouver midnight (`fixed_schedule`, `timezone => 'America/Vancouver'`).
+
+**Privacy.** A Daily puzzle's Game is private (unplayable by anyone) while in the pool or scheduled, so future puzzles can't be played early. Once live, it's a Public Game: its fact sheet pages reach Players only through the Reveal's Evidence. Crowd stats expose counts and percentages, never another Player's guesses.

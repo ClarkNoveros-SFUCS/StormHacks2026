@@ -32,7 +32,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F20 | Game Modes engine and generation: Apogee, Leap, Pairs, Blitz | Platform | F04, F06 | #33 | done |
 | F21 | Social backend: profiles, XP, streaks, heatmap, badges, friends, leaderboards | Platform | F01, F07 | #34 | done |
 | F22 | Courses backend and the seeded Python Basics course | Platform | F20 | #35 | done |
-| F23 | Daily Dive backend | Platform | F21, F22 | #36 | planned |
+| F23 | Daily Dive backend | Platform | F21, F22 | #36 | done |
 | F24 | Apogee and Leap screens (three.js) | Frontend | F10, F20 | #37 | planned |
 | F25 | Pairs and Blitz screens | Frontend | F10, F20 | #38 | planned |
 | F26 | Profile, Friends and Leaderboard pages | Frontend | F10, F21 | #39 | planned |
@@ -337,10 +337,20 @@ Notes for others:
 - Re-seeding after content edits is safe: changed Games are replaced by new ones and the old ones are retired (set private), so nobody's Runs are lost; Topic passes stay.
 
 ## F23 Daily Dive backend
-Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #36 (checklist lives on the issue until this feature ships)
-- [ ] See the issue checklist
+Spec: `docs/architecture/daily-dive.md`, ADR-0006 (decisions: overnight-decisions §7, §8, Q9, Q23) · Issue #36
+- [x] daily puzzles as public Dive Games + fact-sheet Source Document; one counted Run per Player per Vancouver day (`daily_puzzles`; system "Daily Dive" Module; Game private until live; `daily_results` `UNIQUE (player_id, day)`; Prompts in fixed fact-sheet order)
+- [x] seed pool (≥ 7 hand-written, #1 on 2026-10-04 CS-themed) + `npm run daily:generate -- --days N` (Gemini + verification) (12 seeded on stormhacks-dev; 3 generated: #13–#15, ≈ $0.13)
+- [x] TimescaleDB add_job assigns the day's puzzle at Vancouver midnight; lazy race-safe fallback (`assign_daily_puzzle` → `claim_daily_puzzle`, per-day advisory lock + `UNIQUE (day)` + `SKIP LOCKED`)
+- [x] daily_results hypertable, score distribution (toolkit percentiles), per-Answer find rate, share text, leaderboard; API + tests (real-time caggs `daily_score_stats`, `daily_answer_rates`; Reveal `daily` + `crowd`; `daily-top-10` Badge once a day ends)
 
-Entry points: — · Notes for others: —
+Entry points: `lib/daily/` (`types.ts` client-safe shapes; `days.ts` `nextVancouverMidnight`, `startOfVancouverDay`; `share.ts` `shareText`, `tierSquares`; `queries.ts` `getDailyPuzzle`, `dailyToday`, `startTodayRun`, `dailyLeaderboard`, `dailyArchive`; `record.ts` `recordDailyRun`, `dailyReveal`; `puzzle.ts`; `generate.ts`), routes `GET /api/daily/today`, `POST /api/daily/today/run`, `GET /api/daily/leaderboard`, `GET /api/daily/archive`, `npm run db:seed:daily [-- --check]`, `npm run daily:generate -- --days N [--dry-run] [--save f.json]`, migration `db/migrations/20261004T1200_daily_dive.sql` (applied to stormhacks-dev, job registered), tests `lib/daily/daily.test.ts`, `lib/daily/daily.db.test.ts`
+
+Notes for others:
+- **F28 (Daily hub, #41):** import from `@/lib/daily/types`. `GET /api/daily/today` → `{ daily: DailyToday }` = `{ number, day, theme, title, gameId, teaser, promptCount, players, nextAt, serverNow, me: { status: "not_played"|"in_progress"|"counted", runId, result: { runId, score, depth, finishedAt, tiers, shareText } | null, streak, dailyStreak } | null }` (404 = no puzzle today). Play button: `POST /api/daily/today/run` → `{ runId, resumed, counted, number, day }` then the normal `/runs/[runId]` screens (`counted: false` → show "practice"). Countdown: `nextAt` with offset `Date.parse(serverNow) − Date.now()` (flip clock). Board: `GET /api/daily/leaderboard?day=&scope=global|friends&limit=` → `{ daily, leaderboard }` (F21 `Leaderboard`, use `place`; friends 401 signed out). Archive: `GET /api/daily/archive` → `{ days: [{ number, day, theme, title, gameId, isToday, players, me: { counted, bestScore, runs } | null }] }`; past days play as practice via `POST /api/games/[gameId]/runs`. Share: copy `result.shareText` (or the Reveal's `daily.shareText`).
+- **F19 (landing teaser):** `GET /api/daily/today` works signed out: show `number`, `title`, `teaser` (first Prompt text) and the countdown; "Try today's Daily Dive" → sign in, then `POST /api/daily/today/run`.
+- **F09 (Reveal):** every Reveal now has optional `daily` and `crowd` (null outside the Daily). `crowd = { players, betterThanPct /* "better than X% of today's players", null if none */, medianScore, bucketSize /* 50 pts = 500 m */, histogram: { bucket /* lower bound, pts */, count }[], answerFindRates: { answerId, position, answer, pct }[] }`: draw the distribution curve from `histogram` and mark YOU at `score`; put "% of players found this" next to each Answer by `position` + `answer`. `daily = { number, day, title, counted, tiers, shareText }`: title `DIVE #N COMPLETE`, a copy-share button, and a "practice" tag when `counted` is false.
+- **Run engine:** a Daily Game plays its 7 Prompts in a fixed order (not random); `afterFinish()` calls `recordDailyRun` after the Course step. Only Counted Runs get Daily XP (`onDailyPlayed`); `daily-top-10` is awarded in SQL when the next day is claimed.
+- **Ops:** after merging, run `npm run db:migrate` (already applied on stormhacks-dev) and `npm run db:seed:daily` (already run). Set `NEXT_PUBLIC_SITE_URL` in production for the share link. Refill the pool before it runs dry (12 seed + 3 generated = until about 2026-10-18): `npm run daily:generate -- --days 14`.
 
 ## F24 Apogee and Leap screens (three.js)
 Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #37 (checklist lives on the issue until this feature ships)
