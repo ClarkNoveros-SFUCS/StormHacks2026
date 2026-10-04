@@ -1,8 +1,8 @@
 # #2 F02 Seed data: demo Module and Game
 
-Status: in-review
+Status: done
 Branch: feat/2-seed-data
-Updated: 2026-10-03 20:35
+Updated: 2026-10-03 20:40
 
 ## Goal
 `npm run db:seed -- <clerkUserId>` gives a Player a "Graph Algorithms" Module holding one parsed Source Document and one ready Game, so gameplay and UI work runs without the upload and AI pipelines. Spec: `docs/architecture/data-model.md`; the fixture follows the Gemini response shape in `docs/architecture/game-generation-pipeline.md`.
@@ -32,9 +32,8 @@ Updated: 2026-10-03 20:35
   - `assignOpenTiers` rejects n > 15.
 
 ## Next steps
-1. Anton reviews the branch. Don't open a PR until he approves.
-2. When approved, in the PR: tick F02 in `docs/FEATURES.md`, set Status `done`, fill in Entry points and Notes for others (use "Decisions & gotchas" below), set this file to `Status: done`, and put `Closes #2` in the body.
-3. If F05 (#5, hayman217) merges first, resolve the add/add conflict on `lib/matching/normalize.ts` by taking F05's version, then run `npm run db:seed -- --check`. It must still print "Fixture OK". If F05's export isn't a named `normalize(s: string): string`, update the import in `scripts/seed.mts`.
+None. Anton approved, and the PR closes #2. F05 merged first; `origin/main` was merged into this branch, keeping F05's `normalize.ts` and both sets of package.json scripts. Afterwards `--check`, typecheck, lint, `npm test` (24) and `npm run test:db` (7) passed, and the demo data was re-seeded with F05's `normalize`.
+Follow-up for F05's open checkbox: a `matchGuess` integration test against the seeded "Name a graph algorithm" Prompt.
 
 ## Decisions & gotchas
 - **Idempotency:** the demo Module id is `md5('seed:graph-algorithms:' || playerId)` formatted as a uuid. A re-seed deletes that Module (which cascades to everything under it) and that Module's Games' guess_events. Nothing else is touched, not even a real Module with the same name. Game, Prompt and Answer ids are new on every run, so old guesses can't count toward the new Game's Mastery.
