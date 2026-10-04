@@ -4,6 +4,7 @@ import { PixelIcon } from "@/components/ui/PixelIcon";
 import { sfx } from "@/lib/ui/sfx";
 import { api } from "../_lib/client";
 import { countMatches, pageTitle } from "../_lib/markdown";
+import { loadPageNotes } from "../_lib/notes";
 import type { DocumentPages } from "../_lib/types";
 import { DocIcon } from "./DocIcon";
 import { MarkdownView } from "./MarkdownView";
@@ -12,6 +13,8 @@ import s from "./modules.module.css";
 // The file viewer (overnight-decisions §10): the parsed text of a Source Document, page by page.
 // Page list on the left, the page's markdown on the right, search that highlights and jumps
 // between matching pages, ←/→ between pages. Deep-linked as ?doc=<id>&page=<n> by the parent.
+// Each page shows as tidy study notes by default (#75), with the parsed text one toggle away;
+// search always works on (and shows) the parsed text.
 
 const cache = new Map<string, DocumentPages>();
 
@@ -29,6 +32,8 @@ export function FileViewer({ documentId, filename, initialPage, onClose, onPage 
   const [error, setError] = useState<string | null>(null);
   const [index, setIndex] = useState(Math.max(0, initialPage - 1));
   const [query, setQuery] = useState("");
+  const [view, setView] = useState<"notes" | "raw">("notes");
+  const [notes, setNotes] = useState<Record<number, string | null>>({});
   const dialog = useRef<HTMLDivElement>(null);
   const content = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLOListElement>(null);
@@ -146,6 +151,19 @@ export function FileViewer({ documentId, filename, initialPage, onClose, onPage 
   }, []);
 
   const page = pages[current];
+  const searching = !!query.trim();
+  const pageNotes = page ? notes[page.pageNumber] : undefined;
+  const showNotes = view === "notes" && !searching && pageNotes !== null;
+
+  useEffect(() => {
+    if (!page || view !== "notes" || searching || page.pageNumber in notes) return;
+    let live = true;
+    const n = page.pageNumber;
+    loadPageNotes(documentId, n).then((md) => live && setNotes((all) => ({ ...all, [n]: md })));
+    return () => {
+      live = false;
+    };
+  }, [documentId, page, view, searching, notes]);
 
   return (
     <div className="fixed inset-0 z-[80]" role="presentation">
@@ -330,11 +348,59 @@ export function FileViewer({ documentId, filename, initialPage, onClose, onPage 
                     </button>
                   </span>
                 </div>
-                <div key={`${page.pageNumber}`} className={s.pageIn}>
-                  <MarkdownView md={page.contentMd} query={query} />
+                <div role="tablist" aria-label="How to show the page" className="flex self-start rounded-sm border border-border-strong p-0.5">
+                  {(
+                    [
+                      ["notes", "Study notes"],
+                      ["raw", "Original text"],
+                    ] as const
+                  ).map(([v, label]) => (
+                    <button
+                      key={v}
+                      type="button"
+                      role="tab"
+                      aria-selected={view === v}
+                      onClick={() => {
+                        sfx.click();
+                        setView(v);
+                      }}
+                      className={`rounded-[3px] px-2.5 py-1 text-[13px] transition ${
+                        view === v ? "bg-primary text-primary-text" : "text-muted hover:text-text"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
+                {view === "notes" && searching && (
+                  <p className="text-[13px] text-muted">Showing the parsed text while you search.</p>
+                )}
+                {view === "notes" && pageNotes === null && (
+                  <p className="text-[13px] text-caution">Couldn&apos;t tidy this page right now, so here&apos;s the text as parsed.</p>
+                )}
+                {showNotes && pageNotes === undefined ? (
+                  <div className="flex flex-col gap-3" aria-busy="true" aria-label="Tidying the page">
+                    <p className="font-hud text-[17px] text-muted">TIDYING THE SLIDE INTO NOTES…</p>
+                    <div className={`${s.skeleton} h-7 w-2/3`} />
+                    {Array.from({ length: 6 }, (_, i) => (
+                      <div key={i} className={`${s.skeleton} h-4`} style={{ width: `${90 - ((i * 13) % 40)}%` }} />
+                    ))}
+                  </div>
+                ) : (
+                  <div key={`${page.pageNumber}-${showNotes}`} className={s.pageIn}>
+                    {showNotes ? (
+                      pageNotes?.trim() ? (
+                        <MarkdownView md={pageNotes} variant="notes" />
+                      ) : (
+                        <p className="text-faint italic">This page has no text.</p>
+                      )
+                    ) : (
+                      <MarkdownView md={page.contentMd} query={query} />
+                    )}
+                  </div>
+                )}
                 <p className="mt-6 border-t border-dashed border-border pt-3 text-center text-[13px] text-faint">
-                  ← → to turn pages · / to search · Esc to close
+                  {showNotes ? "Notes tidied by AI from your file's text · " : ""}← → to turn pages · / to search · Esc to close
                 </p>
               </article>
             )}
