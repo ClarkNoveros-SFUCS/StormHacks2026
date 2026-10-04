@@ -24,7 +24,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F12 | Deploy and demo prep | Platform | everything | #12 | planned |
 | F13 | Game Modes: `games.mode` and the Mode picker | Platform | F01 | #21 | planned |
 | F14 | Generation scorecard (eval on real decks) | Pipelines | F04 | #24 | done |
-| F15 | Example Prompts in the generator instructions | Pipelines | F04 (F14 to measure) | #25 | planned |
+| F15 | Example Prompts in the generator instructions | Pipelines | F04 (F14 to measure) | #25 | done |
 | F16 | Gemini verification pass for Answers | Pipelines | F04 (F14 to measure) | #26 | planned |
 | F17 | Overgenerate and select the best Prompts | Pipelines | F04, F14 | #27 | planned |
 | F18 | Open Prompt answer expansion with retrieval (pgvector, stretch) | Pipelines | F04, F14 | #28 | planned |
@@ -256,11 +256,17 @@ Notes for others:
 
 ## F15 Example Prompts in the generator instructions
 Spec: `docs/architecture/game-generation-pipeline.md` § Improving output quality · Issue #25
-- [ ] 3–4 example Prompts from the seed fixture in `lib/gemini/game-prompt.ts`
-- [ ] "Bad → good" pairs for compound Open Prompts and give-away Hints
-- [ ] F14 scorecard before/after
+- [x] 3–4 example Prompts from the seed fixture in `lib/gemini/game-prompt.ts` (an open, a cloze, an ordered_recall, an odd_one_out), labelled as examples of the format and quality, not content to reuse
+- [x] "Bad → good" pairs for compound Open Prompts and give-away Hints, plus the F14 baseline's faults: step sentences as Open Answers, symbol Answers, odd-one-out options not in the deck, course-admin Prompts
+- [x] F14 scorecard before/after (spec § Scorecard → F15)
 
-Entry points: — · Notes for others: —
+Entry points: `GAME_PROMPT_EXAMPLES` and the EXAMPLES / BAD → GOOD sections of `GAME_SYSTEM_INSTRUCTION` in `lib/gemini/game-prompt.ts`; one example (+ a bad → good line) each in `lib/modes/{leap,blitz,pairs}/generate.ts`; tests `lib/gemini/game-prompt.test.ts`, `lib/modes/examples.test.ts`
+
+Notes for others:
+- **Examples must pass the checks.** `lib/modes/examples.test.ts` parses every one-line `{"kind":…}` example out of each Mode's instructions and runs it through that Mode's `validate` on the seed pages. If you edit an example (or a check), keep it passing: an example the checks would drop teaches Gemini to make drops.
+- **The seed deck now scores optimistically:** the examples come from it, so Gemini can copy them on that deck. Judge prompt changes on the three course decks.
+- **Before/after** (spec § Scorecard → F15): 56 → 64 / 60 Prompts kept over two live runs, quotes verified 95% → 97% / 98%, drops 8 P / 19 A → 0 / 1 and 4 / 3. "Name a step in …" Opens, admin Prompts and invented odd-one-out options are gone. Symbol cloze Answers (`%`, `_`) and acronym Hints remain (F16).
+- Prompt version is now `a6b826d6`, and `eval/responses/` holds its run (F15 run 2), so a plain `npm run generate:eval` replays the current prompt. The F14 baseline is kept as tables in the spec. The examples add ~1,100 input tokens per call.
 
 ## F16 Gemini verification pass for Answers
 Spec: `docs/architecture/game-generation-pipeline.md` § Improving output quality · Issue #26
