@@ -1,6 +1,6 @@
 # #75 Slide panel on the Reveal + tidy study notes from parsed slides
 
-Status: in-review
+Status: done
 Branch: feat/75-reveal-slide-panel
 Updated: 2026-10-04 10:45
 
@@ -41,7 +41,7 @@ readable formulas), with the raw parsed text one toggle away. Issue #75.
 - Verified in the browser (dev server on :3100 with DEV_PLAYER_ID) on the Week2 deck.
 
 ## Next steps
-1. User review. After approval: PR with `Closes #75`, add a FEATURES.md row, set this worklog to done.
+None: shipped in the PR that closes #75 (F35 in docs/FEATURES.md).
 
 ## Decisions & gotchas
 - `content_md` is untouched: generation and Evidence quotes still use the raw text.
