@@ -28,8 +28,10 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/modules/[module
 }
 
 /**
- * Create a Game: `{ title, mode?, sourceDocumentIds[] }` (mode defaults to 'dive'). Every file
- * must be this Module's and Ready. Responds 202 `{ game }` and generates in the background.
+ * Create a Game: `{ title, mode?, sourceDocumentIds[] }`. `mode` is any available Mode in MODES
+ * (dive, apogee, leap, pairs, blitz; defaults to 'dive'; a reserved one like arena is a 400).
+ * Every file must be this Module's and Ready. Responds 202 `{ game }` and generates in the
+ * background with that Mode's generator.
  */
 export async function POST(req: Request, ctx: RouteContext<"/api/modules/[moduleId]/games">) {
   const playerId = await getApiPlayer();

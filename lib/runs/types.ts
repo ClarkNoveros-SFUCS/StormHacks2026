@@ -1,19 +1,52 @@
-// Shapes the Run API returns. Plain types, safe to import from client components (F09).
+// Shapes the Run API returns. Plain types, safe to import from client components.
 // Spec: docs/architecture/run-and-scoring.md
+//
+// Every Mode shares the lifecycle (POST /api/games/[gameId]/runs → start-prompt → play →
+// finished → GET reveal), the server-owned clock and the error shape `{ error }`. What differs
+// per Mode is the state, the play routes and the Reveal, so RunState, Reveal and RunSummary are
+// discriminated unions on `mode`. Narrow with `switch (state.mode)`.
+//
+//   Mode            play routes                              state           reveal
+//   dive, apogee    POST guess, POST hint                    DiveRunState    DiveReveal
+//   leap            POST answer { optionId }, POST lifeline  LeapRunState    LeapReveal
+//   pairs           POST pair { termId, definitionId }       PairsRunState   PairsReveal
+//   blitz           POST answer { value }                    BlitzRunState   BlitzReveal
+//
+// Shared by all: GET /api/runs/[runId] (state), POST start-prompt (starts the current clock:
+// a Prompt, a Pairs Board, or Blitz's one 60 s clock; idempotent), POST timeout (the client's
+// countdown hit zero; the server checks its own clock), GET reveal (409 until finished).
+//
+// Clocks: every state has `serverNow`. Compute offset = Date.parse(serverNow) − Date.now() and
+// render countdowns from the `deadlineAt` fields. Answers are never sent before they're earned:
+// no correct option, truth value or pairing appears in a state, only in results and the Reveal.
+import type { DiveFamilyModeId, ModeId, PromptKind } from "@/lib/modes";
 import type { Tier } from "@/lib/scoring/tiers";
+import type { TopicReveal } from "@/lib/courses/types";
 
-export type { Tier };
-export type PromptKind = "open" | "cloze" | "definition_to_term" | "ordered_recall" | "odd_one_out";
+export type { DiveFamilyModeId, ModeId, PromptKind, Tier, TopicReveal };
 export type RunStatus = "in_progress" | "finished" | "abandoned";
 export type PromptOutcome = "correct" | "wrong" | "timeout";
 
-export type RunState = {
+/** The page in a Source Document that backs an Answer. Null if the page is gone. */
+export type Evidence = { documentTitle: string; pageNumber: number; quote: string | null } | null;
+
+/** Fields every RunState has. */
+type RunStateBase = {
   runId: string;
+  gameId: string;
   status: RunStatus;
+  score: number;
+  /** ISO; clock offset = Date.parse(serverNow) − Date.now() */
+  serverNow: string;
+};
+
+// =========================================================================================
+// Dive and Apogee (same rules; Apogee only looks different)
+
+export type DiveRunState = RunStateBase & {
+  mode: DiveFamilyModeId;
   position: number; //               1..7, the current Prompt (7 once finished)
   promptCount: number; //            always 7
-  score: number;
-  serverNow: string; //              ISO; clock offset = Date.parse(serverNow) − Date.now()
   prompt: {
     kind: PromptKind;
     text: string;
@@ -41,10 +74,8 @@ export type GuessResult =
   | { correct: false; answer: string; correctOrder?: string[] } //  one-shot Prompts: the right answer, Prompt closed
   | { correct: false; timedOut: true }; //                          arrived after the deadline: closed as a timeout, guess ignored
 
-export type GuessResponse = { result: GuessResult; state: RunState };
-export type HintResponse = { hint: string; state: RunState };
-
-export type Evidence = { documentTitle: string; pageNumber: number; quote: string | null } | null;
+export type GuessResponse = { result: GuessResult; state: DiveRunState };
+export type HintResponse = { hint: string; state: DiveRunState };
 
 export type RevealPrompt = {
   position: number;
@@ -65,18 +96,245 @@ export type RevealPrompt = {
   evidence?: Evidence;
 };
 
-export type Reveal = {
+// =========================================================================================
+// Leap: 10 multiple-choice questions, 15 s each, one try, 3 Hearts, one 50/50 Lifeline
+
+export type LeapOptionId = "A" | "B" | "C" | "D";
+
+export type LeapRunState = RunStateBase & {
+  mode: "leap";
+  position: number; //               1..10, the current question (last one answered once finished)
+  promptCount: number; //            10
+  hearts: number; //                 3 → 0; at 0 the Run ends with outcome "fell"
+  maxHearts: number; //              3
+  streak: number; //                 correct answers in a row so far
+  /** The multiplier the next correct answer gets: 1, 1.5 (3+ in a row) or 2 (5+ in a row). */
+  nextMultiplier: number;
+  correctCount: number;
+  /** True until the Run's one 50/50 has been used. */
+  lifelineAvailable: boolean;
+  /** Set once finished: "cleared" (all 10 answered) or "fell" (hearts ran out). */
+  outcome: LeapOutcome | null;
+  /** The current question's clock. Both null until POST /start-prompt. deadlineAt = startedAt + 15 s. */
+  startedAt: string | null;
+  deadlineAt: string | null;
+  /**
+   * The current question, only while its clock runs: null before POST /start-prompt (so it
+   * can't be read off the clock) and once the Run is over. Flow: start-prompt → answer → show
+   * the result → start-prompt for the next one.
+   */
+  question: {
+    text: string;
+    /** Shuffled once per Run (stable across reloads). The correct one is never marked. */
+    options: { id: LeapOptionId; text: string }[];
+    /** The two wrong options the 50/50 removed on this question; [] if not used here. */
+    hiddenOptionIds: LeapOptionId[];
+  } | null;
+};
+
+export type LeapAnswerBody = { optionId: LeapOptionId; position?: number };
+
+export type LeapAnswerResult =
+  | {
+      correct: true;
+      points: number; //             (100 + speedBonus) × multiplier, halved after a 50/50, rounded
+      speedBonus: number; //         0–50, linear on time left
+      multiplier: number; //         1, 1.5 or 2
+      halved: boolean; //            the 50/50 was used on this question
+      correctOptionId: LeapOptionId;
+      explanation: string | null;
+    }
+  | { correct: false; correctOptionId: LeapOptionId; heartsLeft: number; explanation: string | null }
+  | { correct: false; timedOut: true }; // arrived after the deadline: counted as a timeout (−1 heart)
+
+export type LeapAnswerResponse = { result: LeapAnswerResult; state: LeapRunState };
+export type LifelineResponse = { hiddenOptionIds: LeapOptionId[]; state: LeapRunState };
+
+export type LeapRevealQuestion = {
+  position: number;
+  text: string;
+  options: { id: LeapOptionId; text: string }[]; //   as shown in the Run
+  yourOptionId: LeapOptionId | null; //               null on a timeout or an unplayed question
+  correctOptionId: LeapOptionId;
+  outcome: PromptOutcome | null; //                   null: never reached (the Run ended first)
+  points: number;
+  lifelineUsed: boolean;
+  hiddenOptionIds: LeapOptionId[];
+  explanation: string | null;
+  evidence: Evidence;
+};
+
+// =========================================================================================
+// Pairs: 2 Boards × 6 pairs, 60 s per Board
+
+export type PairsRunState = RunStateBase & {
+  mode: "pairs";
+  board: number; //                  1..2, the current Board (last one once finished)
+  boardCount: number; //             2
+  pairsPerBoard: number; //          6
+  boardsCleared: number;
+  outcome: PairsOutcome | null; //   set once finished
+  /** The current Board's clock. Both null until POST /start-prompt. 60 s, minus 2 s per mismatch. */
+  startedAt: string | null;
+  deadlineAt: string | null;
+  /** Mismatches on the current Board. */
+  mistakes: number;
+  /**
+   * The current Board, only while its clock runs: null before POST /start-prompt (so it can't
+   * be studied off the clock) and once the Run is over. After a Board ends, call start-prompt
+   * again for the next one.
+   */
+  current: {
+    /** Shuffled; ids are opaque and differ between terms and definitions, so they reveal no pairing. */
+    terms: { id: string; text: string; matched: boolean }[];
+    definitions: { id: string; text: string; matched: boolean }[];
+    /** Pairs found so far on this Board. */
+    matches: { termId: string; definitionId: string }[];
+  } | null;
+};
+
+export type PairBody = { termId: string; definitionId: string; board?: number };
+
+export type PairResult =
+  | {
+      correct: true;
+      points: number; //             50
+      termId: string;
+      definitionId: string;
+      boardCleared: boolean; //      all 6 matched: the Board is over and the next needs start-prompt
+      timeBonus: number; //          on a cleared Board: 5 per whole second left; else 0
+    }
+  | { correct: false; pointsLost: number; penaltyMs: number } // −10 (never below a score of 0) and −2 s
+  | { correct: false; timedOut: true }; //                      arrived after the Board's deadline
+
+export type PairResponse = { result: PairResult; state: PairsRunState };
+
+export type PairsRevealBoard = {
+  board: number;
+  cleared: boolean;
+  mistakes: number;
+  timeBonus: number;
+  /** Seconds the Board took (to clearing, or the full clock). Null if it never started. */
+  seconds: number | null;
+  pairs: {
+    term: string;
+    definition: string;
+    matched: boolean;
+    points: number;
+    explanation: string | null;
+    evidence: Evidence;
+  }[];
+};
+
+// =========================================================================================
+// Blitz: one 60 s clock, true/false statements dealt one at a time
+
+export type BlitzRunState = RunStateBase & {
+  mode: "blitz";
+  /** How many statements have been dealt so far (the current one included). */
+  position: number;
+  /** Statements available in this Run's deck (≥ 30); the Run ends early if all are answered. */
+  deckSize: number;
+  combo: number; //                  correct in a row
+  /** Points the next correct answer scores: 10, or 20 once combo ≥ 5. */
+  nextPoints: number;
+  correctCount: number;
+  wrongCount: number;
+  outcome: BlitzOutcome | null; //   set once finished
+  startedAt: string | null; //       null until POST /start-prompt starts the 60 s
+  deadlineAt: string | null; //      startedAt + 60 s, minus 3 s per wrong answer
+  /** The statement to judge now: null before POST /start-prompt and once the Run is over. */
+  statement: { text: string } | null;
+};
+
+export type BlitzAnswerBody = { value: boolean; position?: number };
+
+export type BlitzAnswerResult =
+  | { correct: true; points: number; isTrue: boolean; combo: number; explanation: string | null }
+  | { correct: false; isTrue: boolean; penaltyMs: number; explanation: string | null } // combo resets
+  | { correct: false; timedOut: true }; // the clock had already run out: the Run is finished
+
+export type BlitzAnswerResponse = { result: BlitzAnswerResult; state: BlitzRunState };
+
+export type BlitzRevealStatement = {
+  position: number;
+  text: string;
+  isTrue: boolean;
+  yourAnswer: boolean | null; //     null: dealt but not answered before time ran out
+  correct: boolean;
+  points: number;
+  explanation: string | null;
+  evidence: Evidence;
+};
+
+// =========================================================================================
+// Every Mode
+
+export type RunState = DiveRunState | LeapRunState | PairsRunState | BlitzRunState;
+
+/** The body of POST /answer: Leap sends an optionId, Blitz a value. */
+export type AnswerBody = LeapAnswerBody | BlitzAnswerBody;
+export type AnswerResponse = LeapAnswerResponse | BlitzAnswerResponse;
+
+export type LeapOutcome = "cleared" | "fell";
+export type PairsOutcome = "cleared" | "time_up"; //   cleared = both Boards cleared
+export type BlitzOutcome = "time_up" | "deck_cleared";
+
+/**
+ * What every Mode produces when a Run finishes, so XP, leaderboards and Course passes can be
+ * Mode-agnostic. `passed` (in the Reveal) applies the Mode's pass bar to it.
+ */
+export type RunSummary =
+  | {
+      mode: DiveFamilyModeId; score: number; finishedAt: string; outcome: "finished";
+      stats: { prompts: number; correct: number; hintsUsed: number };
+    }
+  | {
+      mode: "leap"; score: number; finishedAt: string; outcome: LeapOutcome;
+      stats: { questions: number; correct: number; wrong: number; timeouts: number; heartsLeft: number; bestStreak: number; lifelineUsed: boolean };
+    }
+  | {
+      mode: "pairs"; score: number; finishedAt: string; outcome: PairsOutcome;
+      stats: { boardsCleared: number; matches: number; mistakes: number; timeBonus: number };
+    }
+  | {
+      mode: "blitz"; score: number; finishedAt: string; outcome: BlitzOutcome;
+      stats: { answered: number; correct: number; wrong: number; bestCombo: number };
+    };
+
+/** Personal Best and Mastery before → after (lib/progress.ts), the same for every Mode. */
+export type RevealProgress = {
+  personalBest: number; //         as of this Run: max(this score, earlier best)
+  isNewPersonalBest: boolean; //   beat every earlier finished Run (a tie doesn't count)
+  masteryBefore: number; //        0–100, rounded down
+  masteryAfter: number;
+} | null; //                       null only if the Run has no finished_at
+
+type RevealBase = {
   runId: string;
   gameId: string;
   score: number;
-  prompts: RevealPrompt[];
-  // Personal Best and Mastery before → after, from runProgress() in lib/progress.ts (F07).
-  // Measured at this Run's start and finish, so an old Reveal shows what was true then.
-  // Null only if the Run has no finished_at.
-  progress: {
-    personalBest: number; //         as of this Run: max(this score, earlier best)
-    isNewPersonalBest: boolean; //   beat every earlier finished Run (a tie doesn't count)
-    masteryBefore: number; //        0–100, rounded down
-    masteryAfter: number;
-  } | null;
+  summary: RunSummary;
+  /** Whether the Run meets its Mode's pass bar (used by Courses). */
+  passed: boolean;
+  progress: RevealProgress;
+  /** Set when the Game is a Course Topic's practice Game (F22): pass, unlock, Course finish. */
+  topic: TopicReveal | null;
 };
+
+export type DiveReveal = RevealBase & { mode: DiveFamilyModeId; prompts: RevealPrompt[] };
+export type LeapReveal = RevealBase & { mode: "leap"; questions: LeapRevealQuestion[] };
+export type PairsReveal = RevealBase & { mode: "pairs"; boards: PairsRevealBoard[] };
+/** Only statements that were dealt, in the order they were shown. */
+export type BlitzReveal = RevealBase & { mode: "blitz"; statements: BlitzRevealStatement[] };
+
+export type Reveal = DiveReveal | LeapReveal | PairsReveal | BlitzReveal;
+
+/** The state type of one Mode: `ModeRunState<"apogee">` is DiveRunState. */
+export type ModeRunState<M extends ModeId> = M extends DiveFamilyModeId ? DiveRunState : Extract<RunState, { mode: M }>;
+
+/** Narrowing helper: `state` as the given Mode's state, or a TypeError. */
+export function assertMode<M extends RunState["mode"]>(state: RunState, ...modes: M[]): ModeRunState<M> {
+  if (!(modes as string[]).includes(state.mode)) throw new TypeError(`Expected a ${modes.join("/")} Run, got ${state.mode}`);
+  return state as ModeRunState<M>;
+}
