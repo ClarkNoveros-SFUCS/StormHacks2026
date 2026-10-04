@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import graph from "@/db/seed/courses/python-basics.sonar.json";
 import { ancestors, descendants, prerequisites, topoOrder, type Edge } from "./graph";
 
-const edges = graph.edges as Edge[];
+const edges: Edge[] = graph.edges as [string, string][];
 
 describe("Concept graph", () => {
   it("finds indirect prerequisites and dependants", () => {

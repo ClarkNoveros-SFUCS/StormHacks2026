@@ -106,18 +106,19 @@ export function planActions(input: PlanInput): Action[] {
     }
   }
 
-  // 2. The frontier: weakest Concept whose prerequisites are all ≥ 0.7, ties → more dependants
+  // 2. The frontier: weakest Concept whose prerequisites are all ≥ 0.7, ties → more dependants.
+  //    Ranked on p, not pEff: forgetting is display-only in v0 and fading is step 3's job.
   const frontier = concepts
-    .filter((c) => c.status !== "mastered" && c.id !== rootCause?.conceptId && !topicOf(c)?.locked)
-    .filter((c) => prerequisites(c.id, edges).every((id) => (byId.get(id)?.pEff ?? 0) >= FRONTIER_PREREQ))
+    .filter((c) => c.p < 0.85 && c.id !== rootCause?.conceptId && !topicOf(c)?.locked)
+    .filter((c) => prerequisites(c.id, edges).every((id) => (byId.get(id)?.p ?? 0) >= FRONTIER_PREREQ))
     .map((c) => ({ c, deps: descendants(c.id, edges).size }))
-    .sort((a, b) => a.c.pEff - b.c.pEff || b.deps - a.deps);
+    .sort((a, b) => a.c.p - b.c.p || b.deps - a.deps);
   for (const { c, deps } of frontier) {
     if (out.length >= MAX_ACTIONS) break;
-    const after = deps ? ` ${deps} Concept${deps > 1 ? "s" : ""} build on it.` : "";
+    const after = deps ? ` ${deps} ${deps > 1 ? "Concepts build" : "Concept builds"} on it.` : "";
     forConcept(c, c.n === 0
       ? `Next up: ${c.name}. Its prerequisites are solid.${after}`
-      : `${c.name} is at ${pct(c.pEff)} after ${c.n} guesses (${c.wrong} wrong), and its prerequisites are solid.${after}`);
+      : `${c.name} is at ${pct(c.p)} after ${c.n} guesses (${c.wrong} wrong), and its prerequisites are solid.${after}`);
   }
 
   // 3. A fading Concept → a quick review
@@ -129,10 +130,10 @@ export function planActions(input: PlanInput): Action[] {
   }
 
   // 4. Still short: the weakest seen Concepts, prerequisites or not
-  const rest = concepts.filter((c) => c.n > 0 && c.status !== "mastered" && !topicOf(c)?.locked).sort((a, b) => a.pEff - b.pEff);
+  const rest = concepts.filter((c) => c.n > 0 && c.p < 0.85 && !topicOf(c)?.locked).sort((a, b) => a.p - b.p);
   for (const c of rest) {
     if (out.length >= MAX_ACTIONS) break;
-    forConcept(c, `${c.name} is at ${pct(c.pEff)} after ${c.n} guesses (${c.wrong} wrong).`);
+    forConcept(c, `${c.name} is at ${pct(c.p)} after ${c.n} guesses (${c.wrong} wrong).`);
   }
   return rank(out);
 }
