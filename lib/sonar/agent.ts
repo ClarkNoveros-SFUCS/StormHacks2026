@@ -69,10 +69,11 @@ const store = globalThis as unknown as { sonarMemory?: Store };
 const memory = (store.sonarMemory ??= {});
 const checkpointer = (memory.saver ??= new MemorySaver());
 
-// The coach model. SONAR_MODEL "anthropic/<model>" goes through the LangSmith LLM Gateway, authenticated with
-// LANGSMITH_API_KEY (the Anthropic key is a Provider Secret in the LangSmith workspace); "claude-…" calls
-// Anthropic directly with ANTHROPIC_API_KEY. Gemini (GEMINI_MODEL, then GEMINI_FALLBACK_MODEL) is the fallback.
-export const DEFAULT_SONAR_MODEL = "anthropic/claude-sonnet-5-5";
+// The coach model. SONAR_MODEL "claude-…" (the default) calls Anthropic directly with ANTHROPIC_API_KEY;
+// "anthropic/<model>" goes through the LangSmith LLM Gateway with LANGSMITH_API_KEY (beta, the org must have it
+// enabled; the Anthropic key is then a Provider Secret in LangSmith). Gemini (GEMINI_MODEL, then
+// GEMINI_FALLBACK_MODEL) is the fallback, and the only model when no Claude key is set.
+export const DEFAULT_SONAR_MODEL = "claude-sonnet-5-5";
 const LANGSMITH_GATEWAY = "https://gateway.smith.langchain.com";
 const isClaude = (model: string) => /^(anthropic\/|claude-)/.test(model);
 
@@ -174,7 +175,15 @@ export async function runSonar({ playerId, message, context }: { playerId: strin
     { messages: [new HumanMessage(text)] },
     { configurable: { thread_id: `sonar:${playerId}` }, recursionLimit: 12 },
   );
-  const last = [...out.messages].reverse().find((m) => m instanceof AIMessage || m.getType() === "ai");
-  const reply = last?.text?.trim() || "Here's what I'd do next.";
+  // Every AI message of this turn (after the Player's message): Claude often explains before it calls
+  // recommend and adds only a short line after, so the last message alone would drop the explanation.
+  const turnStart = out.messages.findLastIndex((m) => m.getType() === "human");
+  const reply =
+    out.messages
+      .slice(turnStart + 1)
+      .filter((m) => m instanceof AIMessage || m.getType() === "ai")
+      .map((m) => m.text?.trim())
+      .filter(Boolean)
+      .join("\n\n") || "Here's what I'd do next.";
   return { reply, actions: sink };
 }

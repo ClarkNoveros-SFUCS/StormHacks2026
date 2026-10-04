@@ -50,7 +50,7 @@ Two halves: deterministic code decides **what is true**, and an LLM decides **ho
 | Auth | Clerk (the Clerk user id is the Player id) |
 | Database | Tiger Data: Tiger Cloud Postgres + TimescaleDB (+ toolkit, fuzzystrmatch) |
 | AI | Gemini API (`@google/genai`), structured JSON output |
-| Sonar agent | LangGraph JS (`@langchain/langgraph`) + Claude Sonnet 5.5 through the LangSmith LLM Gateway (Gemini fallback), optional LangSmith tracing |
+| Sonar agent | LangGraph JS (`@langchain/langgraph`) + Claude Sonnet 5.5 (Gemini fallback), optional LangSmith tracing |
 | File parsing | Node: `unpdf` (PDF), `jszip` (PPTX), `mammoth` (DOCX). Files are parsed in-process and not stored (ADR-0003) |
 | Tests | Vitest (unit, plus DB tests against a real Tiger service) |
 
@@ -106,9 +106,9 @@ Your Clerk user id is in the Clerk dashboard → Users (it looks like `user_…`
 | `GEMINI_VERIFY`, `GEMINI_VERIFY_MODEL` | no | `GEMINI_VERIFY=off` skips the verification pass. Its model defaults to the fallback model |
 | `NEXT_PUBLIC_SITE_URL` | no locally | The public URL in Daily share text (falls back to `http://localhost:3000`) |
 | `DEV_PLAYER_ID` | no | **Dev only:** under `next dev`, treats every request as this Clerk user id. Ignored in production builds. Never set it on a deployed environment |
-| `LANGSMITH_API_KEY` | for Claude | Workspace-scoped LangSmith key. Sonar calls Claude through the LangSmith LLM Gateway with it (store your Anthropic key once in LangSmith → Settings → Provider Secrets). Without it, Sonar uses Gemini |
-| `SONAR_MODEL` | no | The coach model. Default `anthropic/claude-sonnet-5-5` (via the gateway); `claude-…` calls Anthropic directly with `ANTHROPIC_API_KEY`; any other name is a Gemini model. Gemini is always the fallback |
-| `LANGSMITH_TRACING`, `LANGSMITH_PROJECT` | no | LangSmith tracing of every Sonar turn (`observe → coach → tools`) |
+| `ANTHROPIC_API_KEY` | for Claude | Sonar's coach is Claude Sonnet 5.5. Without this key, Sonar uses Gemini |
+| `SONAR_MODEL` | no | The coach model. Default `claude-sonnet-5-5`; `anthropic/…` goes through the LangSmith LLM Gateway with `LANGSMITH_API_KEY` (beta); any other name is a Gemini model. Gemini is always the fallback |
+| `LANGSMITH_API_KEY`, `LANGSMITH_TRACING`, `LANGSMITH_PROJECT` | no | LangSmith tracing of every Sonar turn (`observe → coach → tools`) |
 | `EVAL_DECKS_DIR` | no | Folder of eval decks for `npm run generate:eval` |
 
 ### Useful commands
