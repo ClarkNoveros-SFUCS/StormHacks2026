@@ -33,57 +33,15 @@ export function validateUpload(filename: string, mimeType: string, sizeBytes: nu
 }
 
 /**
- * The name the file gets on the Snowflake stage. PUT takes the local file's name and
- * can't use bind variables, so only plain characters may reach the SQL text.
+ * Numbers the extracted pages (0-based index, 1-based number shown to the Player) and
+ * applies the page rules. Blank pages are kept so numbering matches the file.
  */
-export function stageFilename(filename: string): string {
-  const dot = filename.lastIndexOf(".");
-  const base = filename.slice(0, dot).replace(/[^A-Za-z0-9_-]+/g, "_").slice(0, 80) || "file";
-  const ext = filename.slice(dot + 1).toLowerCase().replace(/[^a-z0-9]/g, "");
-  return `${base}.${ext}`;
-}
-
-/**
- * Turns the value AI_PARSE_DOCUMENT returns into ordered pages.
- * Handles: a JSON string or an object (the driver returns VARIANT either way), the
- * `return_error_details` wrapper `{ value, error }`, and the `{ pages: [{ content, index }] }`
- * shape from `page_split`. `index` is the 0-based page in the file; the Player sees index + 1.
- */
-export function toParsedPages(raw: unknown): ParsedPage[] {
-  if (raw == null) throw new Error("AI_PARSE_DOCUMENT returned NULL");
-  let result = typeof raw === "string" ? JSON.parse(raw) : raw;
-
-  if (isObject(result) && ("error" in result || "value" in result) && !("pages" in result)) {
-    if (result.error) throw new Error(`AI_PARSE_DOCUMENT error: ${String(result.error)}`);
-    result = typeof result.value === "string" ? JSON.parse(result.value) : result.value;
-  }
-  if (!isObject(result)) throw new Error("AI_PARSE_DOCUMENT returned an unexpected shape");
-
-  let pages: { content: unknown; index: unknown }[];
-  if (Array.isArray(result.pages)) pages = result.pages;
-  else if (typeof result.content === "string") pages = [{ content: result.content, index: 0 }];
-  else throw new Error("AI_PARSE_DOCUMENT result has no pages");
-
-  if (pages.length === 0) throw new UserFacingError("No pages could be read from this file");
+export function toParsedPages(pages: string[]): ParsedPage[] {
   if (pages.length > MAX_PAGES) throw new UserFacingError(`File has more than ${MAX_PAGES} pages`);
-
-  const seen = new Set<number>();
-  const out = pages.map((p, i) => {
-    const pageIndex = typeof p.index === "number" ? p.index : i;
-    if (!Number.isInteger(pageIndex) || pageIndex < 0 || seen.has(pageIndex)) {
-      throw new Error(`AI_PARSE_DOCUMENT returned a bad page index at position ${i}`);
-    }
-    seen.add(pageIndex);
-    return { pageIndex, pageNumber: pageIndex + 1, contentMd: typeof p.content === "string" ? p.content : "" };
-  });
-  out.sort((a, b) => a.pageIndex - b.pageIndex);
-
-  if (out.every((p) => p.contentMd.trim() === "")) {
-    throw new UserFacingError("No text could be read from this file");
+  if (pages.every((p) => p.trim() === "")) {
+    throw new UserFacingError(
+      "No text could be read from this file. If it's a scanned PDF, export the original slides instead",
+    );
   }
-  return out;
-}
-
-function isObject(v: unknown): v is Record<string, unknown> {
-  return typeof v === "object" && v !== null && !Array.isArray(v);
+  return pages.map((contentMd, pageIndex) => ({ pageIndex, pageNumber: pageIndex + 1, contentMd: contentMd.normalize("NFC") }));
 }

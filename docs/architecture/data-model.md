@@ -49,7 +49,7 @@ CREATE TABLE source_documents (
   filename    text NOT NULL,
   mime_type   text NOT NULL,
   size_bytes  integer NOT NULL,
-  stage_path  text,                              -- '<playerId>/<documentId>/<filename>' once PUT succeeds
+  stage_path  text,                              -- unused since ADR-0003 (files aren't kept)
   status      text NOT NULL CHECK (status IN ('uploaded','parsing','parsed','failed')),
   error       text,
   page_count  integer,
@@ -59,7 +59,7 @@ CREATE TABLE source_documents (
 CREATE TABLE source_pages (
   id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   source_document_id  uuid NOT NULL REFERENCES source_documents(id) ON DELETE CASCADE,
-  page_index          integer NOT NULL,          -- 0-based, as Snowflake returns it
+  page_index          integer NOT NULL,          -- 0-based
   page_number         integer NOT NULL,          -- page_index + 1, shown to the Player
   content_md          text NOT NULL,
   UNIQUE (source_document_id, page_index)

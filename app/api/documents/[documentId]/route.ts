@@ -1,6 +1,5 @@
 import { getApiPlayer } from "@/lib/auth";
 import { sql } from "@/lib/db";
-import { removeFromStage } from "@/lib/documents/parse-document";
 import { getPlayerDocument } from "@/lib/documents/queries";
 
 type Ctx = { params: Promise<{ documentId: string }> };
@@ -14,7 +13,7 @@ export async function GET(_req: Request, { params }: Ctx) {
   return Response.json({ document });
 }
 
-/** Deletes a Source Document and its staged copy. 409 while any Game uses it. */
+/** Deletes a Source Document and its pages. 409 while any Game uses it. */
 export async function DELETE(_req: Request, { params }: Ctx) {
   const playerId = await getApiPlayer();
   if (!playerId) return Response.json({ error: "Not signed in" }, { status: 401 });
@@ -30,12 +29,6 @@ export async function DELETE(_req: Request, { params }: Ctx) {
     );
   }
 
-  try {
-    await removeFromStage(playerId, document.id);
-  } catch (err) {
-    // The row still goes: a leftover staged file is harmless, a stuck row is not.
-    console.error(`DELETE document ${document.id}: stage cleanup failed:`, err instanceof Error ? err.message : err);
-  }
   await sql`delete from source_documents where id = ${document.id} and player_id = ${playerId}`;
   return new Response(null, { status: 204 });
 }

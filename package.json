@@ -10,16 +10,18 @@
     "db:migrate": "node scripts/migrate.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node --test \"lib/**/*.test.ts\"",
-    "parse:check": "node --conditions=react-server --env-file=.env.local scripts/parse-check.ts"
+    "parse:check": "node scripts/parse-check.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.10",
+    "jszip": "^3.10.2",
+    "mammoth": "^1.13.0",
     "next": "16.3.8",
     "postgres": "^3.4.9",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",
-    "snowflake-sdk": "^3.4.0"
+    "unpdf": "^1.8.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

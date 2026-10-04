@@ -12,7 +12,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 |---|---|---|---|---|---|
 | F01 | Foundation: auth, DB, migrations | Platform | — | #1 | done |
 | F02 | Seed data: demo Module and Game | Platform | F01 | #2 | planned |
-| F03 | Upload pipeline (Snowflake) | Pipelines | F01 | #3 | planned |
+| F03 | Upload pipeline (Node extraction) | Pipelines | F01 | #3 | planned |
 | F04 | Game generation (Gemini) | Pipelines | F01 (F02 for test pages) | #4 | planned |
 | F05 | Answer matching | Gameplay | F01 | #5 | planned |
 | F06 | Run engine and scoring API | Gameplay | F01, F05 | #6 | planned |
@@ -67,15 +67,15 @@ Spec: `docs/architecture/data-model.md`
 
 Entry points: — · Notes for others: —
 
-## F03 Upload pipeline (Snowflake)
-Spec: `docs/architecture/upload-pipeline.md` · **Setup:** `docs/setup/snowflake.md`
-- [ ] Snowflake account, warehouse, stage, `STUDY_APP` role and key-pair service user created; parse check (step 5) passes in Snowsight
-- [ ] `serverExternalPackages: ['snowflake-sdk']` in `next.config.ts`
-- [ ] Snowflake stage created (SQL in the spec); `lib/snowflake.ts` with `putFile`, `parseStagedFile`, `removeStagedFile`
-- [ ] `POST /api/modules/[moduleId]/documents`: validates type and size, inserts, responds 202, parses in `after()`
-- [ ] `AI_PARSE_DOCUMENT` LAYOUT + page_split → `source_pages`; > 100 pages fails cleanly
+## F03 Upload pipeline (Node extraction)
+Spec: `docs/architecture/upload-pipeline.md` · Decision: `docs/adr/0003-parse-uploads-in-node.md` (Snowflake trial blocks `AI_PARSE_DOCUMENT`)
+- [ ] `lib/documents/extract/`: PDF (`unpdf`), PPTX (`jszip`), DOCX (`mammoth`) → one markdown string per page, unit-tested on fixtures
+- [ ] `serverExternalPackages: ['unpdf', 'mammoth']` and `proxyClientMaxBodySize: '26mb'` in `next.config.ts`
+- [ ] `POST /api/modules/[moduleId]/documents`: validates type and size, inserts, responds 202, parses in `after()`; `GET` lists the Module's files
+- [ ] Pages → `source_pages`; > 100 pages and text-less (scanned) files fail cleanly
 - [ ] Status transitions `uploaded → parsing → parsed | failed`, with a user-facing error
-- [ ] `POST /api/documents/[id]/retry`; `DELETE /api/documents/[id]` returns 409 while a Game uses the file
+- [ ] `DELETE /api/documents/[id]` returns 409 while a Game uses the file (no Retry: delete and re-upload)
+- [ ] `npm run parse:check -- <file>` parses a local file without the app
 - [ ] Tested with a real PDF, a PPTX and a DOCX
 
 Entry points: — · Notes for others: —

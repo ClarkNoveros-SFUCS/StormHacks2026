@@ -12,11 +12,11 @@ A solo, Krillion-style study game. A Player uploads course files into a **Module
 |---|---|---|
 | App | Next.js 16 (App Router), React 19, Tailwind 4 | Read `node_modules/next/dist/docs/` before writing Next code: v16 renamed `middleware.ts` to `proxy.ts`, among other changes. |
 | Auth | Clerk | Clerk user id is the Player id. `proxy.ts` runs `clerkMiddleware()` only; each page and server action protects itself with `requirePlayer()`, and each route handler with `getApiPlayer()` (401 when null), both from `lib/auth.ts`. Clerk deprecated path-matching checks in the proxy. |
-| File storage + parsing | Snowflake | Internal stage holds original files; `AI_PARSE_DOCUMENT` turns them into per-page markdown. MLH Snowflake track. |
+| File parsing | Node (`unpdf`, `jszip`, `mammoth`) | Turns uploaded PDF/PPTX/DOCX into per-page markdown in the server process; the file itself isn't kept (ADR-0003). |
 | Prompt generation | Gemini API | Structured JSON output; reads parsed pages, writes Prompts/Answers/Aliases/Tiers/Hints. |
 | App database | Tiger Data (Tiger Cloud, Postgres + TimescaleDB) | All app data. Guess history is a hypertable. MLH Tiger Data track. |
 
-See `docs/adr/0002-snowflake-parse-tiger-store-gemini-generate.md` for why the work is split this way.
+See `docs/adr/0002-snowflake-parse-gemini-generate-tiger-store.md` for why the work is split this way, and `docs/adr/0003-parse-uploads-in-node.md` for why parsing moved off Snowflake.
 
 ## System diagram
 
@@ -24,7 +24,7 @@ See `docs/adr/0002-snowflake-parse-tiger-store-gemini-generate.md` for why the w
                 ┌──────────────────────────── Next.js (server) ─────────────────────────────┐
  Browser ──────▶│ proxy.ts (Clerk)                                                          │
   (Clerk)       │                                                                            │
-                │  Upload pipeline ──PUT──▶ Snowflake stage ──AI_PARSE_DOCUMENT──▶ pages ──┐ │
+                │  Upload pipeline ──bytes──▶ Node extraction (pdf/pptx/docx) ──▶ pages ───┐ │
                 │                                                                          │ │
                 │  Game generation ──reads pages──▶ Gemini ──JSON──▶ checks ──▶ tiers ──┐  │ │
                 │                                                                        ▼  ▼ │
@@ -34,11 +34,11 @@ See `docs/adr/0002-snowflake-parse-tiger-store-gemini-generate.md` for why the w
                 └────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Nothing talks to Snowflake or Gemini during a Run. A Run touches only Tiger Data, so play stays fast and doesn't depend on an AI service being up.
+Nothing talks to Gemini during a Run. A Run touches only Tiger Data, so play stays fast and doesn't depend on an AI service being up.
 
 ## Feature pipelines (one doc each)
 
-1. [`upload-pipeline.md`](./upload-pipeline.md): file → Snowflake stage → parsed pages stored in Tiger Data. Runs once per file.
+1. [`upload-pipeline.md`](./upload-pipeline.md): file → Node extraction → parsed pages stored in Tiger Data. Runs once per file.
 2. [`game-generation-pipeline.md`](./game-generation-pipeline.md): chosen files' pages → Gemini → validation → Tier assignment → Game rows.
 3. [`run-and-scoring.md`](./run-and-scoring.md): Run lifecycle, server-authoritative timer, Hints, Staleness, points.
 4. [`answer-matching.md`](./answer-matching.md): how a typed guess becomes an Answer (or not).
@@ -56,13 +56,11 @@ Nothing talks to Snowflake or Gemini during a Run. A Run touches only Tiger Data
 
 ## Environment variables
 
-How to get each value: `docs/setup/` (Tiger Data, Snowflake, Gemini, Clerk).
+How to get each value: `docs/setup/` (Tiger Data, Gemini, Clerk).
 
 ```
 CLERK_SECRET_KEY, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 DATABASE_URL                      # Tiger Cloud connection string (from the service config file)
-SNOWFLAKE_ACCOUNT, SNOWFLAKE_USER, SNOWFLAKE_PASSWORD (or key-pair),
-SNOWFLAKE_ROLE, SNOWFLAKE_WAREHOUSE, SNOWFLAKE_DATABASE, SNOWFLAKE_SCHEMA, SNOWFLAKE_STAGE
 GEMINI_API_KEY, GEMINI_MODEL
 ```
 
