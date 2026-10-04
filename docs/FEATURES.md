@@ -19,7 +19,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F07 | Progress: Personal Best and Mastery | Gameplay | F01 | #7 | done |
 | F08 | Modules list and Module page UI | Frontend | F01 (mock F03/F04) | #8 | planned |
 | F09 | Run screen and Reveal UI | Frontend | F06 (mock), F10 | #9 | planned |
-| F10 | Visual design system (Krillion style) | Frontend | design session | #10 | planned |
+| F10 | Visual design system (site + Mode themes) | Frontend | design session | #10 | planned |
 | F11 | Game page UI | Frontend | F07 | #11 | planned |
 | F12 | Deploy and demo prep | Platform | everything | #12 | planned |
 | F13 | Game Modes: `games.mode` and the Mode picker | Platform | F01 | #21 | planned |
@@ -28,6 +28,17 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F16 | Gemini verification pass for Answers | Pipelines | F04 (F14 to measure) | #26 | planned |
 | F17 | Overgenerate and select the best Prompts | Pipelines | F04, F14 | #27 | planned |
 | F18 | Open Prompt answer expansion with retrieval (pgvector, stretch) | Pipelines | F04, F14 | #28 | planned |
+| F19 | Landing page and site-wide UI overhaul | Frontend | F10 | #32 | planned |
+| F20 | Game Modes engine and generation: Apogee, Leap, Pairs, Blitz | Platform | F04, F06 | #33 | planned |
+| F21 | Social backend: profiles, XP, streaks, heatmap, badges, friends, leaderboards | Platform | F01, F07 | #34 | planned |
+| F22 | Courses backend and the seeded Python Basics course | Platform | F20 | #35 | planned |
+| F23 | Daily Dive backend | Platform | F21, F22 | #36 | planned |
+| F24 | Apogee and Leap screens (three.js) | Frontend | F10, F20 | #37 | planned |
+| F25 | Pairs and Blitz screens | Frontend | F10, F20 | #38 | planned |
+| F26 | Profile, Friends and Leaderboard pages | Frontend | F10, F21 | #39 | planned |
+| F27 | Explore, Course and Topic pages | Frontend | F10, F22 | #40 | planned |
+| F28 | Daily Dive hub page | Frontend | F09, F23 | #41 | planned |
+| F29 | Arena: three.js FPS study Mode (stretch) | Frontend | F20, F24 | #42 | planned |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -193,8 +204,8 @@ Spec: `docs/architecture/ui-map.md`, `docs/architecture/run-and-scoring.md`, `do
 
 Entry points: — · Notes for others: —
 
-## F10 Visual design system (Krillion style)
-Spec: `docs/design/design-system.md` · reference: `docs/design/mock/` (open `index.html`)
+## F10 Visual design system (site + Mode themes)
+Spec: `docs/design/design-system.md` (being rewritten for the new direction: `docs/worklog/aaf1007/overnight-decisions.md` §1–3, §14) · reference: `docs/design/mock/` (open `index.html`)
 - [ ] Fonts (VT323, Mulish) and the semantic tokens in the Tailwind 4 theme; per-Mode values under `[data-theme=…]`
 - [ ] Shell components: PxButton, Panel, Tile, Chip, StatusPill, Meter, ModeTile, ModeBadge, Modal, Mascot
 - [ ] Stage (scene + particles + overlays) with the ocean scene and house theme
@@ -269,5 +280,71 @@ Spec: `docs/architecture/game-generation-pipeline.md` § Improving output qualit
 - [ ] Per Open Prompt: retrieve nearest pages → Gemini lists every supported Answer → merge, checks 1–3, re-rank, reassign Tiers
 - [ ] F14 scorecard before/after (Answers per Open Prompt, rare Answers from new pages)
 - [ ] README mentions the sponsor use (F12)
+
+Entry points: — · Notes for others: —
+
+## F19 Landing page and site-wide UI overhaul
+Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #32 (checklist lives on the issue until this feature ships)
+- [ ] See the issue checklist
+
+Entry points: — · Notes for others: —
+
+## F20 Game Modes engine and generation: Apogee, Leap, Pairs, Blitz
+Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #33 (checklist lives on the issue until this feature ships)
+- [ ] See the issue checklist
+
+Entry points: — · Notes for others: —
+
+## F21 Social backend: profiles, XP, streaks, heatmap, badges, friends, leaderboards
+Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #34 (checklist lives on the issue until this feature ships)
+- [ ] See the issue checklist
+
+Entry points: — · Notes for others: —
+
+## F22 Courses backend and the seeded Python Basics course
+Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #35 (checklist lives on the issue until this feature ships)
+- [ ] See the issue checklist
+
+Entry points: — · Notes for others: —
+
+## F23 Daily Dive backend
+Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #36 (checklist lives on the issue until this feature ships)
+- [ ] See the issue checklist
+
+Entry points: — · Notes for others: —
+
+## F24 Apogee and Leap screens (three.js)
+Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #37 (checklist lives on the issue until this feature ships)
+- [ ] See the issue checklist
+
+Entry points: — · Notes for others: —
+
+## F25 Pairs and Blitz screens
+Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #38 (checklist lives on the issue until this feature ships)
+- [ ] See the issue checklist
+
+Entry points: — · Notes for others: —
+
+## F26 Profile, Friends and Leaderboard pages
+Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #39 (checklist lives on the issue until this feature ships)
+- [ ] See the issue checklist
+
+Entry points: — · Notes for others: —
+
+## F27 Explore, Course and Topic pages
+Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #40 (checklist lives on the issue until this feature ships)
+- [ ] See the issue checklist
+
+Entry points: — · Notes for others: —
+
+## F28 Daily Dive hub page
+Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #41 (checklist lives on the issue until this feature ships)
+- [ ] See the issue checklist
+
+Entry points: — · Notes for others: —
+
+## F29 Arena: three.js FPS study Mode (stretch)
+Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #42 (checklist lives on the issue until this feature ships)
+- [ ] See the issue checklist
 
 Entry points: — · Notes for others: —
