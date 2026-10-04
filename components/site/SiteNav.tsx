@@ -18,6 +18,7 @@ const LINKS: NavLink[] = [
   { href: "/modules", label: "My Modules", signedInOnly: true },
   { href: "/daily", label: "Daily" },
   { href: "/leaderboard", label: "Leaderboard", signedInOnly: true },
+  { href: "/sonar", label: "Sonar", signedInOnly: true },
 ];
 
 function isActive(pathname: string, href: string) {

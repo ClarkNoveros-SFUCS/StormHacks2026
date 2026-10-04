@@ -15,6 +15,7 @@
     "db:seed:courses": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/seed-courses.mts",
     "db:seed:daily": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/seed-daily.mts",
     "daily:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/daily-generate.mts",
+    "sonar:demo": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/sonar-demo.mts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --exclude \"**/*.db.test.ts\" --exclude \"**/node_modules/**\" --exclude \".claude/**\"",
     "test:db": "vitest run db.test",
@@ -22,11 +23,15 @@
     "generate:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-check.ts",
     "social:backfill": "node scripts/social-backfill.mjs",
     "seed:content:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-seed-content.ts",
-    "generate:eval": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-eval.ts"
+    "generate:eval": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-eval.ts",
+    "sonar:tag": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/sonar-tag.mts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.10",
     "@google/genai": "^2.27.0",
+    "@langchain/core": "^1.2.14",
+    "@langchain/google-genai": "^2.3.2",
+    "@langchain/langgraph": "^1.4.19",
     "@types/three": "^0.186.0",
     "jszip": "^3.10.2",
     "mammoth": "^1.13.0",
