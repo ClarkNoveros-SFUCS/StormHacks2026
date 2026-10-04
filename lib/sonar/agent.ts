@@ -133,7 +133,18 @@ export function tagPage(text: string, ctx: PageContext, mod: CustomModule | null
   return `[Page: ${ctx.kind} ${ctx.path}${mod ? `, Module "${mod.name}"` : ""}]\n${text}`;
 }
 
-export async function runSonar({ playerId, message, context }: { playerId: string; message?: string; context: PageContext }): Promise<ChatResponse> {
+export async function runSonar({
+  playerId,
+  message,
+  context,
+  chatId,
+}: {
+  playerId: string;
+  message?: string;
+  context: PageContext;
+  /** A saved chat in the drawer: its own memory thread. Omitted = the Player's one default thread. */
+  chatId?: string;
+}): Promise<ChatResponse> {
   const sink: Action[] = [];
   let modelP: Promise<SonarModel> | undefined;
   const getModel = () => (modelP ??= loadSonarModel(playerId));
@@ -186,7 +197,7 @@ export async function runSonar({ playerId, message, context }: { playerId: strin
   const text = tagPage(message?.trim() || briefingFor(context, !!mod), context, mod);
   const out = await graph.invoke(
     { messages: [new HumanMessage(text)] },
-    { configurable: { thread_id: `sonar:${playerId}` }, recursionLimit: 12 },
+    { configurable: { thread_id: chatId ? `sonar:${playerId}:${chatId}` : `sonar:${playerId}` }, recursionLimit: 12 },
   );
   // Every AI message of this turn (after the Player's message): Claude often explains before it calls
   // recommend and adds only a short line after, so the last message alone would drop the explanation.

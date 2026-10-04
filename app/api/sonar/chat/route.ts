@@ -3,8 +3,8 @@ import { runSonar } from "@/lib/sonar/agent";
 import { parseChatRequest } from "@/lib/sonar/chat-request";
 import type { ChatResponse } from "@/lib/sonar/types";
 
-// POST /api/sonar/chat (F32): one Sonar turn. Body { message?, context: { path } }; no message =
-// the briefing. The page context is re-derived from context.path on the server.
+// POST /api/sonar/chat (F32): one Sonar turn. Body { message?, context: { path }, chatId? }; no message =
+// the briefing. chatId picks the saved chat's memory thread. The page context is re-derived from context.path on the server.
 // Spec: docs/architecture/sonar.md § Decisions.
 
 export const runtime = "nodejs";
@@ -24,7 +24,12 @@ export async function POST(req: Request) {
   if (!parsed.ok) return Response.json({ error: parsed.error }, { status: 400 });
 
   try {
-    const res: ChatResponse = await runSonar({ playerId, message: parsed.message, context: parsed.context });
+    const res: ChatResponse = await runSonar({
+      playerId,
+      message: parsed.message,
+      context: parsed.context,
+      chatId: parsed.chatId,
+    });
     return Response.json(res);
   } catch (e) {
     console.error("[sonar/chat]", e);

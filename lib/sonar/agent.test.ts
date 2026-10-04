@@ -45,6 +45,14 @@ describe("chat request", () => {
     expect(r).toEqual({ ok: true, message: "why?", context: { kind: "topic", path: "/explore/python-basics/loops", courseSlug: "python-basics", topicSlug: "loops" } });
     expect(parseChatRequest({ context: { path: "/home" } })).toMatchObject({ ok: true, message: undefined });
   });
+
+  it("takes an optional chatId and rejects odd ones", () => {
+    expect(parseChatRequest({ context: { path: "/home" }, chatId: "c_k9x2-a" })).toMatchObject({ ok: true, chatId: "c_k9x2-a" });
+    expect(parseChatRequest({ context: { path: "/home" } })).toMatchObject({ ok: true, chatId: undefined });
+    expect(parseChatRequest({ context: { path: "/home" }, chatId: "a b" }).ok).toBe(false);
+    expect(parseChatRequest({ context: { path: "/home" }, chatId: "x".repeat(41) }).ok).toBe(false);
+    expect(parseChatRequest({ context: { path: "/home" }, chatId: 7 }).ok).toBe(false);
+  });
 });
 
 describe("prompt pieces", () => {
