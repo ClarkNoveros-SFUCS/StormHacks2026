@@ -48,6 +48,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F38 | Sonar-made Games show up live; generation tops up when short | Pipelines | F04, F32 | #86 | done |
 | F37 | Generating Game card: step-by-step text animation | Frontend | F08 | #87 | done |
 | F39 | Sonar stays on custom Modules: Read + Game cards, no Python Basics leak | Gameplay | F32, F35 | #83 | done |
+| F40 | Module page map: per-page performance across a Module's Games | Frontend | F07, F35 | #90 | done |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -63,6 +64,22 @@ Status values: `planned` · `done` · `blocked`. "In progress" is shown by the G
 F01 goes first and should be small: get the schema merged within the first couple of hours so everyone can build on it.
 
 ---
+
+## F40 Module page map: per-page performance across a Module's Games
+Issue #90
+- [x] "Your map" on the Module page: per file, one cell per page, coloured Solid / Shaky / Missing / Not tested yet
+- [x] A guess or timeout counts against its Prompt's Evidence page (top Answer's, else the Prompt's), across every Game of the Module
+- [x] Score: smoothed accuracy, recent answers weigh more (weight halves each week); cell opacity grows with the number of answers
+- [x] Cells open the page's study notes; tooltip shows the page heading and tally
+- [x] Weakest pages (up to 5) with Read (study page) and Drill (asks Sonar about that page)
+- [x] Unit tests for the scoring
+
+Entry points: `moduleMap` in `app/modules/_lib/queries.ts`; `buildModuleMap` in `app/modules/_lib/page-map.ts`; `ModuleMapPanel` in `app/modules/_components/ModuleMapPanel.tsx`; `ModuleWorkspace` `map` prop
+
+Notes for others:
+- No AI and no migration: reads `guess_events`, `run_prompts` timeouts and Evidence pages.
+- Step 2 (#84) can reuse the per-page numbers for an AI concept map.
+- Prompts without an Evidence page aren't counted.
 
 ## F39 Sonar stays on custom Modules: Read + Game cards, no Python Basics leak
 Issue #83

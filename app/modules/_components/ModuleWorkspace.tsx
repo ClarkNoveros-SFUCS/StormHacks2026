@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AskSonarButton } from "@/components/sonar/AskSonarButton";
 import { Button } from "@/components/ui/Button";
 import { Mascot, type MascotHandle } from "@/components/ui/Mascot";
@@ -30,6 +30,8 @@ type Props = {
   progress: Record<string, CardProgress>;
   /** The URL asked for a file (`?doc=`) that isn't in this Module. */
   missingDoc: boolean;
+  /** The page map (#90), rendered on the server; shown under the header. */
+  map?: ReactNode;
 };
 
 type Confirm = { kind: "doc"; doc: DocRow } | { kind: "game"; game: GameRow } | null;
@@ -43,7 +45,7 @@ const toRow = (g: GameSummary | GameRow): GameRow => ({
   created_at: new Date(g.created_at).toISOString(),
 });
 
-export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, progress, missingDoc }: Props) {
+export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, progress, missingDoc, map }: Props) {
   const [docs, setDocs] = useState(initialDocuments);
   const [games, setGames] = useState(initialGames);
   const [uploads, setUploads] = useState<UploadItem[]>([]);
@@ -337,6 +339,8 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
           </Button>
         </div>
       </header>
+
+      {map}
 
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         <FilesPanel
