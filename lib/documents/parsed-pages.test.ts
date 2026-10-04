@@ -14,6 +14,11 @@ test("normalizes to NFC so decomposed accents match typed guesses", () => {
   assert.equal(toParsedPages(["Borůvka"])[0].contentMd, "Borůvka");
 });
 
+test("strips control characters (NUL breaks the Postgres insert), keeps newlines and tabs", () => {
+  assert.equal(toParsedPages(["median = x\u0000 n+1\u0001\n\ta\r\u007F"])[0].contentMd, "median = x n+1\n\ta");
+  assert.throws(() => toParsedPages(["\u0000\u0001"]), /scanned PDF/);
+});
+
 test("rejects a file with no text (scanned PDF) and > 100 pages", () => {
   assert.throws(() => toParsedPages([" ", ""]), /scanned PDF/);
   assert.throws(() => toParsedPages(Array(101).fill("x")), /more than 100 pages/);
