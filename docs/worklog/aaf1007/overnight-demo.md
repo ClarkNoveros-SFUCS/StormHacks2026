@@ -21,8 +21,10 @@ Merged on top, in order (each a `--no-ff` merge commit):
 | `feat/25-example-prompts` | F15 #54 (includes F14 #44) | `.env.example`, `package.json` |
 | `feat/26-verification-pass` | F16 #60 | none |
 | `feat/42-arena` | F29 #61 (stacked on F24) | `CONTEXT.md`, `mode-screens.tsx`, `lib/runs/client.ts`, `lib/runs/run-engine.ts`, `lib/ui/sfx.ts`, `data-model.md`, `docs/FEATURES.md` |
+| `feat/27-overgenerate-select` | F17 #62 | (merged earlier, commit 9a95e99) |
+| `feat/66-faster-fallback` | F30 #65 + F31 #67 (stacked on F17) | `docs/FEATURES.md` (kept the demo's `done` rows and F29 entry, added F30/F31) |
 
-Skipped: `feat/27-overgenerate-select` (F17 #27): still in progress, no PR.
+Skipped: none (F17 was merged after this note was first written).
 
 ## Conflict resolutions
 

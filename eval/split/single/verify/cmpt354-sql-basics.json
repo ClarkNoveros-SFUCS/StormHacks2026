@@ -1,0 +1,414 @@
+{
+  "deck": "cmpt354-sql-basics",
+  "createdAt": "2026-10-04T14:34:14.615Z",
+  "verifyVersion": "28c4606d",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 6.51,
+    "usage": {
+      "inputTokens": 5873,
+      "outputTokens": 2674,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.0084469
+  },
+  "prompts": [
+    "Name a primitive SQL data type.",
+    "Name an SQL set operation.",
+    "Name a type of join supported in SQL.",
+    "Name a standard SQL aggregation function.",
+    "Name a comparison operator or keyword used in SQL conditions involving relations.",
+    "Name a name from the pattern matching example that matches the pattern 'Sm_t%'.",
+    "Name an attribute of the Students sample table.",
+    "Name an attribute of the Movies table schema.",
+    "Like DELETE, the ______ clause specifies which records are to be updated.",
+    "In three-valued logic, comparisons with nulls evaluate to ______.",
+    "The result of a WHERE clause is treated as FALSE if it evaluates to ______.",
+    "The sublanguage of SQL used for declaring database schemas.",
+    "The sublanguage of SQL used for querying databases and modifying the database.",
+    "The join interpretation semantics where we evaluate a join condition using one loop inside another.",
+    "Put the steps of evaluating a query with a HAVING clause in order.",
+    "Which of the following is NOT a set operation in SQL?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "Listed under integer primitive data types.",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "Listed under character string primitive types.",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "Listed under character string primitive types.",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "Listed as Boolean primitive data type.",
+            "supports": true
+          },
+          {
+            "id": "P1.A5",
+            "reason": "Listed under floating-point primitive types.",
+            "supports": true
+          },
+          {
+            "id": "P1.A6",
+            "reason": "Listed under floating-point primitive types.",
+            "supports": true
+          },
+          {
+            "id": "P1.A7",
+            "reason": "Listed under floating-point primitive types.",
+            "supports": true
+          },
+          {
+            "id": "P1.A8",
+            "reason": "Listed under floating-point primitive types.",
+            "supports": true
+          },
+          {
+            "id": "P1.A9",
+            "reason": "Listed under floating-point primitive types.",
+            "supports": true
+          },
+          {
+            "id": "P1.A10",
+            "reason": "Listed under date and time primitive types.",
+            "supports": true
+          },
+          {
+            "id": "P1.A11",
+            "reason": "Listed under date and time primitive types.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "Named as an SQL set operation.",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "Named as an SQL set operation.",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "Named as an SQL set operation.",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "Mentioned as an implementation of EXCEPT.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "Shown as an inner join example.",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "Shown as a left outer join example.",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "Shown as a right outer join example.",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "Shown as a full outer join example.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "Listed as an aggregation function.",
+            "supports": true
+          },
+          {
+            "id": "P4.A2",
+            "reason": "Listed as an aggregation function.",
+            "supports": true
+          },
+          {
+            "id": "P4.A3",
+            "reason": "Listed as an aggregation function.",
+            "supports": true
+          },
+          {
+            "id": "P4.A4",
+            "reason": "Listed as an aggregation function.",
+            "supports": true
+          },
+          {
+            "id": "P4.A5",
+            "reason": "Listed as an aggregation function.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "Listed under conditions involving relations.",
+            "supports": true
+          },
+          {
+            "id": "P5.A2",
+            "reason": "Listed under conditions involving relations.",
+            "supports": true
+          },
+          {
+            "id": "P5.A3",
+            "reason": "Listed under conditions involving relations.",
+            "supports": true
+          },
+          {
+            "id": "P5.A4",
+            "reason": "Listed under conditions involving relations.",
+            "supports": true
+          },
+          {
+            "id": "P5.A5",
+            "reason": "Listed under conditions involving relations.",
+            "supports": true
+          },
+          {
+            "id": "P5.A6",
+            "reason": "Listed under conditions involving relations.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "Listed as item 1 in pattern matching.",
+            "supports": true
+          },
+          {
+            "id": "P6.A2",
+            "reason": "Listed as item 4 in pattern matching.",
+            "supports": true
+          },
+          {
+            "id": "P6.A3",
+            "reason": "Listed as item 5 in pattern matching.",
+            "supports": true
+          },
+          {
+            "id": "P6.A4",
+            "reason": "Listed as item 6 in pattern matching.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "Listed as a column in the Students table.",
+            "supports": true
+          },
+          {
+            "id": "P7.A2",
+            "reason": "Listed as a column in the Students table.",
+            "supports": true
+          },
+          {
+            "id": "P7.A3",
+            "reason": "Listed as a column in the Students table.",
+            "supports": true
+          },
+          {
+            "id": "P7.A4",
+            "reason": "Listed as a column in the Students table.",
+            "supports": true
+          },
+          {
+            "id": "P7.A5",
+            "reason": "Listed as a column in the Students table.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "Listed as an attribute in the Movies table schema.",
+            "supports": true
+          },
+          {
+            "id": "P8.A2",
+            "reason": "Listed as an attribute in the Movies table schema.",
+            "supports": true
+          },
+          {
+            "id": "P8.A3",
+            "reason": "Listed as an attribute in the Movies table schema.",
+            "supports": true
+          },
+          {
+            "id": "P8.A4",
+            "reason": "Listed as an attribute in the Movies table schema.",
+            "supports": true
+          },
+          {
+            "id": "P8.A5",
+            "reason": "Listed as an attribute in the Movies table schema.",
+            "supports": true
+          },
+          {
+            "id": "P8.A6",
+            "reason": "Listed as an attribute in the Movies table schema.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "Correctly fills in the blank matching page text.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "Correctly fills in the blank matching page text.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "Correctly fills in the blank matching page text.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "Correctly terms the DDL definition.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "Correctly terms the DML definition.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "Correctly terms the nested loop semantics definition.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P15",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P15.A1",
+            "reason": "The items match the evaluation steps in order.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P16",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P16.A1",
+            "reason": "JOIN is not a set operation like UNION, INTERSECT, or EXCEPT.",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -18,6 +18,8 @@ generateGame:
   a. claim it: UPDATE … SET status = 'generating' WHERE status = 'queued' (so it runs once);
      generator = generatorFor(game.mode)  (Apogee → Dive's; a reserved Mode fails "This Game Mode can't be generated yet")
   b. for each selected document, IN PARALLEL: load its source_pages, then call Gemini with the Mode's request
+     (Dive/Apogee with GEMINI_SPLIT on, the default: two calls at once, Open Prompts and every other kind, whose
+     Prompts are joined before the checks; § Split generation (F30))
   c. the Mode's per-document checks (Dive's below); drop what fails, keep the rest. Then, per document, the
      verification pass (§ Verification pass (F16)): a second Gemini call drops Answers their page doesn't
      support, unclear Prompts and duplicates (GEMINI_VERIFY=off skips it; a failed call keeps everything).
@@ -50,7 +52,7 @@ A Game still `queued`/`generating` 10 minutes after creation (the server restart
 ## Gemini call (one per Source Document)
 
 - SDK: `@google/genai`, server only, `lib/gemini.ts`. Model comes from `GEMINI_MODEL` (we use `gemini-3.6-flash`).
-- **Overload:** on 429/5xx (Gemini often answers 503 "high demand"), retry after 2, 5 and 12 s, then switch to `GEMINI_FALLBACK_MODEL` if set (we use `gemini-3.5-flash-lite`: weaker, fewer Open Prompts, but rarely overloaded). 3.8-flash was overloaded on most long requests during testing, which is why we use 3.6.
+- **Overload (F31, `withFallback` in `lib/gemini.ts`):** on 429/408/5xx or a network error (Gemini often answers 503 "high demand"), `GEMINI_MODEL` gets **one** retry after 2 s, then the call switches to `GEMINI_FALLBACK_MODEL` if set (we use `gemini-3.5-flash-lite`: weaker, fewer Open Prompts, but rarely overloaded, and 10–20 s for a deck). The last model to try keeps the full retries after 2, 5 and 12 s. An attempt that hits the **150 s per-attempt timeout** goes straight to the next model (before F31 it failed the Game after 240 s without trying the fallback). Any other error (e.g. 400) fails at once. 3.8-flash was overloaded on most long requests during testing, which is why we use 3.6; on 2026-10-04 3.6-flash itself answered 503 to every full-size request for over 30 minutes while tiny requests still worked, and before F31 each call spent ~20 s on retries before falling back.
 - **Structured output:** `responseMimeType: "application/json"` plus `responseJsonSchema` (plain JSON Schema), so the output always parses. `answers`, `tier`, `hint` and `explanation` are **required** for every Prompt (empty when a kind doesn't use them): left optional, Gemini omits them from single-answer Prompts, which then get dropped.
 - Cost and speed with 3.6-flash: a 94-page lecture PDF took 45–100 s and ~$0.05 USD (per-deck numbers: § Scorecard). Don't lower the thinking level: `LOW` returned two Prompts with no Answers.
 - Input: the document's pages, each wrapped as `=== Page <page_number> ===\n<content_md>`, and the document title.
@@ -156,7 +158,7 @@ Each Mode exports a `ModeGenerator` (`lib/modes/generation.ts`) from `lib/modes/
 
 | Mode | Asks Gemini for | Checks (code) | Min |
 |---|---|---|---|
-| Dive, Apogee | 15–20 mixed Prompts per document (above); about 25 with `GEMINI_OVERGENERATE`, then `selectPrompts` keeps 15–20 (F17) | checks 1–7, Tiers | 7 |
+| Dive, Apogee | 15–20 mixed Prompts per document (above), as two parallel calls with `GEMINI_SPLIT` (8–10 Open, 7–10 other kinds; F30); about 25 with `GEMINI_OVERGENERATE`, then `selectPrompts` keeps 15–20 (F17) | checks 1–7, Tiers | 7 |
 | Leap | 12–16 `multiple_choice` per document: stem, exactly 4 short options, `correct_option` copied from them, explanation, tier, `evidence_page` + `evidence_quote` for the correct option. Distractors must be plausible and taken from the same notes; no "all/none of the above" | exactly 4 options, distinct up to case and spacing (not `normalize()`, which would merge `O(V + E)` and `O(V * E)`); `correct_option` is one of them (exactly, else up to case/spacing); no all/none-of-the-above; the cited page exists and the quote is verbatim on it (required, else the question is dropped); the stem doesn't name the correct option while naming none of the others; tier defaults to `solid` | 10 |
 | Pairs | 16–24 `definition_to_term` per document, each a different key term: a definition of at most 25 words that never uses the term, the term (1–4 words) with aliases, tier, explanation | Dive's checks for the kind (term on its cited page, quotes, unusable keys), then: definition ≤ 200 characters (it's a card), term ≤ 6 words, the definition doesn't contain the term or an Alias as whole words; across the Game, one Prompt per term (normalized) | 12 |
 | Blitz | 36–45 `true_false` per document, about half false: one short statement (≤ 20 words), `is_true`, explanation (for a false one, the correct fact), tier, `evidence_page` + `evidence_quote`. A false statement changes exactly one detail of a real fact from the notes | statement ≤ 200 characters; the cited page exists and the quote is verbatim on it (required); a "false" statement that appears word for word in its page is dropped; across the Game, the larger side keeps at most 1.5× the smaller (true/false balance) | 30 |
@@ -180,6 +182,7 @@ Planned, in order (each measured with F14's scorecard, which comes first):
 | F15 (#25, done) | Example Prompts from the seed fixture in the instructions, plus "bad → good" pairs (§ Scorecard → F15) | broad Prompts, give-away Hints, steps as Answers, admin Prompts | ~1,100 input tokens |
 | F16 (#26), **done** | Second Gemini call per document: does each quote show its Answer fits the Prompt? Is the Prompt clear, or a duplicate? (§ Verification pass) | mentioned-but-wrong Answers, duplicates | measured +4–7 s, ≈ +$0.006–0.010 per document (flash-lite) |
 | F17 (#27), **done, off by default** | Ask for ~25 Prompts, keep the best 15–20 by code (Answers per Open Prompt, kind and page coverage, near-duplicates, verification) (§ Overgenerate and select) | uneven quality and coverage | measured +17–29 % generation cost, +5–15 % time; behind `GEMINI_OVERGENERATE` |
+| F30 (#64), **done, on by default** | Two parallel calls per document: Open Prompts and every other kind (§ Split generation) | slow generation, too few Open Prompts on informal notes | measured −8 % time, Open 27 → 35, +40–50 % generation tokens; behind `GEMINI_SPLIT` |
 | F18 (#28, stretch) | pgvector on `source_pages`: per Open Prompt, retrieve the related pages and ask for every Answer they support, then merge and re-rank | too few Answers per Open Prompt, weak Rarity | embeddings at upload + one call per Open Prompt |
 
 ### Scorecard (F14)
@@ -374,13 +377,48 @@ Leap, Blitz and Pairs don't overgenerate: their kinds have no Open Answers to ra
 - **Cost and time:** generation +17 % (run 2) to +29 % (run 1, incl. the seed deck's 2×), verification +43 % (more Prompts to judge; still ≈ $0.01 a document), time +6 % (run 1, four decks) and +15 % (run 2, three decks). 3.6-flash's latency swings ±40 s between identical calls (SQL: 65, 70, 120 s), so one run can't pin the time cost down; output tokens grow ~10–40 %.
 - **Why off by default:** a Dive Run draws 7 Prompts, so the usual 14–16 per document already gives two Runs without repeats; overgenerating mostly adds replay variety and page coverage, for ~20 % more cost and some extra latency on an already 60–120 s wait, and run 1 showed it can cost Open Prompts. Turn it on (`GEMINI_OVERGENERATE=on`) for long decks where coverage matters. Replay its numbers for free with `npm run generate:eval -- --from eval/overgenerate --verify-from eval/overgenerate/verify --overgenerate` (run 2, course decks only).
 
+## Split generation (F30)
+
+**Why:** a Game took 60–120 s, almost all of it the one generation call per document. The time is decode, not reading: each call writes ~8–11k thinking tokens and ~4–5k output tokens one after another, and input size doesn't predict it (the 4k-token decks took ~100 s, the 14k-token SQL deck 65 s; § Scorecard). Verification adds 4–8 s. So the call is split into parallel calls that each write part of the Prompts, and a Game waits for the slower one.
+
+**How:** with `GEMINI_SPLIT` on (the default; `off`/`0`/`false`/`no` sends one call), Dive and Apogee send **two calls per document at the same time**, both with every page:
+
+| Call | Asks for | Schema `kind` enum |
+|---|---|---|
+| Open | 8–10 Prompts, all "open" (12–14 when overgenerating) | `["open"]` |
+| Other | 7–10 Prompts using cloze, definition_to_term, ordered_recall and odd_one_out, some of each the material supports (11–13 when overgenerating) | the other four |
+
+Both get Dive's full instructions; only the PROMPT KINDS line changes (`gameOpenSystemInstruction` / `gameOtherSystemInstruction` in `lib/gemini/game-prompt.ts`, built by the same `gameInstruction(task)` as the single call, whose text and version `a6b826d6` are unchanged). Splitting **by kind, not by pages**, keeps Open Prompts' Answers coming from the whole deck (pages split in half would mean fewer Answers per Open Prompt), and the schema enum keeps each call to its own kinds. The two `prompts` arrays are joined (`joinResponses`) and everything after it is unchanged: the Mode's checks, check 7, verification, selection.
+
+**Failure:** each call has the usual retries and fallback. If one call still fails, the other's Prompts are kept and `generateGame` logs `one of 2 calls failed, keeping the others' Prompts`; the Game fails only when both fail (the usual generator message) or too few Prompts survive.
+
+**Code:** `ModeGenerator.split?: GenerationRequest[]` and `overgenerate.split?` (`lib/modes/generation.ts`); `generationPlan(generator, { overgenerate, split })` picks the requests; `generateSplit(requests, call)` runs them with `Promise.allSettled`. Leap, Pairs and Blitz have no `split` hook yet and send one call. Their items are single facts tied to one page, so splitting their pages in two would be the natural way to add one. `generateGame`'s `split` option overrides the env; with a fake `generate` (tests) it defaults to off. `generate:eval --split` and `generate:check --split` send the split calls; their saved `run` has the wall time, summed usage and cost, and each call in `run.parts`.
+
+### Measurements (2026-10-04)
+
+**3.6-flash was unavailable** during the test window (503 "high demand" on every full-size request for over 30 minutes, while tiny requests still answered), so the comparison ran on **`gemini-3.5-flash`**, which has the same profile (7–12k thinking + 3–4k output tokens and 40–55 s per deck). Single and split ran **at the same time** for each deck (so both met the same load), no fallback, flash-lite verification. Replay with `npm run generate:eval -- --split --from eval/split --verify-from eval/split/verify` (split, prompt version `3ca5331d`) and `npm run generate:eval -- --from eval/split/single --verify-from eval/split/single/verify` (single).
+
+| Deck | Seconds: single → split (Open call / other call) | Thinking tokens: single → Open call + other call | Output tokens | Kept | Open | Ans/Open | Quotes ok |
+|---|---|---|---|---|---|---|---|
+| seed-graph-algorithms (12 p) | 54 → **42** (42 / 20) | 12.0k → 11.0k + 4.6k | 4.3k → 2.0k + 1.1k | 16 → 17 | 8 → 8 | 4.3 → 4.5 | 89% → 100% |
+| cmpt354-sql-basics (94 p) | 39 → **42** (42 / 22) | 7.3k → 9.6k + 4.2k | 3.1k → 2.0k + 1.4k | 16 → 17 | 8 → 9 | 5.6 → 5.1 | 100% → 100% |
+| cmpt225-avl-trees (73 p) | 50 → **45** (45 / 22) | 10.3k → 10.5k + 4.3k | 4.1k → 2.0k + 1.7k | 16 → 16 | 8 → 9 | 4.6 → 4.9 | 100% → 94% |
+| ml-midterm-notes (3 p) | 40 → **40** (40 / 16) | 9.4k → 10.6k + 3.3k | 3.4k → 2.1k + 1.4k | 15 → 17 | 3 → 9 | 6.0 → 5.4 | 96% → 92% |
+| **Total** | **183 → 169 (−8 %)** | 39k → 58k (+49 %) | 14.9k → 13.7k | **63 → 67** | **27 → 35** | 5.0 → 5.0 | 97% → 96% |
+
+- **Time:** only −8 %. Splitting halves the output, but **the Open call thinks as much as the whole single call** (9.6–11k thinking tokens): the model's thinking doesn't shrink with fewer Prompts to write, and thinking is most of the time. The other-kinds call finishes in 16–22 s.
+- **Quality:** more Open Prompts (27 → 35; the informal ML notes 3 → 9, because the Open call can't fall back on single-answer kinds), the same Answers per Open Prompt, quotes within noise. The verifier removed one Prompt (0 before).
+- **Cost:** ≈ +40–50 % generation tokens (thinking +49 %, input ×2), roughly +$0.02–0.03 per document at 3.6-flash prices. Verification ≈ +$0.001.
+- **Thinking level is not the lever we use:** `thinkingLevel: "low"` took 10–11 s but returned 1–2 Open Prompts per deck (as in F04), and `"medium"` took about as long as the default. Thinking stays at the default.
+- **Default on** (product decision): more Open Prompts and a small speed gain are worth the extra tokens, and a 503 on one call no longer fails the document (the other's Prompts are kept). `GEMINI_SPLIT=off` restores one call.
+
 ## Code layout
 
 | File | Responsibility |
 |---|---|
 | `app/api/modules/[moduleId]/games/route.ts` | POST create Game, GET list the Module's Games |
 | `app/api/games/[gameId]/route.ts` | GET status/details, DELETE |
-| `lib/gemini.ts`, `lib/gemini/game-prompt.ts` | Client (`generateDocumentPrompts(title, pages, request?)`) and Dive's instructions |
+| `lib/gemini.ts`, `lib/gemini/game-prompt.ts` | Client (`generateDocumentPrompts(title, pages, request?)`, the retry/fallback policy `withFallback` + `failureKind`, F31) and Dive's instructions |
 | `lib/games/generate-game.ts` | `generateGame` steps a–f, for every Mode |
 | `lib/games/validate.ts` | Dive's zod schema + checks 1–7 (pure; shared checks 1–3 and 7, Dive's 4–6 + Tiers) |
 | `lib/modes/generation.ts`, `lib/modes/generators.ts` | `ModeGenerator`, shared checks (`quoteOnPage`, …), `generatorFor(mode)` |
@@ -393,6 +431,7 @@ Leap, Blitz and Pairs don't overgenerate: their kinds have no Open Answers to ra
 | `lib/games/scorecard.ts`, `lib/gemini/pricing.ts` | `scoreDocument` (optionally with saved verdicts), `formatScorecardTable`; Gemini price constants and `estimateCostUsd` (scripts only) |
 | `lib/gemini/verify.ts` | The verification call (F16): instructions, schema, `geminiVerifyCall`, `verificationEnabled()` (`GEMINI_VERIFY`), `verifyModels()` |
 | `lib/games/verify.ts` | Pure verification logic: `verificationInput`, `applyVerdicts` (drops, check 4 + Tiers again, per-Prompt `statuses`), `verifyDocument` (never throws) |
+| `lib/modes/generation.ts` (F30 part) | `splitEnabled()` (`GEMINI_SPLIT`), `generationPlan`, `generateSplit`, `joinResponses`; Dive's split requests are `diveSplitRequests(counts)` in `lib/modes/dive/generate.ts` |
 | `lib/games/select.ts` | F17: `selectPrompts` (keep the best 15–20 per document), `quality`, `textSimilarity`, `answerOverlap`; `overgenerateEnabled()` (`GEMINI_OVERGENERATE`) is in `lib/modes/generation.ts` |
 | `eval/overgenerate/` | F17 run 2 (overgenerate prompt `f6987a82`, course decks) and its verdicts |
 | `eval/verify/`, `eval/planted/` | Saved verifications of `eval/responses/`; the planted-errors response and its verification (§ Verification pass) |

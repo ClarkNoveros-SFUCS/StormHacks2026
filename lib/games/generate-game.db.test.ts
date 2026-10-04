@@ -82,7 +82,8 @@ describe("generateGame", () => {
         .filter((a) => graph.answers!.some((g) => g.canonical === a.canonical) && a.rarity_rank !== null)
         .sort((a, b) => a.rarity_rank - b.rarity_rank);
       expect(graphAnswers.at(-1)!.tier).toBe("rare");
-      expect(answers.find((a) => a.canonical === "BFS")).toMatchObject({ exact_only: true, page_number: 2 });
+      // An Open Prompt's BFS (odd_one_out's "BFS" option is stored exact_only false; rows come in no order)
+      expect(answers.find((a) => a.canonical === "BFS" && a.rarity_rank !== null)).toMatchObject({ exact_only: true, page_number: 2 });
 
       const keys = await tx`
         select k.normalized, a.canonical from answer_keys k join answers a on a.id = k.answer_id
@@ -192,6 +193,53 @@ describe("generateGame", () => {
       });
       expect(requests[0]).toMatch(/Write 15-20 Prompts/);
       expect(result).toEqual({ status: "ready", promptCount: 12, dropped: 0 });
+    }));
+
+  // ---- Split generation (F30) ----
+  it("split: sends Dive's two calls per document and stores both calls' Prompts", () =>
+    withFixture(async ({ tx, gameId }) => {
+      const open = fixture.game.prompts.filter((p) => p.kind === "open");
+      const other = fixture.game.prompts.filter((p) => p.kind !== "open");
+      const asked: string[] = [];
+      const result = await generateGame(gameId, {
+        db: tx,
+        split: true,
+        generate: async (_title, pages, request) => {
+          const text = request.contents("deck", pages);
+          asked.push(text.slice(text.lastIndexOf("\n") + 1));
+          return { response: { prompts: /Write [0-9-]+ "open"/.test(text) ? open : other } };
+        },
+      });
+      expect(asked.sort()).toEqual([
+        'Write 7-10 non-"open" Prompts for this document following your instructions.',
+        'Write 8-10 "open" Prompts for this document following your instructions.',
+      ]);
+      expect(result).toEqual({ status: "ready", promptCount: 12, dropped: 0 });
+    }));
+
+  it("split: one failed call keeps the other call's Prompts", () =>
+    withFixture(async ({ tx, gameId }) => {
+      const result = await generateGame(gameId, {
+        db: tx,
+        split: true,
+        generate: async (_title, pages, request) => {
+          if (/Write [0-9-]+ "open"/.test(request.contents("deck", pages))) throw new GeminiError("503 high demand");
+          return { response: { prompts: fixture.game.prompts } };
+        },
+      });
+      expect(result).toEqual({ status: "ready", promptCount: 12, dropped: 0 });
+    }));
+
+  it("split: every call failing fails the Game with the generator message", () =>
+    withFixture(async ({ tx, gameId }) => {
+      const result = await generateGame(gameId, {
+        db: tx,
+        split: true,
+        generate: async () => {
+          throw new GeminiError("503 high demand");
+        },
+      });
+      expect(result).toEqual({ status: "failed", error: "We couldn't reach the question generator. Delete this Game and try again" });
     }));
 
   // ---- Other Modes (F20): the Mode picks the Gemini request, the checks and the minimum ----

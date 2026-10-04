@@ -1,0 +1,591 @@
+{
+  "deck": "cmpt354-sql-basics",
+  "createdAt": "2026-10-04T14:34:08.085Z",
+  "promptVersion": "a6b826d6",
+  "run": {
+    "model": "gemini-3.5-flash",
+    "seconds": 38.726,
+    "usage": {
+      "inputTokens": 14026,
+      "outputTokens": 3089,
+      "thinkingTokens": 7317
+    },
+    "costUsd": null
+  },
+  "response": {
+    "prompts": [
+      {
+        "kind": "open",
+        "text": "Name a primitive SQL data type.",
+        "answers": [
+          {
+            "canonical": "INT",
+            "aliases": [
+              "INTEGER",
+              "SHORTINT"
+            ],
+            "exact_only": true,
+            "evidence_page": 3,
+            "evidence_quote": "Integer (INT, INTEGER, SHORTINT)"
+          },
+          {
+            "canonical": "VARCHAR",
+            "aliases": [
+              "VARCHAR(n)"
+            ],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "varying Length (CHAR(n), VARCHAR(n))"
+          },
+          {
+            "canonical": "CHAR",
+            "aliases": [
+              "CHAR(n)"
+            ],
+            "exact_only": true,
+            "evidence_page": 3,
+            "evidence_quote": "fixed or varying Length (CHAR(n), VARCHAR(n))"
+          },
+          {
+            "canonical": "BOOLEAN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Boolean (BOOLEAN)"
+          },
+          {
+            "canonical": "FLOAT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          },
+          {
+            "canonical": "REAL",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          },
+          {
+            "canonical": "DOUBLE PRECISION",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          },
+          {
+            "canonical": "DECIMAL",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          },
+          {
+            "canonical": "NUMERIC",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          },
+          {
+            "canonical": "DATE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Date and Time (DATE, TIME)"
+          },
+          {
+            "canonical": "TIME",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 3,
+            "evidence_quote": "Date and Time (DATE, TIME)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an SQL set operation.",
+        "answers": [
+          {
+            "canonical": "UNION",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "Called UNION, INTERSECT, and EXCEPT"
+          },
+          {
+            "canonical": "INTERSECT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "Called UNION, INTERSECT, and EXCEPT"
+          },
+          {
+            "canonical": "EXCEPT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "Called UNION, INTERSECT, and EXCEPT"
+          },
+          {
+            "canonical": "MINUS",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "May be implemented as MINUS"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a type of join supported in SQL.",
+        "answers": [
+          {
+            "canonical": "INNER JOIN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 71,
+            "evidence_quote": "Students INNER JOIN Enrolled ON sid = stid;"
+          },
+          {
+            "canonical": "LEFT OUTER JOIN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 71,
+            "evidence_quote": "Students LEFT OUTER JOIN Enrolled ON sid = stid;"
+          },
+          {
+            "canonical": "RIGHT OUTER JOIN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 71,
+            "evidence_quote": "Students RIGHT OUTER JOIN Enrolled ON sid = stid;"
+          },
+          {
+            "canonical": "FULL OUTER JOIN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 71,
+            "evidence_quote": "Students FULL OUTER JOIN Enrolled ON sid = stid;"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a standard SQL aggregation function.",
+        "answers": [
+          {
+            "canonical": "COUNT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          },
+          {
+            "canonical": "SUM",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          },
+          {
+            "canonical": "AVG",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          },
+          {
+            "canonical": "MAX",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          },
+          {
+            "canonical": "MIN",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a comparison operator or keyword used in SQL conditions involving relations.",
+        "answers": [
+          {
+            "canonical": "IN",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 89,
+            "evidence_quote": "IN\nNOT IN\nEXISTS\nNOT EXISTS\nANY\nALL"
+          },
+          {
+            "canonical": "NOT IN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 89,
+            "evidence_quote": "IN\nNOT IN\nEXISTS\nNOT EXISTS\nANY\nALL"
+          },
+          {
+            "canonical": "EXISTS",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 89,
+            "evidence_quote": "IN\nNOT IN\nEXISTS\nNOT EXISTS\nANY\nALL"
+          },
+          {
+            "canonical": "NOT EXISTS",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 89,
+            "evidence_quote": "IN\nNOT IN\nEXISTS\nNOT EXISTS\nANY\nALL"
+          },
+          {
+            "canonical": "ANY",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 89,
+            "evidence_quote": "IN\nNOT IN\nEXISTS\nNOT EXISTS\nANY\nALL"
+          },
+          {
+            "canonical": "ALL",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 89,
+            "evidence_quote": "IN\nNOT IN\nEXISTS\nNOT EXISTS\nANY\nALL"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an option for handling foreign key delete operations.",
+        "answers": [
+          {
+            "canonical": "ON DELETE RESTRICT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 43,
+            "evidence_quote": "ON DELETE RESTRICT"
+          },
+          {
+            "canonical": "ON DELETE CASCADE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 43,
+            "evidence_quote": "ON DELETE CASCADE"
+          },
+          {
+            "canonical": "ON DELETE SET NULL",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 43,
+            "evidence_quote": "ON DELETE SET NULL"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a name from the pattern matching example that matches the pattern 'Sm_t%'.",
+        "answers": [
+          {
+            "canonical": "Smit",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 30,
+            "evidence_quote": "1. Smit"
+          },
+          {
+            "canonical": "Smith",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 30,
+            "evidence_quote": "4. Smith"
+          },
+          {
+            "canonical": "Smythe",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 30,
+            "evidence_quote": "5. Smythe"
+          },
+          {
+            "canonical": "Smut",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 30,
+            "evidence_quote": "6. Smut"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an attribute of the Students sample table.",
+        "answers": [
+          {
+            "canonical": "sid",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 15,
+            "evidence_quote": "sid | name | school | age | gpa"
+          },
+          {
+            "canonical": "name",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 15,
+            "evidence_quote": "sid | name | school | age | gpa"
+          },
+          {
+            "canonical": "school",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 15,
+            "evidence_quote": "sid | name | school | age | gpa"
+          },
+          {
+            "canonical": "age",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 15,
+            "evidence_quote": "sid | name | school | age | gpa"
+          },
+          {
+            "canonical": "gpa",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 15,
+            "evidence_quote": "sid | name | school | age | gpa"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an attribute of the Movies table schema.",
+        "answers": [
+          {
+            "canonical": "title",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 88,
+            "evidence_quote": "Movies(title, year, length, genre, studioName, producerCNum)"
+          },
+          {
+            "canonical": "year",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 88,
+            "evidence_quote": "Movies(title, year, length, genre, studioName, producerCNum)"
+          },
+          {
+            "canonical": "length",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 88,
+            "evidence_quote": "Movies(title, year, length, genre, studioName, producerCNum)"
+          },
+          {
+            "canonical": "genre",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 88,
+            "evidence_quote": "Movies(title, year, length, genre, studioName, producerCNum)"
+          },
+          {
+            "canonical": "studioName",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 88,
+            "evidence_quote": "Movies(title, year, length, genre, studioName, producerCNum)"
+          },
+          {
+            "canonical": "producerCNum",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 88,
+            "evidence_quote": "Movies(title, year, length, genre, studioName, producerCNum)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "cloze",
+        "text": "Like DELETE, the ______ clause specifies which records are to be updated.",
+        "answers": [
+          {
+            "canonical": "WHERE",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 12,
+            "evidence_quote": "Like DELETE the WHERE clause specifies which records are to be updated"
+          }
+        ],
+        "tier": "common",
+        "hint": "It is the conditional clause in an SFW query.",
+        "explanation": "The WHERE clause filters which rows are affected by both DELETE and UPDATE statements."
+      },
+      {
+        "kind": "cloze",
+        "text": "In three-valued logic, comparisons with nulls evaluate to ______.",
+        "answers": [
+          {
+            "canonical": "UNKNOWN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 33,
+            "evidence_quote": "Comparisons with nulls evaluate to UNKNOWN"
+          }
+        ],
+        "tier": "solid",
+        "hint": "It is neither true nor false.",
+        "explanation": "Any comparison involving a NULL value results in an UNKNOWN truth value."
+      },
+      {
+        "kind": "cloze",
+        "text": "The result of a WHERE clause is treated as FALSE if it evaluates to ______.",
+        "answers": [
+          {
+            "canonical": "UNKNOWN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 36,
+            "evidence_quote": "The result of a WHERE clause is treated as FALSE if it evaluates to UNKNOWN"
+          }
+        ],
+        "tier": "solid",
+        "hint": "This is the third truth value in SQL besides true and false.",
+        "explanation": "If a row's WHERE condition evaluates to UNKNOWN, it is filtered out just as if it were FALSE."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "The sublanguage of SQL used for declaring database schemas.",
+        "answers": [
+          {
+            "canonical": "DDL",
+            "aliases": [
+              "Data Definition Language"
+            ],
+            "exact_only": true,
+            "evidence_page": 2,
+            "evidence_quote": "Data Definition Language (DDL)\nThe Data-Definition sublanguage for declaring database schemas"
+          }
+        ],
+        "tier": "common",
+        "hint": "It is often abbreviated as a three-letter acronym starting with D.",
+        "explanation": "Data Definition Language (DDL) is used to define and modify database structures such as tables."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "The sublanguage of SQL used for querying databases and modifying the database.",
+        "answers": [
+          {
+            "canonical": "DML",
+            "aliases": [
+              "Data Manipulation Language"
+            ],
+            "exact_only": true,
+            "evidence_page": 2,
+            "evidence_quote": "Data Manipulation Language (DML)\nThe Data-Manipulation sublanguage for querying databases and for modifying the database"
+          }
+        ],
+        "tier": "common",
+        "hint": "It is often abbreviated as a three-letter acronym ending with ML.",
+        "explanation": "Data Manipulation Language (DML) handles querying and modifying data within the database."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "The join interpretation semantics where we evaluate a join condition using one loop inside another.",
+        "answers": [
+          {
+            "canonical": "nested loop semantics",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 56,
+            "evidence_quote": "This is called nested loop semantics since we are interpreting what a join means using a nested loop"
+          }
+        ],
+        "tier": "solid",
+        "hint": "It is named after a programming construct where one loop is placed inside another.",
+        "explanation": "Nested loop semantics describe how a join is conceptually processed by iterating through every pair of tuples."
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of evaluating a query with a HAVING clause in order.",
+        "answers": [],
+        "tier": "deep",
+        "hint": "The evaluation begins by combining the tables specified in the FROM clause.",
+        "explanation": "SQL evaluates the FROM and WHERE clauses first, then groups the records, applies the HAVING filter, and finally projects the SELECT columns.",
+        "items": [
+          "Create the cross product of the tables in the FROM clause",
+          "Remove rows not meeting the WHERE condition",
+          "Divide records into groups by the GROUP BY clause",
+          "Remove groups not meeting the HAVING clause",
+          "Create one row for each group and remove columns not in the SELECT clause"
+        ],
+        "evidence_page": 82
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which of the following is NOT a set operation in SQL?",
+        "answers": [],
+        "tier": "common",
+        "hint": "Three of these are mathematical set operations, while one is a relational operation used to combine tables based on a condition.",
+        "explanation": "UNION, INTERSECT, and EXCEPT are standard SQL set operations, whereas JOIN is a relational operation.",
+        "options": [
+          "UNION",
+          "INTERSECT",
+          "EXCEPT",
+          "JOIN"
+        ],
+        "correct_option": "JOIN",
+        "evidence_page": 59
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which of the following is NOT a valid option for handling foreign key delete operations?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Look for the option that is not listed among the three standard foreign key delete behaviors in the text.",
+        "explanation": "The three options for foreign key delete operations are RESTRICT, CASCADE, and SET NULL.",
+        "options": [
+          "ON DELETE RESTRICT",
+          "ON DELETE CASCADE",
+          "ON DELETE SET NULL",
+          "ON DELETE DEFAULT"
+        ],
+        "correct_option": "ON DELETE DEFAULT",
+        "evidence_page": 43
+      }
+    ]
+  }
+}

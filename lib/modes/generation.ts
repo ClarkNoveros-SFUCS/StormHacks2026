@@ -34,6 +34,11 @@ export type Tagged<D> = { doc: D; prompt: GeneratedPrompt };
 export type ModeGenerator = {
   /** The Gemini call for one Source Document. */
   request: GenerationRequest;
+  /**
+   * F30: the same Prompts as `request`, written by several calls sent in parallel (each writes
+   * part of them), joined before the checks. Used when GEMINI_SPLIT is on.
+   */
+  split?: GenerationRequest[];
   /** Fewer Prompts than this after every check → the Game fails. */
   minPrompts: number;
   /** Per-document checks on Gemini's response (drop what fails, never throw). */
@@ -48,6 +53,8 @@ export type ModeGenerator = {
    */
   overgenerate?: {
     request: GenerationRequest;
+    /** F30: `request` split into parallel calls, as `split` above. */
+    split?: GenerationRequest[];
     select(prompts: GeneratedPrompt[], verification?: VerifyStatus[]): { prompts: GeneratedPrompt[]; dropped: Drop[] };
   };
 };
@@ -58,6 +65,52 @@ export type ModeGenerator = {
  */
 export function overgenerateEnabled(): boolean {
   return /^(on|1|true|yes)$/i.test(process.env.GEMINI_OVERGENERATE?.trim() ?? "");
+}
+
+/**
+ * F30: split each document's call into the Mode's parallel calls (Modes with `split`). On by
+ * default; GEMINI_SPLIT=off (or 0/false/no) sends one call per document.
+ */
+export function splitEnabled(): boolean {
+  return !/^(off|0|false|no)$/i.test(process.env.GEMINI_SPLIT?.trim() ?? "");
+}
+
+/** The Gemini calls for one document, and F17's selection when overgenerating. */
+export function generationPlan(generator: ModeGenerator, { overgenerate = false, split = false } = {}) {
+  const over = overgenerate ? (generator.overgenerate ?? null) : null;
+  const single = over?.request ?? generator.request;
+  const parts = split ? (over ? over.split : generator.split) : undefined;
+  return { requests: parts?.length ? parts : [single], select: over?.select ?? null };
+}
+
+/** One response holding every response's `prompts`, in order (the checks drop anything malformed). */
+export function joinResponses(responses: unknown[]): { prompts: unknown[] } {
+  return {
+    prompts: responses.flatMap((r) => {
+      const prompts = (r as { prompts?: unknown } | null)?.prompts;
+      return Array.isArray(prompts) ? prompts : [];
+    }),
+  };
+}
+
+/**
+ * Sends a document's calls in parallel and joins their Prompts. One request is passed through
+ * untouched. When some of several calls fail, the others' Prompts are kept (`failed` says why);
+ * it throws only when every call failed.
+ */
+export async function generateSplit<R extends { response: unknown }>(
+  requests: GenerationRequest[],
+  call: (request: GenerationRequest) => Promise<R>,
+): Promise<{ response: unknown; parts: R[]; failed: unknown[] }> {
+  if (requests.length === 1) {
+    const out = await call(requests[0]);
+    return { response: out.response, parts: [out], failed: [] };
+  }
+  const settled = await Promise.allSettled(requests.map(call));
+  const parts = settled.flatMap((s) => (s.status === "fulfilled" ? [s.value] : []));
+  const failed = settled.flatMap((s) => (s.status === "rejected" ? [s.reason] : []));
+  if (!parts.length) throw failed[0];
+  return { response: joinResponses(parts.map((p) => p.response)), parts, failed };
 }
 
 export function notEnoughFor(modeName: string, what: string, min: number) {

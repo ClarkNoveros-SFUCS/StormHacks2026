@@ -1,0 +1,359 @@
+{
+  "deck": "seed-graph-algorithms",
+  "createdAt": "2026-10-04T14:33:28.686Z",
+  "verifyVersion": "28c4606d",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 5.333,
+    "usage": {
+      "inputTokens": 5539,
+      "outputTokens": 2275,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.0073492
+  },
+  "prompts": [
+    "Name an algorithm used to find a minimum spanning tree.",
+    "Name an algorithm used to find shortest paths.",
+    "Name a graph algorithm with a running time of O(V + E).",
+    "Name a graph algorithm that uses a queue or stack in its standard implementation.",
+    "Name a property that graph edges can have.",
+    "Name a graph algorithm that has a running time containing a logarithm in its standard complexity.",
+    "Name a type of graph.",
+    "Name a major topic or problem in graph algorithms.",
+    "Kruskal's algorithm uses ______ to check whether an edge would create a cycle.",
+    "On an unweighted graph, ______ finds the shortest path from the source to every vertex.",
+    "What is the term for a directed graph that contains no cycles?",
+    "What is the term for a maximal set of vertices in a directed graph where every vertex can reach every other vertex?",
+    "Put the steps of Kruskal's algorithm in order.",
+    "Put the steps of Dijkstra's algorithm in order.",
+    "Which of the following algorithms does not find a minimum spanning tree?",
+    "Which of the following algorithms has a different asymptotic running time complexity from the other three?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "Kruskal is listed as an MST algorithm.",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "Prim is listed as an MST algorithm.",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "Boruvka is an MST algorithm.",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "Reverse-delete builds MSTs.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "Dijkstra finds shortest paths.",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "BFS finds shortest paths.",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "Bellman-Ford finds shortest paths.",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "Floyd-Warshall finds shortest paths.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "BFS runs in O(V + E).",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "DFS runs in O(V + E).",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "Topological sort runs in O(V + E).",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "Kosaraju runs in O(V + E).",
+            "supports": true
+          },
+          {
+            "id": "P3.A5",
+            "reason": "Tarjan runs in O(V + E).",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "BFS uses a queue.",
+            "supports": true
+          },
+          {
+            "id": "P4.A2",
+            "reason": "DFS uses a stack.",
+            "supports": true
+          },
+          {
+            "id": "P4.A3",
+            "reason": "Dijkstra uses a priority queue.",
+            "supports": true
+          },
+          {
+            "id": "P4.A4",
+            "reason": "Tarjan uses a stack.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "Edges can be directed.",
+            "supports": true
+          },
+          {
+            "id": "P5.A2",
+            "reason": "Edges can be undirected.",
+            "supports": true
+          },
+          {
+            "id": "P5.A3",
+            "reason": "Edges can be weighted.",
+            "supports": true
+          },
+          {
+            "id": "P5.A4",
+            "reason": "Edges can be unweighted.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "Dijkstra has O((V + E) log V) time.",
+            "supports": true
+          },
+          {
+            "id": "P6.A2",
+            "reason": "Kruskal has log V in its running time.",
+            "supports": true
+          },
+          {
+            "id": "P6.A3",
+            "reason": "Prim has log V in its running time.",
+            "supports": true
+          },
+          {
+            "id": "P6.A4",
+            "reason": "Boruvka has log V in its running time.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "DAG is a type of graph.",
+            "supports": true
+          },
+          {
+            "id": "P7.A2",
+            "reason": "Bipartite graph is a type of graph.",
+            "supports": true
+          },
+          {
+            "id": "P7.A3",
+            "reason": "Directed graph is a type of graph.",
+            "supports": true
+          },
+          {
+            "id": "P7.A4",
+            "reason": "Undirected graph is a type of graph.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "Shortest paths is a major topic.",
+            "supports": true
+          },
+          {
+            "id": "P8.A2",
+            "reason": "Minimum spanning trees is a major topic.",
+            "supports": true
+          },
+          {
+            "id": "P8.A3",
+            "reason": "Strongly connected components is a major topic.",
+            "supports": true
+          },
+          {
+            "id": "P8.A4",
+            "reason": "Traversals is a major topic.",
+            "supports": true
+          },
+          {
+            "id": "P8.A5",
+            "reason": "Matching is a major topic.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "Kruskal uses union-find.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "BFS finds shortest paths on unweighted graphs.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "DAG is a directed graph with no cycles.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "This is the definition of an SCC.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "The listed items match page 8 steps.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "The listed items match page 5 steps.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P15",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P15.A1",
+            "reason": "Dijkstra is not an MST algorithm.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P16",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P16.A1",
+            "reason": "Bellman-Ford is O(V*E) while the others are O(V+E).",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}

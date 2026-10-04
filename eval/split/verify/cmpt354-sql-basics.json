@@ -1,0 +1,427 @@
+{
+  "deck": "cmpt354-sql-basics",
+  "createdAt": "2026-10-04T14:34:17.999Z",
+  "verifyVersion": "28c4606d",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 6.543,
+    "usage": {
+      "inputTokens": 6102,
+      "outputTokens": 2798,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.008825600000000001
+  },
+  "prompts": [
+    "Name a primitive SQL data type",
+    "Name a primitive floating-point data type in SQL",
+    "Name an SQL set operation",
+    "Name an SQL simple aggregation function",
+    "Name a type of SQL join",
+    "Name an SQL keyword used for conditions involving relations in subqueries",
+    "Name an SQL statement used to manage tables and data",
+    "Name a clause in an SQL query",
+    "Name a type of subquery that can appear in a WHERE clause",
+    "Put the steps of evaluating a query containing GROUP BY and HAVING clauses in the correct order.",
+    "What is the term for interpreting the meaning of a join by iterating through each tuple of the first relation and checking if each tuple of the second relation satisfies the join condition?",
+    "When modifying records, the ______ statement is evaluated before the SET statement.",
+    "Which of the following is NOT one of the three standard set operations in SQL?",
+    "Unlike other SQL operations, set operation queries eliminate ______ by default.",
+    "What term describes two tables that have the same number of attributes with matching data types, making them eligible for set operations?",
+    "In SQL, comparisons with nulls evaluate to ______.",
+    "Which of the following SQL data types is NOT categorized as a floating-point type?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "Page 3 lists INT under integer types",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "Page 3 lists CHAR under character string types",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "Page 3 lists FLOAT under floating-point types",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "Page 3 lists BOOLEAN under boolean types",
+            "supports": true
+          },
+          {
+            "id": "P1.A5",
+            "reason": "Page 3 lists DATE under date and time types",
+            "supports": true
+          },
+          {
+            "id": "P1.A6",
+            "reason": "Page 3 lists TIME under date and time types",
+            "supports": true
+          },
+          {
+            "id": "P1.A7",
+            "reason": "Page 3 lists BIT VARYING under bit strings",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "Page 3 lists FLOAT as floating-point",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "Page 3 lists REAL as floating-point",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "Page 3 lists DOUBLE PRECISION as floating-point",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "Page 3 lists DECIMAL as floating-point",
+            "supports": true
+          },
+          {
+            "id": "P2.A5",
+            "reason": "Page 3 lists NUMERIC as floating-point",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "Page 59 names UNION",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "Page 59 names INTERSECT",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "Page 59 names EXCEPT",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "Page 59 mentions MINUS as implementation",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "Page 73 lists COUNT",
+            "supports": true
+          },
+          {
+            "id": "P4.A2",
+            "reason": "Page 73 lists SUM",
+            "supports": true
+          },
+          {
+            "id": "P4.A3",
+            "reason": "Page 73 lists AVG",
+            "supports": true
+          },
+          {
+            "id": "P4.A4",
+            "reason": "Page 73 lists MAX",
+            "supports": true
+          },
+          {
+            "id": "P4.A5",
+            "reason": "Page 73 lists MIN",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "Page 71 shows INNER JOIN",
+            "supports": true
+          },
+          {
+            "id": "P5.A2",
+            "reason": "Page 71 shows LEFT OUTER JOIN",
+            "supports": true
+          },
+          {
+            "id": "P5.A3",
+            "reason": "Page 71 shows RIGHT OUTER JOIN",
+            "supports": true
+          },
+          {
+            "id": "P5.A4",
+            "reason": "Page 71 shows FULL OUTER JOIN",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "Page 90 lists IN",
+            "supports": true
+          },
+          {
+            "id": "P6.A2",
+            "reason": "Page 90 lists NOT IN",
+            "supports": true
+          },
+          {
+            "id": "P6.A3",
+            "reason": "Page 90 lists EXISTS",
+            "supports": true
+          },
+          {
+            "id": "P6.A4",
+            "reason": "Page 89 lists NOT EXISTS",
+            "supports": true
+          },
+          {
+            "id": "P6.A5",
+            "reason": "Page 90 lists ANY",
+            "supports": true
+          },
+          {
+            "id": "P6.A6",
+            "reason": "Page 90 lists ALL",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "Page 5 mentions CREATE TABLE",
+            "supports": true
+          },
+          {
+            "id": "P7.A2",
+            "reason": "Page 6 mentions ALTER TABLE",
+            "supports": true
+          },
+          {
+            "id": "P7.A3",
+            "reason": "Page 6 mentions DROP TABLE",
+            "supports": true
+          },
+          {
+            "id": "P7.A4",
+            "reason": "Page 11 mentions INSERT",
+            "supports": true
+          },
+          {
+            "id": "P7.A5",
+            "reason": "Page 12 mentions UPDATE",
+            "supports": true
+          },
+          {
+            "id": "P7.A6",
+            "reason": "Page 13 mentions DELETE",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "Page 78 mentions SELECT clause",
+            "supports": true
+          },
+          {
+            "id": "P8.A2",
+            "reason": "Page 78 mentions FROM clause",
+            "supports": true
+          },
+          {
+            "id": "P8.A3",
+            "reason": "Page 78 mentions WHERE clause",
+            "supports": true
+          },
+          {
+            "id": "P8.A4",
+            "reason": "Page 82 mentions GROUP BY clause",
+            "supports": true
+          },
+          {
+            "id": "P8.A5",
+            "reason": "Page 80 mentions HAVING clause",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "Page 86 lists scalar subqueries",
+            "supports": true
+          },
+          {
+            "id": "P9.A2",
+            "reason": "Page 86 lists conditions involving relations",
+            "supports": true
+          },
+          {
+            "id": "P9.A3",
+            "reason": "Page 86 lists conditions involving tuples",
+            "supports": true
+          },
+          {
+            "id": "P9.A4",
+            "reason": "Page 86 lists correlated subqueries",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "Page 82 lists the evaluation order",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "Page 56 defines nested loop semantics",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "Page 12 states WHERE is evaluated before SET",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "Page 71 shows INNER JOIN as a join, not a set operation",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "Page 67 states queries eliminate duplicates by default",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P15",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P15.A1",
+            "reason": "Page 59 defines union compatible",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P16",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P16.A1",
+            "reason": "Page 33 states comparisons with nulls evaluate to UNKNOWN",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P17",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P17.A1",
+            "reason": "Page 3 categorizes SHORTINT as integer, not floating-point",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}

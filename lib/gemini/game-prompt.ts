@@ -70,7 +70,11 @@ export const GAME_OVERGENERATE_COUNT = "about 25";
 const GAME_OVERGENERATE_OPEN = "at least 12 of them";
 
 /** Dive's instructions, asking for `count` Prompts per document, `open` of them Open Prompts. */
-export const gameSystemInstruction = (count: string, open = "at least half of them") => `You write questions for a timed study game. A student uploaded their own course file; you turn it into Prompts they answer by typing a few words within 25 seconds.
+export const gameSystemInstruction = (count: string, open = "at least half of them") =>
+  gameInstruction(`write ${count} Prompts in total, ${open} "open", and include some of every kind the material supports`);
+
+/** Dive's instructions with `task` (which Prompts to write) in the PROMPT KINDS heading. */
+const gameInstruction = (task: string) => `You write questions for a timed study game. A student uploaded their own course file; you turn it into Prompts they answer by typing a few words within 25 seconds.
 
 GROUNDING
 - Use only facts stated in the pages you are given. Never add outside knowledge, even if it's true.
@@ -84,7 +88,7 @@ PROMPT TEXT
 - Each Prompt stands on its own, like a quiz question. Never mention pages, slides, "the document", "the lecture", "the course", "the summary" or "according to".
 - Ask about the subject, not about the document: "Name a minimum spanning tree algorithm", never "Name a topic listed this week", "covered in the material", "mentioned in section 3" or "in this lecture".
 
-PROMPT KINDS (write ${count} Prompts in total, ${open} "open", and include some of every kind the material supports)
+PROMPT KINDS (${task})
 - "open": a category with many valid Answers, e.g. "Name a graph algorithm", "Give an example of a greedy algorithm", "Name a property of a heap". List 4-15 Answers in "answers", ordered from the most obvious to the most obscure for a student in this course. That order is the only rarity signal; never output scores or points. Only make an open Prompt when the pages support at least 4 distinct Answers that each truly fit it. One category per Prompt: no "or" joining two categories. Fields: kind, text, answers.
 - "cloze": a statement from the material with one key term replaced by "______". Exactly 1 Answer. Fields: kind, text, answers, tier, hint, explanation.
 - "definition_to_term": a definition or description in your own words; the Answer is the term. Exactly 1 Answer. Don't put the term in the text. Fields: kind, text, answers, tier, hint, explanation.
@@ -124,6 +128,26 @@ export const GAME_SYSTEM_INSTRUCTION = gameSystemInstruction(GAME_PROMPT_COUNT);
 /** F17: ask for more than we keep; selectPrompts (lib/games/select.ts) keeps the best 15-20. */
 export const GAME_OVERGENERATE_SYSTEM_INSTRUCTION = gameSystemInstruction(GAME_OVERGENERATE_COUNT, GAME_OVERGENERATE_OPEN);
 
+/**
+ * F30: the split request's two calls, sent in parallel for one document. Both see every page
+ * (an Open Prompt's Answers come from the whole deck); one writes only Open Prompts, the other
+ * every other kind. Counts add up to the single call's (15-20, at least half Open; overgenerating,
+ * about 25 with at least 12 Open).
+ */
+export const GAME_SPLIT_COUNTS = { open: "8-10", other: "7-10" };
+export const GAME_OVERGENERATE_SPLIT_COUNTS = { open: "12-14", other: "11-13" };
+const OTHER_KINDS = KINDS.filter((k) => k !== "open");
+const quoted = (kinds: readonly string[]) => kinds.map((k) => `"${k}"`).join(", ").replace(/, ([^,]*)$/, " and $1");
+
+export const gameOpenSystemInstruction = (count: string) =>
+  gameInstruction(
+    `write ${count} Prompts, all of them "open". Another writer covers the other kinds from the same pages at the same time, so write only "open" Prompts here`,
+  );
+export const gameOtherSystemInstruction = (count: string) =>
+  gameInstruction(
+    `write ${count} Prompts using only ${quoted(OTHER_KINDS)}, and include some of every one of these kinds the material supports. Another writer covers the "open" Prompts from the same pages at the same time, so write no "open" Prompts here`,
+  );
+
 /** The document's pages as Gemini sees them, asking for `count` Prompts. */
 export function gamePromptContentsFor(count: string) {
   return (title: string, pages: { pageNumber: number; contentMd: string }[]): string => {
@@ -150,7 +174,8 @@ const answerSchema = {
   required: ["canonical", "aliases", "exact_only", "evidence_page", "evidence_quote"],
 } as const;
 
-export const GAME_RESPONSE_SCHEMA = {
+/** The response schema, with `kind` limited to `kinds` (F30's split calls each allow only their own). */
+export const gameResponseSchema = (kinds: readonly string[]) => ({
   type: "object",
   properties: {
     prompts: {
@@ -158,7 +183,7 @@ export const GAME_RESPONSE_SCHEMA = {
       items: {
         type: "object",
         properties: {
-          kind: { type: "string", enum: [...KINDS] },
+          kind: { type: "string", enum: [...kinds] },
           text: { type: "string" },
           answers: { type: "array", items: answerSchema, description: "open: 4-15, most obvious first. cloze, definition_to_term: exactly 1. Empty for ordered_recall, odd_one_out." },
           tier: { type: "string", enum: [...TIERS], description: "How obscure the fact is. Ignored for open." },
@@ -177,4 +202,8 @@ export const GAME_RESPONSE_SCHEMA = {
     },
   },
   required: ["prompts"],
-} as const;
+});
+
+export const GAME_RESPONSE_SCHEMA = gameResponseSchema(KINDS);
+export const GAME_OPEN_RESPONSE_SCHEMA = gameResponseSchema(["open"]);
+export const GAME_OTHER_RESPONSE_SCHEMA = gameResponseSchema(OTHER_KINDS);
