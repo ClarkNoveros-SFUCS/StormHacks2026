@@ -4,13 +4,15 @@ import { contextFromPath } from "./context-path";
 import type { PageContext } from "./types";
 
 export const MAX_MESSAGE = 1000;
+/** A saved chat's id (made by the drawer); each one gets its own memory thread. */
+const CHAT_ID = /^[A-Za-z0-9_-]{1,40}$/;
 
 /** The page context is re-derived from context.path, so ids sent by the client are never trusted. */
 export function parseChatRequest(
   body: unknown,
-): { ok: true; message: string | undefined; context: PageContext } | { ok: false; error: string } {
-  if (!body || typeof body !== "object") return { ok: false, error: "Body must be { message?, context }" };
-  const { message, context } = body as { message?: unknown; context?: unknown };
+): { ok: true; message: string | undefined; context: PageContext; chatId: string | undefined } | { ok: false; error: string } {
+  if (!body || typeof body !== "object") return { ok: false, error: "Body must be { message?, context, chatId? }" };
+  const { message, context, chatId } = body as { message?: unknown; context?: unknown; chatId?: unknown };
   if (!context || typeof context !== "object" || typeof (context as { path?: unknown }).path !== "string") {
     return { ok: false, error: "context.path must be a string" };
   }
@@ -18,6 +20,9 @@ export function parseChatRequest(
   if (!path.startsWith("/") || path.length > 300) return { ok: false, error: "context.path must be a site path" };
   if (message !== undefined && message !== null && typeof message !== "string") return { ok: false, error: "message must be a string" };
   if (typeof message === "string" && message.length > MAX_MESSAGE) return { ok: false, error: `message is over ${MAX_MESSAGE} characters` };
+  if (chatId !== undefined && chatId !== null && (typeof chatId !== "string" || !CHAT_ID.test(chatId))) {
+    return { ok: false, error: "chatId must be 1-40 letters, digits, - or _" };
+  }
   const text = typeof message === "string" && message.trim() ? message.trim() : undefined;
-  return { ok: true, message: text, context: contextFromPath(path) };
+  return { ok: true, message: text, context: contextFromPath(path), chatId: typeof chatId === "string" ? chatId : undefined };
 }

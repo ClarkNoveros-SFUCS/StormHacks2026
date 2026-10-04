@@ -45,6 +45,8 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F33 | Dive matches Krillion: continuous descent, catch and miss screens, intro pan | Frontend | F09 | #72 | done |
 | F34 | Clerk sign-in and sign-up match the site style | Frontend | F10, F19 | #77 | done |
 | F36 | Pop-up when a friend accepts your request | Platform | F21, F26 | #79 | done |
+| F37 | Sonar stays on custom Modules: Read + Game cards, no Python Basics leak | Gameplay | F32, F35 | #83 | done |
+| F39 | Sonar chat: resizable drawer, chat history, message avatars | Frontend | F32 | #91 | done |
 | F38 | Sonar-made Games show up live; generation tops up when short | Pipelines | F04, F32 | #86 | done |
 | F37 | Generating Game card: step-by-step text animation | Frontend | F08 | #87 | done |
 | F39 | Sonar stays on custom Modules: Read + Game cards, no Python Basics leak | Gameplay | F32, F35 | #83 | done |
@@ -717,6 +719,20 @@ Notes for others:
 - The FileViewer modal is gone. Old `/modules/<id>?doc=&page=` and `/modules/files/<docId>?page=` links redirect to the study page; Evidence links point there too.
 - New generator instructions in any Mode should keep `${MATH_NOTATION_RULE}` at the end. `math:backfill` only rewrites `prompts.text/hint/explanation`: options and answers are what matching uses.
 
+## F39 Sonar chat: resizable drawer, chat history, message avatars
+Issue #91
+- [x] Drag the drawer's left edge (phones: the top grabber) to resize; arrow keys on the grip, double-click resets; size remembered
+- [x] Chat history in the browser: chat bar with the current title, search, open, delete, New chat
+- [x] Each saved chat is its own Sonar memory thread (`chatId` on `POST /api/sonar/chat`)
+- [x] Chat look: Sonar avatar and name on replies, right-aligned Player bubbles, copy button, growing textarea (Enter sends), Jump to latest
+- [x] Tests: saved chats store, `chatId` validation
+
+Entry points: `components/sonar/SonarBuddy.tsx`; `lib/sonar/chats.ts` (load/save, `withMsgs`, `searchChats`); `chatId` in `parseChatRequest` (`lib/sonar/chat-request.ts`) and `runSonar` (`lib/sonar/agent.ts`)
+
+Notes for others:
+- **API (additive):** `POST /api/sonar/chat` takes optional `chatId` (1-40 of `A-Za-z0-9_-`). With it the LangGraph thread is `sonar:<playerId>:<chatId>`; without it, `sonar:<playerId>` as before.
+- Chats live in localStorage only (`sonar:chats`, `sonar:chat`, `sonar:size`); the old sessionStorage `sonar:transcript` is moved into the first chat. Server memory is in-process, so an old chat shows its messages after a restart but Sonar no longer remembers them.
+- The global `:focus-visible` outline is unlayered and beats Tailwind's `outline-none`; use `.bare` from `sonar.module.css` for fields inside a focus-within wrapper.
 ## F37 Generating Game card: step-by-step text animation
 Issue #87
 - [x] One line that rolls through five steps: reading files, spotting key ideas, writing prompts, checking answers, picking the best

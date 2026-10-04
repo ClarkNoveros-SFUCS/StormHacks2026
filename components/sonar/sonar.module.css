@@ -105,6 +105,29 @@
 .bubbleIn {
   animation: pop-in 0.35s var(--ease-snap) both;
 }
+/* Fields inside a bordered wrapper that already lights up on focus-within. */
+.bare:focus-visible {
+  outline: none;
+}
+.msgIn {
+  animation: sonar-msg-in 0.3s var(--ease-out) both;
+}
+@keyframes sonar-msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.historyIn {
+  transform-origin: top center;
+  animation: sonar-history-in 0.18s var(--ease-out) both;
+}
+@keyframes sonar-history-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
 
 /* ---- Map ------------------------------------------------------------------------------------- */
 .chart {
@@ -177,6 +200,8 @@
   .fabHalo,
   .panel,
   .bubbleIn,
+  .msgIn,
+  .historyIn,
   .sweep,
   .root,
   .lantern,
