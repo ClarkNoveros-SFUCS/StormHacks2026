@@ -12,6 +12,7 @@
     "lint": "eslint",
     "db:migrate": "node scripts/migrate.mjs",
     "db:seed": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/seed.mts",
+    "db:seed:courses": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/seed-courses.mts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --exclude \"**/*.db.test.ts\" --exclude \"**/node_modules/**\" --exclude \".claude/**\"",
     "test:db": "vitest run db.test",

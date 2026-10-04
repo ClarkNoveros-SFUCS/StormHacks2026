@@ -21,8 +21,9 @@
 // no correct option, truth value or pairing appears in a state, only in results and the Reveal.
 import type { DiveFamilyModeId, ModeId, PromptKind } from "@/lib/modes";
 import type { Tier } from "@/lib/scoring/tiers";
+import type { TopicReveal } from "@/lib/courses/types";
 
-export type { DiveFamilyModeId, ModeId, PromptKind, Tier };
+export type { DiveFamilyModeId, ModeId, PromptKind, Tier, TopicReveal };
 export type RunStatus = "in_progress" | "finished" | "abandoned";
 export type PromptOutcome = "correct" | "wrong" | "timeout";
 
@@ -317,6 +318,8 @@ type RevealBase = {
   /** Whether the Run meets its Mode's pass bar (used by Courses). */
   passed: boolean;
   progress: RevealProgress;
+  /** Set when the Game is a Course Topic's practice Game (F22): pass, unlock, Course finish. */
+  topic: TopicReveal | null;
 };
 
 export type DiveReveal = RevealBase & { mode: DiveFamilyModeId; prompts: RevealPrompt[] };

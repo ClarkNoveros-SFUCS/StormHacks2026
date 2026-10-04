@@ -3,6 +3,7 @@ import type postgres from "postgres";
 import type { ModeId } from "@/lib/modes";
 import { runProgress } from "@/lib/progress";
 import type { Tier } from "@/lib/scoring/tiers";
+import type { TopicReveal } from "@/lib/courses/types";
 import type { Evidence, Reveal, RevealProgress, RunState, RunStatus, RunSummary } from "../types";
 
 // What every Mode's run engine shares: the Run row and its lock, RunError, guess_events
@@ -14,7 +15,7 @@ export const GRACE_MS = 500; //          a request this late after a deadline st
 export const EARLY_TIMEOUT_MS = 250; //  /timeout may arrive this early (client clock drift)
 
 export class RunError extends Error {
-  constructor(public status: 400 | 404 | 409, message: string) {
+  constructor(public status: 400 | 403 | 404 | 409, message: string) {
     super(message);
   }
 }
@@ -63,6 +64,7 @@ export type RevealBase = {
   summary: RunSummary;
   passed: boolean;
   progress: RevealProgress;
+  topic: TopicReveal | null;
 };
 
 /** The caller's Run, locked for this transaction, or 404. */

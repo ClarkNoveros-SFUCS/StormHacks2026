@@ -5,8 +5,9 @@ import { sql } from "./db";
 
 // Progress is measured against yourself: Personal Best (highest finished Run on a Game) and
 // Mastery (share of a Game's Answers ever found). Spec: docs/architecture/data-model.md.
-// Every query filters by playerId. Answers are counted only through a Game the Player owns,
-// so someone else's gameId reads as 0 of 0.
+// Every query filters by playerId. Answers are counted only through a Game the Player owns
+// or a public Game (F22: Course practice Games, the Daily Dive), so someone else's private
+// gameId reads as 0 of 0. On a public Game, Runs and guesses are still only the Player's own.
 
 /** The shared client, or a transaction (F06's getReveal calls runProgress inside its own). */
 export type Db = postgres.Sql | postgres.TransactionSql;
@@ -61,12 +62,12 @@ export async function mastery(playerId: string, gameId: string): Promise<Mastery
          from answers a
          join prompts p on p.id = a.prompt_id
          join games g on g.id = p.game_id
-        where g.id = ${gameId} and g.player_id = ${playerId}) as total,
+        where g.id = ${gameId} and (g.player_id = ${playerId} or g.visibility = 'public')) as total,
       (select count(distinct ge.matched_answer_id)::int
          from guess_events ge
          join answers a on a.id = ge.matched_answer_id
          join prompts p on p.id = a.prompt_id and p.game_id = ge.game_id
-         join games g on g.id = p.game_id and g.player_id = ge.player_id
+         join games g on g.id = p.game_id and (g.player_id = ge.player_id or g.visibility = 'public')
         where ge.player_id = ${playerId} and ge.game_id = ${gameId} and ge.is_correct) as found`;
   return toMastery(row.found, row.total);
 }
@@ -86,7 +87,7 @@ export async function masteryByTier(
       from guess_events
       where player_id = ${playerId} and game_id = ${gameId} and is_correct
     ) f on f.answer_id = a.id
-    where g.id = ${gameId} and g.player_id = ${playerId}
+    where g.id = ${gameId} and (g.player_id = ${playerId} or g.visibility = 'public')
     group by a.tier`;
   const byTier = Object.fromEntries(TIERS.map((t) => [t, { found: 0, total: 0 }])) as Record<
     Tier,
@@ -130,7 +131,7 @@ export async function progressForGames(
          join prompts p on p.id = a.prompt_id and p.game_id = g.id
         where ge.player_id = ${playerId} and ge.game_id = g.id and ge.is_correct) as found
     from games g
-    where g.player_id = ${playerId} and g.id in ${sql(gameIds)}`;
+    where (g.player_id = ${playerId} or g.visibility = 'public') and g.id in ${sql(gameIds)}`;
   return new Map(rows.map((r) => [r.id, { personalBest: r.best, mastery: toMastery(r.found, r.total) }]));
 }
 
@@ -157,7 +158,7 @@ export async function runProgress(playerId: string, runId: string, db: Db = sql)
       from answers a
       join prompts p on p.id = a.prompt_id
       join games g on g.id = p.game_id
-      where g.id = r.game_id and g.player_id = r.player_id
+      where g.id = r.game_id and (g.player_id = r.player_id or g.visibility = 'public')
     ) t
     cross join lateral (
       select (count(distinct ge.matched_answer_id) filter (where ge.created_at < r.started_at))::int as before,
@@ -165,7 +166,7 @@ export async function runProgress(playerId: string, runId: string, db: Db = sql)
       from guess_events ge
       join answers a on a.id = ge.matched_answer_id
       join prompts p on p.id = a.prompt_id and p.game_id = ge.game_id
-      join games g on g.id = p.game_id and g.player_id = ge.player_id
+      join games g on g.id = p.game_id and (g.player_id = ge.player_id or g.visibility = 'public')
       where ge.player_id = r.player_id and ge.game_id = r.game_id and ge.is_correct
         and ge.created_at <= r.finished_at
     ) f
@@ -192,7 +193,7 @@ export async function dailyStats(playerId: string, gameId: string, days = 30): P
   const rows = await sql<{ day: Date; guesses: number; correct: number; avgMsToCorrect: number | null }[]>`
     select d.day, d.guesses::int, d.correct::int, round(d.avg_ms_to_correct)::int as "avgMsToCorrect"
     from player_game_daily d
-    join games g on g.id = d.game_id and g.player_id = d.player_id
+    join games g on g.id = d.game_id and (g.player_id = d.player_id or g.visibility = 'public')
     where d.player_id = ${playerId} and d.game_id = ${gameId}
       and d.day >= now() - make_interval(days => ${Math.floor(days)})
     order by d.day`;
