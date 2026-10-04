@@ -1,6 +1,6 @@
 # StormHacks Study Game
 
-A solo study app: a student uploads their own course files, and the app turns them into games they choose the kind of. The first kind, Dive, is in the style of Krillion: timed prompts where less obvious correct answers score more.
+A solo study app: a student uploads their own course files, and the app turns them into games they choose the kind of. The first kind, Dive, is in the style of Krillion: timed prompts where less obvious correct answers score more. There are five: Dive, Apogee, Leap, Pairs and Blitz.
 
 ## Language
 
@@ -28,12 +28,28 @@ _Avoid_: Game type, game style, mode (on its own, where it could mean something 
 The first Game Mode, in the style of Krillion. A Run is 7 Prompts drawn at random, 25 seconds each; each wrong guess costs 3 seconds; running out of time scores 0 for that Prompt and the Run continues. Less obvious correct Answers score more (see Tier).
 _Avoid_: Krillion mode, classic mode
 
+**Apogee**:
+A Game Mode with exactly Dive's Prompts, rules and scoring, set in space: the score is shown as altitude and the Tiers are named Troposphere, Orbit, Lunar and Deep Space.
+_Avoid_: Space Dive, rocket mode
+
+**Leap**:
+A Game Mode of Multiple-choice Prompts. A Run is 10 Prompts, 15 seconds each, one answer each. A correct answer scores 100 plus a speed bonus of up to 50, times a streak multiplier (×1.5 from the third correct in a row, ×2 from the fifth). A wrong answer or a timeout costs a Heart.
+_Avoid_: Quiz mode, jumper
+
+**Pairs**:
+A Game Mode where the Player matches terms to their definitions on Boards, against the clock. It uses Definition-to-term Prompts: the definition is the Prompt, the term its Answer.
+_Avoid_: Matching, memory, flashcards
+
+**Blitz**:
+A Game Mode of True/false Prompts against one 60-second clock: +10 per correct answer, doubled by a Combo; a wrong answer resets the Combo and costs 3 seconds.
+_Avoid_: Speed round, lightning mode
+
 **Run**:
 One play-through of a Game, by the rules of its Game Mode.
 _Avoid_: Game, round, session, play
 
 **Prompt**:
-One question in a Game. The first correct Answer ends it. Which kinds of Prompt a Game uses, and how they're timed, depend on its Game Mode.
+One question in a Game. The first correct Answer ends it. Which kinds of Prompt a Game uses, how they're timed and how many tries they take, depend on its Game Mode.
 _Avoid_: Question, card
 
 **Open Prompt**:
@@ -43,6 +59,14 @@ _Avoid_: Open set, category prompt
 **Single-answer Prompt**:
 A Prompt with exactly one correct Answer: fill-in-the-blank, definition-to-term, put-in-order, or odd-one-out. In Dive, the Prompt itself carries one Tier, assigned when the Game is generated.
 _Avoid_: Closed prompt, fact question
+
+**Multiple-choice Prompt**:
+A Prompt with a stem and exactly 4 options, one of which is correct; that option is its Answer and the other three are plausible distractors from the same notes. Used by Leap.
+_Avoid_: MCQ (in user-facing text), quiz question
+
+**True/false Prompt**:
+A statement from the notes that is either true or false (a false one changes one detail of a real fact). Its Answer is True or False. Used by Blitz.
+_Avoid_: Fact check, binary question
 
 **Hint**:
 A short clue toward the Answer of a Single-answer Prompt, written when the Game is generated and never containing the Answer. In Dive, revealing it drops the points by one Tier; a hinted common Prompt is worth 5.
@@ -77,6 +101,28 @@ _Avoid_: Level, rank
 **Staleness**:
 The halving of an Open Prompt Answer's points for each earlier Run in which the Player scored with that same Answer on that same Prompt, never below 1 point.
 _Avoid_: Decay, repeat penalty
+
+## Play (Leap, Pairs, Blitz)
+
+**Heart**:
+One of a Leap Run's 3 lives. A wrong answer or a timeout costs one; at none left the Run ends early (the Player "fell").
+_Avoid_: Life, HP
+
+**Lifeline**:
+Leap's 50/50: once per Run, it removes two wrong options from the current Prompt and halves that Prompt's points.
+_Avoid_: Power-up, hint (a Hint is Dive's)
+
+**Board**:
+One round of Pairs: 6 terms and their 6 definitions, shown shuffled, with its own 60-second clock. A Pairs Run is 2 Boards. A mismatch costs 10 points and 2 seconds; clearing a Board early scores 5 per second left.
+_Avoid_: Level, grid, round
+
+**Combo**:
+Blitz's count of correct answers in a row. Once it reaches 5, each further correct answer scores double; a wrong answer resets it.
+_Avoid_: Streak (that's Leap's multiplier, and the daily habit), chain
+
+**Pass**:
+A finished Run that meets its Game Mode's pass bar: Dive and Apogee score at least 150; Leap gets at least 7 of 10 right without falling; Pairs clears both Boards; Blitz scores at least 150. Courses use it to unlock the next Topic.
+_Avoid_: Win, clear, complete
 
 ## Progress
 

@@ -11,7 +11,7 @@ Module 1──N Game
 Game   N──M Source Document         (game_sources; a file can feed several Games)
 Game   1──N Prompt 1──N Answer 1──N Answer Key
 Player 1──N Run N──1 Game
-Run    1──7 Run Prompt N──1 Prompt
+Run    1──N Run Prompt N──1 Prompt      (Dive/Apogee 7, Leap 10, Pairs 12, Blitz a deck of up to 120)
 guess_events  (hypertable: every guess ever made, the source for Mastery and Staleness)
 ```
 
@@ -22,9 +22,9 @@ guess_events  (hypertable: every guess ever made, the source for Mastery and Sta
 - **Ids:** `uuid DEFAULT gen_random_uuid()`. The Player id is the Clerk user id (`text`).
 - **Time:** `timestamptz` everywhere.
 
-## Schema (initial migration)
+## Schema
 
-The source of truth is `db/migrations/20261003T1830_init.sql`, which also adds indexes on foreign keys. Change the schema with a new migration file, never by editing an applied one.
+The source of truth is `db/migrations/` (the initial `20261003T1830_init.sql` also adds indexes on foreign keys). Change the schema with a new migration file, never by editing an applied one. Below is the current shape; comments name the later migrations. `20261004T1000_game_modes_engine.sql` (F20) widened the Mode and kind CHECKs and `run_prompts.position`, and added `prompts.is_true` and `runs.mode_state`.
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;   -- levenshtein_less_equal for answer matching
@@ -74,7 +74,8 @@ CREATE TABLE games (
   error         text,
   prompt_count  integer,
   created_at    timestamptz NOT NULL DEFAULT now(),
-  mode          text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive'))   -- Game Mode (ADR-0004); added by 20261004T0750_games_mode.sql
+  -- Game Mode (ADR-0004): added by 20261004T0750_games_mode.sql, widened by 20261004T1000 (arena is reserved, not creatable)
+  mode          text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive','apogee','leap','pairs','blitz','arena'))
 );
 
 CREATE TABLE game_sources (
@@ -87,19 +88,22 @@ CREATE TABLE prompts (
   id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   game_id             uuid NOT NULL REFERENCES games(id) ON DELETE CASCADE,
   source_document_id  uuid NOT NULL REFERENCES source_documents(id) DEFERRABLE INITIALLY DEFERRED,
-  kind                text NOT NULL CHECK (kind IN ('open','cloze','definition_to_term','ordered_recall','odd_one_out')),
-  text                text NOT NULL,
-  tier                text CHECK (tier IN ('common','solid','deep','rare')),   -- single-answer Prompts only
-  hint                text,                                                     -- single-answer only; null = no Hint button
+  kind                text NOT NULL CHECK (kind IN ('open','cloze','definition_to_term','ordered_recall','odd_one_out',
+                                                   'multiple_choice','true_false')),   -- last two: F20 (Leap, Blitz)
+  text                text NOT NULL,  -- true_false: the statement; definition_to_term: the definition
+  tier                text CHECK (tier IN ('common','solid','deep','rare')),   -- every kind but open
+  hint                text,                                                     -- Dive single-answer only; null = no Hint button
   explanation         text,
   items               jsonb,          -- ordered_recall: string[] in the correct order
-  options             jsonb,          -- odd_one_out: string[4]
-  evidence_page_id    uuid REFERENCES source_pages(id) DEFERRABLE INITIALLY DEFERRED,   -- ordered_recall / odd_one_out
+  options             jsonb,          -- odd_one_out, multiple_choice: string[4]
+  is_true             boolean,        -- true_false only; F20 (CHECK: set exactly when kind = 'true_false')
+  evidence_page_id    uuid REFERENCES source_pages(id) DEFERRABLE INITIALLY DEFERRED,   -- ordered_recall / odd_one_out / multiple_choice / true_false
   CHECK ((kind = 'open') = (tier IS NULL))
 );
 
--- Every Prompt has ≥1 Answer row: Open = 4–15, single-answer kinds = exactly 1.
--- ordered_recall's single Answer has canonical = 'correct order'; odd_one_out's is the correct option.
+-- Every Prompt has ≥1 Answer row: Open = 4–15, every other kind = exactly 1.
+-- ordered_recall's single Answer has canonical = 'correct order'; odd_one_out's and multiple_choice's
+-- is the correct option; true_false's is 'True' or 'False'. Only typed kinds have answer_keys.
 -- That makes Mastery a uniform count over answers.
 CREATE TABLE answers (
   id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -125,23 +129,28 @@ CREATE TABLE runs (
   player_id         text NOT NULL REFERENCES players(id) ON DELETE CASCADE,
   game_id           uuid NOT NULL REFERENCES games(id) ON DELETE CASCADE,
   status            text NOT NULL CHECK (status IN ('in_progress','finished','abandoned')),
-  current_position  smallint NOT NULL DEFAULT 1,
+  current_position  smallint NOT NULL DEFAULT 1,   -- the current Prompt; Pairs: the current Board
   score             integer NOT NULL DEFAULT 0,
   started_at        timestamptz NOT NULL DEFAULT now(),
-  finished_at       timestamptz
+  finished_at       timestamptz,
+  -- F20: the Mode's own Run state, owned by its engine (lib/runs/engines/<mode>.ts). Null for Dive/Apogee.
+  -- Leap: hearts, streak, bestStreak, correct, wrong, timeouts, lifelinePosition, outcome
+  -- Pairs: boards[] { startedAt, deadlineAt, endedAt, cleared, mistakes, timeBonus }, outcome
+  -- Blitz: startedAt, deadlineAt, deckSize, combo, bestCombo, correct, wrong, outcome
+  mode_state        jsonb
 );
 CREATE INDEX runs_best ON runs (player_id, game_id, score DESC) WHERE status = 'finished';
 
 CREATE TABLE run_prompts (
   run_id       uuid NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
-  position     smallint NOT NULL CHECK (position BETWEEN 1 AND 7),
+  position     smallint NOT NULL CHECK (position >= 1),   -- was 1..7; widened by F20 (Pairs Board b = positions 6b-5..6b)
   prompt_id    uuid NOT NULL REFERENCES prompts(id) ON DELETE CASCADE,
   started_at   timestamptz,
   deadline_at  timestamptz,           -- moves 3 s earlier per wrong typed guess
   ended_at     timestamptz,
   outcome      text CHECK (outcome IN ('correct','wrong','timeout')),
   answer_id    uuid REFERENCES answers(id),
-  hint_used    boolean NOT NULL DEFAULT false,
+  hint_used    boolean NOT NULL DEFAULT false,      -- Leap: the 50/50 was used on this question
   points       integer NOT NULL DEFAULT 0,
   PRIMARY KEY (run_id, position)
 );
@@ -158,10 +167,11 @@ CREATE TABLE guess_events (
   run_id             uuid NOT NULL,
   prompt_id          uuid NOT NULL,
   position           smallint NOT NULL,
-  raw_text           text NOT NULL,            -- one-shot kinds: JSON of the submitted order/option
+  raw_text           text NOT NULL,            -- one-shot kinds: JSON of the submitted order/option; Leap: JSON of the
+                                               -- option text; Blitz: "true"/"false"; Pairs: {"term","definition"}
   normalized         text,
   matched_answer_id  uuid,
-  match_method       text NOT NULL CHECK (match_method IN ('exact','typo','ambiguous','none','choice')),
+  match_method       text NOT NULL CHECK (match_method IN ('exact','typo','ambiguous','none','choice')),  -- Leap/Pairs/Blitz: 'choice'
   distance           smallint,
   is_correct         boolean NOT NULL,
   points             integer NOT NULL DEFAULT 0,
