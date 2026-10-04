@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "node scripts/migrate.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --exclude \"**/*.db.test.ts\"",
+    "test:db": "vitest run db.test"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.10",
@@ -26,6 +28,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }
