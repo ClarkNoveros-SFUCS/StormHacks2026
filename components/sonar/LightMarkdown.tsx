@@ -15,7 +15,7 @@ function inline(text: string, key: string): ReactNode[] {
     if (tok.startsWith("**")) out.push(<strong key={`${key}-${i++}`} className="font-bold text-text">{tok.slice(2, -2)}</strong>);
     else
       out.push(
-        <code key={`${key}-${i++}`} className="rounded-sm bg-bg-2 px-1 py-px font-hud text-[16px] text-signal">
+        <code key={`${key}-${i++}`} className="whitespace-nowrap rounded-sm bg-bg-2 px-1 py-px font-hud text-[16px] text-signal">
           {tok.slice(1, -1)}
         </code>,
       );

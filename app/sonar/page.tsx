@@ -12,7 +12,7 @@ export default async function SonarPage() {
   const playerId = await requirePlayer();
   const model = await loadSonarModel(playerId);
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+    <main className="mx-auto w-full max-w-[1360px] px-4 py-8 sm:px-6">
       <SonarPageClient model={model} />
     </main>
   );

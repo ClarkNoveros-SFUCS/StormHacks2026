@@ -11,10 +11,10 @@ import s from "./sonar.module.css";
 // The /sonar mastery map (F32, #73): the Python Basics Concept DAG as a deep-ocean sonar chart.
 // Every number on it comes from the learner model (lib/sonar/model.ts), never from the agent.
 
-const LANE_W = 212;
-const GAP = 22;
-const PAD = 20;
-const NODE_W = 184;
+const LANE_W = 196;
+const GAP = 18;
+const PAD = 16;
+const NODE_W = 174;
 const NODE_H = 86;
 const HEAD = 92;
 const ROW = 108;
@@ -143,10 +143,10 @@ export function SonarMap({ model }: { model: SonarModel }) {
                 <div className="mt-1.5 flex flex-wrap gap-1">
                   <Chip tone={t.coursePassed ? "success" : "neutral"}>Course: {t.coursePassed ? "Passed ✓" : "Not yet"}</Chip>
                   <Chip tone={disagree ? "caution" : t.sonarMastery >= 0.85 ? "success" : "signal"}>
-                    Sonar: {pct(t.sonarMastery)}
+                    {disagree ? "⚠ " : ""}Sonar: {pct(t.sonarMastery)}
                   </Chip>
                 </div>
-                {disagree && <p className="mt-1 font-display text-[11px] tracking-widest text-caution uppercase">⚠ We disagree</p>}
+                {disagree && <span className="sr-only">The Course says passed, Sonar disagrees.</span>}
               </div>
             </div>
           );
@@ -365,37 +365,44 @@ export function SonarPageClient({ model }: { model: SonarModel }) {
         )}
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <section aria-label="Mastery map" className="min-w-0">
-          <SonarMap model={model} />
-          <p className="mt-2 text-[13px] text-faint">Hover or tap a Concept for its numbers. Arrows point from a prerequisite to what builds on it.</p>
-        </section>
-        <aside className="space-y-5">
-          <div>
-            <h2 className="mb-2 font-display text-xl text-text">What to do next</h2>
-            <div className="space-y-3">
-              {model.actions.slice(0, 3).map((a, i) => (
-                <ActionCard key={i} action={a} index={i} />
-              ))}
-              {model.actions.length === 0 && <p className="text-[14px] text-muted">Nothing queued. Play anything and I&apos;ll update.</p>}
-            </div>
+      <section aria-label="Mastery map" className="min-w-0">
+        <SonarMap model={model} />
+        <p className="mt-2 text-[13px] text-faint">Hover or tap a Concept for its numbers. Arrows point from a prerequisite to what builds on it.</p>
+      </section>
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <section>
+          <h2 className="mb-2 font-display text-xl text-text">What to do next</h2>
+          <div className="grid gap-3 md:grid-cols-3">
+            {model.actions.slice(0, 3).map((a, i) => (
+              <ActionCard key={i} action={a} index={i} />
+            ))}
+            {model.actions.length === 0 && <p className="text-[14px] text-muted">Nothing queued. Play anything and I&apos;ll update.</p>}
           </div>
+        </section>
+        <aside>
           <div className="rounded-md border border-border bg-surface p-4">
             <h2 className="mb-2 font-display text-[15px] text-text">Reading the map</h2>
             <ul className="space-y-1.5 text-[13px] text-muted">
               {(Object.keys(STATUS) as ConceptStatus[]).map((k) => (
                 <li key={k} className="flex items-center gap-2">
                   <span aria-hidden="true" className="h-3 w-3 rounded-[2px]" style={{ background: STATUS[k].color }} />
-                  <span className="text-text">{STATUS[k].label}</span> {STATUS[k].hint}
+                  <span>
+                    <span className="text-text">{STATUS[k].label}</span> {STATUS[k].hint}
+                  </span>
                 </li>
               ))}
               <li className="flex items-center gap-2">
                 <span aria-hidden="true" className="h-3 w-3 rounded-[2px] border-2 border-danger" />
-                <span className="text-text">Root cause</span>, red dashes show blame flowing back to it
+                <span>
+                  <span className="text-text">Root cause</span>: red dashes show blame flowing back to it
+                </span>
               </li>
               <li className="flex items-center gap-2">
                 <span aria-hidden="true" className="h-3 w-3 rounded-[2px] border-2 border-primary" />
-                <span className="text-text">Practise next</span> (the top pick)
+                <span>
+                  <span className="text-text">Practise next</span> (the top pick)
+                </span>
               </li>
               <li>Brighter ring = more guesses seen, so I&apos;m more sure.</li>
             </ul>
