@@ -1,37 +1,41 @@
 import type { Metadata } from "next";
 import { ClerkProvider, Show, UserButton } from "@clerk/nextjs";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Mulish, Pixelify_Sans, VT323 } from "next/font/google";
+import { Logo } from "@/components/ui/Logo";
+import { SoundToggle } from "@/components/ui/SoundToggle";
+import { ToastProvider } from "@/components/ui/Toast";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// Site type: Pixelify Sans (headings, buttons), Mulish (body). VT323 is Dive's HUD font.
+const pixelify = Pixelify_Sans({ variable: "--font-pixelify", subsets: ["latin"] });
+const mulish = Mulish({ variable: "--font-mulish", subsets: ["latin"] });
+const vt323 = VT323({ variable: "--font-vt323", subsets: ["latin"], weight: "400" });
 
 export const metadata: Metadata = {
-  title: "StormHacks 2026",
+  title: "SYLLABYSS",
+  description: "Turn your notes into games. Rarer answers sink deeper.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
+    <html lang="en" className={`${pixelify.variable} ${mulish.variable} ${vt323.variable} h-full antialiased`}>
+      <body className="flex min-h-full flex-col">
         <ClerkProvider>
-          {/* Signed-out visitors get Sign in / Sign up on the landing page */}
-          <Show when="signed-in">
-            <header className="flex justify-end p-4">
-              <UserButton />
-            </header>
-          </Show>
-          {children}
+          <ToastProvider>
+            {/* Minimal header until the full shell lands (F19 #32). Signed-out visitors see the landing page. */}
+            <Show when="signed-in">
+              <header className="sticky top-0 z-40 border-b border-border bg-bg/85 backdrop-blur">
+                <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
+                  <Logo size="sm" href="/" />
+                  <div className="flex items-center gap-3">
+                    <SoundToggle />
+                    <UserButton />
+                  </div>
+                </div>
+              </header>
+            </Show>
+            {children}
+          </ToastProvider>
         </ClerkProvider>
       </body>
     </html>

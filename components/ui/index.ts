@@ -1,0 +1,28 @@
+// Site UI kit (F10). Spec and API table: docs/design/design-system.md § Components.
+export { Logo } from "./Logo";
+export { Button, type ButtonVariant, type ButtonSize } from "./Button";
+export { Card, TiltCard } from "./Card";
+export { Panel } from "./Panel";
+export { Chip, type ChipTone } from "./Chip";
+export { StatusPill, type Status } from "./StatusPill";
+export { Meter, ProgressBar, XpBar } from "./Meter";
+export { Odometer } from "./Odometer";
+export { StreakFlame } from "./StreakFlame";
+export { Badge, type BadgeTone } from "./Badge";
+export { ModeTile, ModeBadge, ModeScene } from "./ModeTile";
+export { Modal, Drawer } from "./Modal";
+export { Tooltip } from "./Tooltip";
+export { Tabs, type TabItem } from "./Tabs";
+export { ToastProvider, useToast, type ToastInput, type ToastTone } from "./Toast";
+export { PixelBurst, celebrate, burst, burstFrom, confettiRain } from "./Confetti";
+export { Mascot, type MascotHandle, type MascotMood, type MascotReaction } from "./Mascot";
+export { PixelAvatar, AvatarPicker } from "./PixelAvatar";
+export { AVATARS, DEFAULT_AVATAR, avatarById, defaultAvatarFor, type AvatarId } from "./avatars";
+export { ProfileCard, type ProfileCardProps } from "./ProfileCard";
+export { Heatmap } from "./Heatmap";
+export type { HeatDay } from "./heatmap-grid";
+export { SkyBackdrop, type SkyVariant } from "./SkyBackdrop";
+export { PageTransition } from "./PageTransition";
+export { PixelIcon, PIXEL_ICON_NAMES, type PixelIconName } from "./PixelIcon";
+export { PixelSprite, spriteRects } from "./PixelSprite";
+export { SoundToggle } from "./SoundToggle";

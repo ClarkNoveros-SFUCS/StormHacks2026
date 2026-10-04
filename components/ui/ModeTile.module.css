@@ -1,0 +1,207 @@
+/* Looping mini-scenes for ModeTile. Paused until the tile is hovered, focused or selected. */
+.scene * {
+  animation-play-state: paused !important;
+}
+.tile:hover .scene *,
+.tile:focus-visible .scene *,
+.tile[data-selected="true"] .scene * {
+  animation-play-state: running !important;
+}
+
+/* dive */
+.bubble {
+  animation: bubble 2.2s linear infinite;
+}
+.diver {
+  animation: diver 3s ease-in-out infinite;
+}
+.fish {
+  animation: swim 4s linear infinite;
+}
+@keyframes bubble {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+}
+@keyframes diver {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(14px);
+  }
+}
+@keyframes swim {
+  from {
+    transform: translateX(-30px);
+  }
+  to {
+    transform: translateX(150px);
+  }
+}
+
+/* apogee */
+.rocket {
+  animation: rocket 2.4s ease-in-out infinite;
+}
+.streak {
+  animation: streak 0.9s linear infinite;
+}
+.flameTail {
+  animation: tail 0.15s steps(2) infinite;
+  transform-origin: top center;
+}
+@keyframes rocket {
+  0%,
+  100% {
+    transform: translateY(4px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes streak {
+  from {
+    transform: translateY(-50px);
+  }
+  to {
+    transform: translateY(80px);
+  }
+}
+@keyframes tail {
+  50% {
+    transform: scaleY(1.5);
+  }
+}
+
+/* leap */
+.hopper {
+  animation: hop 1.6s cubic-bezier(0.3, 0, 0.7, 1) infinite;
+}
+@keyframes hop {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(18px, -26px);
+  }
+  50% {
+    transform: translate(36px, -14px);
+  }
+  75% {
+    transform: translate(54px, -40px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+/* pairs */
+.cardA {
+  animation: flipA 2.4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.cardB {
+  animation: flipB 2.4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes flipA {
+  0%,
+  20% {
+    transform: translateX(0) scaleX(1);
+  }
+  35% {
+    transform: translateX(0) scaleX(0.1);
+  }
+  50%,
+  70% {
+    transform: translateX(18px) scaleX(1);
+  }
+  100% {
+    transform: translateX(0) scaleX(1);
+  }
+}
+@keyframes flipB {
+  0%,
+  20% {
+    transform: translateX(0) scaleX(1);
+  }
+  35% {
+    transform: translateX(0) scaleX(0.1);
+  }
+  50%,
+  70% {
+    transform: translateX(-18px) scaleX(1);
+  }
+  100% {
+    transform: translateX(0) scaleX(1);
+  }
+}
+
+/* blitz */
+.beat {
+  animation: beat 0.5s ease-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.flashT {
+  animation: flashT 1s steps(1) infinite;
+}
+.flashF {
+  animation: flashF 1s steps(1) infinite;
+}
+@keyframes beat {
+  0% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes flashT {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+@keyframes flashF {
+  0% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* arena */
+.crosshair {
+  animation: aim 3s ease-in-out infinite;
+}
+@keyframes aim {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(22px, -8px);
+  }
+  66% {
+    transform: translate(-16px, 6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene * {
+    animation: none !important;
+  }
+}

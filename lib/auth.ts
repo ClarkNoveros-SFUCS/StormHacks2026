@@ -11,6 +11,11 @@ import { sql } from "./db";
  * Signed out, it redirects to sign-in.
  */
 export async function requirePlayer(): Promise<string> {
+  const devId = devPlayerId();
+  if (devId) {
+    await ensurePlayer(devId);
+    return devId;
+  }
   const { userId } = await auth.protect();
   await ensurePlayer(userId);
   return userId;
@@ -23,10 +28,25 @@ export async function requirePlayer(): Promise<string> {
  *   if (!playerId) return Response.json({ error: "Not signed in" }, { status: 401 });
  */
 export async function getApiPlayer(): Promise<string | null> {
+  const devId = devPlayerId();
+  if (devId) {
+    await ensurePlayer(devId);
+    return devId;
+  }
   const { userId } = await auth();
   if (!userId) return null;
   await ensurePlayer(userId);
   return userId;
+}
+
+/**
+ * Dev-only auth bypass (overnight-decisions §11): with DEV_PLAYER_ID set and NODE_ENV === "development"
+ * (only `next dev`), every request acts as that Player without Clerk, so agents can render signed-in
+ * pages. A no-op in production builds and tests. Never set DEV_PLAYER_ID in a deployed environment.
+ */
+function devPlayerId(): string | null {
+  if (process.env.NODE_ENV !== "development") return null;
+  return process.env.DEV_PLAYER_ID || null;
 }
 
 // Not cached per process: a shared dev DB can be reset under a running server.
