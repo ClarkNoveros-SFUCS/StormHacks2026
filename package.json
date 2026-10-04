@@ -9,7 +9,8 @@
     "lint": "eslint",
     "db:migrate": "node scripts/migrate.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "node --test \"lib/**/*.test.ts\""
+    "test": "node --test \"lib/**/*.test.ts\"",
+    "parse:check": "node --conditions=react-server --env-file=.env.local scripts/parse-check.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.10",
