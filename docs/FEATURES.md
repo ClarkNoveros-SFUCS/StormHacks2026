@@ -31,7 +31,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F19 | Landing page and site-wide UI overhaul | Frontend | F10 | #32 | planned |
 | F20 | Game Modes engine and generation: Apogee, Leap, Pairs, Blitz | Platform | F04, F06 | #33 | done |
 | F21 | Social backend: profiles, XP, streaks, heatmap, badges, friends, leaderboards | Platform | F01, F07 | #34 | done |
-| F22 | Courses backend and the seeded Python Basics course | Platform | F20 | #35 | planned |
+| F22 | Courses backend and the seeded Python Basics course | Platform | F20 | #35 | done |
 | F23 | Daily Dive backend | Platform | F21, F22 | #36 | planned |
 | F24 | Apogee and Leap screens (three.js) | Frontend | F10, F20 | #37 | planned |
 | F25 | Pairs and Blitz screens | Frontend | F10, F20 | #38 | planned |
@@ -321,10 +321,20 @@ Notes for others:
 - Both new continuous aggregates are real-time; never refresh them with a NULL end (see `data-model.md`). Runs finished before the hook existed: `npm run social:backfill`.
 
 ## F22 Courses backend and the seeded Python Basics course
-Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #35 (checklist lives on the issue until this feature ships)
-- [ ] See the issue checklist
+Spec: `docs/architecture/courses.md` (decisions: overnight-decisions §5, Q10, Q24, Q27) · Issue #35
+- [x] public Games (visibility) owned by a system Player; run engine allows public Games (`games.visibility`, player `'system'`; `createRun` on public Games, 403 on a locked Topic; Mastery/progress per Player; leaderboards use `visibility`)
+- [x] courses, course_topics, topic_games, topic_progress; pass bars per Mode; unlock rule (`20261004T1100_courses.sql`, applied to stormhacks-dev; pass = F20's `passedRun`)
+- [x] Python Basics: 6 Topics with readings (as Source Document pages), resources, hand-written practice Games for Dive, Apogee, Leap, Pairs, Blitz (content from `content/seed-content`, 30 public Games seeded on stormhacks-dev)
+- [x] `npm run db:seed:courses` (idempotent); API routes; XP/badges on pass; tests
+- [x] Also: XP for **every** finished Run (F21's `onRunFinished` wired into the run engine), Reveal `topic` block, "mark as read" (+20 XP), docs (courses.md, data-model, CONTEXT, overview, ui-map)
 
-Entry points: — · Notes for others: —
+Entry points: `lib/courses/` (`types.ts` client-safe API shapes; `rules.ts` `lockedTopics`, `recordRun`; `progress.ts` `assertTopicUnlocked`, `recordTopicRun`, `topicReveal`; `queries.ts` `listCourses`, `getCourse`, `getTopic`, `markTopicRead`; `seed.ts`), `lib/runs/run-engine.ts` (`play()`/`afterFinish()`), routes `GET /api/courses`, `GET /api/courses/[slug]`, `GET /api/courses/[slug]/topics/[topicSlug]`, `POST …/read`, `npm run db:seed:courses [-- --check]`, migration `db/migrations/20261004T1100_courses.sql`, tests `lib/courses/*.test.ts`, `lib/courses/courses.db.test.ts`
+
+Notes for others:
+- **F27 (Explore UI, #40):** import types from `@/lib/courses/types`. `/explore` ← `GET /api/courses` → `{ courses: CourseSummary[] }` (`progress: { passed, total, finished, nextTopicSlug } | null`). `/explore/[course]` ← `GET /api/courses/[slug]` → `{ course }` with `topics[]: { number, slug, title, summary, minutes, modes, badgeId, progress: { locked, passed, passedAt, read, readAt } | null }`. `/explore/[course]/[topic]` ← `GET /api/courses/[slug]/topics/[topicSlug]` → `{ topic }` with `reading.pages[] { pageNumber, contentMd }` (markdown with ```python blocks), `resources[] { title, url, source }`, `games[] { mode, gameId, title, promptCount, passBar, me: { best, passed, runs } | null }` (MODES order), `prev`/`next`, `progress`. All three GETs are public: signed out every `progress`/`me` is null (show "Sign in to play"). Play = `POST /api/games/[gameId]/runs` → `{ runId }`, then the normal Run screens; **403 = Topic locked**. Mark as read = `POST …/read` → `{ progress, xp: XpAward }` (+20 once). The Reveal of a Topic Game has `topic: { courseSlug, topicSlug, topicNumber, topicTitle, passed, passedNow, passedBefore, nextTopicSlug, unlockedNext, courseFinished }`: `passedNow` → pixel burst + "+150 XP" + Topic Badge; `unlockedNext` → unlock animation for `nextTopicSlug`; `courseFinished` → Course Badge (+500). Badge names/icons: `badgeInfo(badgeId)`. Locked Topics still show their reading.
+- **F23 (Daily Dive, #36):** make the Daily a public Game owned by `'system'`: put its Module/fact-sheet document/Game under the system Player with `visibility = 'public'` (copy the pattern in `lib/courses/seed.ts`: content-derived ids, `generatorFor('dive').validate` + `finalize`, insert rows, never delete Games). Any signed-in Player can then `createRun` it, Mastery/PB stay per Player, and `/api/leaderboards/games/[id]` works. XP for the Run is already awarded by the engine (`afterFinish()` in `lib/runs/run-engine.ts` calls `onRunFinished`); add the Daily step there (e.g. `recordDailyRun(tx, run, summary)` → `onDailyPlayed` for the counted attempt), after `recordTopicRun`. Don't call `onRunFinished` yourself.
+- **Everyone:** every finished Run (any Mode, any Game) now gets Run XP and Badges in its finishing transaction. Commands that can finish a Run must go through `play()` in `run-engine.ts`. `RunError` can be 403. `Reveal` has a new `topic` field (null outside Courses). `npm run social:backfill` was run (nothing pending).
+- Re-seeding after content edits is safe: changed Games are replaced by new ones and the old ones are retired (set private), so nobody's Runs are lost; Topic passes stay.
 
 ## F23 Daily Dive backend
 Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #36 (checklist lives on the issue until this feature ships)
