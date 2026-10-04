@@ -6,10 +6,17 @@ import type postgres from "postgres";
 import { afterAll, describe, expect, it } from "vitest";
 import { sql } from "@/lib/db";
 import { normalize } from "@/lib/matching/normalize";
-import {
-  createRun, getReveal, getRunState, guess, PENALTY_MS, PROMPT_MS, revealHint, RunError, startPrompt, timeoutPrompt,
-} from "./run-engine";
-import type { PromptKind, RevealPrompt, RunState } from "./types";
+import * as engine from "./run-engine";
+import { createRun, guess, PENALTY_MS, PROMPT_MS, revealHint, RunError } from "./run-engine";
+import type { DiveReveal, DiveRunState as RunState, PromptKind, RevealPrompt } from "./types";
+
+// These tests drive Dive Games, so narrow the Mode-generic results to Dive's shapes
+// (per-Mode tests: lib/runs/modes.db.test.ts).
+type Args<F extends (...a: never[]) => unknown> = Parameters<F>;
+const getRunState = (...a: Args<typeof engine.getRunState>) => engine.getRunState(...a) as Promise<RunState>;
+const startPrompt = (...a: Args<typeof engine.startPrompt>) => engine.startPrompt(...a) as Promise<RunState>;
+const timeoutPrompt = (...a: Args<typeof engine.timeoutPrompt>) => engine.timeoutPrompt(...a) as Promise<RunState>;
+const getReveal = (...a: Args<typeof engine.getReveal>) => engine.getReveal(...a) as Promise<DiveReveal>;
 
 type Tx = postgres.TransactionSql;
 type Tier = "common" | "solid" | "deep" | "rare";
