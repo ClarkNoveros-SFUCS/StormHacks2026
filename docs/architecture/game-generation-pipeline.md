@@ -52,7 +52,7 @@ A Game still `queued`/`generating` 10 minutes after creation (the server restart
 ## Gemini call (one per Source Document)
 
 - SDK: `@google/genai`, server only, `lib/gemini.ts`. Model comes from `GEMINI_MODEL` (we use `gemini-3.6-flash`).
-- **Overload:** on 429/5xx (Gemini often answers 503 "high demand"), retry after 2, 5 and 12 s, then switch to `GEMINI_FALLBACK_MODEL` if set (we use `gemini-3.5-flash-lite`: weaker, fewer Open Prompts, but rarely overloaded). 3.8-flash was overloaded on most long requests during testing, which is why we use 3.6.
+- **Overload (F31, `withFallback` in `lib/gemini.ts`):** on 429/408/5xx or a network error (Gemini often answers 503 "high demand"), `GEMINI_MODEL` gets **one** retry after 2 s, then the call switches to `GEMINI_FALLBACK_MODEL` if set (we use `gemini-3.5-flash-lite`: weaker, fewer Open Prompts, but rarely overloaded, and 10–20 s for a deck). The last model to try keeps the full retries after 2, 5 and 12 s. An attempt that hits the **150 s per-attempt timeout** goes straight to the next model (before F31 it failed the Game after 240 s without trying the fallback). Any other error (e.g. 400) fails at once. 3.8-flash was overloaded on most long requests during testing, which is why we use 3.6; on 2026-10-04 3.6-flash itself answered 503 to every full-size request for over 30 minutes while tiny requests still worked, and before F31 each call spent ~20 s on retries before falling back.
 - **Structured output:** `responseMimeType: "application/json"` plus `responseJsonSchema` (plain JSON Schema), so the output always parses. `answers`, `tier`, `hint` and `explanation` are **required** for every Prompt (empty when a kind doesn't use them): left optional, Gemini omits them from single-answer Prompts, which then get dropped.
 - Cost and speed with 3.6-flash: a 94-page lecture PDF took 45–100 s and ~$0.05 USD (per-deck numbers: § Scorecard). Don't lower the thinking level: `LOW` returned two Prompts with no Answers.
 - Input: the document's pages, each wrapped as `=== Page <page_number> ===\n<content_md>`, and the document title.
@@ -418,7 +418,7 @@ Both get Dive's full instructions; only the PROMPT KINDS line changes (`gameOpen
 |---|---|
 | `app/api/modules/[moduleId]/games/route.ts` | POST create Game, GET list the Module's Games |
 | `app/api/games/[gameId]/route.ts` | GET status/details, DELETE |
-| `lib/gemini.ts`, `lib/gemini/game-prompt.ts` | Client (`generateDocumentPrompts(title, pages, request?)`) and Dive's instructions |
+| `lib/gemini.ts`, `lib/gemini/game-prompt.ts` | Client (`generateDocumentPrompts(title, pages, request?)`, the retry/fallback policy `withFallback` + `failureKind`, F31) and Dive's instructions |
 | `lib/games/generate-game.ts` | `generateGame` steps a–f, for every Mode |
 | `lib/games/validate.ts` | Dive's zod schema + checks 1–7 (pure; shared checks 1–3 and 7, Dive's 4–6 + Tiers) |
 | `lib/modes/generation.ts`, `lib/modes/generators.ts` | `ModeGenerator`, shared checks (`quoteOnPage`, …), `generatorFor(mode)` |

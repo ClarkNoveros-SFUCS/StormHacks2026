@@ -40,6 +40,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F28 | Daily Dive hub page | Frontend | F09, F23 | #41 | planned |
 | F29 | Arena: three.js FPS study Mode (stretch) | Frontend | F20, F24 | #42 | planned |
 | F30 | Split generation: parallel Open and other-kinds calls | Pipelines | F04, F14 (F17) | #64 | done |
+| F31 | Faster Gemini fallback: fewer retries on 503, fall back on timeout | Pipelines | F04 | #66 | done |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -401,3 +402,19 @@ Notes for others:
 - **Leap/Pairs/Blitz don't split yet.** Give a `ModeGenerator` a `split: GenerationRequest[]` (whose `prompts` arrays add up to one call's) and `generateGame` runs it.
 - Fixed an order-dependent assertion in `generate-game.db.test.ts` (the seed fixture has two kinds of "BFS" Answer rows; the query had no order).
 - Gemini spend for F30 ≈ $0.5 (estimated at 3.6-flash rates; 3.5-flash has no listed price, and the many 503 attempts on 3.6-flash weren't billed).
+
+## F31 Faster Gemini fallback: fewer retries on 503, fall back on timeout
+Spec: `docs/architecture/game-generation-pipeline.md` § Gemini call (Overload) · Issue #66
+- [x] Per-model retry budget: on 429/5xx the first model gets 1 retry (2 s), then the next model; the last model keeps the full 2/5/12 s retries
+- [x] A timed-out or aborted attempt goes straight to the next model (it fails only on the last one)
+- [x] Per-attempt generation timeout 240 s → 150 s (slowest normal 3.6-flash call measured: ~120 s)
+- [x] The retry/fallback loop is a pure, unit-tested function (fake attempts, fake sleep)
+- [x] Spec § Gemini call (Overload) updated
+
+Entry points: `withFallback(models, attempt, { sleep? })`, `failureKind(err)`, `RETRY_DELAYS_MS`, `EARLY_RETRY_DELAYS_MS` in `lib/gemini.ts` (used by `generateDocumentPrompts`, so generation and the verification call both get it); tests in `lib/gemini.test.ts`
+
+Notes for others:
+- **What it fixes:** when 3.6-flash is overloaded (it 503'd every full-size request for 30+ min on 2026-10-04), each call now reaches flash-lite after ~2 s of retrying instead of ~20 s. A stalled call used to **fail the Game** after 240 s, because the SDK's timeout throws `AbortError` (not `ApiError`) and the old `retryable()` didn't recognise it. Now it falls back after 150 s.
+- **Verification** uses the same loop with its own model order (lite first) and 120 s timeout, so a stalled verifier also falls back to 3.6-flash now.
+- The SDK's own retries (`httpOptions.retryOptions`) stay off; all retrying is in `withFallback`.
+- Without `GEMINI_FALLBACK_MODEL` there's one model, and it keeps the full 2/5/12 s retries as before.
