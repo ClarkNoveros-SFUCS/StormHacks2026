@@ -38,9 +38,11 @@ Two halves: deterministic code decides **what is true**, and an LLM decides **ho
 - **The learner model** replays your `guess_events` on Python Basics. Each Prompt is tagged with 1–3 of 22 Concepts (tagged once, offline), and each guess updates a Bayesian Knowledge Tracing score per Concept.
 - **The Mode sets the guess rate.** A right answer in Blitz (true/false) is a coin flip, so it counts for little (guess rate 0.5). A four-option Leap or Arena question is 0.25, and a typed Dive answer is 0.05, so it counts for a lot.
 - **Noisy-AND blame.** A Prompt about two Concepts is only answered right if you know both. When you miss it, the weaker Concept takes more of the blame.
-- **Root cause.** If a weak prerequisite holds at least 40% of the blame on your last 10 misses, that's the root cause: "your Loops misses come from comparisons". Mastery also fades over time (it halves every 72 hours unseen).
+- **Root cause.** If a weak prerequisite holds at least 40% of the blame on your last 10 misses, that's the root cause: "your for-loop misses come from `range()`". Mastery also fades over time (it halves every 72 hours unseen).
 - **The agent loop.** A LangGraph graph: `observe` (no LLM) loads the model, the page you're on and your recent mistakes; then the LLM coach replies, calling tools (`get_concept`, `get_mistakes`, `read_topic`, `read_source_page`, `recommend`, `propose_game`) until it's done.
 - **Guardrails.** Every number comes from the model, never from the LLM. Sonar recommends the planner's top 3, or its own pick only if the server confirms you can play it (no locked Topics). A new Game it proposes waits for you to confirm. And no AI runs during a Run: the buddy hides while you play.
+
+**Try it:** [`docs/sonar-use-cases.md`](docs/sonar-use-cases.md) has what Sonar can do, how the feedback loop works, and 10 use cases to test step by step (where you stand, root cause, "why am I getting this wrong?", closing the loop with a Run, Module pages, guardrails).
 
 ## Stack
 
