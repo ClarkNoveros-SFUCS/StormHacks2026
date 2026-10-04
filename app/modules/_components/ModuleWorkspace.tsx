@@ -30,6 +30,10 @@ type Props = {
 
 type Confirm = { kind: "doc"; doc: DocRow } | { kind: "game"; game: GameRow } | null;
 
+/** The on-screen match (Next keeps recently visited pages mounted but hidden). */
+const visibleEl = (selector: string) =>
+  Array.from(document.querySelectorAll<HTMLElement>(selector)).find((e) => e.offsetParent !== null) ?? null;
+
 const toRow = (g: GameSummary | GameRow): GameRow => ({
   ...g,
   created_at: new Date(g.created_at).toISOString(),
@@ -114,7 +118,7 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
         mascot.current?.react("happy");
         markFresh(d.id);
         requestAnimationFrame(() =>
-          burstFrom(document.querySelector(`[data-doc="${d.id}"]`), {
+          burstFrom(visibleEl(`[data-doc="${d.id}"]`), {
             count: 18,
             kind: "spark",
           }),
@@ -148,7 +152,7 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
         mascot.current?.react("wow");
         markFresh(g.id);
         requestAnimationFrame(() =>
-          burstFrom(document.querySelector(`[data-game="${g.id}"]`), {
+          burstFrom(visibleEl(`[data-game="${g.id}"]`), {
             count: 40,
           }),
         );
@@ -280,7 +284,7 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
       icon: "sparkle",
     });
     requestAnimationFrame(() =>
-      burstFrom(document.querySelector(`[data-game="${game.id}"]`), {
+      burstFrom(visibleEl(`[data-game="${game.id}"]`), {
         count: 30,
         kind: "spark",
       }),

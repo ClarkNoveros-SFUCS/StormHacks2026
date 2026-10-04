@@ -15,7 +15,9 @@ export function usePolling(active: boolean, ms: number, tick: () => Promise<void
     if (!active) return;
     let stopped = false;
     let timer: ReturnType<typeof setTimeout>;
+    let busy = false;
     const run = async () => {
+      busy = true;
       if (document.visibilityState === "visible") {
         try {
           await saved.current();
@@ -23,12 +25,21 @@ export function usePolling(active: boolean, ms: number, tick: () => Promise<void
           // network blip: try again next tick
         }
       }
+      busy = false;
       if (!stopped) timer = setTimeout(run, ms);
     };
     timer = setTimeout(run, ms);
+    // Catch up as soon as the tab comes back instead of waiting for the next tick.
+    const onVisible = () => {
+      if (document.visibilityState !== "visible" || stopped || busy) return;
+      clearTimeout(timer);
+      run();
+    };
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       stopped = true;
       clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [active, ms]);
 }

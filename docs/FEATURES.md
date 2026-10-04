@@ -17,7 +17,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F05 | Answer matching | Gameplay | F01 | #5 | done |
 | F06 | Run engine and scoring API | Gameplay | F01, F05 | #6 | done |
 | F07 | Progress: Personal Best and Mastery | Gameplay | F01 | #7 | done |
-| F08 | Modules list and Module page UI | Frontend | F01 (mock F03/F04) | #8 | planned |
+| F08 | Modules list and Module page UI | Frontend | F01 (mock F03/F04) | #8 | done |
 | F09 | Run screen and Reveal UI | Frontend | F06 (mock), F10 | #9 | planned |
 | F10 | Visual design system (site + Mode themes) | Frontend | design session | #10 | done |
 | F11 | Game page UI | Frontend | F07 | #11 | planned |
@@ -186,14 +186,23 @@ Notes for others:
 - Definitions of new Personal Best and Mastery before → after: `run-and-scoring.md` § Reveal.
 
 ## F08 Modules list and Module page UI
-Spec: `docs/architecture/ui-map.md`
-- [ ] `/modules`: list, create, empty state
-- [ ] `/modules/[moduleId]` Files panel: upload drop zone, status pills with polling, Retry, "Used by N Games", delete guard
-- [ ] Games panel: cards with **source-file chips**, status polling, Personal Best, Mastery bar, Play
-- [ ] New Game dialog: title + checkbox list of Ready files
-- [ ] Hover linking: chip ↔ file highlight
+Spec: `docs/architecture/ui-map.md` · Design: `docs/design/design-system.md` §7 · Decisions: `overnight-decisions.md` §10, §13 (Q13), §14
+- [x] `/modules`: list (TiltCards with a pixel banner per Module, file and Game counts, Mode badges, best result, last played; staggered entry), inline `+ New Module` create that opens the Module, empty state with the mascot
+- [x] `/modules/[moduleId]` Files panel: animated drag-and-drop upload zone with per-file upload progress, status pills with polling, "Used by N Games", delete guard (tooltip naming the Games) and a confirm modal. No Retry (ADR-0003): failed files show their error and are deleted and uploaded again
+- [x] Games panel: cards with the Mode's mini-scene, `ModeBadge`, status polling (~3 s while generating), **source-file chips**, the Mode's best result in its own words (Dive depth, Apogee km, points otherwise), Mastery meter, Play in the Mode's verb; failed Games show their error and can be deleted
+- [x] New Game dialog: Mode tiles (Dive preselected; Apogee, Leap, Pairs, Blitz; Arena locked), the Mode's rules and Prompt kinds, title (defaults to "Module · Mode"), checkbox list of Ready files (≥ 1), a gentle hint when the material looks thin for Pairs/Blitz/Leap
+- [x] Hover linking: chip ↔ file row (and the Game cards built from a file)
+- [x] **File viewer:** parsed text of a file, page list with first headings, rendered markdown (headings, bullets, tables, code, speaker notes), search with highlights and jumps between matching pages, ←/→ between pages, deep link `?doc=<id>&page=<n>`; `GET /api/documents/[documentId]/pages`
 
-Entry points: — · Notes for others: —
+Entry points: `app/modules/page.tsx`, `app/modules/[moduleId]/page.tsx`, `app/modules/files/[documentId]/page.tsx` (Evidence link that only knows the file: redirects to the Module page with the viewer open), `app/modules/actions.ts` (`createModule`), `app/modules/_components/` (`ModuleWorkspace`, `FilesPanel`, `GamesPanel`, `NewGameDialog`, `FileViewer`, `MarkdownView`, `ModuleBanner`, `DocIcon`, `Portal`), `app/modules/_lib/` (`queries.ts` server reads, `markdown.ts` safe parser, `mode-words.ts` `bestInWords`/`KIND_LABEL`/`thinMaterialHint`, `client.ts` `usePolling`/`uploadFile`), `GET /api/documents/[documentId]/pages`
+
+Notes for others:
+- **Evidence links (F09/F24/F25):** link to `/modules/files/<documentId>?page=<n>` (or `/modules/<moduleId>?doc=<documentId>&page=<n>`). `Evidence` in `lib/runs/types.ts` has no `documentId` yet: adding it is a small Run-lane contract change.
+- **Pages API:** `GET /api/documents/[documentId]/pages` → `{ document: { id, filename, pageCount }, pages: { pageNumber, contentMd }[] }`, owner only (404 otherwise); empty `pages` until the file is parsed.
+- **Markdown:** `app/modules/_lib/markdown.ts` + `_components/MarkdownView.tsx` render to React elements only (no HTML injection); reuse them for Topic readings (F27) if useful.
+- **Overlays:** the layout's `PageTransition` animates `transform`, which traps `position: fixed` children; dialogs on these pages render through `_components/Portal.tsx`. F19: if you add a global page transition, F10's `Modal`/`Drawer` will need the same portal.
+- **Layout:** `app/modules/layout.tsx` adds `SkyBackdrop` + `PageTransition`; drop the backdrop there if F19 moves it into the root layout. No nav link to `/modules` yet (F19 owns the header).
+- **Play** goes to `/games/[id]` (F11). Next keeps recently visited pages mounted but hidden, so query visible elements only (`offsetParent !== null`) when targeting DOM by data attribute.
 
 ## F09 Run screen and Reveal UI (Dive)
 Spec: `docs/architecture/ui-map.md`, `docs/architecture/run-and-scoring.md`, `docs/design/modes/dive.md`
@@ -263,7 +272,8 @@ Spec: `docs/architecture/game-modes.md`, ADR-0004
 - [x] Migration: `games.mode text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive'))`; `data-model.md` updated from "planned" to the real column (shipped with F04; applied to stormhacks-dev)
 - [x] `lib/modes/index.ts` (`MODES`, `ModeId`); `POST /api/modules/[moduleId]/games` accepts `mode` (default `'dive'`) and validates it (shipped with F04)
 - [x] Generation and the run engine read `game.mode` (generation since F04; F20 made both dispatch on it for five Modes)
-- [ ] New Game dialog: Mode tiles (Dive + locked "More modes soon"); Game cards and the Game page show the Mode badge
+- [x] New Game dialog: Mode tiles (Dive, Apogee, Leap, Pairs, Blitz + Arena locked "coming soon"); Game cards show the Mode badge (shipped with F08, #8)
+- [ ] The Game page shows the Mode badge (F11, #11)
 
 Entry points: — · Notes for others: —
 
