@@ -11,13 +11,17 @@ import { sfx } from "@/lib/ui/sfx";
 // The top three on a pixel podium: 2 · 1 · 3, with gold/silver/bronze trophies. Hovering (or
 // focusing) a step pops confetti from its trophy.
 
+/** A board's unit, singular and plural: ["topic", "topics"]. */
+export type Unit = readonly [one: string, many: string];
+export const unitLabel = (u: Unit, n: number) => (n === 1 ? u[0] : u[1]);
+
 const STEPS = {
   1: { h: "h-28 sm:h-32", tone: { y: "#ffd84d", Y: "#c99a1e", w: "#fff6c2" }, edge: "#ffd84d", label: "1st" },
   2: { h: "h-20 sm:h-24", tone: { y: "#d6deef", Y: "#8d98b5", w: "#ffffff" }, edge: "#d6deef", label: "2nd" },
   3: { h: "h-14 sm:h-16", tone: { y: "#e09a5b", Y: "#9a5a2a", w: "#ffd0a0" }, edge: "#e09a5b", label: "3rd" },
 } as const;
 
-function Step({ entry, slot, unit, delay }: { entry: LeaderboardEntry | undefined; slot: 1 | 2 | 3; unit: string; delay: number }) {
+function Step({ entry, slot, unit, delay }: { entry: LeaderboardEntry | undefined; slot: 1 | 2 | 3; unit: Unit; delay: number }) {
   const trophy = useRef<HTMLSpanElement>(null);
   const last = useRef(0);
   const st = STEPS[slot];
@@ -36,7 +40,7 @@ function Step({ entry, slot, unit, delay }: { entry: LeaderboardEntry | undefine
           onMouseEnter={pop}
           onFocus={pop}
           className="group mb-2 flex w-full min-w-0 flex-col items-center gap-1 rounded-md px-1 text-center"
-          aria-label={`${st.label} place: ${entry.player.displayName}, ${entry.value.toLocaleString("en-US")} ${unit}${entry.isMe ? " (you)" : ""}`}
+          aria-label={`${st.label} place: ${entry.player.displayName}, ${entry.value.toLocaleString("en-US")} ${unitLabel(unit, entry.value)}${entry.isMe ? " (you)" : ""}`}
         >
           {slot === 1 && (
             <span aria-hidden="true" className="-mb-1 animate-bob">
@@ -56,7 +60,7 @@ function Step({ entry, slot, unit, delay }: { entry: LeaderboardEntry | undefine
             Lv {entry.player.level}
           </Chip>
           <span className="font-hud text-2xl leading-none text-reward">
-            {entry.value.toLocaleString("en-US")} <span className="text-sm text-muted">{unit}</span>
+            {entry.value.toLocaleString("en-US")} <span className="text-sm text-muted">{unitLabel(unit, entry.value)}</span>
           </span>
         </Link>
       ) : (
@@ -81,7 +85,7 @@ function Step({ entry, slot, unit, delay }: { entry: LeaderboardEntry | undefine
   );
 }
 
-export function Podium({ entries, unit }: { entries: LeaderboardEntry[]; unit: string }) {
+export function Podium({ entries, unit }: { entries: LeaderboardEntry[]; unit: Unit }) {
   // Ties share a place, so seat by order rather than by `place`.
   const [first, second, third] = entries;
   return (

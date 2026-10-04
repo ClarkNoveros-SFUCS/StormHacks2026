@@ -12,11 +12,11 @@ import { useReducedMotion } from "@/lib/motion";
 import type { Leaderboard, LeaderboardEntry, LeaderboardScope } from "@/lib/social/types";
 import { sfx } from "@/lib/ui/sfx";
 import { fetchDailyBoard, type DailyInfo } from "./daily";
-import { Podium } from "./Podium";
+import { Podium, unitLabel, type Unit } from "./Podium";
 
 export type BoardTab = "daily" | "weekly" | "courses";
 
-const UNIT: Record<BoardTab, string> = { daily: "pts", weekly: "XP", courses: "topics" };
+const UNIT: Record<BoardTab, Unit> = { daily: ["pt", "pts"], weekly: ["XP", "XP"], courses: ["topic", "topics"] };
 
 type Loaded = { status: "soon" } | { status: "ready"; board: Leaderboard } | { status: "error"; message: string };
 
@@ -43,7 +43,7 @@ function ScopeToggle({ value, onChange }: { value: LeaderboardScope; onChange: (
     { id: "friends", label: "Friends", icon: "users" },
   ];
   return (
-    <div role="radiogroup" aria-label="Scope" className="relative inline-flex rounded-md border border-border bg-bg-2 p-1">
+    <div role="radiogroup" aria-label="Scope" className="relative grid w-fit grid-cols-2 self-start rounded-md border border-border bg-bg-2 p-1 sm:self-auto">
       <span
         aria-hidden="true"
         className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-sm bg-surface-2 ring-1 ring-border-strong"
@@ -78,7 +78,7 @@ function ScopeToggle({ value, onChange }: { value: LeaderboardScope; onChange: (
   );
 }
 
-function Row({ e, unit, rowRef, pinned }: { e: LeaderboardEntry; unit: string; rowRef?: (el: HTMLLIElement | null) => void; pinned?: boolean }) {
+function Row({ e, unit, rowRef, pinned }: { e: LeaderboardEntry; unit: Unit; rowRef?: (el: HTMLLIElement | null) => void; pinned?: boolean }) {
   return (
     <li ref={rowRef} data-key={keyOf(e)} className={pinned ? "" : "will-change-transform"}>
       <Link
@@ -103,7 +103,7 @@ function Row({ e, unit, rowRef, pinned }: { e: LeaderboardEntry; unit: string; r
         </span>
         <span className="shrink-0 text-right font-hud text-2xl leading-none text-reward">
           {e.value.toLocaleString("en-US")}
-          <span className="ml-1 text-sm text-muted">{unit}</span>
+          <span className="ml-1 text-sm text-muted">{unitLabel(unit, e.value)}</span>
         </span>
       </Link>
     </li>
@@ -111,7 +111,7 @@ function Row({ e, unit, rowRef, pinned }: { e: LeaderboardEntry; unit: string; r
 }
 
 /** Rows below the podium. FLIP: when the board changes (scope switch), rows glide to their new spot. */
-function BoardList({ board, unit }: { board: Leaderboard; unit: string }) {
+function BoardList({ board, unit }: { board: Leaderboard; unit: Unit }) {
   const reduced = useReducedMotion();
   const rows = useRef(new Map<string, HTMLLIElement>());
   const prevTops = useRef(new Map<string, number>());
@@ -308,7 +308,7 @@ export function LeaderboardClient({ initialTab, initialWeekly, daily }: { initia
           <>
             <Podium key={`${tab}:${shownKey}`} entries={view.board.entries} unit={unit} />
             <BoardList board={view.board} unit={unit} />
-            {scope === "friends" && view.board.total <= 1 && (
+            {scope === "friends" && view.board.entries.every((e) => e.isMe) && (
               <p className="mt-6 text-center text-sm text-muted">
                 It&apos;s lonely at the top.{" "}
                 <Link href="/friends?tab=find" className="font-display text-signal hover:underline">

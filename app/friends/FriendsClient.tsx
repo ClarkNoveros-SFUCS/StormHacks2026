@@ -119,6 +119,7 @@ function FindTab({ onFriended }: { onFriended: (r: PlayerSearchResult, status: F
         <input
           ref={input}
           type="search"
+          autoComplete="off"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search by username or name…"

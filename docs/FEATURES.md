@@ -35,7 +35,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F23 | Daily Dive backend | Platform | F21, F22 | #36 | planned |
 | F24 | Apogee and Leap screens (three.js) | Frontend | F10, F20 | #37 | planned |
 | F25 | Pairs and Blitz screens | Frontend | F10, F20 | #38 | planned |
-| F26 | Profile, Friends and Leaderboard pages | Frontend | F10, F21 | #39 | planned |
+| F26 | Profile, Friends and Leaderboard pages | Frontend | F10, F21 | #39 | done |
 | F27 | Explore, Course and Topic pages | Frontend | F10, F22 | #40 | planned |
 | F28 | Daily Dive hub page | Frontend | F09, F23 | #41 | planned |
 | F29 | Arena: three.js FPS study Mode (stretch) | Frontend | F20, F24 | #42 | planned |
@@ -397,10 +397,21 @@ Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #38 (checklist live
 Entry points: — · Notes for others: —
 
 ## F26 Profile, Friends and Leaderboard pages
-Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #39 (checklist lives on the issue until this feature ships)
-- [ ] See the issue checklist
+Spec: `docs/architecture/social.md` (API), `docs/architecture/ui-map.md` § F26, decisions §6, §12 (Q8, Q11, Q12), §13 (Q17), §14 · Issue #39
+- [x] Profile card (pixel avatar + Edit picker, Total XP, Rank, Badges, Day streak, View profile) used on /home and profile (home: F19's `ProfileSidebar`; profile: the same stats in `StatsCard`, without the redundant avatar/View profile)
+- [x] /u/[username]: banner, avatar, level, heatmap, badges, bests, friend button
+- [x] /friends (list, requests, search); /leaderboard tabs + Global/Friends
+- [x] Also: `/profile` → `/u/[me]`; animated pixel banners (ocean, space, sky; default from the username); Edit profile dialog (display name, username with live availability, bio, avatar picker, photo toggle, banner); Course progress with Topic badges and recent activity on profiles; flip-card Badge grid with locked "how to earn"; podium with confetti, FLIP rows, pinned own row and weekly reset countdown; Lumen empty states; 375 px, keyboard, reduced motion
 
-Entry points: — · Notes for others: —
+Entry points: `app/profile/page.tsx`, `app/u/[username]/` (`page.tsx`, `data.ts` `recentActivity`/`courseProgress`/`playerIdFor`, `ProfileHeader`, `EditProfile`, `Sections` `Bests`/`Courses`/`RecentActivity`, `not-found.tsx`), `app/friends/` (`page.tsx`, `FriendsClient`, `data.ts` `friendStreaks`), `app/leaderboard/` (`page.tsx`, `LeaderboardClient`, `Podium`, `daily.ts` adapter), `components/social/` (`ProfileBanner` + `banners.ts`, `ActivityHeatmap`, `BadgeGrid`/`Medallion`, `BadgeGlyph`, `FriendButton`, `StatsCard`, `RankEmblem`, `EmptyState`, `SocialBackdrop`, `api.ts` client for the social API, `format.ts` + tests)
+
+Notes for others:
+- **F23 (Daily):** the Daily Dive tab is wired but shows "arrives soon": set `daily.gameId` in `app/leaderboard/page.tsx` (TODO there) to today's Daily Game and `app/leaderboard/daily.ts` already calls `GET /api/leaderboards/games/[gameId]?day=&scope=&counting=first`.
+- **Reuse:** `FriendButton` (Add / Requested / Accept+Decline / Friends ✓ with unfriend confirm), `ProfileBanner theme={bannerFor(banner, username)}`, `Medallion`/`BadgeGlyph` (draws F21's badge icon ids anchor, moon, trench, frog, stopwatch, coral, trident, scroll, diploma that `PixelIcon` lacks), `RankEmblem rank=…`, `EmptyState say title` (Lumen with a bubble that fits 375 px), `socialApi` in `components/social/api.ts`.
+- Banner ids are `ocean`, `space`, `sky` (stored in `players.banner`; null = derived from the username). No migration.
+- Username availability in the Edit dialog = `usernameProblem()` locally + exact match in `GET /api/players/search`; the PATCH still returns 409 if it races.
+- Profiles show recent activity from `xp_events`, naming a Game only when it's public (Module Games show as "Finished a Leap Run").
+- Integration fix: `components/results/ResultList.tsx` `KIND_LABEL` gained `multiple_choice` and `true_false` (F19 + F22 merge didn't typecheck without it).
 
 ## F27 Explore, Course and Topic pages
 Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #40 (checklist lives on the issue until this feature ships)

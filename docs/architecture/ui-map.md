@@ -65,10 +65,10 @@ No invented stats or testimonials. In order:
 
 ## `/leaderboard`, `/friends`, `/u/[username]`, `/profile` · F26 (#39)
 
-- **`/leaderboard`:** tabs **Daily Dive (today)**, **Weekly XP**, **Course** (Topic passes); scopes **Global / Friends**; your row is pinned and highlighted.
-- **`/friends`:** your friends, incoming/outgoing requests (accept, decline, cancel), remove, and a username search with Add buttons. No chat.
-- **`/u/[username]`:** banner, `PixelAvatar` (or the Clerk photo if the Player chose it), display name, `@username`, joined date, friend button, the `ProfileCard` stats (level, total XP, rank, badges, day streak), the activity **Heatmap** (last 52 weeks), per-Mode bests on public Games, the badge grid, and a Modules **count** (never Module content: Modules, files and Module Games stay private). On your own profile the card's **Edit** opens the avatar picker.
-- **`/profile`:** redirects to `/u/[your username]`.
+- **`/leaderboard`:** tabs **Daily Dive (today)**, **Weekly XP**, **Courses** (Topic passes), deep-linkable with `?tab=`; scope toggle **Global / Friends**. A pixel podium for the top 3 (trophies, confetti on hover), then rows (avatar, @username, Rank, Level, value) that FLIP to their new place on a scope switch; your row is highlighted, and pinned at the bottom when you're outside the top 50. Weekly shows the reset countdown (Monday 00:00 Vancouver), Daily the next-Daily countdown. Until F23 ships the Daily tab says "Daily Dive arrives soon" (`app/leaderboard/daily.ts`).
+- **`/friends`:** tabs **Friends** (cards: avatar, Level, Rank, streak flame, unfriend), **Requests** (incoming Accept/Decline, sent Cancel), **Find** (debounced username search with Add buttons); `?tab=` deep links. No chat. Lumen empty states.
+- **`/u/[username]`:** animated pixel banner (ocean / space / sky, chosen in Edit profile, default from the username), round avatar overlapping it (`PixelAvatar` or the Clerk photo, Q17), display name, Level, Rank, `@username`, joined date, friend / run / topic counts and a Modules **count**; the friend button (or **Edit profile** on your own: display name, username with live availability, bio, avatar picker, photo toggle, banner). Main column: activity **Heatmap** (53 weeks, tooltips, streaks), **Bests** per Mode on public Games, **Courses** progress with Topic badges, **Recent activity**. Sidebar: the stats card (Total XP, Rank, Badges, Day streak, Level bar) and the **Badges** grid (earned glow and flip; locked show how to earn). Never Module content (Modules, files and Module Games stay private).
+- **`/profile`:** redirects to `/u/[your username]` (after `ensureProfile`).
 
 ## `/modules`: Modules list · F08
 
