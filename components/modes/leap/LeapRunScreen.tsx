@@ -94,12 +94,14 @@ export function LeapRunScreen({ initial, context }: Props) {
   const enqueue = (job: () => Promise<void>) => {
     chain.current = chain.current.then(job).catch(() => {});
   };
-  const mark = (s: Square) =>
+  const mark = (s: Square) => {
+    const i = posRef.current - 1; // read now: the updater runs after posRef moves on
     setSquares((xs) => {
       const n = [...xs];
-      n[posRef.current - 1] = s;
+      n[i] = s;
       return n;
     });
+  };
   const showPop = (text: string, sub: string, color: string) => {
     popUntil.current = performance.now() + 1600;
     setPop({ key: counter.current++, text, sub, color });
@@ -113,6 +115,25 @@ export function LeapRunScreen({ initial, context }: Props) {
   useEffect(() => {
     stage.current?.run((s) => s.setTarget(phase === "play" || phase === "starting" || phase === "ready" || phase === "intro" ? posRef.current : null));
   }, [phase, position]);
+
+  // Keep the hopper framed in the open sky between the HUD and the question card.
+  const dockRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const dock = dockRef.current;
+    const root = dock?.parentElement;
+    if (!dock || !root) return;
+    const measure = () => {
+      const H = root.clientHeight || 1;
+      const cardTop = H - dock.offsetHeight;
+      const hud = 76;
+      stage.current?.run((s) => s.setFocus((hud + Math.max(hud + 60, cardTop)) / 2 / H));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(dock);
+    ro.observe(root);
+    return () => ro.disconnect();
+  }, []);
 
   const onFrame = useCallback((f: { hopperX: number; hopperY: number }) => {
     const el = popRef.current;
@@ -432,7 +453,7 @@ export function LeapRunScreen({ initial, context }: Props) {
         {!finished && (
           <span className="lp-chip text-[15px] text-muted">
             next ×{nextMult}
-            {toNext > 0 && <span className="text-faint"> · ×{streakMultiplier(run.streak + toNext)} in {toNext}</span>}
+            {toNext > 0 && <span className="hidden text-faint sm:inline"> · ×{streakMultiplier(run.streak + toNext)} in {toNext}</span>}
           </span>
         )}
       </div>
@@ -454,7 +475,7 @@ export function LeapRunScreen({ initial, context }: Props) {
       )}
 
       {/* the points pop over the hopper */}
-      <div ref={popRef} className="pointer-events-none fixed top-1/3 left-1/2 z-[15] text-center whitespace-nowrap" aria-hidden="true">
+      <div ref={popRef} className="pointer-events-none absolute top-1/3 left-1/2 z-[15] text-center whitespace-nowrap" aria-hidden="true">
         {pop && (
           <div key={pop.key} style={{ animation: "lp-pop 1.6s var(--ease-out) forwards", color: pop.color }}>
             <div className="font-display text-[44px] leading-none" style={{ textShadow: "0 3px 0 #7a5a00, 0 0 18px rgba(255,216,77,.6)" }}>
@@ -468,7 +489,7 @@ export function LeapRunScreen({ initial, context }: Props) {
       </div>
 
       {/* bottom: intro, ready beat, question card, result */}
-      <div className="absolute inset-x-0 bottom-0 z-20 flex justify-center px-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:pb-6">
+      <div ref={dockRef} className="absolute inset-x-0 bottom-0 z-20 flex justify-center px-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:pb-6">
         {(phase === "intro" || phase === "ready" || (phase === "starting" && !question)) && (
           <section className="lp-card w-full max-w-[560px] p-5 text-center" style={{ animation: "lp-card-in .45s var(--ease-out) both" }} aria-label="Ready">
             {phase === "intro" ? (
@@ -518,7 +539,7 @@ export function LeapRunScreen({ initial, context }: Props) {
               />
             </div>
             <p className="mt-3 text-[18px] leading-snug font-bold text-balance sm:text-[21px]">{question.text}</p>
-            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-2.5" role="group" aria-label="Options">
+            <div className="mt-3 grid grid-cols-1 gap-2 min-[480px]:grid-cols-2 sm:gap-2.5" role="group" aria-label="Options">
               {question.options.map((o, i) => (
                 <button
                   key={o.id}

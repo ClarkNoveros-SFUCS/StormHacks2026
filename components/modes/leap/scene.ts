@@ -73,6 +73,7 @@ export class LeapScene {
   private anim: Anim = { kind: "idle" };
   private standOn = 0;
   private target: number | null = null;
+  private focus = 0.35;
   private hop = new THREE.Vector3();
   private squash = { y: 1, vy: 0 };
   private wobble = { a: 0, v: 0 };
@@ -313,14 +314,19 @@ export class LeapScene {
       }
     }
     // far floating islands as silhouettes for depth
-    const far = new THREE.MeshLambertMaterial({ color: 0x7e95c4 });
+    const farTop = new THREE.MeshLambertMaterial({ color: 0x6fbf8a });
+    const far = new THREE.MeshLambertMaterial({ color: 0x7e8fb8 });
     for (let i = 0; i < 9; i++) {
       const gr = new THREE.Group();
-      const top2 = new THREE.Mesh(new THREE.BoxGeometry(5, 1, 4), far);
-      const under = new THREE.Mesh(new THREE.ConeGeometry(2.4, 4, 5), far);
-      under.rotation.x = Math.PI;
-      under.position.y = -2.4;
-      gr.add(top2, under);
+      const top2 = new THREE.Mesh(new THREE.BoxGeometry(5, 0.8, 4), farTop);
+      gr.add(top2);
+      let sx = 4.4;
+      for (let j = 0; j < 3; j++) {
+        const slab = new THREE.Mesh(new THREE.BoxGeometry(sx, 1, sx * 0.8), far);
+        slab.position.y = -0.9 - j;
+        gr.add(slab);
+        sx *= 0.6;
+      }
       gr.position.set((i % 2 ? -1 : 1) * (18 + Math.random() * 20), i * (top / 8) - 2, -55 - Math.random() * 20);
       gr.scale.setScalar(0.8 + Math.random() * 0.8);
       this.scene.add(gr);
@@ -465,8 +471,32 @@ export class LeapScene {
     this.viewW = w;
     this.viewH = h;
     this.renderer.setSize(w, h, false);
-    this.camera.aspect = w / h;
-    this.camera.fov = w / h < 0.8 ? 58 : 45;
+    this.frame();
+  }
+
+  /**
+   * Where on screen the hopper should sit, as a fraction of the height from the top (the UI
+   * passes the middle of the space between its HUD and the question card).
+   */
+  setFocus(fraction: number) {
+    const f = Math.min(0.75, Math.max(0.12, fraction));
+    if (Math.abs(f - this.focus) < 0.005) return;
+    this.focus = f;
+    this.frame();
+  }
+
+  /** Render the window of a taller frustum whose centre (the hopper) lands at `focus`. */
+  private frame() {
+    const w = this.viewW;
+    const h = this.viewH;
+    const f = this.focus;
+    const tall = f <= 0.5 ? 2 * (1 - f) : 2 * f;
+    const fullH = h * tall;
+    const offsetY = f <= 0.5 ? (tall / 2 - f) * h : 0;
+    const windowFov = w / h < 0.8 ? 50 : 42;
+    this.camera.aspect = w / fullH;
+    this.camera.fov = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(windowFov / 2)) * tall));
+    this.camera.setViewOffset(w, fullH, 0, offsetY, w, h);
     this.camera.updateProjectionMatrix();
   }
 
@@ -744,12 +774,12 @@ export class LeapScene {
     }
     this.camX += (this.hopper.position.x * 0.35 - this.camX) * (1 - Math.exp(-dt * 3));
     const narrow = this.viewW / this.viewH < 0.8;
-    const dist = narrow ? 13 : 11;
+    const dist = narrow ? 15 : 12.5;
     const mx = reduced ? 0 : this.mouse.x * 0.8;
     const my = reduced ? 0 : this.mouse.y * 0.4;
     this.camera.position.set(this.camX + mx, this.camY + 1.4 - my, dist);
-    // Look below the hopper so it sits in the upper part of the screen, above the question card.
-    this.camera.lookAt(this.camX * 0.8, this.camY - (narrow ? 2.6 : 1.3), 0);
+    // Look at the hopper; the view offset (resize) puts it in the upper part of the screen.
+    this.camera.lookAt(this.camX * 0.8, this.camY - 1.1, 0);
     this.sky.position.copy(this.camera.position);
     this.stars.position.copy(this.camera.position);
 

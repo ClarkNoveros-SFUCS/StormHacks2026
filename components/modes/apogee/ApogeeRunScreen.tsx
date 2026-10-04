@@ -147,12 +147,14 @@ export function ApogeeRunScreen({ initial, context }: Props) {
   const enqueue = (job: () => Promise<void>) => {
     chain.current = chain.current.then(job).catch(() => {});
   };
-  const markPip = (t: TierKey) =>
+  const markPip = (t: TierKey) => {
+    const i = posRef.current - 1;
     setPips((xs) => {
       const n = [...xs];
-      n[posRef.current - 1] = t;
+      n[i] = t;
       return n;
     });
+  };
   const showPop = (text: string, sub: string, color: string, minus = false) => {
     popUntil.current = performance.now() + (minus ? 900 : 1700);
     setPop({ key: counter.current++, text, sub, color, minus });
@@ -589,7 +591,7 @@ export function ApogeeRunScreen({ initial, context }: Props) {
       )}
 
       {/* the score pop, anchored over the rocket's nose */}
-      <div ref={popRef} className="pointer-events-none fixed top-1/2 left-1/2 z-[15] text-center whitespace-nowrap" aria-hidden="true">
+      <div ref={popRef} className="pointer-events-none absolute top-1/2 left-1/2 z-[15] text-center whitespace-nowrap" aria-hidden="true">
         {pop && (
           <div key={pop.key} style={{ animation: `ap-pop ${pop.minus ? 900 : 1700}ms cubic-bezier(.2,.8,.2,1) forwards`, color: pop.color }}>
             <div className="font-display leading-none font-black tracking-[0.02em]" style={{ fontSize: pop.minus ? 34 : 56, textShadow: "0 0 24px currentColor" }}>

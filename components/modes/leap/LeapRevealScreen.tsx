@@ -51,12 +51,11 @@ export function LeapRevealScreen({ reveal, context, history }: Props) {
   const fellAt = outcome === "fell" ? (qs.filter((q) => q.outcome !== null).at(-1)?.position ?? null) : null;
   const topic = revealTopic(reveal);
 
+  // Replay the ending: the flag goes up on a summit; on a fall the hopper leaps for the last island and drops.
   useEffect(() => {
-    if (outcome === "cleared") {
-      const id = setTimeout(() => stage.current?.run((s) => s.summit()), 600);
-      return () => clearTimeout(id);
-    }
-  }, [outcome]);
+    const id = setTimeout(() => stage.current?.run((s) => (outcome === "cleared" ? s.summit() : fellAt ? s.miss(fellAt, true) : undefined)), 700);
+    return () => clearTimeout(id);
+  }, [outcome, fellAt]);
 
   useEffect(() => {
     if (!progress) return;

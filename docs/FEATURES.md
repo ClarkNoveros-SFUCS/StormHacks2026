@@ -33,7 +33,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F21 | Social backend: profiles, XP, streaks, heatmap, badges, friends, leaderboards | Platform | F01, F07 | #34 | planned |
 | F22 | Courses backend and the seeded Python Basics course | Platform | F20 | #35 | planned |
 | F23 | Daily Dive backend | Platform | F21, F22 | #36 | planned |
-| F24 | Apogee and Leap screens (three.js) | Frontend | F10, F20 | #37 | planned |
+| F24 | Apogee and Leap screens (three.js) | Frontend | F10, F20 | #37 | done |
 | F25 | Pairs and Blitz screens | Frontend | F10, F20 | #38 | planned |
 | F26 | Profile, Friends and Leaderboard pages | Frontend | F10, F21 | #39 | planned |
 | F27 | Explore, Course and Topic pages | Frontend | F10, F22 | #40 | planned |
@@ -362,10 +362,12 @@ Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #36 (checklist live
 Entry points: — · Notes for others: —
 
 ## F24 Apogee and Leap screens (three.js)
-Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #37 (checklist lives on the issue until this feature ships)
-- [ ] See the issue checklist
+Spec: `docs/worklog/aaf1007/overnight-decisions.md` §4, Q18, Q21 · `docs/design/modes/apogee.md`, `docs/design/modes/leap.md` · Issue #37
+- [x] Apogee Run + Mission Report: port inspo/krillion-space-variant/apogee.html to React + three.js
+- [x] Leap Run + results: three.js hopper on rising sky-island platforms, hearts, streak, 50/50
+- [x] Both use the shared round/results blocks where they fit; reduced motion; mobile
 
-Entry points: — · Notes for others: —
+Entry points: `components/modes/apogee/` (`ApogeeRunScreen`, `ApogeeRevealScreen`, `scene.ts`, `altitude.ts` with `LANDMARKS`/`APOGEE_TIERS`/`MISSION_BANDS`, `AltitudeRuler`, `TierReveal`), `components/modes/leap/` (`LeapRunScreen`, `LeapRevealScreen`, `scene.ts`), both wired in `app/runs/[runId]/mode-screens.tsx`; `runApi.answer` / `runApi.lifeline` in `lib/runs/client.ts`; `components/results/TopicPassBanner.tsx` (`revealTopic(reveal)`); `ResultList` takes an optional `tiers` map · Notes for others: three.js scenes are plain classes loaded by a dynamic import from a `*Stage` component (queue commands with `stage.run(fn)`); they pause while hidden, cap DPR at 2 and dispose on unmount. In `next dev` the live scene is on `window.__apogee` / `window.__leap` and `.step(ms)` advances a frame by hand (background tabs don't run rAF). Apogee shows 1 km per point; landmarks are real up to the ISS (408), stylised above. **F25:** `runApi.answer` already covers Blitz's `{ value }`. **F27:** the "Topic passed!" banner renders when a Reveal has `passed` and a `topic` object (`{ title, href? }`); give the F22 Reveal that field and it shows up on every Mode that uses the banner. **F29 (Arena):** `components/modes/leap/LeapStage.tsx` + `scene.ts` are the pattern to copy.
 
 ## F25 Pairs and Blitz screens
 Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #38 (checklist lives on the issue until this feature ships)
