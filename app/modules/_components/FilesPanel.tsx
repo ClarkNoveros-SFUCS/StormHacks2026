@@ -14,8 +14,6 @@ type Props = {
   uploads: UploadItem[];
   /** Titles of the Games built from each file. */
   usedBy: Map<string, string[]>;
-  hoverDocId: string | null;
-  onHover: (id: string | null) => void;
   removing: Set<string>;
   freshIds: Set<string>;
   onFiles: (files: File[]) => void;
@@ -31,8 +29,6 @@ export function FilesPanel({
   docs,
   uploads,
   usedBy,
-  hoverDocId,
-  onHover,
   removing,
   freshIds,
   onFiles,
@@ -51,7 +47,7 @@ export function FilesPanel({
       <DropZone onFiles={onFiles} compact={count > 0} />
 
       {count > 0 ? (
-        <ul className="flex flex-col gap-2" onMouseLeave={() => onHover(null)}>
+        <ul className="flex flex-col gap-2">
           {uploads.map((u) => (
             <li key={u.key} className={`${s.rowIn} card flex flex-col gap-2 p-3`}>
               <div className="flex items-center gap-3">
@@ -85,10 +81,8 @@ export function FilesPanel({
               doc={d}
               index={i}
               usedBy={usedBy.get(d.id) ?? []}
-              lit={hoverDocId === d.id}
               leaving={removing.has(d.id)}
               fresh={freshIds.has(d.id)}
-              onHover={onHover}
               onOpen={onOpen}
               onDelete={onDelete}
             />
@@ -103,20 +97,16 @@ function FileRow({
   doc,
   index,
   usedBy,
-  lit,
   leaving,
   fresh,
-  onHover,
   onOpen,
   onDelete,
 }: {
   doc: DocRow;
   index: number;
   usedBy: string[];
-  lit: boolean;
   leaving: boolean;
   fresh: boolean;
-  onHover: (id: string | null) => void;
   onOpen: (doc: DocRow) => void;
   onDelete: (doc: DocRow) => void;
 }) {
@@ -128,9 +118,7 @@ function FileRow({
   return (
     <li
       data-doc={doc.id}
-      onMouseEnter={() => onHover(doc.id)}
-      onFocus={() => onHover(doc.id)}
-      className={`${leaving ? s.rowOut : s.rowIn} ${lit ? s.lit : ""} ${fresh ? "animate-pop-in" : ""} card flex items-center gap-3 p-3 transition`}
+      className={`${leaving ? s.rowOut : s.rowIn} ${fresh ? "animate-pop-in" : ""} card flex items-center gap-3 p-3 transition`}
       style={{ "--i": index } as React.CSSProperties}
     >
       <button

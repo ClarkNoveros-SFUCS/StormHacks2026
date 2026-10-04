@@ -13,8 +13,8 @@ import s from "./modules.module.css";
 // The file viewer (overnight-decisions §10): the parsed text of a Source Document, page by page.
 // Page list on the left, the page's markdown on the right, search that highlights and jumps
 // between matching pages, ←/→ between pages. Deep-linked as ?doc=<id>&page=<n> by the parent.
-// Each page shows as tidy study notes by default (#75), with the parsed text one toggle away;
-// search always works on (and shows) the parsed text.
+// Each page shows as tidy study notes (#75); the parsed text shows only if they can't be written.
+// Search finds pages by their parsed text and highlights matches in the notes.
 
 const cache = new Map<string, DocumentPages>();
 
@@ -32,7 +32,6 @@ export function FileViewer({ documentId, filename, initialPage, onClose, onPage 
   const [error, setError] = useState<string | null>(null);
   const [index, setIndex] = useState(Math.max(0, initialPage - 1));
   const [query, setQuery] = useState("");
-  const [view, setView] = useState<"notes" | "raw">("notes");
   const [notes, setNotes] = useState<Record<number, string | null>>({});
   const dialog = useRef<HTMLDivElement>(null);
   const content = useRef<HTMLDivElement>(null);
@@ -151,19 +150,18 @@ export function FileViewer({ documentId, filename, initialPage, onClose, onPage 
   }, []);
 
   const page = pages[current];
-  const searching = !!query.trim();
   const pageNotes = page ? notes[page.pageNumber] : undefined;
-  const showNotes = view === "notes" && !searching && pageNotes !== null;
+  const showNotes = pageNotes !== null;
 
   useEffect(() => {
-    if (!page || view !== "notes" || searching || page.pageNumber in notes) return;
+    if (!page || page.pageNumber in notes) return;
     let live = true;
     const n = page.pageNumber;
     loadPageNotes(documentId, n).then((md) => live && setNotes((all) => ({ ...all, [n]: md })));
     return () => {
       live = false;
     };
-  }, [documentId, page, view, searching, notes]);
+  }, [documentId, page, notes]);
 
   return (
     <div className="fixed inset-0 z-[80]" role="presentation">
@@ -183,7 +181,7 @@ export function FileViewer({ documentId, filename, initialPage, onClose, onPage 
             <h2 id={titleId} className="truncate text-lg text-text">
               {filename}
             </h2>
-            <p className="text-[13px] text-muted">Parsed text of your file (the original isn&apos;t stored)</p>
+            <p className="text-[13px] text-muted">Study notes from your file</p>
           </div>
           <div className="order-last flex w-full items-center gap-2 sm:order-none sm:w-auto">
             <label className="relative flex-1 sm:w-64 sm:flex-none">
@@ -348,34 +346,7 @@ export function FileViewer({ documentId, filename, initialPage, onClose, onPage 
                     </button>
                   </span>
                 </div>
-                <div role="tablist" aria-label="How to show the page" className="flex self-start rounded-sm border border-border-strong p-0.5">
-                  {(
-                    [
-                      ["notes", "Study notes"],
-                      ["raw", "Original text"],
-                    ] as const
-                  ).map(([v, label]) => (
-                    <button
-                      key={v}
-                      type="button"
-                      role="tab"
-                      aria-selected={view === v}
-                      onClick={() => {
-                        sfx.click();
-                        setView(v);
-                      }}
-                      className={`rounded-[3px] px-2.5 py-1 text-[13px] transition ${
-                        view === v ? "bg-primary text-primary-text" : "text-muted hover:text-text"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                {view === "notes" && searching && (
-                  <p className="text-[13px] text-muted">Showing the parsed text while you search.</p>
-                )}
-                {view === "notes" && pageNotes === null && (
+                {pageNotes === null && (
                   <p className="text-[13px] text-caution">Couldn&apos;t tidy this page right now, so here&apos;s the text as parsed.</p>
                 )}
                 {showNotes && pageNotes === undefined ? (
@@ -390,7 +361,7 @@ export function FileViewer({ documentId, filename, initialPage, onClose, onPage 
                   <div key={`${page.pageNumber}-${showNotes}`} className={s.pageIn}>
                     {showNotes ? (
                       pageNotes?.trim() ? (
-                        <MarkdownView md={pageNotes} variant="notes" />
+                        <MarkdownView md={pageNotes} variant="notes" query={query} />
                       ) : (
                         <p className="text-faint italic">This page has no text.</p>
                       )

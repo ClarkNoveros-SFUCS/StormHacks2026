@@ -2,7 +2,7 @@
 
 Status: in-review
 Branch: feat/75-reveal-slide-panel
-Updated: 2026-10-04 09:15
+Updated: 2026-10-04 09:40
 
 ## Goal
 On the Reveal, an Evidence link (`Week2.pdf · p.12`) opens that page in a side panel instead of
@@ -15,13 +15,16 @@ readable formulas), with the raw parsed text one toggle away. Issue #75.
   (GEMINI_FALLBACK_MODEL, flash-lite, ~1 s), then GEMINI_MODEL. 3.6-flash took 26 s and 503'd in testing.
 - `GET /api/documents/[documentId]/pages/[pageNumber]/notes`: owner only, writes notes on first
   request, caches in `notes_md`, dedupes concurrent requests in-process; 502 if Gemini fails.
-- `components/results/SlidePanel.tsx`: provider + right drawer (notes / original text toggle,
+- `components/results/SlidePanel.tsx`: provider + right drawer (study notes,
   ←/→ pages, Esc, quote callout on the Evidence page, "Open in Module →"). Dims the page below `lg` only.
 - `EvidenceLine` opens the panel when inside the provider and the link goes to `/modules/…`
   (course Topic links and modified clicks still navigate). `RevealScreen` wraps every Mode in the provider.
-- Module `FileViewer`: same notes / original toggle; search always shows the parsed text.
+- Module `FileViewer`: notes only; search finds pages by parsed text and highlights matches in the notes.
 - `MarkdownView` `variant="notes"`: formulas in the body font (the pixel code font has no math glyphs).
 - Markdown tables: pipes inside `code` spans no longer split cells (`P(A|B)`).
+- Review round 1 (user): removed the "Original text" toggle everywhere (notes only; the parsed text
+  shows only if Gemini fails), removed the file ↔ Game hover glow on the Module page, and banned
+  LaTeX-style `lim_{n→∞}` in the notes prompt.
 - Verified in the browser (dev server on :3100 with DEV_PLAYER_ID) on the Week2 deck.
 
 ## Next steps

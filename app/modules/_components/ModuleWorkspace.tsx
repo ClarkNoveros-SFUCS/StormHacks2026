@@ -56,7 +56,6 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
   const [docs, setDocs] = useState(initialDocuments);
   const [games, setGames] = useState(initialGames);
   const [uploads, setUploads] = useState<UploadItem[]>([]);
-  const [hoverDocId, setHoverDocId] = useState<string | null>(null);
   const [viewer, setViewer] = useState(() =>
     initialViewer && initialDocuments.some((d) => d.id === initialViewer.docId) ? initialViewer : null,
   );
@@ -344,8 +343,6 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
           docs={docs}
           uploads={uploads}
           usedBy={usedBy}
-          hoverDocId={hoverDocId}
-          onHover={setHoverDocId}
           removing={removing}
           freshIds={freshIds}
           onFiles={onFiles}
@@ -355,8 +352,6 @@ export function ModuleWorkspace({ module: mod, initialDocuments, initialGames, p
         <GamesPanel
           games={games}
           progress={progress}
-          hoverDocId={hoverDocId}
-          onHover={setHoverDocId}
           freshIds={freshIds}
           removing={removing}
           canCreate={ready > 0}

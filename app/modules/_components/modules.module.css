@@ -124,19 +124,6 @@
   animation: bob 0.6s ease-in-out infinite;
 }
 
-/* ---------- File rows and Game cards: hover linking ---------- */
-.lit {
-  border-color: var(--signal) !important;
-  box-shadow:
-    0 0 0 1px var(--signal),
-    0 10px 30px -14px var(--signal);
-  background-color: color-mix(in srgb, var(--signal) 7%, var(--surface));
-}
-.chipLit {
-  box-shadow: 0 0 0 1px var(--signal);
-  background: color-mix(in srgb, var(--signal) 22%, transparent) !important;
-  color: var(--text) !important;
-}
 .rowIn {
   animation: rise-in 0.45s var(--ease-out) both;
   animation-delay: calc(var(--i, 0) * 50ms);

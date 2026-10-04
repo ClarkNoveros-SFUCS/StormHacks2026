@@ -1,7 +1,7 @@
 "use client";
 // The slide panel (#75): on a Reveal, an Evidence link opens its page in a drawer on the right
 // instead of leaving the page. It shows Gemini's tidy study notes for the page (written on first
-// view, then stored), with the raw parsed text one toggle away, ←/→ between pages, and a link to
+// view, then stored; the parsed text if they can't be written), ←/→ between pages, and a link to
 // the full file viewer on the Module page. EvidenceLine opens it through `useSlidePanel`.
 import Link from "next/link";
 import { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
@@ -61,15 +61,12 @@ function loadPages(documentId: string) {
   return p;
 }
 
-type View = "notes" | "raw";
-
 function SlidePanel({ target, onClose }: { target: Open; onClose: () => void }) {
   const { evidence, href } = target;
   const [data, setData] = useState<DocumentPages | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(evidence.pageNumber);
   const [notes, setNotes] = useState<Record<number, string | null | undefined>>({});
-  const [view, setView] = useState<View>("notes");
   const titleId = useId();
   const panel = useRef<HTMLElement>(null);
   const body = useRef<HTMLDivElement>(null);
@@ -136,7 +133,7 @@ function SlidePanel({ target, onClose }: { target: Open; onClose: () => void }) 
   const raw = data?.pages.find((p) => p.pageNumber === page)?.contentMd;
   const md = notes[page];
   const notesFailed = md === null;
-  const showRaw = view === "raw" || notesFailed;
+  const showRaw = notesFailed;
   const filename = data?.document.filename ?? evidence.documentTitle;
   const onEvidencePage = page === evidence.pageNumber;
 
@@ -176,30 +173,6 @@ function SlidePanel({ target, onClose }: { target: Open; onClose: () => void }) 
         </header>
 
         <div className="flex items-center gap-2 border-b border-border px-4 py-2">
-          <div role="tablist" aria-label="How to show the page" className="flex rounded-sm border border-border-strong p-0.5">
-            {(
-              [
-                ["notes", "Study notes"],
-                ["raw", "Original text"],
-              ] as const
-            ).map(([v, label]) => (
-              <button
-                key={v}
-                type="button"
-                role="tab"
-                aria-selected={view === v}
-                onClick={() => {
-                  sfx.click();
-                  setView(v);
-                }}
-                className={`rounded-[3px] px-2.5 py-1 text-[13px] transition ${
-                  view === v ? "bg-primary text-primary-text" : "text-muted hover:text-text"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
           <span className="flex-1" />
           <button
             type="button"
@@ -240,7 +213,7 @@ function SlidePanel({ target, onClose }: { target: Open; onClose: () => void }) 
 
           {!error && showRaw && raw !== undefined && (
             <div key={`raw-${page}`} className={s.pageIn}>
-              {notesFailed && view === "notes" && (
+              {notesFailed && (
                 <p className="mb-3 text-[13px] text-caution">Couldn&apos;t tidy this page right now, so here&apos;s the text as parsed.</p>
               )}
               <MarkdownView md={raw} query={onEvidencePage ? (evidence.quote ?? "") : ""} />
@@ -266,7 +239,7 @@ function SlidePanel({ target, onClose }: { target: Open; onClose: () => void }) 
 
         <footer className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-4 py-2.5 text-[12px] text-faint">
           <span className="flex-1">
-            {view === "notes" && !notesFailed ? "Notes tidied by AI from your file's text. Check the original if in doubt." : "Text as parsed from your file."}
+            {!notesFailed ? "Notes tidied by AI from your file's text. Check the original if in doubt." : "Text as parsed from your file."}
           </span>
           <Link href={`${href.replace(/([?&])page=\d+/, `$1page=${page}`)}`} className="text-signal underline-offset-2 hover:underline">
             Open in Module →

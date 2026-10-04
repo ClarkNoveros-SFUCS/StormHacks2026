@@ -22,7 +22,7 @@ Rewrite it so a student can study from it:
 - Restore lists: "- " bullets, "1. " for numbered items, two-space indent for sub-points.
 - Use a markdown table when the content is parallel or tabular. Always use a table for: 3+ named items that each have a formula or definition (laws, axioms, rules, properties: | Law | Formula |), a comparison of two or more things (e.g. "Disjoint vs. Independent": | | Disjoint | Independent |), side-by-side columns, and the given values of a word problem (| Quantity | Value |). Every table needs a header row and a separator row ("| --- | --- |"). Keep cells short; long explanations stay as bullets.
 - **Bold** each key term where it is defined.
-- Rebuild formulas into one readable line with Unicode math, inside backticks: \`P(A|B) = P(A ∩ B) / P(B)\`, \`P(Aᶜ) = 1 − P(A)\`, \`P(⋃ᵢ Aᵢ) = Σᵢ P(Aᵢ)\`, \`(A ∪ B)′ = A′ ∩ B′\`. No LaTeX, no $ signs.
+- Rebuild formulas into one readable line with Unicode math, inside backticks: \`P(A|B) = P(A ∩ B) / P(B)\`, \`P(Aᶜ) = 1 − P(A)\`, \`P(⋃ᵢ Aᵢ) = Σᵢ P(Aᵢ)\`, \`(A ∪ B)′ = A′ ∩ B′\`. No LaTeX: no $ signs, no backslashes, no _{…} or ^{…}. Write limits as \`lim (n→∞)\`, sums as \`Σᵢ₌₁ⁿ\`, fractions as \`a / b\` (with parentheses when needed).
 - Put a worked answer or key takeaway in a "> " quote line if the page has one.
 - Drop leftover headers/footers (author name, course name, "22 / 22"), image credits ("Photo credit: …", "Image by …") and lone stray symbols.
 
