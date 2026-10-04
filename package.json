@@ -18,7 +18,8 @@
     "test:db": "vitest run db.test",
     "parse:check": "node scripts/parse-check.ts",
     "generate:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-check.ts",
-    "social:backfill": "node scripts/social-backfill.mjs"
+    "social:backfill": "node scripts/social-backfill.mjs",
+    "seed:content:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-seed-content.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.10",
