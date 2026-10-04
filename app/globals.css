@@ -117,22 +117,69 @@
   --reward: #ffd84d;
 }
 
-/* Pairs: card table. F25 owns the full theme. */
+/* Pairs: a bright pixel card table (docs/design/modes/pairs.md). Felt, wood rim, cream cards. */
 [data-theme="pairs"] {
-  --bg: #1a0f24;
-  --surface: #261638;
+  --bg: #0d4a3d;
+  --bg-2: #0a3a30;
+  --surface: #11594a;
+  --surface-2: #176b59;
+  --border: #2b8a73;
+  --border-strong: #4fb399;
+  --ink: #062720;
+  --text: #fdf8ec;
+  --muted: #bfe0d4;
+  --faint: #86b8a8;
+  --primary: #ffd166;
+  --primary-text: #2a1a00;
+  --primary-drop: #b8862a;
   --accent: #ff9f43;
   --signal: #ffd84d;
-  --reward: #3ddc97;
+  --reward: #ffd166;
+  --violet: #b69bff;
+  --success: #6dffb0;
+  --danger: #ff5c6c;
+  --band-miss: #0a3a30;
+  --r-sm: 4px;
+  --r: 6px;
+  --r-lg: 10px;
+  /* table pieces */
+  --felt: #0f5546;
+  --felt-2: #0b4538;
+  --wood: #8a5428;
+  --wood-dark: #4f2c12;
+  --card: #fff7e6;
+  --card-ink: #2b1d0e;
+  --card-muted: #6d5a43;
+  --card-term: #f0a92e;
+  --card-def: #8a63f0;
 }
 
-/* Blitz: neon arcade. F25 owns the full theme. */
+/* Blitz: neon arcade (docs/design/modes/blitz.md). Synthwave grid, magenta / cyan / acid yellow. */
 [data-theme="blitz"] {
   --bg: #0b0418;
+  --bg-2: #10062a;
   --surface: #170a2c;
+  --surface-2: #200e3d;
+  --border: #3a1a66;
+  --border-strong: #5a2a9a;
+  --ink: #05010d;
+  --text: #f7f0ff;
+  --muted: #b49ad8;
+  --faint: #7c62a0;
+  --primary: #ff3df0;
+  --primary-text: #1a0018;
+  --primary-drop: #8a1580;
   --accent: #ff3df0;
   --signal: #3dfcff;
   --reward: #f6ff3d;
+  --success: #3dff9c;
+  --danger: #ff3d6e;
+  --band-miss: #2a1648;
+  --r-sm: 2px;
+  --r: 4px;
+  --r-lg: 8px;
+  --neon-true: #3dfcff;
+  --neon-false: #ff3d6e;
 }
 
 @theme inline {

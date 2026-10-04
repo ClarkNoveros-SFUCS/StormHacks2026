@@ -1,7 +1,9 @@
 // Browser helpers for the Run API (every Mode). Client-safe: plain fetch, no server imports.
 // Spec: docs/architecture/run-and-scoring.md § API. Errors come back as RunApiError with the
 // HTTP status and the server's `{ error }` message.
-import type { GuessBody, GuessResponse, HintResponse, Reveal, RunState } from "./types";
+import type {
+  BlitzAnswerBody, BlitzAnswerResponse, GuessBody, GuessResponse, HintResponse, PairBody, PairResponse, Reveal, RunState,
+} from "./types";
 
 export class RunApiError extends Error {
   constructor(
@@ -47,6 +49,10 @@ export const runApi = {
   guess: (runId: string, body: GuessBody, clock?: Clock) => call<GuessResponse>(`/api/runs/${runId}/guess`, post(body), clock),
   hint: (runId: string, clock?: Clock) => call<HintResponse>(`/api/runs/${runId}/hint`, post(), clock),
   reveal: <R extends Reveal = Reveal>(runId: string) => call<R>(`/api/runs/${runId}/reveal`),
+  /** Pairs: POST /pair { termId, definitionId, board? } (F25). */
+  pair: (runId: string, body: PairBody, clock?: Clock) => call<PairResponse>(`/api/runs/${runId}/pair`, post(body), clock),
+  /** Blitz: POST /answer { value, position? } (F25). Leap's /answer body is LeapAnswerBody. */
+  blitzAnswer: (runId: string, body: BlitzAnswerBody, clock?: Clock) => call<BlitzAnswerResponse>(`/api/runs/${runId}/answer`, post(body), clock),
 };
 
 /** Milliseconds left until an ISO deadline, by the server's clock. */

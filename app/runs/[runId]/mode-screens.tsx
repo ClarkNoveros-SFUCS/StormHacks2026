@@ -3,6 +3,10 @@
 // gets the live RunState (or the Reveal) plus the page context from app/runs/queries.ts.
 import { DiveRevealScreen } from "@/components/modes/dive/DiveRevealScreen";
 import { DiveRunScreen } from "@/components/modes/dive/DiveRunScreen";
+import { BlitzRevealScreen } from "@/components/modes/blitz/BlitzRevealScreen";
+import { BlitzRunScreen } from "@/components/modes/blitz/BlitzRunScreen";
+import { PairsRevealScreen } from "@/components/modes/pairs/PairsRevealScreen";
+import { PairsRunScreen } from "@/components/modes/pairs/PairsRunScreen";
 import type { Reveal, RunState } from "@/lib/runs/types";
 import { modeUi } from "@/lib/ui/modes";
 import type { DiveHistory, RunContext } from "../queries";
@@ -12,10 +16,12 @@ export function RunScreen({ state, context }: { state: RunState; context: RunCon
   switch (state.mode) {
     case "dive":
       return <DiveRunScreen initial={state} context={context} />;
+    case "pairs": //  F25
+      return <PairsRunScreen initial={state} context={context} />;
+    case "blitz": //  F25
+      return <BlitzRunScreen initial={state} context={context} />;
     case "apogee": // F24
     case "leap": //   F24
-    case "pairs": //  F25
-    case "blitz": //  F25
       return <ModeComingSoon mode={state.mode} context={context} />;
   }
 }
@@ -24,10 +30,12 @@ export function RevealScreen({ reveal, context, history }: { reveal: Reveal; con
   switch (reveal.mode) {
     case "dive":
       return <DiveRevealScreen reveal={reveal} context={context} history={history} />;
+    case "pairs": //  F25
+      return <PairsRevealScreen reveal={reveal} context={context} history={history} />;
+    case "blitz": //  F25
+      return <BlitzRevealScreen reveal={reveal} context={context} history={history} />;
     case "apogee": // F24
     case "leap": //   F24
-    case "pairs": //  F25
-    case "blitz": //  F25
       return <ModeComingSoon mode={reveal.mode} context={context} />;
   }
 }
