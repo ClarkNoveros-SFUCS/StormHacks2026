@@ -51,6 +51,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F37 | Generating Game card: step-by-step text animation | Frontend | F08 | #87 | done |
 | F39 | Sonar stays on custom Modules: Read + Game cards, no Python Basics leak | Gameplay | F32, F35 | #83 | done |
 | F40 | Module page map: per-page performance across a Module's Games | Frontend | F07, F35 | #90 | done |
+| F41 | Fix: PDFs with symbol-font glyphs fail to parse (NUL in page text) | Pipelines | F03 | — | done |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -672,6 +673,17 @@ Notes for others:
 - Applies to every Clerk component (SignIn, SignUp, the modals from `SignInButton`/`SignUpButton`, UserButton, UserProfile). Style a new one by adding its element key to `elements`, or a `.cl-<element>` rule in globals.css.
 - Colours are hex copies of the :root tokens: Clerk derives shades from them and can't read CSS variables. Change both if the palette changes.
 - "Secured by Clerk" stays (removing it needs a paid Clerk plan).
+
+## F41 Fix: PDFs with symbol-font glyphs fail to parse (NUL in page text)
+No issue (the agent couldn't create one); see the PR
+- [x] `toParsedPages` strips control characters (keeps `\n` and `\t`) before pages are stored
+- [x] Unit test; checked end to end on two failing lecture PDFs against Postgres 16
+
+Entry points: `toParsedPages` in `lib/documents/parsed-pages.ts`
+
+Notes for others:
+- Symbol-font glyphs (maths brackets, arrows) can come out of pdf.js as control characters, including NUL. Postgres `text` rejects NUL (`invalid byte sequence for encoding "UTF8": 0x00`), so the whole file used to fail with "We couldn't read this file". Files that failed this way parse after deleting and uploading them again.
+- Stored `content_md` never contains control characters other than newline and tab. `\r` is stripped too.
 
 ## F38 Sonar-made Games show up live; generation tops up when short
 Issue #86

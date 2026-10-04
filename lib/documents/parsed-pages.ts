@@ -32,12 +32,17 @@ export function validateUpload(filename: string, mimeType: string, sizeBytes: nu
   return canonical;
 }
 
+// Control characters other than tab and newline. Symbol-font glyphs (maths brackets, arrows)
+// can come out of pdf.js as these, and Postgres `text` rejects NUL outright.
+const CONTROL_CHARS = /[\u0000-\u0008\u000B-\u001F\u007F]/g;
+
 /**
  * Numbers the extracted pages (0-based index, 1-based number shown to the Player) and
  * applies the page rules. Blank pages are kept so numbering matches the file.
  */
-export function toParsedPages(pages: string[]): ParsedPage[] {
-  if (pages.length > MAX_PAGES) throw new UserFacingError(`File has more than ${MAX_PAGES} pages`);
+export function toParsedPages(rawPages: string[]): ParsedPage[] {
+  if (rawPages.length > MAX_PAGES) throw new UserFacingError(`File has more than ${MAX_PAGES} pages`);
+  const pages = rawPages.map((p) => p.replace(CONTROL_CHARS, ""));
   if (pages.every((p) => p.trim() === "")) {
     throw new UserFacingError(
       "No text could be read from this file. If it's a scanned PDF, export the original slides instead",
