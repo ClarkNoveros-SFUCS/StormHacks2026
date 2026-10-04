@@ -87,6 +87,7 @@ describe.skipIf(!enabled)("progress", async () => {
     await sql`insert into guess_events ${sql([
       guess(1, run.first, a.common, true),
       guess(2, run.first, null, false), // wrong guess
+      guess(-40 * 24 * 60, run.first, null, false), // 40 days ago: outside dailyStats' 30 days
       guess(11, run.abandoned, a.deep, true), // abandoned Runs still count toward Mastery
       guess(21, run.tie, a.common, true), // same Answer again counts once
       guess(31, run.best, a.cloze, true, me, clozePrompt),
@@ -99,6 +100,7 @@ describe.skipIf(!enabled)("progress", async () => {
   afterAll(async () => {
     await sql`delete from guess_events where player_id in (${me}, ${other})`;
     await sql`delete from players where id in (${me}, ${other})`; // cascades
+    await sql`call refresh_continuous_aggregate('player_game_daily', null, null)`; // drop their daily rows
     await sql.end();
   });
 
@@ -180,6 +182,34 @@ describe.skipIf(!enabled)("progress", async () => {
   it("runProgress: a first Run scoring 0 isn't a new best", async () => {
     const p = await progress.runProgress(me, run.zero);
     expect(p).toMatchObject({ score: 0, previousBest: null, isNewBest: false });
+  });
+
+  // Sums over days, since where Vancouver midnight falls relative to the fixtures varies
+  const totals = (days: { guesses: number; correct: number }[]) =>
+    days.reduce((s, d) => ({ guesses: s.guesses + d.guesses, correct: s.correct + d.correct }), {
+      guesses: 0,
+      correct: 0,
+    });
+
+  it("dailyStats covers the last 30 days, oldest first, real-time before any refresh", async () => {
+    const days = await progress.dailyStats(me, game);
+    // 7 of my guesses in range (the orphan counts as a correct guess; the 40-day-old one doesn't)
+    expect(totals(days)).toEqual({ guesses: 7, correct: 6 });
+    expect(days.map((d) => d.day.getTime())).toEqual(days.map((d) => d.day.getTime()).sort((x, y) => x - y));
+    for (const d of days) {
+      expect(d.accuracy).toBeCloseTo(d.correct / d.guesses);
+      expect(d.avgMsToCorrect).toBe(d.correct > 0 ? 1000 : null);
+    }
+    expect(totals(await progress.dailyStats(me, game, 60))).toEqual({ guesses: 8, correct: 6 });
+  });
+
+  it("dailyStats is the same after the aggregate is materialized", async () => {
+    await sql`call refresh_continuous_aggregate('player_game_daily', null, null)`;
+    expect(totals(await progress.dailyStats(me, game))).toEqual({ guesses: 7, correct: 6 });
+  });
+
+  it("dailyStats is empty for a Game the Player doesn't own", async () => {
+    expect(await progress.dailyStats(other, game)).toEqual([]);
   });
 
   it("runProgress is null for unfinished Runs and other Players", async () => {

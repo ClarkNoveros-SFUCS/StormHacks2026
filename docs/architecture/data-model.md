@@ -209,19 +209,27 @@ SELECT count(DISTINCT run_id) FROM guess_events
 WHERE player_id = $1 AND prompt_id = $2 AND matched_answer_id = $3 AND is_correct AND run_id <> $4;
 ```
 
-## Optional: continuous aggregate for a stats panel (Tiger Data showcase)
+## Continuous aggregate for the stats chart (Tiger Data showcase)
+
+Built in F07: `db/migrations/20261004T0316_player_game_daily.sql`, read through `dailyStats()` in `lib/progress.ts`.
 
 ```sql
-CREATE MATERIALIZED VIEW player_game_daily WITH (timescaledb.continuous) AS
-SELECT time_bucket('1 day', created_at) AS day, player_id, game_id,
+CREATE MATERIALIZED VIEW player_game_daily
+WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
+SELECT time_bucket('1 day', created_at, 'America/Vancouver') AS day, player_id, game_id,
        count(*)                                         AS guesses,
        count(*) FILTER (WHERE is_correct)               AS correct,
        avg(ms_into_prompt) FILTER (WHERE is_correct)    AS avg_ms_to_correct
 FROM guess_events
-GROUP BY day, player_id, game_id;
+GROUP BY day, player_id, game_id
+WITH NO DATA;
 
 SELECT add_continuous_aggregate_policy('player_game_daily',
   start_offset => INTERVAL '30 days', end_offset => INTERVAL '1 minute', schedule_interval => INTERVAL '5 minutes');
 ```
 
-This powers an "accuracy and speed over time" chart on the Game page. It isn't needed for the core loop.
+- **`materialized_only = false`** (real-time aggregation): rows newer than the last refresh are computed from `guess_events` at query time, so a Run just played shows on the chart without waiting for the 5-minute policy.
+- **Vancouver days:** UTC days would split an evening of play at 5 pm local time.
+- **`WITH NO DATA`:** migrations run in a transaction; the policy fills the view in.
+
+This powers an "accuracy and speed over time" chart on the Game page (F11). It isn't needed for the core loop.

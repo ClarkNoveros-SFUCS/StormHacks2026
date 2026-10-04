@@ -16,6 +16,15 @@ export type RecentRun = { runId: string; score: number; finishedAt: Date };
 
 export type GameProgress = { personalBest: number; mastery: Mastery };
 
+/** One day of guesses on a Game. `accuracy` is 0–1; `avgMsToCorrect` is null with no correct guess. */
+export type DailyStat = {
+  day: Date;
+  guesses: number;
+  correct: number;
+  accuracy: number;
+  avgMsToCorrect: number | null;
+};
+
 /** What the Reveal shows under the Run total. */
 export type RunProgress = {
   score: number;
@@ -162,4 +171,20 @@ export async function runProgress(playerId: string, runId: string): Promise<RunP
     masteryBefore,
     masteryAfter,
   };
+}
+
+/**
+ * Guesses, accuracy and speed per day over the last `days` days, oldest first, for the Game
+ * page's chart. Reads the `player_game_daily` continuous aggregate (Vancouver days, real-time,
+ * so a Run just played is included). Days with no guesses are left out.
+ */
+export async function dailyStats(playerId: string, gameId: string, days = 30): Promise<DailyStat[]> {
+  const rows = await sql<{ day: Date; guesses: number; correct: number; avgMsToCorrect: number | null }[]>`
+    select d.day, d.guesses::int, d.correct::int, round(d.avg_ms_to_correct)::int as "avgMsToCorrect"
+    from player_game_daily d
+    join games g on g.id = d.game_id and g.player_id = d.player_id
+    where d.player_id = ${playerId} and d.game_id = ${gameId}
+      and d.day >= now() - make_interval(days => ${days})
+    order by d.day`;
+  return rows.map((r) => ({ ...r, accuracy: r.guesses === 0 ? 0 : r.correct / r.guesses }));
 }
