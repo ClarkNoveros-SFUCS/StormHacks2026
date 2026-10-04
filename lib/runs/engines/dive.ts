@@ -36,7 +36,12 @@ type CurrentPrompt = {
 };
 
 export const diveEngine: ModeEngine = {
-  draw: (tx, gameId) => drawPrompts(tx, gameId, null, RUN_LENGTH, RUN_LENGTH, "Prompts"),
+  draw: async (tx, gameId) => {
+    // A Daily Dive puzzle (F23) plays its 7 Prompts in a fixed order (fact sheet page order),
+    // so everyone's share grid lines up; any other Game draws 7 at random.
+    const [daily] = await tx<{ prompt_ids: string[] }[]>`SELECT prompt_ids FROM daily_puzzles WHERE game_id = ${gameId}`;
+    return daily ? daily.prompt_ids : drawPrompts(tx, gameId, null, RUN_LENGTH, RUN_LENGTH, "Prompts");
+  },
   initialState: () => null,
 
   async state(tx, run, now) {

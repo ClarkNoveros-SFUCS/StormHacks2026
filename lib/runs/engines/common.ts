@@ -4,6 +4,7 @@ import type { ModeId } from "@/lib/modes";
 import { runProgress } from "@/lib/progress";
 import type { Tier } from "@/lib/scoring/tiers";
 import type { TopicReveal } from "@/lib/courses/types";
+import type { CrowdReveal, DailyReveal } from "@/lib/daily/types";
 import type { Evidence, Reveal, RevealProgress, RunState, RunStatus, RunSummary } from "../types";
 
 // What every Mode's run engine shares: the Run row and its lock, RunError, guess_events
@@ -65,6 +66,8 @@ export type RevealBase = {
   passed: boolean;
   progress: RevealProgress;
   topic: TopicReveal | null;
+  daily: DailyReveal | null;
+  crowd: CrowdReveal | null;
 };
 
 /** The caller's Run, locked for this transaction, or 404. */
