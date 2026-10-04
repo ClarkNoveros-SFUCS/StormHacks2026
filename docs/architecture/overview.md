@@ -43,7 +43,8 @@ Nothing talks to Gemini during a Run. A Run touches only Tiger Data, so play sta
 3. [`run-and-scoring.md`](./run-and-scoring.md): Run lifecycle, server-authoritative timer, Hints, Staleness, points.
 4. [`answer-matching.md`](./answer-matching.md): how a typed guess becomes an Answer (or not).
 5. [`data-model.md`](./data-model.md): tables, relationships, hypertable, progress queries.
-6. [`ui-map.md`](./ui-map.md): pages and what each one shows. Visual design is planned separately.
+6. [`ui-map.md`](./ui-map.md): pages and what each one shows. Visual design: `docs/design/design-system.md` (shared) and `docs/design/modes/` (one per Game Mode).
+7. [`game-modes.md`](./game-modes.md): what a Game Mode owns vs. shares, `games.mode`, and how to add a Mode. Docs 2 and 3 describe the first Mode, **Dive**.
 
 ## Rules every agent should keep
 
@@ -51,6 +52,7 @@ Nothing talks to Gemini during a Run. A Run touches only Tiger Data, so play sta
 - **Doc-only Answers.** Every Answer must have Evidence (a page in a Source Document). Off-syllabus guesses are not accepted.
 - **Rarity is fixed.** It's set at generation and never changes from play (ADR-0001).
 - **Games are immutable.** No regeneration and no adding files later. A change means a new Game.
+- **One Game Mode per Game** (ADR-0004). Generation, Run rules and screens follow `game.mode`. Only `'dive'` exists today.
 - **The server owns the clock and the score.** The browser never receives Answers or Hints before they're earned or revealed.
 - **Everything is private to its Player.** Every page and server action starts with `requirePlayer()`, every route handler with `getApiPlayer()` (`lib/auth.ts`), and every query filters by the returned id.
 

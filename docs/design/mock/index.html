@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syllabyss Mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Mulish:wght@400;700&display=swap" rel="stylesheet">
+<!--
+  Design mock for docs/design/design-system.md and docs/design/modes/dive.md. Open this file in a browser.
+  core/    the shared feel: tokens, components, motion, sound, stage, registries, round + results blocks
+  themes/  the ocean scene and the house theme (app shell)
+  modes/   one folder per Game Mode (dive/ is the first)
+  app/     the shell: landing, Modules, Module page, New Game dialog, Game page frame
+  Reference code to port into Next.js (F10). Never import it.
+-->
+<link rel="stylesheet" href="core/system.css">
+<link rel="stylesheet" href="themes/ocean.css">
+<link rel="stylesheet" href="modes/dive/dive.css">
+</head>
+<body data-camera="surface" data-theme="house">
+
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="world" aria-hidden="true">
+  <div class="boat" id="boat"></div>
+  <div class="mascot" id="mascot"></div>
+</div>
+<canvas id="fore" aria-hidden="true"></canvas>
+
+<header class="topbar">
+  <button class="px tile-sm hide-run" id="menuBtn" aria-label="Menu"></button>
+  <div class="logo small hide-run" data-go="modules">SYLLABYSS</div>
+  <div class="right">
+    <button class="px tile-sm" id="muteBtn" aria-label="Mute sound"></button>
+    <div class="px tile-sm avatar hide-run" title="Clerk UserButton goes here">AF</div>
+  </div>
+</header>
+
+<main>
+  <!-- Shell: landing (house theme) -->
+  <section class="screen" id="s-landing">
+    <div class="landing">
+      <div class="sky">
+        <div class="logo big">SYLLABYSS</div>
+        <div class="subtitle">STUDY GAMES</div>
+        <p class="tagline">your notes · turned into games · rarer answers score more</p>
+      </div>
+      <div class="below">
+        <details class="howto">
+          <summary>▸ HOW IT WORKS</summary>
+          <ol>
+            <li>Make a Module for each subject.</li>
+            <li>Drop in your slides and notes.</li>
+            <li>Pick files and a game mode. We write the prompts.</li>
+            <li>Play. Every answer is backed by a page in your notes.</li>
+          </ol>
+        </details>
+        <button class="px px-primary btn-big" data-go="modules">▼ SIGN IN TO DIVE ▼</button>
+        <div class="meta"><span class="micro">Your notes stay private</span><span class="micro">StormHacks 2026</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Shell: Modules list (the signed-in home) -->
+  <section class="screen" id="s-modules">
+    <div class="wrap">
+      <h1 class="page-title">Your Modules</h1>
+      <p class="crumb">ONE MODULE PER SUBJECT</p>
+      <div class="panel">
+        <div class="label">Modules <small>3</small></div>
+        <div class="tiles">
+          <button class="px mtile" data-go="module"><span class="name">CMPT 307 · Algorithms</span><span class="micro">4 files · 2 games</span><span class="micro">Last played Oct 2</span></button>
+          <button class="px mtile" data-go="module"><span class="name">BISC 101 · Cells</span><span class="micro">2 files · 1 game</span><span class="micro">Last played Sep 30</span></button>
+          <button class="px mtile" data-go="module"><span class="name">HIST 225 · Cold War</span><span class="micro">1 file · 0 games</span><span class="micro">Not played yet</span></button>
+          <button class="px mtile new" id="newModuleBtn">+ NEW MODULE</button>
+        </div>
+        <div class="empty"><span id="emptyFish"></span><span>Empty state copy: “Create a Module for each subject you're studying.”</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Shell: Module page -->
+  <section class="screen" id="s-module">
+    <div class="wrap">
+      <p class="crumb"><a data-go="modules">MODULES</a> / CMPT 307</p>
+      <h1 class="page-title">CMPT 307 · Algorithms</h1>
+      <div class="cols" style="margin-top:22px">
+        <div class="panel">
+          <div class="label">Files <small id="fileCount"></small></div>
+          <label class="drop" id="drop">
+            <span id="dropIcon"></span>
+            <span>DROP PDF · PPTX · DOCX</span>
+            <span class="micro">or click · up to 25 MB, 100 pages</span>
+            <input type="file" id="fileInput" hidden multiple accept=".pdf,.pptx,.docx">
+          </label>
+          <div id="files"></div>
+        </div>
+        <div class="panel" style="animation-delay:.08s">
+          <div class="label">Games <small id="gameCount"></small></div>
+          <div id="games"></div>
+          <button class="px btn" id="newGameBtn" style="width:100%">+ NEW GAME</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Game page: frame by the shell, stats + Play wording by the Game's Mode -->
+  <section class="screen" id="s-game">
+    <div class="wrap">
+      <p class="crumb"><a data-go="modules">MODULES</a> / <a data-go="module">CMPT 307</a> / GAME</p>
+      <h1 class="page-title" id="gameTitle"></h1>
+      <div id="gameMeta" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"></div>
+      <div class="stats" id="gameStats"></div>
+      <div class="panel" style="animation-delay:.18s"><div class="label" id="recentLabel">Recent runs</div><div id="recent"></div></div>
+      <div class="descend"><button class="px px-primary btn-big" id="playBtn"></button></div>
+    </div>
+  </section>
+
+  <!-- Run and Reveal: rendered entirely by the Game's Mode -->
+  <section class="screen" id="s-run"><div id="runRoot"></div></section>
+  <section class="screen" id="s-reveal"><div id="revealRoot"></div></section>
+</main>
+
+<div class="modal" id="menu" role="dialog" aria-label="Menu">
+  <div class="panel">
+    <span class="micro glow-signal">SYLLABYSS</span>
+    <h2>MENU</h2>
+    <button class="px tile-sm x" data-close aria-label="Close">X</button>
+    <div class="label">Go to</div>
+    <div class="menu-grid">
+      <button class="px menu-tile" data-go="modules"><span id="mi1"></span>MODULES</button>
+      <button class="px menu-tile" data-go="game"><span id="mi2"></span>LAST GAME</button>
+      <button class="px menu-tile" data-go="reveal"><span id="mi3"></span>LAST REVEAL</button>
+      <button class="px menu-tile" data-go="landing"><span id="mi4"></span>HOW IT WORKS</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="newGame" role="dialog" aria-label="New Game">
+  <div class="panel">
+    <span class="micro glow-signal">CMPT 307</span>
+    <h2>NEW GAME</h2>
+    <button class="px tile-sm x" data-close aria-label="Close">X</button>
+    <div class="label">Mode</div>
+    <div class="mode-grid" id="modeGrid"></div>
+    <div class="label">Title</div>
+    <input class="field" id="ngTitle" value="Final Exam Review" aria-label="Game title">
+    <div class="label">Build from <small>ready files only</small></div>
+    <div class="checks" id="ngFiles"></div>
+    <button class="px px-primary btn" id="ngCreate" style="width:100%">CREATE GAME</button>
+  </div>
+</div>
+
+<nav class="mocknav" aria-label="Mock screens">
+  <span class="micro">MOCK</span>
+  <button class="px" data-go="landing">Landing</button>
+  <button class="px" data-go="modules">Modules</button>
+  <button class="px" data-go="module">Module</button>
+  <button class="px" data-go="game">Game</button>
+  <button class="px" data-go="run">Run ▶</button>
+  <button class="px" data-go="reveal">Reveal</button>
+</nav>
+
+<div class="vignette"></div>
+<div class="crt" id="crt"></div>
+<div class="edge" id="edge"></div>
+<div class="flash" id="flash"></div>
+
+<script src="core/system.js"></script>
+<script src="core/prompt-kinds.js"></script>
+<script src="themes/ocean.js"></script>
+<script src="modes/dive/dive.js"></script>
+<script src="app/shell.js"></script>
+</body>
+</html>

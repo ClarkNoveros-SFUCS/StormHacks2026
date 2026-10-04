@@ -1,0 +1,8 @@
+/* Ocean scene sprites and camera-dependent stage settings (used by the house and Dive themes). */
+.boat { position: absolute; left: 26%; top: 0; will-change: transform; }
+.boat svg { display: block; animation: bob 3s var(--ease-io) infinite; }
+body[data-camera=descent] .vignette, body[data-camera=deep] .vignette { opacity: .6; }
+body[data-camera=surface] .mascot { left: 14%; top: 74vh; }
+body[data-camera=descent] .mascot { left: calc(50% - 500px); top: 46vh; }
+body[data-camera=deep] .mascot { left: calc(50% + 380px); top: 120px; }
+@media (max-width: 1100px) { body[data-camera=descent] .mascot, body[data-camera=deep] .mascot { opacity: 0; } }
