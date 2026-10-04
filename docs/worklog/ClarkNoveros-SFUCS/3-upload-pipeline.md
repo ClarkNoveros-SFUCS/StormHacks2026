@@ -16,6 +16,7 @@ Uploaded PDF/PPTX/DOCX → Snowflake stage → `AI_PARSE_DOCUMENT` (LAYOUT, page
 - `npm test` (node:test, no new deps): 8 passing. `tsc`, eslint and `next build` are clean.
 
 ## Next steps
+0. **Blocked (2026-10-03):** the first live run against a trial account got as far as login (key pair OK) and PUT (OK, and REMOVE cleaned up the file), but AI_PARSE_DOCUMENT failed with `AI function _AI_PARSE_DOCUMENT is not available for trial accounts` (error 399258). Snowflake docs say AI features stay off on self-service trials until a credit card is added (Admin → Billing). Adding the card doesn't end the trial. Rerun `npm run parse:check -- <pdf> --full` after that.
 1. Fill the Snowflake values in `.env.local` (account, user, role, warehouse, db, schema, stage). Only the private key is set so far, and the file is named `env.local`, which Next doesn't load. Then run the Snowsight check (setup doc step 5).
 2. Live test: create a Module row, `POST` a real PDF, a PPTX and a DOCX, and watch the status reach `parsed` with sensible `source_pages`. Try a retry and a delete.
 3. Confirm on that first run: (a) the `return_error_details = TRUE` result shape (the code handles both shapes); (b) `PUT` via snowflake-sdk 3.4 with `AUTO_COMPRESS = FALSE` works; (c) the `TO_FILE('@STAGE', ?)` bind form is accepted; (d) UTF-8 survives (e.g. "Borůvka").
