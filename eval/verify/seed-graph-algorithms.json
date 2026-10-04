@@ -1,16 +1,16 @@
 {
   "deck": "seed-graph-algorithms",
-  "createdAt": "2026-10-04T12:48:37.454Z",
-  "verifyVersion": "f8bbc1ed",
+  "createdAt": "2026-10-04T12:56:38.955Z",
+  "verifyVersion": "28c4606d",
   "run": {
     "model": "gemini-3.5-flash-lite",
-    "seconds": 6.872,
+    "seconds": 6.461,
     "usage": {
-      "inputTokens": 6034,
-      "outputTokens": 2806,
+      "inputTokens": 6067,
+      "outputTokens": 2803,
       "thinkingTokens": 0
     },
-    "costUsd": 0.0088252
+    "costUsd": 0.0088276
   },
   "prompts": [
     "Name a graph algorithm",
@@ -39,7 +39,7 @@
         "answers": [
           {
             "id": "P1.A1",
-            "reason": "Page 2 presents BFS as a graph traversal algorithm.",
+            "reason": "Page 2 presents BFS as a graph algorithm.",
             "supports": true
           },
           {
@@ -74,7 +74,7 @@
           },
           {
             "id": "P1.A8",
-            "reason": "Page 8 presents Boruvka's algorithm.",
+            "reason": "Page 8 presents Borůvka's algorithm.",
             "supports": true
           },
           {
@@ -111,12 +111,12 @@
           },
           {
             "id": "P2.A3",
-            "reason": "Page 8 lists Boruvka as an MST algorithm.",
+            "reason": "Page 8 lists Borůvka as an MST algorithm.",
             "supports": true
           },
           {
             "id": "P2.A4",
-            "reason": "Page 8 lists reverse-delete as an MST algorithm.",
+            "reason": "Page 8 lists Reverse-delete for MST.",
             "supports": true
           }
         ]
@@ -128,22 +128,22 @@
         "answers": [
           {
             "id": "P3.A1",
-            "reason": "Page 5 states Dijkstra finds shortest paths.",
+            "reason": "Page 5 describes Dijkstra finding shortest paths.",
             "supports": true
           },
           {
             "id": "P3.A2",
-            "reason": "Page 2 states BFS finds shortest paths on unweighted graphs.",
+            "reason": "Page 2 states BFS finds the shortest path on unweighted graphs.",
             "supports": true
           },
           {
             "id": "P3.A3",
-            "reason": "Page 6 states Bellman-Ford finds shortest paths.",
+            "reason": "Page 6 describes Bellman-Ford finding shortest paths.",
             "supports": true
           },
           {
             "id": "P3.A4",
-            "reason": "Page 7 states Floyd-Warshall finds shortest paths.",
+            "reason": "Page 7 describes Floyd-Warshall finding shortest paths.",
             "supports": true
           }
         ]
@@ -187,17 +187,17 @@
         "answers": [
           {
             "id": "P5.A1",
-            "reason": "Page 4 says topological sort method 1 runs DFS.",
+            "reason": "Page 4 uses DFS for topological sort method 1.",
             "supports": true
           },
           {
             "id": "P5.A2",
-            "reason": "Page 10 says Kosaraju runs DFS.",
+            "reason": "Page 10 states Kosaraju runs DFS.",
             "supports": true
           },
           {
             "id": "P5.A3",
-            "reason": "Page 10 says Tarjan uses a single DFS.",
+            "reason": "Page 10 states Tarjan finds SCC in a single DFS.",
             "supports": true
           },
           {
@@ -214,32 +214,32 @@
         "answers": [
           {
             "id": "P6.A1",
-            "reason": "Page 5 mentions Dijkstra works with edge weights.",
+            "reason": "Page 5 mentions Dijkstra for non-negative edge weights.",
             "supports": true
           },
           {
             "id": "P6.A2",
-            "reason": "Page 6 mentions Bellman-Ford works with edge weights.",
+            "reason": "Page 6 mentions Bellman-Ford for negative edge weights.",
             "supports": true
           },
           {
             "id": "P6.A3",
-            "reason": "Page 7 mentions Floyd-Warshall handles edge weights.",
+            "reason": "Page 7 mentions Floyd-Warshall handles negative edge weights.",
             "supports": true
           },
           {
             "id": "P6.A4",
-            "reason": "Page 8 mentions Kruskal sorts edges by weight.",
+            "reason": "Page 8 Kruskal adds edges by cheapest weight.",
             "supports": true
           },
           {
             "id": "P6.A5",
-            "reason": "Page 8 mentions Prim adds cheapest edge in weighted graphs.",
+            "reason": "Page 8 Prim adds the cheapest edge.",
             "supports": true
           },
           {
             "id": "P6.A6",
-            "reason": "Page 8 mentions Boruvka adds cheapest outgoing edge.",
+            "reason": "Page 8 Borůvka adds cheapest outgoing edge.",
             "supports": true
           }
         ]
@@ -251,12 +251,12 @@
         "answers": [
           {
             "id": "P7.A1",
-            "reason": "Page 1 defines adjacency list.",
+            "reason": "Page 1 defines adjacency list representation.",
             "supports": true
           },
           {
             "id": "P7.A2",
-            "reason": "Page 1 defines adjacency matrix.",
+            "reason": "Page 1 defines adjacency matrix representation.",
             "supports": true
           },
           {
@@ -339,7 +339,7 @@
         "answers": [
           {
             "id": "P11.A1",
-            "reason": "Page 1 defines DAG as a directed acyclic graph.",
+            "reason": "Page 1 defines DAG.",
             "supports": true
           }
         ]
@@ -363,7 +363,7 @@
         "answers": [
           {
             "id": "P13.A1",
-            "reason": "Page 5 lists these steps in this exact order.",
+            "reason": "Page 5 lists these exact steps for Dijkstra.",
             "supports": true
           }
         ]
@@ -375,7 +375,7 @@
         "answers": [
           {
             "id": "P14.A1",
-            "reason": "Page 8 lists these steps in this exact order.",
+            "reason": "Page 8 lists these exact steps for Kruskal.",
             "supports": true
           }
         ]
@@ -387,7 +387,7 @@
         "answers": [
           {
             "id": "P15.A1",
-            "reason": "Page 8 explicitly states Dijkstra is not an MST algorithm, whereas the other three are.",
+            "reason": "Page 8 states Dijkstra is not an MST algorithm, whereas Kruskal, Prim, and Borůvka are.",
             "supports": true
           }
         ]
@@ -399,7 +399,7 @@
         "answers": [
           {
             "id": "P16.A1",
-            "reason": "Page 12 table shows Floyd-Warshall runs in O(V^3) while BFS, DFS, and Kosaraju run in O(V + E).",
+            "reason": "Page 12 table shows Floyd-Warshall takes O(V^3) while BFS, DFS, and Kosaraju take O(V + E).",
             "supports": true
           }
         ]

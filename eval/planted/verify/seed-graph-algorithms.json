@@ -1,16 +1,16 @@
 {
   "deck": "seed-graph-algorithms",
-  "createdAt": "2026-10-04T12:48:25.624Z",
-  "verifyVersion": "f8bbc1ed",
+  "createdAt": "2026-10-04T12:56:10.555Z",
+  "verifyVersion": "28c4606d",
   "run": {
     "model": "gemini-3.5-flash-lite",
-    "seconds": 9.49,
+    "seconds": 9.838,
     "usage": {
-      "inputTokens": 7599,
-      "outputTokens": 4133,
+      "inputTokens": 7632,
+      "outputTokens": 4217,
       "thinkingTokens": 0
     },
-    "costUsd": 0.0126122
+    "costUsd": 0.0128321
   },
   "prompts": [
     "Name a graph algorithm",
@@ -48,57 +48,57 @@
         "answers": [
           {
             "id": "P1.A1",
-            "reason": "BFS is a graph traversal algorithm",
+            "reason": "BFS is listed as a graph algorithm.",
             "supports": true
           },
           {
             "id": "P1.A2",
-            "reason": "DFS is a graph traversal algorithm",
+            "reason": "DFS is listed as a graph algorithm.",
             "supports": true
           },
           {
             "id": "P1.A3",
-            "reason": "Dijkstra is a shortest path algorithm",
+            "reason": "Dijkstra is listed as a graph algorithm.",
             "supports": true
           },
           {
             "id": "P1.A4",
-            "reason": "Bellman-Ford is a shortest path algorithm",
+            "reason": "Bellman-Ford is listed as a graph algorithm.",
             "supports": true
           },
           {
             "id": "P1.A5",
-            "reason": "Floyd-Warshall is an all-pairs shortest paths algorithm",
+            "reason": "Floyd-Warshall is listed as a graph algorithm.",
             "supports": true
           },
           {
             "id": "P1.A6",
-            "reason": "Kruskal is a minimum spanning tree algorithm",
+            "reason": "Kruskal is listed as a graph algorithm.",
             "supports": true
           },
           {
             "id": "P1.A7",
-            "reason": "Prim is a minimum spanning tree algorithm",
+            "reason": "Prim is listed as a graph algorithm.",
             "supports": true
           },
           {
             "id": "P1.A8",
-            "reason": "Borůvka is a minimum spanning tree algorithm",
+            "reason": "Borůvka is listed as a graph algorithm.",
             "supports": true
           },
           {
             "id": "P1.A9",
-            "reason": "Kosaraju is an SCC algorithm",
+            "reason": "Kosaraju is listed as a graph algorithm.",
             "supports": true
           },
           {
             "id": "P1.A10",
-            "reason": "Tarjan is an SCC algorithm",
+            "reason": "Tarjan is listed as a graph algorithm.",
             "supports": true
           },
           {
             "id": "P1.A11",
-            "reason": "Hopcroft-Karp is a bipartite matching algorithm",
+            "reason": "Hopcroft-Karp is listed as a graph algorithm.",
             "supports": true
           }
         ]
@@ -110,22 +110,22 @@
         "answers": [
           {
             "id": "P2.A1",
-            "reason": "Kruskal is an MST algorithm",
+            "reason": "Kruskal builds minimum spanning trees.",
             "supports": true
           },
           {
             "id": "P2.A2",
-            "reason": "Prim is an MST algorithm",
+            "reason": "Prim builds minimum spanning trees.",
             "supports": true
           },
           {
             "id": "P2.A3",
-            "reason": "Borůvka is an MST algorithm",
+            "reason": "Borůvka builds minimum spanning trees.",
             "supports": true
           },
           {
             "id": "P2.A4",
-            "reason": "Reverse-delete is listed as an MST method",
+            "reason": "Reverse-delete is listed as an MST method.",
             "supports": true
           }
         ]
@@ -137,22 +137,22 @@
         "answers": [
           {
             "id": "P3.A1",
-            "reason": "Dijkstra finds shortest paths",
+            "reason": "Dijkstra finds shortest paths.",
             "supports": true
           },
           {
             "id": "P3.A2",
-            "reason": "BFS finds the shortest path on unweighted graphs",
+            "reason": "BFS finds the shortest path on unweighted graphs.",
             "supports": true
           },
           {
             "id": "P3.A3",
-            "reason": "Bellman-Ford finds shortest paths",
+            "reason": "Bellman-Ford finds shortest paths.",
             "supports": true
           },
           {
             "id": "P3.A4",
-            "reason": "Floyd-Warshall finds shortest paths",
+            "reason": "Floyd-Warshall finds all-pairs shortest paths.",
             "supports": true
           }
         ]
@@ -164,27 +164,27 @@
         "answers": [
           {
             "id": "P4.A1",
-            "reason": "BFS runs in O(V + E)",
+            "reason": "BFS running time is O(V + E).",
             "supports": true
           },
           {
             "id": "P4.A2",
-            "reason": "DFS runs in O(V + E)",
+            "reason": "DFS running time is O(V + E).",
             "supports": true
           },
           {
             "id": "P4.A3",
-            "reason": "Kosaraju runs in O(V + E)",
+            "reason": "Kosaraju runs in O(V + E).",
             "supports": true
           },
           {
             "id": "P4.A4",
-            "reason": "Tarjan runs in O(V + E)",
+            "reason": "Tarjan runs in O(V + E).",
             "supports": true
           },
           {
             "id": "P4.A5",
-            "reason": "Topological sort runs in O(V + E)",
+            "reason": "Topological sort running time is O(V + E).",
             "supports": true
           }
         ]
@@ -196,22 +196,22 @@
         "answers": [
           {
             "id": "P5.A1",
-            "reason": "Topological sort method 1 runs DFS",
+            "reason": "Topological sort method 1 runs DFS.",
             "supports": true
           },
           {
             "id": "P5.A2",
-            "reason": "Kosaraju runs DFS",
+            "reason": "Kosaraju's algorithm runs DFS.",
             "supports": true
           },
           {
             "id": "P5.A3",
-            "reason": "Tarjan uses a single DFS",
+            "reason": "Tarjan's algorithm finds every SCC in a single DFS.",
             "supports": true
           },
           {
             "id": "P5.A4",
-            "reason": "Cycle detection relies on DFS",
+            "reason": "Cycle detection relies on DFS.",
             "supports": true
           }
         ]
@@ -223,32 +223,32 @@
         "answers": [
           {
             "id": "P6.A1",
-            "reason": "Dijkstra operates on weighted graphs",
+            "reason": "Dijkstra operates on graphs with edge weights.",
             "supports": true
           },
           {
             "id": "P6.A2",
-            "reason": "Bellman-Ford operates on weighted graphs",
+            "reason": "Bellman-Ford works with edge weights.",
             "supports": true
           },
           {
             "id": "P6.A3",
-            "reason": "Floyd-Warshall operates on weighted graphs",
+            "reason": "Floyd-Warshall handles edge weights.",
             "supports": true
           },
           {
             "id": "P6.A4",
-            "reason": "Kruskal operates on weighted graphs",
+            "reason": "Kruskal deals with edge weights.",
             "supports": true
           },
           {
             "id": "P6.A5",
-            "reason": "Prim operates on weighted graphs",
+            "reason": "Prim uses edge weights.",
             "supports": true
           },
           {
             "id": "P6.A6",
-            "reason": "Borůvka operates on weighted graphs",
+            "reason": "Borůvka uses edge weights.",
             "supports": true
           }
         ]
@@ -260,32 +260,32 @@
         "answers": [
           {
             "id": "P7.A1",
-            "reason": "Adjacency list is a graph representation",
+            "reason": "Adjacency list is a graph representation.",
             "supports": true
           },
           {
             "id": "P7.A2",
-            "reason": "Adjacency matrix is a graph representation",
+            "reason": "Adjacency matrix is a graph representation.",
             "supports": true
           },
           {
             "id": "P7.A3",
-            "reason": "DAG is a graph structure",
+            "reason": "DAG is a graph structure.",
             "supports": true
           },
           {
             "id": "P7.A4",
-            "reason": "Minimum spanning tree is a graph structure",
+            "reason": "Minimum spanning tree is a graph structure.",
             "supports": true
           },
           {
             "id": "P7.A5",
-            "reason": "Strongly connected component is a graph structure",
+            "reason": "Strongly connected component is a graph structure.",
             "supports": true
           },
           {
             "id": "P7.A6",
-            "reason": "Bipartite graph is a graph structure",
+            "reason": "Bipartite graph is a graph structure.",
             "supports": true
           }
         ]
@@ -297,22 +297,22 @@
         "answers": [
           {
             "id": "P8.A1",
-            "reason": "Directed is an edge classification",
+            "reason": "Directed is an edge classification.",
             "supports": true
           },
           {
             "id": "P8.A2",
-            "reason": "Undirected is an edge classification",
+            "reason": "Undirected is an edge classification.",
             "supports": true
           },
           {
             "id": "P8.A3",
-            "reason": "Weighted is an edge classification",
+            "reason": "Weighted is an edge classification.",
             "supports": true
           },
           {
             "id": "P8.A4",
-            "reason": "Unweighted is an edge classification",
+            "reason": "Unweighted is an edge classification.",
             "supports": true
           }
         ]
@@ -324,7 +324,7 @@
         "answers": [
           {
             "id": "P9.A1",
-            "reason": "Kruskal uses union-find",
+            "reason": "Page 9 states Kruskal uses union-find.",
             "supports": true
           }
         ]
@@ -336,7 +336,7 @@
         "answers": [
           {
             "id": "P10.A1",
-            "reason": "Dijkstra uses a priority queue",
+            "reason": "Page 5 states Dijkstra uses a priority queue.",
             "supports": true
           }
         ]
@@ -348,7 +348,7 @@
         "answers": [
           {
             "id": "P11.A1",
-            "reason": "DAG is defined as a directed graph with no cycles",
+            "reason": "Page 1 defines DAG this way.",
             "supports": true
           }
         ]
@@ -360,7 +360,7 @@
         "answers": [
           {
             "id": "P12.A1",
-            "reason": "Strongly connected component matches the definition",
+            "reason": "Page 10 defines strongly connected component this way.",
             "supports": true
           }
         ]
@@ -372,7 +372,7 @@
         "answers": [
           {
             "id": "P13.A1",
-            "reason": "The steps are in the correct order given on slide 5",
+            "reason": "Page 5 lists these steps in this order.",
             "supports": true
           }
         ]
@@ -384,7 +384,7 @@
         "answers": [
           {
             "id": "P14.A1",
-            "reason": "The steps are in the correct order given on slide 8",
+            "reason": "Page 8 lists these steps in this order.",
             "supports": true
           }
         ]
@@ -396,7 +396,7 @@
         "answers": [
           {
             "id": "P15.A1",
-            "reason": "Dijkstra is a shortest path algorithm while the others are MST algorithms",
+            "reason": "Dijkstra is a shortest-path algorithm, whereas Kruskal, Prim, and Borůvka are MST algorithms.",
             "supports": true
           }
         ]
@@ -408,7 +408,7 @@
         "answers": [
           {
             "id": "P16.A1",
-            "reason": "Floyd-Warshall is O(V^3) while the others are O(V + E)",
+            "reason": "Floyd-Warshall takes O(V^3), while the others take O(V + E).",
             "supports": true
           }
         ]
@@ -420,27 +420,27 @@
         "answers": [
           {
             "id": "P17.A1",
-            "reason": "Bellman-Ford handles negative edge weights",
+            "reason": "Bellman-Ford works with negative edge weights.",
             "supports": true
           },
           {
             "id": "P17.A2",
-            "reason": "Floyd-Warshall handles negative edge weights",
+            "reason": "Floyd-Warshall handles negative edge weights.",
             "supports": true
           },
           {
             "id": "P17.A3",
-            "reason": "Kruskal is an MST algorithm and does not handle negative edge weights",
-            "supports": false
+            "reason": "Kruskal deals with weighted graphs (edge weights can be negative).",
+            "supports": true
           },
           {
             "id": "P17.A4",
-            "reason": "Prim is an MST algorithm and does not handle negative edge weights",
-            "supports": false
+            "reason": "Prim deals with weighted graphs.",
+            "supports": true
           },
           {
             "id": "P17.A5",
-            "reason": "Dijkstra breaks on negative edge weights",
+            "reason": "Dijkstra breaks on negative edge weights, so it does not properly handle them.",
             "supports": false
           }
         ]
@@ -448,26 +448,26 @@
       {
         "id": "P18",
         "clear": true,
-        "duplicate_of": "P4",
+        "duplicate_of": "",
         "answers": [
           {
             "id": "P18.A1",
-            "reason": "BFS runs in O(V + E)",
+            "reason": "BFS runs in O(V + E).",
             "supports": true
           },
           {
             "id": "P18.A2",
-            "reason": "DFS runs in O(V + E)",
+            "reason": "DFS runs in O(V + E).",
             "supports": true
           },
           {
             "id": "P18.A3",
-            "reason": "Topological sort runs in O(V + E)",
+            "reason": "Topological sort runs in O(V + E).",
             "supports": true
           },
           {
             "id": "P18.A4",
-            "reason": "Dijkstra runs in O((V + E) log V)",
+            "reason": "Dijkstra runs in O((V + E) log V), not O(V + E).",
             "supports": false
           }
         ]
@@ -479,7 +479,7 @@
         "answers": [
           {
             "id": "P19.A1",
-            "reason": "BFS uses a queue, not a stack",
+            "reason": "BFS uses a queue, not a stack (DFS uses a stack).",
             "supports": false
           }
         ]
@@ -491,7 +491,7 @@
         "answers": [
           {
             "id": "P20.A1",
-            "reason": "The definition describes topological sort, not DFS",
+            "reason": "DFS is a traversal algorithm, not a linear ordering (which is topological sort).",
             "supports": false
           }
         ]
@@ -499,11 +499,11 @@
       {
         "id": "P21",
         "clear": true,
-        "duplicate_of": "P15",
+        "duplicate_of": "",
         "answers": [
           {
             "id": "P21.A1",
-            "reason": "Kruskal is an MST algorithm while the others are shortest path algorithms",
+            "reason": "Kruskal is an MST algorithm, whereas Dijkstra, Bellman-Ford, and Floyd-Warshall are shortest path algorithms.",
             "supports": false
           }
         ]
@@ -515,22 +515,22 @@
         "answers": [
           {
             "id": "P22.A1",
-            "reason": "Dijkstra is a single-source shortest-path algorithm",
+            "reason": "Dijkstra is a single-source shortest-path algorithm.",
             "supports": true
           },
           {
             "id": "P22.A2",
-            "reason": "Bellman-Ford is a single-source shortest-path algorithm",
+            "reason": "Bellman-Ford is a single-source shortest-path algorithm.",
             "supports": true
           },
           {
             "id": "P22.A3",
-            "reason": "BFS finds single-source shortest paths on unweighted graphs",
+            "reason": "BFS finds shortest paths from a source on unweighted graphs.",
             "supports": true
           },
           {
             "id": "P22.A4",
-            "reason": "Floyd-Warshall is all-pairs, not single-source",
+            "reason": "Floyd-Warshall is all-pairs, not single-source.",
             "supports": false
           }
         ]
@@ -542,22 +542,22 @@
         "answers": [
           {
             "id": "P23.A1",
-            "reason": "Dijkstra finds shortest paths from one source",
+            "reason": "Dijkstra finds shortest paths from one source.",
             "supports": true
           },
           {
             "id": "P23.A2",
-            "reason": "Bellman-Ford finds shortest paths from one source",
+            "reason": "Bellman-Ford finds shortest paths from one source.",
             "supports": true
           },
           {
             "id": "P23.A3",
-            "reason": "BFS finds shortest paths from the source",
+            "reason": "BFS finds shortest paths from a source.",
             "supports": true
           },
           {
             "id": "P23.A4",
-            "reason": "Floyd-Warshall is all-pairs",
+            "reason": "Floyd-Warshall is all-pairs, not single-source.",
             "supports": false
           }
         ]
@@ -566,11 +566,11 @@
         "id": "P24",
         "clear": false,
         "duplicate_of": "",
-        "reason": "Refers to an example on the slide that is not present in the text",
+        "reason": "Refers to a specific slide example that is not provided in the text.",
         "answers": [
           {
             "id": "P24.A1",
-            "reason": "Unclear question referring to missing slide example",
+            "reason": "The question is unclear and refers to an absent slide example.",
             "supports": false
           }
         ]
@@ -579,27 +579,27 @@
         "id": "P25",
         "clear": false,
         "duplicate_of": "",
-        "reason": "Asks for three completely different kinds of things at once",
+        "reason": "Asks for several completely different kinds of things at once.",
         "answers": [
           {
             "id": "P25.A1",
-            "reason": "BFS is a traversal",
-            "supports": true
+            "reason": "The question is a multi-part disjunction.",
+            "supports": false
           },
           {
             "id": "P25.A2",
-            "reason": "DFS is a traversal",
-            "supports": true
+            "reason": "The question is a multi-part disjunction.",
+            "supports": false
           },
           {
             "id": "P25.A3",
-            "reason": "Dijkstra is a shortest-path algorithm",
-            "supports": true
+            "reason": "The question is a multi-part disjunction.",
+            "supports": false
           },
           {
             "id": "P25.A4",
-            "reason": "Union-find is what Kruskal uses",
-            "supports": true
+            "reason": "The question is a multi-part disjunction.",
+            "supports": false
           }
         ]
       }

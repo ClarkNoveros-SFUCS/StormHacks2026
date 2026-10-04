@@ -1,16 +1,16 @@
 {
   "deck": "cmpt354-sql-basics",
-  "createdAt": "2026-10-04T12:48:43.392Z",
-  "verifyVersion": "f8bbc1ed",
+  "createdAt": "2026-10-04T12:56:45.836Z",
+  "verifyVersion": "28c4606d",
   "run": {
     "model": "gemini-3.5-flash-lite",
-    "seconds": 5.736,
+    "seconds": 6.688,
     "usage": {
-      "inputTokens": 5713,
-      "outputTokens": 2427,
+      "inputTokens": 5746,
+      "outputTokens": 2607,
       "thinkingTokens": 0
     },
-    "costUsd": 0.0077814
+    "costUsd": 0.0082413
   },
   "prompts": [
     "Name a primitive data type supported in SQL",
@@ -37,42 +37,42 @@
         "answers": [
           {
             "id": "P1.A1",
-            "reason": "INTEGER is listed as a primitive data type",
+            "reason": "Listed as an integer primitive data type on page 3",
             "supports": true
           },
           {
             "id": "P1.A2",
-            "reason": "VARCHAR is listed as a primitive data type",
+            "reason": "Listed as a character string primitive data type on page 3",
             "supports": true
           },
           {
             "id": "P1.A3",
-            "reason": "CHAR is listed as a primitive data type",
+            "reason": "Listed as a character string primitive data type on page 3",
             "supports": true
           },
           {
             "id": "P1.A4",
-            "reason": "BOOLEAN is listed as a primitive data type",
+            "reason": "Listed as a boolean primitive data type on page 3",
             "supports": true
           },
           {
             "id": "P1.A5",
-            "reason": "FLOAT is listed as a primitive data type",
+            "reason": "Listed as a floating-point primitive data type on page 3",
             "supports": true
           },
           {
             "id": "P1.A6",
-            "reason": "DATE is listed as a primitive data type",
+            "reason": "Listed as a date and time primitive data type on page 3",
             "supports": true
           },
           {
             "id": "P1.A7",
-            "reason": "REAL is listed as a primitive data type",
+            "reason": "Listed as a floating-point primitive data type on page 3",
             "supports": true
           },
           {
             "id": "P1.A8",
-            "reason": "NUMERIC is listed as a primitive data type",
+            "reason": "Listed as a floating-point primitive data type on page 3",
             "supports": true
           }
         ]
@@ -84,27 +84,27 @@
         "answers": [
           {
             "id": "P2.A1",
-            "reason": "COUNT is listed as an aggregate function",
+            "reason": "Listed as an aggregate function on page 73",
             "supports": true
           },
           {
             "id": "P2.A2",
-            "reason": "SUM is listed as an aggregate function",
+            "reason": "Listed as an aggregate function on page 73",
             "supports": true
           },
           {
             "id": "P2.A3",
-            "reason": "AVG is listed as an aggregate function",
+            "reason": "Listed as an aggregate function on page 73",
             "supports": true
           },
           {
             "id": "P2.A4",
-            "reason": "MAX is listed as an aggregate function",
+            "reason": "Listed as an aggregate function on page 73",
             "supports": true
           },
           {
             "id": "P2.A5",
-            "reason": "MIN is listed as an aggregate function",
+            "reason": "Listed as an aggregate function on page 73",
             "supports": true
           }
         ]
@@ -116,32 +116,32 @@
         "answers": [
           {
             "id": "P3.A1",
-            "reason": "IN is used with subqueries in conditions",
+            "reason": "Listed as a condition involving relations on page 89",
             "supports": true
           },
           {
             "id": "P3.A2",
-            "reason": "EXISTS is used with subqueries in conditions",
+            "reason": "Listed as a condition involving relations on page 89",
             "supports": true
           },
           {
             "id": "P3.A3",
-            "reason": "NOT IN is used with subqueries in conditions",
+            "reason": "Listed as a condition involving relations on page 89",
             "supports": true
           },
           {
             "id": "P3.A4",
-            "reason": "NOT EXISTS is used with subqueries in conditions",
+            "reason": "Listed as a condition involving relations on page 89",
             "supports": true
           },
           {
             "id": "P3.A5",
-            "reason": "ANY is used with subqueries in conditions",
+            "reason": "Listed as a condition involving relations on page 89",
             "supports": true
           },
           {
             "id": "P3.A6",
-            "reason": "ALL is used with subqueries in conditions",
+            "reason": "Listed as a condition involving relations on page 89",
             "supports": true
           }
         ]
@@ -153,22 +153,22 @@
         "answers": [
           {
             "id": "P4.A1",
-            "reason": "INNER JOIN is a supported join type",
+            "reason": "Shown as a join type on page 71",
             "supports": true
           },
           {
             "id": "P4.A2",
-            "reason": "LEFT OUTER JOIN is a supported join type",
+            "reason": "Shown as a join type on page 71",
             "supports": true
           },
           {
             "id": "P4.A3",
-            "reason": "RIGHT OUTER JOIN is a supported join type",
+            "reason": "Shown as a join type on page 71",
             "supports": true
           },
           {
             "id": "P4.A4",
-            "reason": "FULL OUTER JOIN is a supported join type",
+            "reason": "Shown as a join type on page 71",
             "supports": true
           }
         ]
@@ -180,22 +180,22 @@
         "answers": [
           {
             "id": "P5.A1",
-            "reason": "UNION is a set operation keyword",
+            "reason": "Listed as a set operation on page 59",
             "supports": true
           },
           {
             "id": "P5.A2",
-            "reason": "INTERSECT is a set operation keyword",
+            "reason": "Listed as a set operation on page 59",
             "supports": true
           },
           {
             "id": "P5.A3",
-            "reason": "EXCEPT is a set operation keyword",
+            "reason": "Listed as a set operation on page 59",
             "supports": true
           },
           {
             "id": "P5.A4",
-            "reason": "MINUS is an implementation of a set operation",
+            "reason": "Mentioned as an implementation of EXCEPT on page 59",
             "supports": true
           }
         ]
@@ -207,22 +207,22 @@
         "answers": [
           {
             "id": "P6.A1",
-            "reason": "SELECT is a basic SQL statement",
+            "reason": "Described as a basic query statement on page 16",
             "supports": true
           },
           {
             "id": "P6.A2",
-            "reason": "INSERT is a basic SQL statement",
+            "reason": "Described as a statement to insert records on page 11",
             "supports": true
           },
           {
             "id": "P6.A3",
-            "reason": "UPDATE is a basic SQL statement",
+            "reason": "Described as a statement to modify records on page 12",
             "supports": true
           },
           {
             "id": "P6.A4",
-            "reason": "DELETE is a basic SQL statement",
+            "reason": "Described as a statement to delete records on page 13",
             "supports": true
           }
         ]
@@ -234,27 +234,27 @@
         "answers": [
           {
             "id": "P7.A1",
-            "reason": "PRIMARY KEY is a constraint declaration",
+            "reason": "Listed as a key declaration on page 8",
             "supports": true
           },
           {
             "id": "P7.A2",
-            "reason": "FOREIGN KEY is a constraint declaration",
+            "reason": "Listed as a foreign key declaration on page 41",
             "supports": true
           },
           {
             "id": "P7.A3",
-            "reason": "UNIQUE is a constraint declaration",
+            "reason": "Listed as a key declaration on page 8",
             "supports": true
           },
           {
             "id": "P7.A4",
-            "reason": "NOT NULL is a constraint declaration",
+            "reason": "Shown as a constraint in table definition on page 31",
             "supports": true
           },
           {
             "id": "P7.A5",
-            "reason": "DEFAULT is a constraint/default value declaration",
+            "reason": "Listed as a default keyword on page 7",
             "supports": true
           }
         ]
@@ -266,32 +266,32 @@
         "answers": [
           {
             "id": "P8.A1",
-            "reason": "SELECT is a clause keyword",
+            "reason": "Listed as a query component on page 16",
             "supports": true
           },
           {
             "id": "P8.A2",
-            "reason": "FROM is a clause keyword",
+            "reason": "Listed as a query component on page 16",
             "supports": true
           },
           {
             "id": "P8.A3",
-            "reason": "WHERE is a clause keyword",
+            "reason": "Listed as a query component on page 16",
             "supports": true
           },
           {
             "id": "P8.A4",
-            "reason": "GROUP BY is a clause keyword",
+            "reason": "Listed as a grouping clause on page 77",
             "supports": true
           },
           {
             "id": "P8.A5",
-            "reason": "HAVING is a clause keyword",
+            "reason": "Listed as a having clause on page 80",
             "supports": true
           },
           {
             "id": "P8.A6",
-            "reason": "ORDER BY is a clause keyword",
+            "reason": "Listed as a sorting clause on page 27",
             "supports": true
           }
         ]
@@ -303,7 +303,7 @@
         "answers": [
           {
             "id": "P9.A1",
-            "reason": "Arithmetic operations on nulls return NULL",
+            "reason": "Arithmetic operations on nulls return NULL according to page 33",
             "supports": true
           }
         ]
@@ -315,7 +315,7 @@
         "answers": [
           {
             "id": "P10.A1",
-            "reason": "Comparisons with nulls evaluate to UNKNOWN",
+            "reason": "Comparisons with nulls evaluate to UNKNOWN according to page 33",
             "supports": true
           }
         ]
@@ -327,7 +327,7 @@
         "answers": [
           {
             "id": "P11.A1",
-            "reason": "Data Definition Language is defined as the sublanguage for declaring database schemas",
+            "reason": "Defined as the sublanguage for declaring database schemas on page 2",
             "supports": true
           }
         ]
@@ -339,7 +339,7 @@
         "answers": [
           {
             "id": "P12.A1",
-            "reason": "Data Manipulation Language is defined as the sublanguage for querying and modifying databases",
+            "reason": "Defined as the sublanguage for querying and modifying databases on page 2",
             "supports": true
           }
         ]
@@ -351,7 +351,7 @@
         "answers": [
           {
             "id": "P13.A1",
-            "reason": "The page correctly lists the evaluation order for queries with HAVING",
+            "reason": "The items match the order of evaluation given on page 82",
             "supports": true
           }
         ]
@@ -363,7 +363,7 @@
         "answers": [
           {
             "id": "P14.A1",
-            "reason": "JOIN is not a set operation like UNION, INTERSECT, or EXCEPT",
+            "reason": "JOIN is a join operation, whereas UNION, INTERSECT, and EXCEPT are standard set operations listed on page 59",
             "supports": true
           }
         ]

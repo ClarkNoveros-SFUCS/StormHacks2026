@@ -1,16 +1,16 @@
 {
   "deck": "cmpt225-avl-trees",
-  "createdAt": "2026-10-04T12:48:50.722Z",
-  "verifyVersion": "f8bbc1ed",
+  "createdAt": "2026-10-04T12:56:51.544Z",
+  "verifyVersion": "28c4606d",
   "run": {
     "model": "gemini-3.5-flash-lite",
-    "seconds": 7.274,
+    "seconds": 5.626,
     "usage": {
-      "inputTokens": 5204,
-      "outputTokens": 2249,
+      "inputTokens": 5237,
+      "outputTokens": 2245,
       "thinkingTokens": 0
     },
-    "costUsd": 0.0071836999999999995
+    "costUsd": 0.0071836
   },
   "prompts": [
     "Name a tree data structure covered in balanced search trees or heaps",
@@ -42,22 +42,22 @@
           },
           {
             "id": "P1.A2",
-            "reason": "Page 4 is titled Balanced Binary Search Trees",
+            "reason": "Page 4 discusses balanced binary search trees",
             "supports": true
           },
           {
             "id": "P1.A3",
-            "reason": "Page 36 covers B-trees",
+            "reason": "Page 36 discusses B-trees",
             "supports": true
           },
           {
             "id": "P1.A4",
-            "reason": "Page 34 covers 2-3 trees",
+            "reason": "Page 34 discusses 2-3 trees",
             "supports": true
           },
           {
             "id": "P1.A5",
-            "reason": "Page 48 states min-heap is a heap implementation",
+            "reason": "Page 48 states min heap is an implementation",
             "supports": true
           }
         ]
@@ -69,32 +69,32 @@
         "answers": [
           {
             "id": "P2.A1",
-            "reason": "Page 17 lists data field",
+            "reason": "Page 17 lists private T data",
             "supports": true
           },
           {
             "id": "P2.A2",
-            "reason": "Page 17 lists height field",
+            "reason": "Page 17 lists private int height",
             "supports": true
           },
           {
             "id": "P2.A3",
-            "reason": "Page 17 lists leftChild field",
+            "reason": "Page 17 lists private AVLNode leftChild",
             "supports": true
           },
           {
             "id": "P2.A4",
-            "reason": "Page 17 lists rightChild field",
+            "reason": "Page 17 lists private AVLNode rightChild",
             "supports": true
           },
           {
             "id": "P2.A5",
-            "reason": "Page 17 lists parent field",
+            "reason": "Page 17 lists private AVLNode parent",
             "supports": true
           },
           {
             "id": "P2.A6",
-            "reason": "Page 17 lists balance as optional field",
+            "reason": "Page 17 lists private byte balance",
             "supports": true
           }
         ]
@@ -224,22 +224,22 @@
         "answers": [
           {
             "id": "P7.A1",
-            "reason": "Page 37 lists Bayer as inventor",
+            "reason": "Page 37 mentions Bayer",
             "supports": true
           },
           {
             "id": "P7.A2",
-            "reason": "Page 37 lists McCreight as inventor",
+            "reason": "Page 37 mentions McCreight",
             "supports": true
           },
           {
             "id": "P7.A3",
-            "reason": "Page 6 lists Adelson-Velsky as inventor",
+            "reason": "Page 6 mentions Adelson-Velsky",
             "supports": true
           },
           {
             "id": "P7.A4",
-            "reason": "Page 6 lists Landis as inventor",
+            "reason": "Page 6 mentions Landis",
             "supports": true
           }
         ]
@@ -251,22 +251,22 @@
         "answers": [
           {
             "id": "P8.A1",
-            "reason": "Page 59 covers HeapSort",
+            "reason": "Page 59 names HeapSort",
             "supports": true
           },
           {
             "id": "P8.A2",
-            "reason": "Page 59 covers buildMaxHeap",
+            "reason": "Page 59 names buildMaxHeap",
             "supports": true
           },
           {
             "id": "P8.A3",
-            "reason": "Page 52 covers heapifyDown",
+            "reason": "Page 52 names heapifyDown",
             "supports": true
           },
           {
             "id": "P8.A4",
-            "reason": "Page 51 covers heapifyUp",
+            "reason": "Page 51 names heapifyUp",
             "supports": true
           }
         ]
@@ -278,7 +278,7 @@
         "answers": [
           {
             "id": "P9.A1",
-            "reason": "Page 6 gives height difference as <= 1",
+            "reason": "Page 6 shows the height difference is at most 1",
             "supports": true
           }
         ]
@@ -290,7 +290,7 @@
         "answers": [
           {
             "id": "P10.A1",
-            "reason": "Page 51 names it heapifyUp",
+            "reason": "Page 51 defines heapifyUp",
             "supports": true
           }
         ]
@@ -302,7 +302,7 @@
         "answers": [
           {
             "id": "P11.A1",
-            "reason": "Page 40 names it underflow",
+            "reason": "Page 40 calls this underflow",
             "supports": true
           }
         ]
@@ -314,7 +314,7 @@
         "answers": [
           {
             "id": "P12.A1",
-            "reason": "Page 6 defines AVL tree properties",
+            "reason": "Page 6 defines AVL trees this way",
             "supports": true
           }
         ]
@@ -326,7 +326,7 @@
         "answers": [
           {
             "id": "P13.A1",
-            "reason": "Page 52 steps match remove min process",
+            "reason": "Page 52 details these exact steps for remove min",
             "supports": true
           }
         ]
@@ -338,7 +338,7 @@
         "answers": [
           {
             "id": "P14.A1",
-            "reason": "Page 48 states min-heap is priority queue implementation",
+            "reason": "Page 48 states min heap implements a priority queue",
             "supports": true
           }
         ]

@@ -1,16 +1,16 @@
 {
   "deck": "ml-midterm-notes",
-  "createdAt": "2026-10-04T12:48:56.485Z",
-  "verifyVersion": "f8bbc1ed",
+  "createdAt": "2026-10-04T12:56:57.717Z",
+  "verifyVersion": "28c4606d",
   "run": {
     "model": "gemini-3.5-flash-lite",
-    "seconds": 5.668,
+    "seconds": 6.073,
     "usage": {
-      "inputTokens": 5880,
-      "outputTokens": 2380,
+      "inputTokens": 5913,
+      "outputTokens": 2368,
       "thinkingTokens": 0
     },
-    "costUsd": 0.007714
+    "costUsd": 0.0076939
   },
   "prompts": [
     "Name an evaluation metric in machine learning",
@@ -81,27 +81,27 @@
         "answers": [
           {
             "id": "P2.A1",
-            "reason": "Accuracy is a classification metric",
+            "reason": "Metric for classification predictions",
             "supports": true
           },
           {
             "id": "P2.A2",
-            "reason": "Precision is for predicted positives",
+            "reason": "Metric for classification predictions",
             "supports": true
           },
           {
             "id": "P2.A3",
-            "reason": "Recall is for actual positives",
+            "reason": "Metric for classification predictions",
             "supports": true
           },
           {
             "id": "P2.A4",
-            "reason": "Specificity is for actual negatives",
+            "reason": "Metric for classification predictions",
             "supports": true
           },
           {
             "id": "P2.A5",
-            "reason": "F1 score combines precision and recall",
+            "reason": "Metric for classification predictions",
             "supports": true
           }
         ]
@@ -113,32 +113,32 @@
         "answers": [
           {
             "id": "P3.A1",
-            "reason": "K-NN is a machine learning model",
+            "reason": "Machine learning model",
             "supports": true
           },
           {
             "id": "P3.A2",
-            "reason": "Decision Trees are models",
+            "reason": "Machine learning model",
             "supports": true
           },
           {
             "id": "P3.A3",
-            "reason": "K-means is a clustering model",
+            "reason": "Machine learning model",
             "supports": true
           },
           {
             "id": "P3.A4",
-            "reason": "Linear regression is a model",
+            "reason": "Machine learning model",
             "supports": true
           },
           {
             "id": "P3.A5",
-            "reason": "Linear classifiers are models",
+            "reason": "Machine learning model",
             "supports": true
           },
           {
             "id": "P3.A6",
-            "reason": "Multilayer neural networks are models",
+            "reason": "Machine learning model",
             "supports": true
           }
         ]
@@ -150,27 +150,27 @@
         "answers": [
           {
             "id": "P4.A1",
-            "reason": "Listed under node anatomy",
+            "reason": "Component of node anatomy",
             "supports": true
           },
           {
             "id": "P4.A2",
-            "reason": "Listed under node anatomy",
+            "reason": "Component of node anatomy",
             "supports": true
           },
           {
             "id": "P4.A3",
-            "reason": "Listed under node anatomy",
+            "reason": "Component of node anatomy",
             "supports": true
           },
           {
             "id": "P4.A4",
-            "reason": "Listed under node anatomy",
+            "reason": "Component of node anatomy",
             "supports": true
           },
           {
             "id": "P4.A5",
-            "reason": "Part of node input",
+            "reason": "Component of input part of node",
             "supports": true
           }
         ]
@@ -182,27 +182,27 @@
         "answers": [
           {
             "id": "P5.A1",
-            "reason": "learning rate alpha is used in weight updating formulas",
+            "reason": "Parameter in weight update formula",
             "supports": true
           },
           {
             "id": "P5.A2",
-            "reason": "current weight w is used in weight updating",
+            "reason": "Variable in weight update",
             "supports": true
           },
           {
             "id": "P5.A3",
-            "reason": "gradient is part of weight updates",
+            "reason": "Variable in weight update",
             "supports": true
           },
           {
             "id": "P5.A4",
-            "reason": "loss function gradient drives weight update",
+            "reason": "Loss function is part of gradient calculation",
             "supports": true
           },
           {
             "id": "P5.A5",
-            "reason": "bias is part of weights/inputs",
+            "reason": "Bias is part of the perceptron inputs used in gradient descent derivation",
             "supports": true
           }
         ]
@@ -214,22 +214,22 @@
         "answers": [
           {
             "id": "P6.A1",
-            "reason": "KNN classification is supervised",
+            "reason": "Supervised model/classifier",
             "supports": true
           },
           {
             "id": "P6.A2",
-            "reason": "Decision trees classify training sets",
+            "reason": "Supervised model/classifier",
             "supports": true
           },
           {
             "id": "P6.A3",
-            "reason": "Linear classifiers do classification",
+            "reason": "Supervised model/classifier",
             "supports": true
           },
           {
             "id": "P6.A4",
-            "reason": "Neural networks perform classification/regression",
+            "reason": "Supervised model/classifier",
             "supports": true
           }
         ]
@@ -241,22 +241,22 @@
         "answers": [
           {
             "id": "P7.A1",
-            "reason": "MSE measures error",
+            "reason": "Measures error",
             "supports": true
           },
           {
             "id": "P7.A2",
-            "reason": "MAE measures difference between actual and prediction",
+            "reason": "Measures error or difference",
             "supports": true
           },
           {
             "id": "P7.A3",
-            "reason": "RMSE measures distance between predicted and actual",
+            "reason": "Measures error or distance",
             "supports": true
           },
           {
             "id": "P7.A4",
-            "reason": "Loss function measures difference/error",
+            "reason": "Measures error between predicted and true output",
             "supports": true
           }
         ]
@@ -268,22 +268,22 @@
         "answers": [
           {
             "id": "P8.A1",
-            "reason": "Accuracy is a proportion",
+            "reason": "Defined as proportion",
             "supports": true
           },
           {
             "id": "P8.A2",
-            "reason": "Precision is a probability",
+            "reason": "Defined as probability",
             "supports": true
           },
           {
             "id": "P8.A3",
-            "reason": "Recall is a probability",
+            "reason": "Defined as probability",
             "supports": true
           },
           {
             "id": "P8.A4",
-            "reason": "Specificity is a probability",
+            "reason": "Defined as probability",
             "supports": true
           }
         ]
@@ -295,7 +295,7 @@
         "answers": [
           {
             "id": "P9.A1",
-            "reason": "Text says harmonic mean",
+            "reason": "Text states harmonic mean",
             "supports": true
           }
         ]
@@ -307,7 +307,7 @@
         "answers": [
           {
             "id": "P10.A1",
-            "reason": "Text says vanishing gradient problem",
+            "reason": "Text states vanishing gradient problem",
             "supports": true
           }
         ]
@@ -319,7 +319,7 @@
         "answers": [
           {
             "id": "P11.A1",
-            "reason": "Matches accuracy definition",
+            "reason": "Accuracy is defined as proportion of all correct predictions",
             "supports": true
           }
         ]
@@ -331,7 +331,7 @@
         "answers": [
           {
             "id": "P12.A1",
-            "reason": "Matches loss function definition",
+            "reason": "Loss function is defined as difference/error between predicted and true output",
             "supports": true
           }
         ]
@@ -343,7 +343,7 @@
         "answers": [
           {
             "id": "P13.A1",
-            "reason": "Matches K-means steps in text",
+            "reason": "Matches steps in text",
             "supports": true
           }
         ]
@@ -355,7 +355,7 @@
         "answers": [
           {
             "id": "P14.A1",
-            "reason": "Matches KNN classification steps",
+            "reason": "Matches table steps for KNN classification",
             "supports": true
           }
         ]
@@ -379,7 +379,7 @@
         "answers": [
           {
             "id": "P16.A1",
-            "reason": "MAE evaluates regression while others evaluate classification",
+            "reason": "Mean Absolute Error evaluates regression while others are classification metrics",
             "supports": true
           }
         ]

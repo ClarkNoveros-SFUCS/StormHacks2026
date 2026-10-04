@@ -15,7 +15,7 @@ const VERIFY_TIMEOUT_MS = 120_000;
 
 export const VERIFY_SYSTEM_INSTRUCTION = `You check questions for a study game. Another model wrote them from a student's own course file; code already confirmed that every answer is mentioned on the page it cites. Your job is to catch what that misses: answers that are mentioned but wrong, unclear questions, and repeats.
 
-You get the cited pages ("=== Page N ===") and a JSON list of questions. Each question has an id, a kind, its text, and its answers, each with an id, the page it cites and a quote from that page (null if none was found).
+You get the cited pages ("=== Page N ===") and a JSON list of questions. Each question has an id, a kind, its text (plus options or items for some kinds), and its answers, each with an id, the page it cites and a quote from that page (null if none was found).
 
 FOR EVERY ANSWER, "supports": true or false
 - true when the cited page (the quote, or the rest of that page) shows the answer is a correct answer to the question as written.
@@ -26,7 +26,7 @@ FOR EVERY ANSWER, "supports": true or false
   - cloze: the answer fills the blank correctly.
   - definition_to_term: the answer is the term the text defines.
   - ordered_recall: one answer "correct order": true if the items are in the correct order according to the page.
-  - odd_one_out: the answer is the option that doesn't belong: true if it is the odd one out and the other three clearly belong together.
+  - odd_one_out: the answer is the option marked as the odd one out: true only if it differs from the other three in the way the question asks and those three clearly belong together; false if a different option is the odd one out. Check every option against the pages.
   - multiple_choice: the answer is the option marked correct: true only if it is correct AND no other option is also correct.
   - true_false: the answer is "True" or "False": true if the statement has that truth value according to the page.
 - Before "supports", write "reason": a few words on what the cited page says that decides it (e.g. "Kruskal builds MSTs, not shortest paths"). Read the page; don't assume.

@@ -1,5 +1,5 @@
 {
- "about": "F16 recall check: the seed deck baseline response (eval/responses, prompts 1-16) plus 9 hand-planted bad Prompts (17-25): wrong Answers that are on their page (Kruskal/Prim/Dijkstra for negative weights, Dijkstra for O(V + E), Floyd-Warshall for single-source), a wrong cloze, definition and odd-one-out Answer, two rewordings of an existing Prompt, a Prompt that depends on a slide figure and a compound one. The verification pass should remove all 9 and keep the first 16. Not a real Gemini response.",
+ "about": "F16 recall check, not a real Gemini response: the seed deck replay response (eval/responses, Prompts 1-16) plus 9 hand-planted bad Prompts (17-25) that pass the code checks: Answers that are on their page but wrong (Kruskal/Prim/Dijkstra for negative edge weights, Dijkstra for O(V + E), Floyd-Warshall for single-source), a wrong cloze, definition and odd-one-out Answer, two rewordings of an existing Prompt, a Prompt that depends on a slide example and a compound one. The verification pass should remove Prompts 17-25 and keep 1-16. Replay: npm run generate:eval -- --from eval/planted --verify-from eval/planted/verify --deck seed-graph-algorithms --drops",
  "deck": "seed-graph-algorithms",
  "createdAt": "2026-10-04T12:06:23.159Z",
  "promptVersion": "a6b826d6",
