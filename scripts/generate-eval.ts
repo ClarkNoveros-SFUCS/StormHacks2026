@@ -5,7 +5,7 @@
 //
 //   npm run generate:eval                       replay eval/responses/ (no Gemini call, $0)
 //   npm run generate:eval -- --from <dir>       replay another set of saved responses
-//   npm run generate:eval -- --live             one Gemini call per deck (≈ $0.25 for all four),
+//   npm run generate:eval -- --live             one Gemini call per deck (≈ $0.20 for all four),
 //                                               saved to eval/runs/<time>/ (gitignored)
 //   ... --save <dir>                            where --live saves (eval/responses replaces the baseline)
 //   ... --deck <id>[,<id>]                      only these decks

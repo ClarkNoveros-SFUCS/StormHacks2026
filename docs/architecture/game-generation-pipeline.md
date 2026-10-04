@@ -44,7 +44,7 @@ A Game still `queued`/`generating` 10 minutes after creation (the server restart
 - SDK: `@google/genai`, server only, `lib/gemini.ts`. Model comes from `GEMINI_MODEL` (we use `gemini-3.6-flash`).
 - **Overload:** on 429/5xx (Gemini often answers 503 "high demand"), retry after 2, 5 and 12 s, then switch to `GEMINI_FALLBACK_MODEL` if set (we use `gemini-3.5-flash-lite`: weaker, fewer Open Prompts, but rarely overloaded). 3.8-flash was overloaded on most long requests during testing, which is why we use 3.6.
 - **Structured output:** `responseMimeType: "application/json"` plus `responseJsonSchema` (plain JSON Schema), so the output always parses. `answers`, `tier`, `hint` and `explanation` are **required** for every Prompt (empty when a kind doesn't use them): left optional, Gemini omits them from single-answer Prompts, which then get dropped.
-- Cost and speed with 3.6-flash: a 94-page lecture PDF took ~45 s and ~$0.05 USD. Don't lower the thinking level: `LOW` returned two Prompts with no Answers.
+- Cost and speed with 3.6-flash: a 94-page lecture PDF took 45–100 s and ~$0.05 USD (per-deck numbers: § Scorecard). Don't lower the thinking level: `LOW` returned two Prompts with no Answers.
 - Input: the document's pages, each wrapped as `=== Page <page_number> ===\n<content_md>`, and the document title.
 - Ask for **15–20 Prompts per document**, in any mix of types, with at least half of them Open Prompts.
 - Temperature around 0.4: varied enough for interesting Prompts, low enough to stay grounded.
@@ -160,6 +160,46 @@ Planned, in order (each measured with F14's scorecard, which comes first):
 | F16 (#26) | Second Gemini call per document: does each quote show its Answer fits the Prompt? Is the Prompt clear, or a duplicate? | mentioned-but-wrong Answers, duplicates | ~+20 s, ~+$0.02 per document |
 | F17 (#27) | Ask for ~25 Prompts, keep the best 15–20 by code (Answers per Open Prompt, kind and page coverage, near-duplicates) | uneven quality and coverage | more output tokens |
 | F18 (#28, stretch) | pgvector on `source_pages`: per Open Prompt, retrieve the related pages and ask for every Answer they support, then merge and re-rank | too few Answers per Open Prompt, weak Rarity | embeddings at upload + one call per Open Prompt |
+
+### Scorecard (F14)
+
+`npm run generate:eval` prints one row per eval deck: what the checks keep and drop, plus the time and cost of the Gemini call. Judge F15–F18 by it, before and after.
+
+```
+npm run generate:eval                          replay eval/responses/ (no Gemini call, $0)
+npm run generate:eval -- --from <dir>          replay another saved set
+npm run generate:eval -- --live                one call per deck (≈ $0.20 for all four), saved to eval/runs/<time>/
+  ... --save <dir>  --deck <id>[,<id>]  --no-fallback  --drops  --json
+```
+
+- **Code change** (validate.ts, the checks): replay. It's free and the Gemini output is fixed, so any difference comes from your change.
+- **Prompt change** (`game-prompt.ts`, F15–F17): `--live --no-fallback`, then compare with the baseline below. Gemini varies run to run at temperature 0.4, so treat a difference of a Prompt or two per deck as noise. The table header shows the **prompt version** (a hash of the instructions, schema and temperature); a replay says when a saved response came from a different prompt.
+- **Decks** are listed in `eval/decks.json`. The course files aren't in git: put them in `eval/decks/` (gitignored) or set `EVAL_DECKS_DIR`. Ask Anton for the files. `sha256` in the manifest warns you if your copy differs. Without the files, only the seed deck can be scored; the others show "deck file missing".
+- **Saved responses** (`eval/responses/<deck>.json`, ~20 KB each) are committed, with the model, seconds, token usage and estimated cost of the call. They quote the decks only in short evidence quotes. `--save` from `generate:check` writes the same format.
+- **Cost** is an estimate: tokens × `GEMINI_PRICES_USD_PER_M` in `lib/gemini/pricing.ts` (3.6-flash: $0.75 input / $3.75 output per 1M tokens, thinking billed as output; 3.5-flash-lite: $0.30 / $2.50). Check ai.google.dev/pricing before trusting a total.
+
+Columns: **Prompts ret → kept** (⚠ under 7, a one-document Game would fail) · **Kinds** open/cloze/definition_to_term/ordered_recall/odd_one_out · **Ans/Open** mean kept Answers per Open Prompt · **Quotes ok** kept Answers whose evidence quote is on its page · **Hints removed** by check 5, of the Hints given on cloze, definition and odd-one-out Prompts · **Dropped P / A** Prompts / Answers dropped · **Drops by reason** short codes from `dropCode` in `lib/games/scorecard.ts` · **s**, **$** for the Gemini call.
+
+#### Baseline (prompt version `11c93557`, 2026-10-04)
+
+`gemini-3.6-flash`, no fallback, one run per deck:
+
+| Deck | Pages | Prompts ret → kept | Kinds (o/c/d/r/x) | Open | Ans/Open | Quotes ok | Hints removed | Dropped P / A | Drops by reason | s | $ |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| seed-graph-algorithms (fixture) | 12 | 16 → 16 | 8/2/2/2/2 | 8 | 5.1 | 45/45 (100%) | 1/6 | 0 / 0 | – | 58 | 0.043 |
+| cmpt354-sql-basics (PDF) | 94 | 16 → 15 | 7/2/3/2/1 | 7 | 4.7 | 34/38 (89%) | 0/6 | 1 / 4 | unusable-name 4, too-few-answers 1 | 101 | 0.058 |
+| cmpt225-avl-trees (PPTX) | 73 | 16 → 13 | 7/2/2/2/0 | 7 | 4.4 | 35/35 (100%) | 0/4 | 3 / 1 | option-not-on-page 2, not-on-page 1, too-few-answers 1 | 79 | 0.057 |
+| ml-midterm-notes (DOCX) | 3 | 16 → 12 | 4/2/3/2/1 | 4 | 6.0 | 25/29 (86%) | 0/6 | 4 / 14 | not-on-page 14, too-few-answers 4 | 75 | 0.044 |
+| **Total** | 182 | 64 → 56 | 26/8/10/8/4 | 26 | 5.0 | 139/147 (95%) | 1/22 | 8 / 19 | not-on-page 15, too-few-answers 6, unusable-name 4, option-not-on-page 2 | 314 | 0.202 |
+
+What it shows (`--drops` lists every drop):
+- **Gemini always returns 16 Prompts**, and every deck still makes a Game (12–16 kept). Open Prompts average only **~5 Answers**, near the minimum of 4: little room for Rarity (F17, F18).
+- **Answers that are phrases, not names** cause most drops. On the DOCX, four "Name a step in K-means / KNN / decision trees" Open Prompts got sentence-long paraphrased Answers ("Select k closest neighbors") that aren't on the page word for word, so 14 Answers and 4 Prompts were dropped. Steps belong in ordered_recall (F15's "bad → good" pairs).
+- **Symbols as Answers:** "Name an arithmetic operator that returns NULL…" listed `+ - * /`, which normalize to nothing (unusable-name), so the whole Prompt was dropped.
+- **odd_one_out with an invented correct option:** "Which … is NOT mentioned in the slides?" makes the correct option something no page names, so check 2 drops it. Ask for odd-one-out sets where all four options are in the deck.
+- **Admin slides become Prompts** ("Name a requirement or rule for taking the midterm exam" on the PPTX). The instructions could say to skip course logistics.
+- Check 5 rarely fires (1 of 22 Hints removed), but it can't catch near give-aways (§ above), so read the Hints too.
+- **Latency is 60–100 s per deck**, more than the ~45 s measured earlier; the 94-page PDF took 101 s. 3.6-flash also answered 503 to the 94-page deck on three of four attempts within 25 minutes (each attempt is 4 tries over ~20 s). In the app, the fallback model would have taken over.
 
 ## Code layout
 
