@@ -19,6 +19,7 @@ export const PROMPT_MS = 25_000;
 export const PENALTY_MS = 3_000;
 export const GRACE_MS = 500; //          a guess this late after the deadline still counts
 export const EARLY_TIMEOUT_MS = 250; //  /timeout may arrive this early (client clock drift)
+export const MAX_GUESS_LENGTH = 500;
 
 type Tx = postgres.TransactionSql;
 
@@ -156,11 +157,12 @@ function parseGuessBody(body: unknown): GuessInput {
 
 async function typedGuess(tx: Tx, run: RunRow, cur: CurrentPrompt, input: GuessInput, now: Date): Promise<GuessResult> {
   if (input.text === undefined) throw new RunError(400, "This Prompt takes a typed answer");
-  const normalized = normalize(input.text);
+  if (input.text.length > MAX_GUESS_LENGTH) throw new RunError(400, "Guess is too long");
+  const raw = input.text.replace(/\0/g, ""); // Postgres text can't hold NUL
+  const normalized = normalize(raw);
   if (normalized === "") throw new RunError(400, "Empty guess");
-  const raw = input.text.slice(0, 500);
 
-  const match = await matchGuess(cur.prompt_id, input.text, tx);
+  const match = await matchGuess(cur.prompt_id, raw, tx);
   const event = { run, cur, raw, normalized, now };
 
   if (!match.matched) {
@@ -296,7 +298,9 @@ async function buildState(tx: Tx, run: RunRow, now: Date): Promise<RunState> {
   if (run.status !== "in_progress") return { ...base, prompt: null };
 
   const cur = await loadCurrent(tx, run);
-  const seed = `${run.id}:${cur.position}`;
+  // Seeded by the Prompt id, which the client never sees, so it can't undo the shuffle
+  // to recover the correct order (a seed from runId + position could be replayed).
+  const seed = `${run.id}:${cur.prompt_id}`;
   const hintAvailable = cur.kind !== "open" && cur.hint !== null;
   return {
     ...base,

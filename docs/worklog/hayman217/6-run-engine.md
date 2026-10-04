@@ -34,6 +34,10 @@ Server-owned Run state machine, scoring and the `/api/runs` routes. Spec: `docs/
 - `RunState` adds `promptCount`, `hint` (only once used) and allows `prompt: null` when the Run is over
 - Staleness isn't stored; the Reveal derives `stale` as `points < TIER_POINTS[answer.tier]`
 - Named `revealHint`, not `useHint`: the React hooks lint rule flags `use*` calls in callbacks
+- Fixes from the independent test pass, before merge:
+  - Shuffles are seeded by `runId:promptId`; the client never sees Prompt ids, so it can't replay the shuffle to recover the order (`runId:position` could be replayed)
+  - Typed guesses over 500 chars → 400; NUL characters are stripped (Postgres text can't store them)
+  - The guess route reads the body before opening the transaction
 - Tests reorder `run_prompts` after `createRun` so they can walk Prompts in a known order
 
 ## Files touched

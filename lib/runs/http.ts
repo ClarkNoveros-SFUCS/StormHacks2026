@@ -20,11 +20,3 @@ export async function runRoute<T>(
     throw e;
   }
 }
-
-export async function readJson(request: Request): Promise<unknown> {
-  try {
-    return await request.json();
-  } catch {
-    throw new RunError(400, "Expected a JSON body");
-  }
-}

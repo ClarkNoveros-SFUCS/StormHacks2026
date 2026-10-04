@@ -155,7 +155,10 @@ describe.skipIf(!process.env.DATABASE_URL)("run engine", () => {
         const started = await startPrompt(f.tx, f.playerId, runId, f.clock.tick(1000));
         const key = keyOf(started);
         expect(started.prompt!.hint).toBeUndefined();
-        if (key === "order") expect(started.prompt!.items).not.toEqual(ORDER);
+        if (key === "order") {
+          expect(started.prompt!.items).not.toEqual(ORDER);
+          expect(started.prompt!.items).toEqual((await getRunState(f.tx, f.playerId, runId, f.clock.now())).prompt!.items); // stable
+        }
         const spec = PROMPTS.find((p) => p.key === key)!;
         if (!spec.options && !spec.items) { // one-shot Prompts necessarily show their choices
           const json = JSON.stringify(started).toLowerCase();
@@ -192,6 +195,14 @@ describe.skipIf(!process.env.DATABASE_URL)("run engine", () => {
       await rejects(guess(f.tx, f.playerId, runId, { text: "a", option: "b" }, f.clock.now()), 400);
       await rejects(guess(f.tx, f.playerId, runId, { text: "  " }, f.clock.now()), 400);
       await rejects(guess(f.tx, f.playerId, runId, null, f.clock.now()), 400);
+      await rejects(guess(f.tx, f.playerId, runId, undefined, f.clock.now()), 400); // unparseable JSON
+      await rejects(guess(f.tx, f.playerId, runId, { text: "x".repeat(501) }, f.clock.now()), 400);
+
+      // NUL can't be stored in Postgres text; it's stripped, not a 500
+      const nul = await guess(f.tx, f.playerId, runId, { text: "nope\u0000nope" }, f.clock.now());
+      expect(nul.result).toEqual({ correct: false, penaltyMs: PENALTY_MS });
+      const [event] = await f.tx`SELECT raw_text FROM guess_events WHERE run_id = ${runId}`;
+      expect(event.raw_text).toBe("nopenope");
     }));
 
   it("a wrong typed guess costs 3 s; the first correct one scores and moves on", () =>
