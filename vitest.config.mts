@@ -13,7 +13,7 @@ export default defineConfig({
   },
   test: {
     include: ["**/*.test.ts"],
-    exclude: ["node_modules/**", ".next/**"],
+    exclude: ["**/node_modules/**", ".next/**", ".claude/**"], // .claude/worktrees holds other checkouts
     env: loadEnv("test", root, ""), // .env.local → DATABASE_URL for *.db.test.ts
     testTimeout: 30_000, // DB tests talk to Tiger Cloud
   },

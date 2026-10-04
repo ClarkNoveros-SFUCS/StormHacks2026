@@ -145,7 +145,9 @@ CREATE TABLE run_prompts (
   PRIMARY KEY (run_id, position)
 );
 
--- Every guess, correct or not. Append-only event log, partitioned by time.
+-- Every accepted guess, correct or not. Append-only event log, partitioned by time.
+-- Rejected requests (any 400 or 409) aren't logged, nor is a guess that arrived after the
+-- deadline plus grace (see run-and-scoring.md).
 -- No foreign keys: it's an event log, and deleting a Game leaves harmless orphans
 -- (progress queries join through answers, so orphans never count).
 CREATE TABLE guess_events (
@@ -230,6 +232,8 @@ WITH NO DATA;
 
 SELECT add_continuous_aggregate_policy('player_game_daily',
   start_offset => INTERVAL '30 days', end_offset => INTERVAL '1 minute', schedule_interval => INTERVAL '5 minutes');
+
+CREATE INDEX player_game_daily_lookup ON player_game_daily (player_id, game_id, day);
 ```
 
 - **`materialized_only = false`** (real-time aggregation): rows newer than the last refresh are computed from `guess_events` at query time, so a Run just played shows on the chart without waiting for the 5-minute policy.
