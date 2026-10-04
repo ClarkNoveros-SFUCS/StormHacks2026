@@ -7,6 +7,7 @@ import { getNavState } from "@/components/site/nav-data";
 import { RouteTransition } from "@/components/site/RouteTransition";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
+import { SonarBuddy } from "@/components/sonar/SonarBuddy";
 import "./globals.css";
 
 // Site type: Pixelify Sans (headings, buttons), Mulish (body). VT323 is Dive's HUD font.
@@ -42,6 +43,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             </div>
             <SiteFooter />
             <KonamiFishing />
+            {/* Sonar (F32): the study-coach buddy, signed in only; hides itself on Run screens. */}
+            {nav.signedIn && <SonarBuddy />}
           </ToastProvider>
         </ClerkProvider>
       </body>
