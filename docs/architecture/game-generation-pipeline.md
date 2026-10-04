@@ -1,6 +1,6 @@
 # Game generation pipeline
 
-**This is the Dive Game Mode's generator** (`game-modes.md`). Other Modes reuse the shared steps (reading pages, common checks, writing rows) and bring their own prompt, schema and checks.
+The pipeline is shared by every Game Mode (`game-modes.md`); each Mode brings its own Gemini instructions, schema, checks and minimum ([§ Per-Mode generation](#per-mode-generation)). The Gemini call, checks and Tier sections below describe **Dive's** generator, which Apogee uses unchanged.
 
 Turns the stored pages of chosen Source Documents into a **Game**: Prompts, Answers, Aliases, Tiers, Evidence and Hints. It runs once per Game. Games are immutable: there's no regeneration and no adding files later. A change means a new Game.
 
@@ -15,12 +15,15 @@ Module page → "New Game": Player picks ≥1 parsed Source Documents and a titl
 3. after(async () => generateGame(gameId))
 
 generateGame:
-  a. claim it: UPDATE … SET status = 'generating' WHERE status = 'queued' (so it runs once); assert mode = 'dive'
-  b. for each selected document, IN PARALLEL: load its source_pages, then call Gemini (one call per document)
-  c. validate every returned Prompt (checks below); drop what fails, keep the rest
-  d. assign Tiers to Open Prompt Answers (code, not Gemini)
-  e. if fewer than 7 Prompts survive in total → status = 'failed', error = 'Not enough usable content to make a Game'
-  f. one transaction: INSERT prompts, answers, answer_keys; UPDATE games SET status = 'ready', prompt_count = n
+  a. claim it: UPDATE … SET status = 'generating' WHERE status = 'queued' (so it runs once);
+     generator = generatorFor(game.mode)  (Apogee → Dive's; a reserved Mode fails "This Game Mode can't be generated yet")
+  b. for each selected document, IN PARALLEL: load its source_pages, then call Gemini with the Mode's request
+  c. the Mode's per-document checks (Dive's below); drop what fails, keep the rest. Then check 7 across
+     documents, then the Mode's Game-level checks (Pairs: one Prompt per term; Blitz: true/false balance)
+  d. assign Tiers to Open Prompt Answers (code, not Gemini; Dive only)
+  e. if fewer than the Mode's minimum survive (Dive/Apogee 7, Leap 10, Pairs 12, Blitz 30) → status = 'failed',
+     error = 'Not enough usable content to make a Game' (other Modes add: "a Leap Game needs 10 questions and only 6 passed the checks. Try adding more files")
+  f. one transaction: INSERT prompts (with is_true for true_false), answers, answer_keys; UPDATE games SET status = 'ready', prompt_count = n
   on any error: status = 'failed', error = <short user-facing message>
 ```
 
@@ -100,7 +103,7 @@ A flat shape (optional fields per `kind`) works more reliably with structured ou
 
 Validate the parsed response with a zod schema mirroring this shape. If one Prompt fails validation, drop it, not the whole document.
 
-`npm run generate:check -- <file> [--pages a-b] [--save out.json] [--from out.json]` runs extraction → Gemini → checks on a local file without the app or database and prints what was kept and dropped and why. Use it to tune the prompt; `--from` replays a saved response for free.
+`npm run generate:check -- <file>|--seed [--mode <mode>] [--pages a-b] [--save out.json] [--from out.json]` runs extraction → Gemini → checks on a local file (or the seed deck) without the app or database, with the given Mode's generator (default `dive`), and prints what was kept and dropped and why. Use it to tune the prompt; `--from` replays a saved response for free.
 
 ## Checks (code, after Gemini)
 
@@ -142,6 +145,19 @@ Examples:
 
 Points per Tier come from one constant table (`lib/scoring/tiers.ts`): common 10, solid 25, deep 60, rare 100. Gemini never sees or writes points.
 
+## Per-Mode generation
+
+Each Mode exports a `ModeGenerator` (`lib/modes/generation.ts`) from `lib/modes/<mode>/generate.ts`: `request` (system instruction, JSON response schema, temperature, page contents), `validate(response, pages)` (per document; drops, never throws), `finalize(kept)` (Game-level checks after check 7), `minPrompts`, and `notEnough(n)` (the user-facing error). `generatorFor(mode)` in `lib/modes/generators.ts` picks it; `generateDocumentPrompts(title, pages, request)` in `lib/gemini.ts` sends it (Dive's request is the default). Every new kind still stores one `answers` row per Prompt with its Evidence page and quote, so Mastery and the Reveal work the same way.
+
+| Mode | Asks Gemini for | Checks (code) | Min |
+|---|---|---|---|
+| Dive, Apogee | 15–20 mixed Prompts per document (above) | checks 1–7, Tiers | 7 |
+| Leap | 12–16 `multiple_choice` per document: stem, exactly 4 short options, `correct_option` copied from them, explanation, tier, `evidence_page` + `evidence_quote` for the correct option. Distractors must be plausible and taken from the same notes; no "all/none of the above" | exactly 4 options, distinct up to case and spacing (not `normalize()`, which would merge `O(V + E)` and `O(V * E)`); `correct_option` is one of them (exactly, else up to case/spacing); no all/none-of-the-above; the cited page exists and the quote is verbatim on it (required, else the question is dropped); the stem doesn't name the correct option while naming none of the others; tier defaults to `solid` | 10 |
+| Pairs | 16–24 `definition_to_term` per document, each a different key term: a definition of at most 25 words that never uses the term, the term (1–4 words) with aliases, tier, explanation | Dive's checks for the kind (term on its cited page, quotes, unusable keys), then: definition ≤ 200 characters (it's a card), term ≤ 6 words, the definition doesn't contain the term or an Alias as whole words; across the Game, one Prompt per term (normalized) | 12 |
+| Blitz | 36–45 `true_false` per document, about half false: one short statement (≤ 20 words), `is_true`, explanation (for a false one, the correct fact), tier, `evidence_page` + `evidence_quote`. A false statement changes exactly one detail of a real fact from the notes | statement ≤ 200 characters; the cited page exists and the quote is verbatim on it (required); a "false" statement that appears word for word in its page is dropped; across the Game, the larger side keeps at most 1.5× the smaller (true/false balance) | 30 |
+
+Tested on the seed deck (12 pages) with `generate:check --seed --mode <m>` on 2026-10-04: Leap 13 returned → 13 kept (after the distinctness fix; one O(…) question was wrongly dropped before it), Pairs 21 → 21, Blitz 36 → 35 (19 true / 16 false), Apogee 16 → 16. Each call cost $0.01–0.05 and took 40–90 s. Leap's call fell back to `gemini-3.5-flash-lite` (3.6 was overloaded) and still passed.
+
 ## Improving output quality (planned)
 
 What testing on real decks showed (seed deck and CMPT 354 SQL Basics, 94 pages):
@@ -167,10 +183,13 @@ Planned, in order (each measured with F14's scorecard, which comes first):
 |---|---|
 | `app/api/modules/[moduleId]/games/route.ts` | POST create Game, GET list the Module's Games |
 | `app/api/games/[gameId]/route.ts` | GET status/details, DELETE |
-| `lib/gemini.ts`, `lib/gemini/game-prompt.ts` | Client and instructions |
-| `lib/games/generate-game.ts` | `generateGame` steps a–f |
-| `lib/games/validate.ts` | zod schema + checks 1–7 (pure; shared checks 1–3 and 7, Dive's 4–6 + Tiers) |
+| `lib/gemini.ts`, `lib/gemini/game-prompt.ts` | Client (`generateDocumentPrompts(title, pages, request?)`) and Dive's instructions |
+| `lib/games/generate-game.ts` | `generateGame` steps a–f, for every Mode |
+| `lib/games/validate.ts` | Dive's zod schema + checks 1–7 (pure; shared checks 1–3 and 7, Dive's 4–6 + Tiers) |
+| `lib/modes/generation.ts`, `lib/modes/generators.ts` | `ModeGenerator`, shared checks (`quoteOnPage`, …), `generatorFor(mode)` |
+| `lib/modes/<mode>/generate.ts` | Each Mode's request and checks (Dive's plugs in `game-prompt.ts` + `validate.ts`) |
 | `lib/games/queries.ts`, `lib/games/types.ts` | Game reads for the routes (`getPlayerGame`, `listModuleGames`), client-safe `GameSummary` |
 | `lib/modes/index.ts` | `MODES`, `ModeId`, `isModeId` |
-| `scripts/generate-check.ts` | `npm run generate:check`: tune the prompt on a local file |
+| `scripts/generate-check.ts` | `npm run generate:check`: tune a Mode's prompt on a local file |
+| `scripts/seed.mts`, `db/seed/graph-algorithms-modes.json` | The demo Module's Games in every Mode, run through each Mode's own checks |
 | `lib/scoring/tiers.ts` | Tier table + Open Prompt tier assignment |

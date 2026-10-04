@@ -21,6 +21,7 @@ Site pages (landing, home, Explore, Daily, social, Modules) share one look. The 
 │           └── /runs/[runId]      Run (play screen, the Mode's theme)
 │               └── /runs/[runId]/reveal   Reveal (results)
 └── /styleguide                    Every component + the Dive playground  (dev only)
+                                   Practice → POST /api/games/[gameId]/runs → /runs/[runId] → Reveal (with `topic`)
 ```
 
 **Auth.** Public routes: `/` (landing), `/explore`, `/explore/[course]` and Topic readings (decision Q24: playing needs sign-in), `/sign-in`, `/sign-up` (Clerk's pages). Every other route is protected at the top of its page (`requirePlayer()`) or route handler (`getApiPlayer()`), both in `lib/auth.ts`. A signed-in user visiting `/` is redirected to `/home`.
@@ -122,8 +123,17 @@ A results column scrolling over the sea from your final depth (`dive.md` §7):
   - your answer and points (with Staleness/Hint notes)
   - **Open Prompts:** every Answer grouped by Tier (rarest first), found ones ticked, tier filters and search, each with "📄 Week 9 slides · p.41" and the Evidence quote (links into the file viewer)
   - **Single-answer Prompts:** the correct Answer, the explanation and the Evidence page
-- Buttons: Dive again, Back to Game.
+- Buttons: Play again, Back to Game.
+- **Course practice Games:** when `reveal.topic` is set, Back goes to the Topic page, and `topic.passedNow` triggers the Topic-pass moment (pixel burst, +150 XP, the Topic Badge, then the next Topic's unlock animation when `topic.unlockedNext`; Course Badge when `topic.courseFinished`) (Q27).
 
 ## `/styleguide` (dev only) · F10 (#10)
 
 Every design-system component with its states, plus a **Dive playground** that runs a fake 7-Prompt Dive client-side (no API) through the full descent and catch flow. Returns `notFound()` when `NODE_ENV === 'production'`.
+
+## `/explore`, `/explore/[course]`, `/explore/[course]/[topic]`: Courses (F22 backend, F27 UI)
+
+All three are public (Q24): signed out they render without progress and the Play buttons ask to sign in. Data and shapes: [`courses.md`](./courses.md) § API.
+
+- **`/explore`** (`GET /api/courses`): a card per Course with banner, level chip, topic count, minutes, Modes and, signed in, progress (`passed / total`, Continue → `nextTopicSlug`).
+- **`/explore/[course]`** (`GET /api/courses/[slug]`): banner hero (title, level, description, CTA to the next Topic), numbered Topic timeline (each Topic: number, title, summary, minutes, Mode icons, state locked / unlocked / passed and read), sidebar with progress and the Topic and Course Badges (`badgeInfo(badgeId)`).
+- **`/explore/[course]/[topic]`** (`GET /api/courses/[slug]/topics/[topicSlug]`): the reading page by page (markdown with code blocks) with an optional **Mark as read** (`POST …/read`, +20 XP, gates nothing); resources (title, source, link); a **Practice** panel with one tile per Mode (pass bar text, your best and a passed tick), and Play → `POST /api/games/[gameId]/runs` (403 = locked: show "Pass Topic N−1 first"); prev/next Topic links, "Next topic" highlighted once passed.

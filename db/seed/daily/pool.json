@@ -1,0 +1,4138 @@
+{
+  "_comment": "Hand-written Daily Dive seed pool for F23 (#36), so the Daily works with no Gemini key. Checked by `npm run seed:content:check`. Each puzzle is one public Dive Game: `prompts` use Dive's Gemini response shape (lib/games/validate.ts), and `fact_sheet.pages` become its system Source Document: page N is the Evidence for Prompt N and states every accepted Answer. #1-#7 are scheduled (day, America/Vancouver); puzzles with day null are unscheduled spares claimed in number order.",
+  "puzzles": [
+    {
+      "number": 1,
+      "day": "2026-10-04",
+      "theme": "Computing",
+      "title": "Launch Day: Computing Classics",
+      "fact_sheet": {
+        "pages": [
+          {
+            "page_number": 1,
+            "content_md": "# Sorting algorithms\n\nA sorting algorithm puts items in order. Well-known ones:\n\n- Bubble sort: repeatedly swaps neighbouring items that are out of order, so large items bubble to the end.\n- Merge sort: splits the list in half, sorts each half, then merges the two sorted halves; O(n log n) time.\n- Quicksort: picks a pivot and partitions the other items around it; developed by Tony Hoare in 1959.\n- Insertion sort: builds the sorted list one item at a time, like sorting playing cards in your hand.\n- Selection sort: repeatedly selects the smallest remaining item and moves it to the front.\n- Heapsort: builds a binary heap, then repeatedly removes the largest item.\n- Radix sort: sorts numbers digit by digit, without comparing items directly.\n- Counting sort: counts how many times each key occurs; it works on small integer keys.\n- Bucket sort: distributes items into buckets, then sorts each bucket.\n- Shell sort: a generalization of insertion sort that first compares items far apart; named after Donald Shell.\n- Timsort: a hybrid of merge sort and insertion sort designed by Tim Peters in 2002 for Python.\n- Cocktail shaker sort: a bubble sort that changes direction on every pass."
+          },
+          {
+            "page_number": 2,
+            "content_md": "# The OSI model\n\nThe OSI (Open Systems Interconnection) model splits networking into seven layers, numbered from layer 1 (Physical) at the bottom to layer 7 (Application) at the top.\n\n- Physical layer (layer 1): sends raw bits over a cable, fibre or radio.\n- Data link layer (layer 2): moves frames between devices on the same link; Ethernet works here.\n- Network layer (layer 3): routes packets between networks; IP works here.\n- Transport layer (layer 4): delivers data between programs; TCP and UDP work here.\n- Session layer (layer 5): opens, manages and closes conversations between programs.\n- Presentation layer (layer 6): translates data formats, for example encryption and compression.\n- Application layer (layer 7): the layer closest to the user, where protocols such as HTTP and DNS work."
+          },
+          {
+            "page_number": 3,
+            "content_md": "# Logic gates\n\nA logic gate is a tiny circuit that computes a Boolean function of its inputs (0 or 1). The basic gates:\n\n- AND gate: outputs 1 only when both inputs are 1.\n- OR gate: outputs 1 when at least one input is 1.\n- NOT gate: has one input and outputs its opposite (an inverter).\n- XOR gate: exclusive OR: outputs 1 when exactly one input is 1.\n- NAND gate: NOT AND: outputs 0 only when both inputs are 1. Any circuit can be built from NAND gates alone.\n- NOR gate: NOT OR: outputs 1 only when both inputs are 0.\n- XNOR gate: exclusive NOR: outputs 1 when both inputs are the same."
+          },
+          {
+            "page_number": 4,
+            "content_md": "# Ada Lovelace\n\n- Ada Lovelace (1815-1852) was an English mathematician, born Augusta Ada Byron, later Augusta Ada King, Countess of Lovelace. Her father was the poet Lord Byron.\n- She worked with Charles Babbage on his Analytical Engine, a mechanical general-purpose computer that was designed but never completed.\n- In 1843 she published notes on the Analytical Engine that included an algorithm to compute Bernoulli numbers. It is often called the first computer program, and Lovelace is often called the first computer programmer.\n- The programming language Ada is named after her."
+          },
+          {
+            "page_number": 5,
+            "content_md": "# The Turing machine\n\n- In 1936 the British mathematician Alan Turing described the Turing machine: an abstract machine that reads and writes symbols on an infinite tape, one cell at a time, following a fixed table of rules.\n- Despite its simplicity, a Turing machine can carry out any algorithm a modern computer can, which makes it the standard model of what is computable.\n- A language or computer that can simulate any Turing machine is called Turing complete.\n- Turing later helped break the German Enigma cipher during the Second World War."
+          },
+          {
+            "page_number": 6,
+            "content_md": "# Programming languages through time\n\nIn order of first release:\n\n1. Fortran: 1957, created at IBM by a team led by John Backus for scientific computing.\n2. COBOL: 1959, designed for business data processing.\n3. C: 1972, created by Dennis Ritchie at Bell Labs.\n4. Python: 1991, created by Guido van Rossum.\n5. Java: 1995, released by Sun Microsystems."
+          },
+          {
+            "page_number": 7,
+            "content_md": "# Protocols and the web\n\n- HTTP (Hypertext Transfer Protocol) is the network protocol browsers use to fetch web pages.\n- TCP (Transmission Control Protocol) is a network protocol that delivers data reliably and in order.\n- FTP (File Transfer Protocol) is a network protocol for copying files between computers.\n- CSS (Cascading Style Sheets) is not a network protocol: it is a style sheet language that describes how web pages look, such as their colours, fonts and layout."
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "kind": "open",
+          "text": "Name a sorting algorithm",
+          "answers": [
+            {
+              "canonical": "Bubble sort",
+              "aliases": [
+                "bubblesort",
+                "bubble"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Bubble sort: repeatedly swaps neighbouring items that are out of order, so large items bubble to the end."
+            },
+            {
+              "canonical": "Merge sort",
+              "aliases": [
+                "mergesort",
+                "merge"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Merge sort: splits the list in half, sorts each half, then merges the two sorted halves; O(n log n) time."
+            },
+            {
+              "canonical": "Quicksort",
+              "aliases": [
+                "quick sort",
+                "quick"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Quicksort: picks a pivot and partitions the other items around it; developed by Tony Hoare in 1959."
+            },
+            {
+              "canonical": "Insertion sort",
+              "aliases": [
+                "insertion"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Insertion sort: builds the sorted list one item at a time, like sorting playing cards in your hand."
+            },
+            {
+              "canonical": "Selection sort",
+              "aliases": [
+                "selection"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Selection sort: repeatedly selects the smallest remaining item and moves it to the front."
+            },
+            {
+              "canonical": "Heapsort",
+              "aliases": [
+                "heap sort",
+                "heap"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Heapsort: builds a binary heap, then repeatedly removes the largest item."
+            },
+            {
+              "canonical": "Radix sort",
+              "aliases": [
+                "radix"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Radix sort: sorts numbers digit by digit, without comparing items directly."
+            },
+            {
+              "canonical": "Counting sort",
+              "aliases": [
+                "counting"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Counting sort: counts how many times each key occurs; it works on small integer keys."
+            },
+            {
+              "canonical": "Bucket sort",
+              "aliases": [
+                "bucket"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Bucket sort: distributes items into buckets, then sorts each bucket."
+            },
+            {
+              "canonical": "Shell sort",
+              "aliases": [
+                "shellsort",
+                "shell"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Shell sort: a generalization of insertion sort that first compares items far apart; named after Donald Shell."
+            },
+            {
+              "canonical": "Timsort",
+              "aliases": [
+                "tim sort"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Timsort: a hybrid of merge sort and insertion sort designed by Tim Peters in 2002 for Python."
+            },
+            {
+              "canonical": "Cocktail shaker sort",
+              "aliases": [
+                "cocktail sort",
+                "shaker sort",
+                "cocktail shaker"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Cocktail shaker sort: a bubble sort that changes direction on every pass."
+            }
+          ]
+        },
+        {
+          "kind": "open",
+          "text": "Name a layer of the OSI model",
+          "answers": [
+            {
+              "canonical": "Application",
+              "aliases": [
+                "Application layer",
+                "layer 7"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Application layer (layer 7): the layer closest to the user, where protocols such as HTTP and DNS work."
+            },
+            {
+              "canonical": "Physical",
+              "aliases": [
+                "Physical layer",
+                "layer 1"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Physical layer (layer 1): sends raw bits over a cable, fibre or radio."
+            },
+            {
+              "canonical": "Network",
+              "aliases": [
+                "Network layer",
+                "layer 3"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Network layer (layer 3): routes packets between networks; IP works here."
+            },
+            {
+              "canonical": "Transport",
+              "aliases": [
+                "Transport layer",
+                "layer 4"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Transport layer (layer 4): delivers data between programs; TCP and UDP work here."
+            },
+            {
+              "canonical": "Data link",
+              "aliases": [
+                "Data link layer",
+                "layer 2",
+                "datalink"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Data link layer (layer 2): moves frames between devices on the same link; Ethernet works here."
+            },
+            {
+              "canonical": "Session",
+              "aliases": [
+                "Session layer",
+                "layer 5"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Session layer (layer 5): opens, manages and closes conversations between programs."
+            },
+            {
+              "canonical": "Presentation",
+              "aliases": [
+                "Presentation layer",
+                "layer 6"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Presentation layer (layer 6): translates data formats, for example encryption and compression."
+            }
+          ]
+        },
+        {
+          "kind": "open",
+          "text": "Name a logic gate",
+          "answers": [
+            {
+              "canonical": "AND",
+              "aliases": [
+                "AND gate"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "AND gate: outputs 1 only when both inputs are 1."
+            },
+            {
+              "canonical": "OR",
+              "aliases": [
+                "OR gate"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "OR gate: outputs 1 when at least one input is 1."
+            },
+            {
+              "canonical": "NOT",
+              "aliases": [
+                "NOT gate"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "NOT gate: has one input and outputs its opposite (an inverter)."
+            },
+            {
+              "canonical": "XOR",
+              "aliases": [
+                "XOR gate"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "XOR gate: exclusive OR: outputs 1 when exactly one input is 1."
+            },
+            {
+              "canonical": "NAND",
+              "aliases": [
+                "NAND gate"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "NAND gate: NOT AND: outputs 0 only when both inputs are 1. Any circuit can be built from NAND gates alone."
+            },
+            {
+              "canonical": "NOR",
+              "aliases": [
+                "NOR gate"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "NOR gate: NOT OR: outputs 1 only when both inputs are 0."
+            },
+            {
+              "canonical": "XNOR",
+              "aliases": [
+                "XNOR gate"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "XNOR gate: exclusive NOR: outputs 1 when both inputs are the same."
+            }
+          ]
+        },
+        {
+          "kind": "cloze",
+          "text": "Ada ______ published what is often called the first computer program, for Charles Babbage's Analytical Engine.",
+          "tier": "common",
+          "hint": "Her father was the poet Lord Byron.",
+          "explanation": "Her 1843 notes included an algorithm to compute Bernoulli numbers on the Analytical Engine.",
+          "answers": [
+            {
+              "canonical": "Lovelace",
+              "aliases": [
+                "Ada Lovelace",
+                "Countess of Lovelace"
+              ],
+              "exact_only": false,
+              "evidence_page": 4,
+              "evidence_quote": "Ada Lovelace (1815-1852) was an English mathematician"
+            }
+          ]
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "The abstract machine, described in 1936, that reads and writes symbols on an infinite tape one cell at a time.",
+          "tier": "solid",
+          "hint": "It is named after the mathematician who later helped break Enigma.",
+          "explanation": "It is the standard model of what any computer can compute.",
+          "answers": [
+            {
+              "canonical": "Turing machine",
+              "aliases": [
+                "Turing machines"
+              ],
+              "exact_only": false,
+              "evidence_page": 5,
+              "evidence_quote": "an abstract machine that reads and writes symbols on an infinite tape, one cell at a time, following a fixed table of rules."
+            }
+          ]
+        },
+        {
+          "kind": "ordered_recall",
+          "text": "Put these programming languages in order of first release, oldest first.",
+          "tier": "deep",
+          "hint": "The oldest was built at IBM for scientific computing.",
+          "explanation": "Fortran (1957), COBOL (1959), C (1972), Python (1991), Java (1995).",
+          "items": [
+            "Fortran",
+            "COBOL",
+            "C",
+            "Python",
+            "Java"
+          ],
+          "evidence_page": 6
+        },
+        {
+          "kind": "odd_one_out",
+          "text": "Which one is not a network protocol?",
+          "tier": "common",
+          "hint": "One of them decides the colours and fonts of a web page.",
+          "explanation": "HTTP, TCP and FTP are network protocols; CSS is a style sheet language for how web pages look.",
+          "options": [
+            "HTTP",
+            "TCP",
+            "CSS",
+            "FTP"
+          ],
+          "correct_option": "CSS",
+          "evidence_page": 7
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "day": "2026-10-05",
+      "theme": "Science",
+      "title": "Science: Units, Waves and Cells",
+      "fact_sheet": {
+        "pages": [
+          {
+            "page_number": 1,
+            "content_md": "# SI base units\n\nThe International System of Units (SI) is built on seven base units. Every other SI unit, such as the newton or the joule, is made by combining them.\n\n- Metre (meter, metres, meters): symbol m; the unit of length.\n- Kilogram (kilograms, kg): symbol kg; the unit of mass.\n- Second (seconds): symbol s; the unit of time.\n- Kelvin: symbol K; the unit of thermodynamic temperature.\n- Ampere (amp, amps, amperes): symbol A; the unit of electric current.\n- Mole (moles, mol): symbol mol; the unit of amount of substance.\n- Candela: symbol cd; the unit of luminous intensity."
+          },
+          {
+            "page_number": 2,
+            "content_md": "# The electromagnetic spectrum\n\nElectromagnetic radiation is grouped by wavelength into these main types. All of them travel at the speed of light.\n\n- Visible light (light, visible): the narrow band human eyes can see, from red to violet.\n- X-rays (x-ray, x rays): pass through soft tissue, so they are used for medical images of bones.\n- Ultraviolet (UV, ultraviolet light, ultraviolet radiation): shorter than violet light; causes sunburn.\n- Infrared (IR, infrared radiation): longer than red light; we feel it as heat.\n- Radio waves (radio, radio wave): the longest wavelengths; carry radio and TV broadcasts.\n- Microwaves (microwave): used in microwave ovens, radar and Wi-Fi.\n- Gamma rays (gamma, gamma ray, gamma radiation): the shortest wavelengths and highest energy; given off by radioactive nuclei."
+          },
+          {
+            "page_number": 3,
+            "content_md": "# Organelles of eukaryotic cells\n\nEukaryotic cells (animals, plants, fungi) contain organelles: specialised structures that each do a job.\n\n- Nucleus (nuclei): holds the cell's DNA and controls its activities.\n- Mitochondrion (mitochondria): the powerhouse of the cell; releases energy by aerobic respiration.\n- Ribosome (ribosomes): builds proteins; found free in the cytoplasm and on rough ER.\n- Chloroplast (chloroplasts): found in plant cells; carries out photosynthesis.\n- Golgi apparatus (Golgi, Golgi body, Golgi complex): modifies, packages and ships proteins.\n- Endoplasmic reticulum (ER, rough ER, smooth ER): a network of membranes that makes proteins and lipids.\n- Vacuole (vacuoles): stores water and substances; plant cells have one large central vacuole.\n- Lysosome (lysosomes): contains enzymes that break down waste and worn-out parts.\n- Peroxisome (peroxisomes): breaks down fatty acids and harmful hydrogen peroxide."
+          },
+          {
+            "page_number": 4,
+            "content_md": "# Newton's second law\n\nNewton's second law of motion says that force equals mass times acceleration, written F = ma.\n\n- Force is measured in newtons (N), mass in kilograms and acceleration in metres per second squared.\n- Doubling the force on an object doubles its acceleration."
+          },
+          {
+            "page_number": 5,
+            "content_md": "# Photosynthesis\n\nPhotosynthesis is the process in which plants use light energy to turn carbon dioxide and water into glucose and oxygen.\n\n- It takes place in chloroplasts, which contain the green pigment chlorophyll.\n- Word equation: carbon dioxide + water → glucose + oxygen."
+          },
+          {
+            "page_number": 6,
+            "content_md": "# Levels of organization\n\nLiving things are organised in levels, from smallest to largest:\n\n1. Cell: the basic unit of life.\n2. Tissue: a group of similar cells doing one job, such as muscle tissue.\n3. Organ: several tissues working together, such as the heart.\n4. Organ system: organs working together, such as the circulatory system.\n5. Organism: a whole living thing."
+          },
+          {
+            "page_number": 7,
+            "content_md": "# Metals and nonmetals\n\n- Iron (Fe) is a metal: strong, magnetic, and the main part of steel.\n- Copper (Cu) is a metal: an excellent conductor used in electrical wires.\n- Sodium (Na) is a metal: a soft, reactive alkali metal.\n- Sulfur (S) is a nonmetal: a brittle yellow solid that does not conduct electricity.\n\nSo sulfur is the odd one out: the other three are metals."
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "kind": "open",
+          "text": "Name an SI base unit",
+          "answers": [
+            {
+              "canonical": "Metre",
+              "aliases": [
+                "meter",
+                "metres",
+                "meters"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Metre (meter, metres, meters): symbol m; the unit of length."
+            },
+            {
+              "canonical": "Kilogram",
+              "aliases": [
+                "kilograms",
+                "kg"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Kilogram (kilograms, kg): symbol kg; the unit of mass."
+            },
+            {
+              "canonical": "Second",
+              "aliases": [
+                "seconds"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Second (seconds): symbol s; the unit of time."
+            },
+            {
+              "canonical": "Kelvin",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Kelvin: symbol K; the unit of thermodynamic temperature."
+            },
+            {
+              "canonical": "Ampere",
+              "aliases": [
+                "amp",
+                "amps",
+                "amperes"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Ampere (amp, amps, amperes): symbol A; the unit of electric current."
+            },
+            {
+              "canonical": "Mole",
+              "aliases": [
+                "moles",
+                "mol"
+              ],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "Mole (moles, mol): symbol mol; the unit of amount of substance."
+            },
+            {
+              "canonical": "Candela",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Candela: symbol cd; the unit of luminous intensity."
+            }
+          ],
+          "explanation": "The seven SI base units are the metre, kilogram, second, ampere, kelvin, mole and candela."
+        },
+        {
+          "kind": "open",
+          "text": "Name a type of electromagnetic radiation",
+          "answers": [
+            {
+              "canonical": "Visible light",
+              "aliases": [
+                "light",
+                "visible"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Visible light (light, visible): the narrow band human eyes can see, from red to violet."
+            },
+            {
+              "canonical": "X-rays",
+              "aliases": [
+                "x-ray",
+                "x rays"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "X-rays (x-ray, x rays): pass through soft tissue, so they are used for medical images of bones."
+            },
+            {
+              "canonical": "Ultraviolet",
+              "aliases": [
+                "UV",
+                "ultraviolet light",
+                "ultraviolet radiation"
+              ],
+              "exact_only": true,
+              "evidence_page": 2,
+              "evidence_quote": "Ultraviolet (UV, ultraviolet light, ultraviolet radiation): shorter than violet light; causes sunburn."
+            },
+            {
+              "canonical": "Infrared",
+              "aliases": [
+                "IR",
+                "infrared radiation"
+              ],
+              "exact_only": true,
+              "evidence_page": 2,
+              "evidence_quote": "Infrared (IR, infrared radiation): longer than red light; we feel it as heat."
+            },
+            {
+              "canonical": "Radio waves",
+              "aliases": [
+                "radio",
+                "radio wave"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Radio waves (radio, radio wave): the longest wavelengths; carry radio and TV broadcasts."
+            },
+            {
+              "canonical": "Microwaves",
+              "aliases": [
+                "microwave"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Microwaves (microwave): used in microwave ovens, radar and Wi-Fi."
+            },
+            {
+              "canonical": "Gamma rays",
+              "aliases": [
+                "gamma",
+                "gamma ray",
+                "gamma radiation"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Gamma rays (gamma, gamma ray, gamma radiation): the shortest wavelengths and highest energy; given off by radioactive nuclei."
+            }
+          ],
+          "explanation": "Radio waves, microwaves, infrared, visible light, ultraviolet, X-rays and gamma rays are all the same kind of wave at different wavelengths."
+        },
+        {
+          "kind": "open",
+          "text": "Name an organelle found in eukaryotic cells",
+          "answers": [
+            {
+              "canonical": "Nucleus",
+              "aliases": [
+                "nuclei"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Nucleus (nuclei): holds the cell's DNA and controls its activities."
+            },
+            {
+              "canonical": "Mitochondrion",
+              "aliases": [
+                "mitochondria"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Mitochondrion (mitochondria): the powerhouse of the cell; releases energy by aerobic respiration."
+            },
+            {
+              "canonical": "Ribosome",
+              "aliases": [
+                "ribosomes"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Ribosome (ribosomes): builds proteins; found free in the cytoplasm and on rough ER."
+            },
+            {
+              "canonical": "Chloroplast",
+              "aliases": [
+                "chloroplasts"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Chloroplast (chloroplasts): found in plant cells; carries out photosynthesis."
+            },
+            {
+              "canonical": "Golgi apparatus",
+              "aliases": [
+                "Golgi",
+                "Golgi body",
+                "Golgi complex"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Golgi apparatus (Golgi, Golgi body, Golgi complex): modifies, packages and ships proteins."
+            },
+            {
+              "canonical": "Endoplasmic reticulum",
+              "aliases": [
+                "ER",
+                "rough ER",
+                "smooth ER"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Endoplasmic reticulum (ER, rough ER, smooth ER): a network of membranes that makes proteins and lipids."
+            },
+            {
+              "canonical": "Vacuole",
+              "aliases": [
+                "vacuoles"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Vacuole (vacuoles): stores water and substances; plant cells have one large central vacuole."
+            },
+            {
+              "canonical": "Lysosome",
+              "aliases": [
+                "lysosomes"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Lysosome (lysosomes): contains enzymes that break down waste and worn-out parts."
+            },
+            {
+              "canonical": "Peroxisome",
+              "aliases": [
+                "peroxisomes"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Peroxisome (peroxisomes): breaks down fatty acids and harmful hydrogen peroxide."
+            }
+          ],
+          "explanation": "Organelles divide the work of a eukaryotic cell; prokaryotes such as bacteria lack membrane-bound organelles."
+        },
+        {
+          "kind": "cloze",
+          "text": "Newton's second law says that force equals mass times ______.",
+          "tier": "common",
+          "hint": "It measures how quickly velocity changes.",
+          "explanation": "Newton's second law, F = ma: a larger force or a smaller mass gives a larger acceleration.",
+          "answers": [
+            {
+              "canonical": "acceleration",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 4,
+              "evidence_quote": "Newton's second law of motion says that force equals mass times acceleration, written F = ma."
+            }
+          ]
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "The process in which plants use light energy to turn carbon dioxide and water into glucose and oxygen.",
+          "tier": "common",
+          "hint": "It happens in the green parts of a leaf.",
+          "explanation": "Photosynthesis takes place in chloroplasts and releases the oxygen we breathe.",
+          "answers": [
+            {
+              "canonical": "photosynthesis",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 5,
+              "evidence_quote": "Photosynthesis is the process in which plants use light energy to turn carbon dioxide and water into glucose and oxygen."
+            }
+          ]
+        },
+        {
+          "kind": "ordered_recall",
+          "text": "Put these levels of biological organization in order, from smallest to largest.",
+          "tier": "common",
+          "hint": "Cells come together first.",
+          "explanation": "Cells form tissues, tissues form organs, organs work together in organ systems, and systems make up an organism.",
+          "items": [
+            "Cell",
+            "Tissue",
+            "Organ",
+            "Organ system",
+            "Organism"
+          ],
+          "evidence_page": 6
+        },
+        {
+          "kind": "odd_one_out",
+          "text": "Which one of these elements is not a metal?",
+          "tier": "common",
+          "hint": "Look for the yellow solid often found near volcanoes.",
+          "explanation": "Iron, copper and sodium are metals; sulfur is a nonmetal.",
+          "options": [
+            "Iron",
+            "Copper",
+            "Sulfur",
+            "Sodium"
+          ],
+          "correct_option": "Sulfur",
+          "evidence_page": 7
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "day": "2026-10-06",
+      "theme": "History",
+      "title": "History: Dynasties and Wonders",
+      "fact_sheet": {
+        "pages": [
+          {
+            "page_number": 1,
+            "content_md": "# The six wives of Henry VIII\n\nKing Henry VIII of England (reigned 1509-1547) married six times. A rhyme remembers their fates: divorced, beheaded, died; divorced, beheaded, survived.\n\n- Anne Boleyn (Boleyn): second wife (married 1533), mother of Elizabeth I; beheaded in 1536.\n- Catherine of Aragon (Katherine of Aragon): first wife (married 1509), mother of Mary I; the marriage was annulled in 1533.\n- Jane Seymour (Seymour): third wife (married 1536), mother of Edward VI; died in 1537 after childbirth.\n- Anne of Cleves (Cleves): fourth wife (married 1540); the marriage was annulled after six months.\n- Catherine Parr (Katherine Parr, Parr): sixth wife (married 1543); she outlived Henry.\n- Catherine Howard (Katherine Howard, Howard): fifth wife (married 1540); beheaded in 1542."
+          },
+          {
+            "page_number": 2,
+            "content_md": "# The Seven Wonders of the Ancient World\n\nGreek writers listed seven remarkable monuments of the ancient Mediterranean world. Only one still stands.\n\n- Great Pyramid of Giza (Great Pyramid, Pyramid of Giza, pyramids of Giza): in Egypt; the oldest wonder and the only one still standing.\n- Hanging Gardens of Babylon (Hanging Gardens): terraced gardens said to have been built in Babylon; their site has never been confirmed.\n- Colossus of Rhodes (Colossus): a giant bronze statue of the sun god Helios on the island of Rhodes.\n- Lighthouse of Alexandria (Pharos of Alexandria, Pharos): a towering lighthouse on the island of Pharos in Egypt.\n- Statue of Zeus at Olympia (Statue of Zeus): a huge gold-and-ivory seated statue made by the sculptor Phidias.\n- Temple of Artemis (Temple of Artemis at Ephesus, Artemision): a great temple at Ephesus, in modern Turkey.\n- Mausoleum at Halicarnassus (Mausoleum of Halicarnassus, Mausoleum of Mausolus): the tomb of Mausolus; it gave us the word mausoleum."
+          },
+          {
+            "page_number": 3,
+            "content_md": "# Chinese dynasties\n\nFor more than 3,000 years China was ruled by a series of dynasties (ruling families). Major ones, in order: Shang, Zhou, Qin, Han, Jin, Sui, Tang, Song, Yuan, Ming, Qing.\n\n- Ming: 1368-1644; rebuilt much of the Great Wall and built the Forbidden City.\n- Qing (Ching): 1644-1912; the last imperial dynasty, founded by the Manchus.\n- Han: 206 BCE-220 CE; gave its name to the Han Chinese and opened the Silk Road.\n- Tang: 618-907; a golden age of poetry and trade.\n- Qin (Chin): 221-206 BCE; unified China under its first emperor, Qin Shi Huang.\n- Song (Sung): 960-1279; known for printing, gunpowder weapons and the compass.\n- Yuan: 1271-1368; the Mongol dynasty founded by Kublai Khan.\n- Zhou (Chou): about 1046-256 BCE; the longest-lasting dynasty, in the age of Confucius.\n- Shang: about 1600-1046 BCE; left the earliest Chinese writing, on oracle bones.\n- Sui: 581-618; reunified China and built the Grand Canal.\n- Jin: 265-420; a dynasty that briefly reunited China after the Three Kingdoms period."
+          },
+          {
+            "page_number": 4,
+            "content_md": "# Magna Carta\n\nThe Magna Carta was sealed by King John of England at Runnymede in 1215.\n\n- Rebel barons forced the king to accept limits on his power.\n- It is remembered as an early statement that the ruler is not above the law."
+          },
+          {
+            "page_number": 5,
+            "content_md": "# The Renaissance\n\nThe Renaissance was a European cultural movement of the 14th to 17th centuries that revived classical Greek and Roman art and learning. It began in Italy, in cities such as Florence.\n\n- Its name means \"rebirth\" in French.\n- Famous figures include Leonardo da Vinci and Michelangelo."
+          },
+          {
+            "page_number": 6,
+            "content_md": "# A timeline of turning points\n\n1. 476: the Western Roman Empire falls when its last emperor is deposed.\n2. 1066: the Norman conquest of England, after the Battle of Hastings.\n3. 1492: Christopher Columbus reaches the Americas.\n4. 1789: the French Revolution begins with the storming of the Bastille.\n5. 1989: the Berlin Wall falls."
+          },
+          {
+            "page_number": 7,
+            "content_md": "# Emperors and enemies of Rome\n\n- Augustus was the first Roman emperor (27 BCE-14 CE).\n- Nero was a Roman emperor (54-68 CE), blamed for the Great Fire of Rome.\n- Hadrian was a Roman emperor (117-138 CE) who built a wall across northern Britain.\n- Hannibal was a general of Carthage, Rome's enemy, who crossed the Alps with elephants in 218 BCE.\n\nSo Hannibal is the odd one out: he was never a Roman emperor."
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "kind": "open",
+          "text": "Name one of the six wives of Henry VIII",
+          "answers": [
+            {
+              "canonical": "Anne Boleyn",
+              "aliases": [
+                "Boleyn"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Anne Boleyn (Boleyn): second wife (married 1533), mother of Elizabeth I; beheaded in 1536."
+            },
+            {
+              "canonical": "Catherine of Aragon",
+              "aliases": [
+                "Katherine of Aragon"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Catherine of Aragon (Katherine of Aragon): first wife (married 1509), mother of Mary I; the marriage was annulled in 1533."
+            },
+            {
+              "canonical": "Jane Seymour",
+              "aliases": [
+                "Seymour"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Jane Seymour (Seymour): third wife (married 1536), mother of Edward VI; died in 1537 after childbirth."
+            },
+            {
+              "canonical": "Anne of Cleves",
+              "aliases": [
+                "Cleves"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Anne of Cleves (Cleves): fourth wife (married 1540); the marriage was annulled after six months."
+            },
+            {
+              "canonical": "Catherine Parr",
+              "aliases": [
+                "Katherine Parr",
+                "Parr"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Catherine Parr (Katherine Parr, Parr): sixth wife (married 1543); she outlived Henry."
+            },
+            {
+              "canonical": "Catherine Howard",
+              "aliases": [
+                "Katherine Howard",
+                "Howard"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Catherine Howard (Katherine Howard, Howard): fifth wife (married 1540); beheaded in 1542."
+            }
+          ],
+          "explanation": "Henry's six wives were Catherine of Aragon, Anne Boleyn, Jane Seymour, Anne of Cleves, Catherine Howard and Catherine Parr."
+        },
+        {
+          "kind": "open",
+          "text": "Name one of the Seven Wonders of the Ancient World",
+          "answers": [
+            {
+              "canonical": "Great Pyramid of Giza",
+              "aliases": [
+                "Great Pyramid",
+                "Pyramid of Giza",
+                "pyramids of Giza"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Great Pyramid of Giza (Great Pyramid, Pyramid of Giza, pyramids of Giza): in Egypt; the oldest wonder and the only one still standing."
+            },
+            {
+              "canonical": "Hanging Gardens of Babylon",
+              "aliases": [
+                "Hanging Gardens"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Hanging Gardens of Babylon (Hanging Gardens): terraced gardens said to have been built in Babylon; their site has never been confirmed."
+            },
+            {
+              "canonical": "Colossus of Rhodes",
+              "aliases": [
+                "Colossus"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Colossus of Rhodes (Colossus): a giant bronze statue of the sun god Helios on the island of Rhodes."
+            },
+            {
+              "canonical": "Lighthouse of Alexandria",
+              "aliases": [
+                "Pharos of Alexandria",
+                "Pharos"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Lighthouse of Alexandria (Pharos of Alexandria, Pharos): a towering lighthouse on the island of Pharos in Egypt."
+            },
+            {
+              "canonical": "Statue of Zeus at Olympia",
+              "aliases": [
+                "Statue of Zeus"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Statue of Zeus at Olympia (Statue of Zeus): a huge gold-and-ivory seated statue made by the sculptor Phidias."
+            },
+            {
+              "canonical": "Temple of Artemis",
+              "aliases": [
+                "Temple of Artemis at Ephesus",
+                "Artemision"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Temple of Artemis (Temple of Artemis at Ephesus, Artemision): a great temple at Ephesus, in modern Turkey."
+            },
+            {
+              "canonical": "Mausoleum at Halicarnassus",
+              "aliases": [
+                "Mausoleum of Halicarnassus",
+                "Mausoleum of Mausolus"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Mausoleum at Halicarnassus (Mausoleum of Halicarnassus, Mausoleum of Mausolus): the tomb of Mausolus; it gave us the word mausoleum."
+            }
+          ],
+          "explanation": "The Great Pyramid of Giza is the only one of the seven wonders that survives."
+        },
+        {
+          "kind": "open",
+          "text": "Name a dynasty that ruled China",
+          "answers": [
+            {
+              "canonical": "Ming",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Ming: 1368-1644; rebuilt much of the Great Wall and built the Forbidden City."
+            },
+            {
+              "canonical": "Qing",
+              "aliases": [
+                "Ching"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Qing (Ching): 1644-1912; the last imperial dynasty, founded by the Manchus."
+            },
+            {
+              "canonical": "Han",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Han: 206 BCE-220 CE; gave its name to the Han Chinese and opened the Silk Road."
+            },
+            {
+              "canonical": "Tang",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Tang: 618-907; a golden age of poetry and trade."
+            },
+            {
+              "canonical": "Qin",
+              "aliases": [
+                "Chin"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Qin (Chin): 221-206 BCE; unified China under its first emperor, Qin Shi Huang."
+            },
+            {
+              "canonical": "Song",
+              "aliases": [
+                "Sung"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Song (Sung): 960-1279; known for printing, gunpowder weapons and the compass."
+            },
+            {
+              "canonical": "Yuan",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Yuan: 1271-1368; the Mongol dynasty founded by Kublai Khan."
+            },
+            {
+              "canonical": "Zhou",
+              "aliases": [
+                "Chou"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Zhou (Chou): about 1046-256 BCE; the longest-lasting dynasty, in the age of Confucius."
+            },
+            {
+              "canonical": "Shang",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Shang: about 1600-1046 BCE; left the earliest Chinese writing, on oracle bones."
+            },
+            {
+              "canonical": "Sui",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Sui: 581-618; reunified China and built the Grand Canal."
+            },
+            {
+              "canonical": "Jin",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Jin: 265-420; a dynasty that briefly reunited China after the Three Kingdoms period."
+            }
+          ],
+          "explanation": "Many more dynasties ruled parts of China; these are the major ones taught in world history."
+        },
+        {
+          "kind": "cloze",
+          "text": "The Magna Carta was sealed in 1215 by King ______ of England.",
+          "tier": "solid",
+          "hint": "His nickname was Lackland, and he was Richard the Lionheart's brother.",
+          "explanation": "King John sealed the Magna Carta at Runnymede in 1215 after a revolt by his barons.",
+          "answers": [
+            {
+              "canonical": "John",
+              "aliases": [
+                "King John"
+              ],
+              "exact_only": true,
+              "evidence_page": 4,
+              "evidence_quote": "The Magna Carta was sealed by King John of England at Runnymede in 1215."
+            }
+          ]
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "The European cultural movement of the 14th to 17th centuries that revived classical Greek and Roman art and learning, beginning in Italy.",
+          "tier": "common",
+          "hint": "The word is French for rebirth.",
+          "explanation": "The Renaissance began in Italian cities such as Florence and spread across Europe.",
+          "answers": [
+            {
+              "canonical": "Renaissance",
+              "aliases": [
+                "the Renaissance"
+              ],
+              "exact_only": false,
+              "evidence_page": 5,
+              "evidence_quote": "The Renaissance was a European cultural movement of the 14th to 17th centuries that revived classical Greek and Roman art and learning."
+            }
+          ]
+        },
+        {
+          "kind": "ordered_recall",
+          "text": "Put these events in chronological order, earliest first.",
+          "tier": "solid",
+          "hint": "Rome falls first; a wall falls last.",
+          "explanation": "Rome fell in 476, the Normans conquered England in 1066, Columbus sailed in 1492, the French Revolution began in 1789 and the Berlin Wall fell in 1989.",
+          "items": [
+            "Fall of the Western Roman Empire",
+            "Norman conquest of England",
+            "Columbus reaches the Americas",
+            "French Revolution begins",
+            "Fall of the Berlin Wall"
+          ],
+          "evidence_page": 6
+        },
+        {
+          "kind": "odd_one_out",
+          "text": "Which one of these was not a Roman emperor?",
+          "tier": "common",
+          "hint": "He fought against Rome, not for it.",
+          "explanation": "Augustus, Nero and Hadrian were Roman emperors; Hannibal was a Carthaginian general who invaded Italy.",
+          "options": [
+            "Augustus",
+            "Nero",
+            "Hannibal",
+            "Hadrian"
+          ],
+          "correct_option": "Hannibal",
+          "evidence_page": 7
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "day": "2026-10-07",
+      "theme": "Geography",
+      "title": "Geography: Borders and Continents",
+      "fact_sheet": {
+        "pages": [
+          {
+            "page_number": 1,
+            "content_md": "# Germany's neighbours\n\nGermany shares land borders with nine countries.\n\n- France: to the southwest; the border runs partly along the Rhine.\n- Poland: to the east, along the Oder and Neisse rivers.\n- Austria: to the southeast, across the Alps and along the river Inn.\n- Switzerland: to the south, along Lake Constance and the Rhine.\n- Netherlands (the Netherlands, Holland): to the northwest.\n- Belgium: to the west.\n- Denmark: to the north, on the Jutland peninsula; Germany's only northern land neighbour.\n- Czech Republic (Czechia): to the east and southeast.\n- Luxembourg: to the west; a small grand duchy."
+          },
+          {
+            "page_number": 2,
+            "content_md": "# Countries of South America\n\nSouth America has 12 independent countries. (French Guiana is part of France, not a separate country.)\n\n- Brazil: the largest country in South America; capital Brasília.\n- Argentina: the second largest; capital Buenos Aires.\n- Chile: a long, narrow country along the Pacific; capital Santiago.\n- Peru: home of Machu Picchu; capital Lima.\n- Colombia: the only South American country with Pacific and Caribbean coasts; capital Bogotá.\n- Venezuela: home of Angel Falls, the world's highest waterfall; capital Caracas.\n- Ecuador: named after the equator, which crosses it; capital Quito.\n- Bolivia: landlocked; its seat of government, La Paz, is one of the highest capitals.\n- Uruguay: a small country on the Río de la Plata; capital Montevideo.\n- Paraguay: landlocked, between Argentina, Brazil and Bolivia; capital Asunción.\n- Guyana: English-speaking, on the north coast; capital Georgetown.\n- Suriname (Surinam): Dutch-speaking, the smallest country in South America; capital Paramaribo."
+          },
+          {
+            "page_number": 3,
+            "content_md": "# The seven continents\n\nIn the most common model taught in English-speaking schools, Earth's land is divided into seven continents.\n\n- Asia: the largest and most populous continent.\n- Africa: the second largest; the Sahara and the Nile are here.\n- Europe: a western extension of the Eurasian landmass.\n- North America: includes Canada, the United States, Mexico and Central America.\n- South America: home of the Amazon rainforest and the Andes.\n- Australia (Oceania, Australasia): the smallest continent, also grouped with Pacific islands as Oceania.\n- Antarctica: the coldest continent, covered by an ice sheet and with no permanent population."
+          },
+          {
+            "page_number": 4,
+            "content_md": "# Mount Everest\n\nMount Everest, the highest mountain above sea level, stands on the border between Nepal and China (the Tibet Autonomous Region).\n\n- It is in the Himalayas.\n- Climbers reach it from the Nepalese south side or the Tibetan north side."
+          },
+          {
+            "page_number": 5,
+            "content_md": "# Isthmus\n\nAn isthmus is a narrow strip of land that connects two larger land areas and separates two bodies of water.\n\n- The Isthmus of Panama joins North and South America.\n- The Isthmus of Suez joins Africa and Asia.\n- Canals are often dug across one to link the two seas."
+          },
+          {
+            "page_number": 6,
+            "content_md": "# Oceans by area\n\nFrom largest to smallest:\n\n1. Pacific Ocean: the largest, covering about a third of Earth's surface.\n2. Atlantic Ocean: about half the size of the Pacific.\n3. Indian Ocean: the third largest.\n4. Southern Ocean: the waters surrounding Antarctica.\n5. Arctic Ocean: the smallest and shallowest."
+          },
+          {
+            "page_number": 7,
+            "content_md": "# Capitals and big cities\n\n- Canberra is the capital of Australia.\n- Ottawa is the capital of Canada.\n- Brasília is the capital of Brazil, built in the 1950s.\n- Sydney is Australia's largest city, but it is not a capital: the capital is Canberra.\n\nSo Sydney is the odd one out."
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "kind": "open",
+          "text": "Name a country that borders Germany",
+          "answers": [
+            {
+              "canonical": "France",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "France: to the southwest; the border runs partly along the Rhine."
+            },
+            {
+              "canonical": "Poland",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "Poland: to the east, along the Oder and Neisse rivers."
+            },
+            {
+              "canonical": "Austria",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Austria: to the southeast, across the Alps and along the river Inn."
+            },
+            {
+              "canonical": "Switzerland",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Switzerland: to the south, along Lake Constance and the Rhine."
+            },
+            {
+              "canonical": "Netherlands",
+              "aliases": [
+                "the Netherlands",
+                "Holland"
+              ],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "Netherlands (the Netherlands, Holland): to the northwest."
+            },
+            {
+              "canonical": "Belgium",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Belgium: to the west."
+            },
+            {
+              "canonical": "Denmark",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Denmark: to the north, on the Jutland peninsula; Germany's only northern land neighbour."
+            },
+            {
+              "canonical": "Czech Republic",
+              "aliases": [
+                "Czechia"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Czech Republic (Czechia): to the east and southeast."
+            },
+            {
+              "canonical": "Luxembourg",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Luxembourg: to the west; a small grand duchy."
+            }
+          ],
+          "explanation": "Germany's nine neighbours: Denmark, Poland, Czech Republic, Austria, Switzerland, France, Luxembourg, Belgium and the Netherlands."
+        },
+        {
+          "kind": "open",
+          "text": "Name a country in South America",
+          "answers": [
+            {
+              "canonical": "Brazil",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Brazil: the largest country in South America; capital Brasília."
+            },
+            {
+              "canonical": "Argentina",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Argentina: the second largest; capital Buenos Aires."
+            },
+            {
+              "canonical": "Chile",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Chile: a long, narrow country along the Pacific; capital Santiago."
+            },
+            {
+              "canonical": "Peru",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 2,
+              "evidence_quote": "Peru: home of Machu Picchu; capital Lima."
+            },
+            {
+              "canonical": "Colombia",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Colombia: the only South American country with Pacific and Caribbean coasts; capital Bogotá."
+            },
+            {
+              "canonical": "Venezuela",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Venezuela: home of Angel Falls, the world's highest waterfall; capital Caracas."
+            },
+            {
+              "canonical": "Ecuador",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Ecuador: named after the equator, which crosses it; capital Quito."
+            },
+            {
+              "canonical": "Bolivia",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Bolivia: landlocked; its seat of government, La Paz, is one of the highest capitals."
+            },
+            {
+              "canonical": "Uruguay",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Uruguay: a small country on the Río de la Plata; capital Montevideo."
+            },
+            {
+              "canonical": "Paraguay",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Paraguay: landlocked, between Argentina, Brazil and Bolivia; capital Asunción."
+            },
+            {
+              "canonical": "Guyana",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Guyana: English-speaking, on the north coast; capital Georgetown."
+            },
+            {
+              "canonical": "Suriname",
+              "aliases": [
+                "Surinam"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Suriname (Surinam): Dutch-speaking, the smallest country in South America; capital Paramaribo."
+            }
+          ],
+          "explanation": "All 12 are independent countries; Guyana and Suriname are the least often remembered."
+        },
+        {
+          "kind": "open",
+          "text": "Name one of the seven continents",
+          "answers": [
+            {
+              "canonical": "Asia",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Asia: the largest and most populous continent."
+            },
+            {
+              "canonical": "Africa",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Africa: the second largest; the Sahara and the Nile are here."
+            },
+            {
+              "canonical": "Europe",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Europe: a western extension of the Eurasian landmass."
+            },
+            {
+              "canonical": "North America",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "North America: includes Canada, the United States, Mexico and Central America."
+            },
+            {
+              "canonical": "South America",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "South America: home of the Amazon rainforest and the Andes."
+            },
+            {
+              "canonical": "Australia",
+              "aliases": [
+                "Oceania",
+                "Australasia"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Australia (Oceania, Australasia): the smallest continent, also grouped with Pacific islands as Oceania."
+            },
+            {
+              "canonical": "Antarctica",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Antarctica: the coldest continent, covered by an ice sheet and with no permanent population."
+            }
+          ],
+          "explanation": "Seven continents: Asia, Africa, North America, South America, Antarctica, Europe and Australia."
+        },
+        {
+          "kind": "cloze",
+          "text": "Mount Everest stands on the border between Nepal and ______.",
+          "tier": "solid",
+          "hint": "Its capital is Beijing.",
+          "explanation": "Everest's summit sits on the border between Nepal and the Tibet Autonomous Region of China.",
+          "answers": [
+            {
+              "canonical": "China",
+              "aliases": [
+                "Tibet"
+              ],
+              "exact_only": false,
+              "evidence_page": 4,
+              "evidence_quote": "Mount Everest, the highest mountain above sea level, stands on the border between Nepal and China (the Tibet Autonomous Region)."
+            }
+          ]
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "A narrow strip of land that connects two larger land areas and separates two bodies of water.",
+          "tier": "deep",
+          "hint": "Panama and Suez are famous examples, both later cut by canals.",
+          "explanation": "The Isthmus of Panama joins North and South America; the Panama Canal was cut across it.",
+          "answers": [
+            {
+              "canonical": "isthmus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 5,
+              "evidence_quote": "An isthmus is a narrow strip of land that connects two larger land areas and separates two bodies of water."
+            }
+          ]
+        },
+        {
+          "kind": "ordered_recall",
+          "text": "Put these oceans in order by area, from largest to smallest.",
+          "tier": "solid",
+          "hint": "The biggest one covers about a third of Earth's surface.",
+          "explanation": "By area: Pacific, Atlantic, Indian, Southern, then the Arctic, the smallest ocean.",
+          "items": [
+            "Pacific Ocean",
+            "Atlantic Ocean",
+            "Indian Ocean",
+            "Southern Ocean",
+            "Arctic Ocean"
+          ],
+          "evidence_page": 6
+        },
+        {
+          "kind": "odd_one_out",
+          "text": "Which one of these cities is not a national capital?",
+          "tier": "common",
+          "hint": "It has a famous opera house, but the parliament is elsewhere.",
+          "explanation": "Canberra, Ottawa and Brasília are capitals of Australia, Canada and Brazil; Sydney is Australia's largest city but not its capital.",
+          "options": [
+            "Canberra",
+            "Sydney",
+            "Ottawa",
+            "Brasília"
+          ],
+          "correct_option": "Sydney",
+          "evidence_page": 7
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "day": "2026-10-08",
+      "theme": "Literature",
+      "title": "Literature: Plays, Novels and Poems",
+      "fact_sheet": {
+        "pages": [
+          {
+            "page_number": 1,
+            "content_md": "# Shakespeare's tragedies\n\nShakespeare (1564-1616) wrote comedies, histories and tragedies. These plays are his tragedies.\n\n- Romeo and Juliet: two young lovers from feuding families in Verona.\n- Hamlet: the Prince of Denmark avenges his father's murder: \"To be, or not to be.\"\n- Macbeth: a Scottish general murders his way to the throne, urged on by Lady Macbeth.\n- Othello: the Moor of Venice is tricked into jealousy by Iago.\n- King Lear (Lear): an old king divides his kingdom between his daughters.\n- Julius Caesar: the assassination of Caesar and its aftermath: \"Et tu, Brute?\"\n- Antony and Cleopatra: the Roman general Mark Antony and the queen of Egypt.\n- Titus Andronicus (Titus): Shakespeare's earliest and bloodiest tragedy.\n- Coriolanus: a proud Roman general turns against his own city.\n- Timon of Athens (Timon): a generous Athenian turns bitter when his friends abandon him."
+          },
+          {
+            "page_number": 2,
+            "content_md": "# The Brontë sisters' novels\n\nCharlotte, Emily and Anne Brontë grew up in Haworth, Yorkshire, and first published under the pen names Currer, Ellis and Acton Bell.\n\n- Jane Eyre: by Charlotte Brontë (1847): a governess and Mr Rochester of Thornfield Hall.\n- Wuthering Heights: by Emily Brontë (1847): Heathcliff and Catherine on the Yorkshire moors.\n- Agnes Grey: by Anne Brontë (1847): the life of a young governess.\n- Villette: by Charlotte Brontë (1853): a teacher in a fictional Belgian town.\n- The Tenant of Wildfell Hall (Tenant of Wildfell Hall): by Anne Brontë (1848): a woman leaves her abusive husband.\n- Shirley: by Charlotte Brontë (1849): set in Yorkshire during unrest among mill workers.\n- The Professor (Professor): by Charlotte Brontë: her first novel, published after her death in 1857."
+          },
+          {
+            "page_number": 3,
+            "content_md": "# Books by Charles Dickens\n\nCharles Dickens (1812-1870) was the most popular English novelist of the Victorian era. Many of his books first came out in monthly parts.\n\n- Oliver Twist: an orphan in London falls in with Fagin's gang of pickpockets.\n- A Christmas Carol (Christmas Carol): Ebenezer Scrooge is visited by three spirits (a novella, 1843).\n- Great Expectations: the orphan Pip, the convict Magwitch and Miss Havisham.\n- A Tale of Two Cities (Tale of Two Cities): London and Paris during the French Revolution: \"It was the best of times...\"\n- David Copperfield: the novel Dickens called his favourite, drawn from his own life.\n- Bleak House: a never-ending court case, Jarndyce and Jarndyce.\n- Hard Times: Mr Gradgrind's world of facts in an industrial town.\n- The Pickwick Papers (Pickwick Papers, Pickwick): his first novel (1836-37), the comic travels of Mr Pickwick's club.\n- Nicholas Nickleby: a young man and the cruel school Dotheboys Hall.\n- Little Dorrit: a family imprisoned for debt in the Marshalsea prison.\n- The Old Curiosity Shop (Old Curiosity Shop): Little Nell and her grandfather flee London.\n- Our Mutual Friend: his last completed novel (1864-65), set around the river Thames."
+          },
+          {
+            "page_number": 4,
+            "content_md": "# Nineteen Eighty-Four\n\nGeorge Orwell's novel Nineteen Eighty-Four (1949) describes a state where the Party watches everyone. Its leader is Big Brother, and posters warn: \"Big Brother is watching you.\"\n\n- The hero, Winston Smith, works at the Ministry of Truth."
+          },
+          {
+            "page_number": 5,
+            "content_md": "# The sonnet\n\nA sonnet is a poem of 14 lines, often written in iambic pentameter.\n\n- The Italian poet Petrarch made the form famous; Shakespeare wrote 154 sonnets.\n- A Shakespearean sonnet has three quatrains and a closing rhyming couplet."
+          },
+          {
+            "page_number": 6,
+            "content_md": "# Five novels through time\n\n1. Don Quixote by Miguel de Cervantes: first part published in 1605.\n2. Pride and Prejudice by Jane Austen: 1813.\n3. Moby-Dick by Herman Melville: 1851.\n4. The Great Gatsby by F. Scott Fitzgerald: 1925.\n5. To Kill a Mockingbird by Harper Lee: 1960."
+          },
+          {
+            "page_number": 7,
+            "content_md": "# Austen or not?\n\n- Emma (1815) is by Jane Austen.\n- Persuasion (1817) is by Jane Austen.\n- Sense and Sensibility (1811) is by Jane Austen, her first published novel.\n- Middlemarch (1871-72) is by George Eliot, the pen name of Mary Ann Evans.\n\nSo Middlemarch is the odd one out."
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "kind": "open",
+          "text": "Name a tragedy by William Shakespeare",
+          "answers": [
+            {
+              "canonical": "Romeo and Juliet",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Romeo and Juliet: two young lovers from feuding families in Verona."
+            },
+            {
+              "canonical": "Hamlet",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Hamlet: the Prince of Denmark avenges his father's murder: \"To be, or not to be.\""
+            },
+            {
+              "canonical": "Macbeth",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Macbeth: a Scottish general murders his way to the throne, urged on by Lady Macbeth."
+            },
+            {
+              "canonical": "Othello",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Othello: the Moor of Venice is tricked into jealousy by Iago."
+            },
+            {
+              "canonical": "King Lear",
+              "aliases": [
+                "Lear"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "King Lear (Lear): an old king divides his kingdom between his daughters."
+            },
+            {
+              "canonical": "Julius Caesar",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Julius Caesar: the assassination of Caesar and its aftermath: \"Et tu, Brute?\""
+            },
+            {
+              "canonical": "Antony and Cleopatra",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Antony and Cleopatra: the Roman general Mark Antony and the queen of Egypt."
+            },
+            {
+              "canonical": "Titus Andronicus",
+              "aliases": [
+                "Titus"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Titus Andronicus (Titus): Shakespeare's earliest and bloodiest tragedy."
+            },
+            {
+              "canonical": "Coriolanus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Coriolanus: a proud Roman general turns against his own city."
+            },
+            {
+              "canonical": "Timon of Athens",
+              "aliases": [
+                "Timon"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Timon of Athens (Timon): a generous Athenian turns bitter when his friends abandon him."
+            }
+          ],
+          "explanation": "Shakespeare's best-known tragedies are Hamlet, Macbeth, Othello and King Lear."
+        },
+        {
+          "kind": "open",
+          "text": "Name a novel by one of the Brontë sisters",
+          "answers": [
+            {
+              "canonical": "Jane Eyre",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Jane Eyre: by Charlotte Brontë (1847): a governess and Mr Rochester of Thornfield Hall."
+            },
+            {
+              "canonical": "Wuthering Heights",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Wuthering Heights: by Emily Brontë (1847): Heathcliff and Catherine on the Yorkshire moors."
+            },
+            {
+              "canonical": "Agnes Grey",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Agnes Grey: by Anne Brontë (1847): the life of a young governess."
+            },
+            {
+              "canonical": "Villette",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Villette: by Charlotte Brontë (1853): a teacher in a fictional Belgian town."
+            },
+            {
+              "canonical": "The Tenant of Wildfell Hall",
+              "aliases": [
+                "Tenant of Wildfell Hall"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "The Tenant of Wildfell Hall (Tenant of Wildfell Hall): by Anne Brontë (1848): a woman leaves her abusive husband."
+            },
+            {
+              "canonical": "Shirley",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Shirley: by Charlotte Brontë (1849): set in Yorkshire during unrest among mill workers."
+            },
+            {
+              "canonical": "The Professor",
+              "aliases": [
+                "Professor"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "The Professor (Professor): by Charlotte Brontë: her first novel, published after her death in 1857."
+            }
+          ],
+          "explanation": "Emily wrote one novel, Anne two and Charlotte four."
+        },
+        {
+          "kind": "open",
+          "text": "Name a book by Charles Dickens",
+          "answers": [
+            {
+              "canonical": "Oliver Twist",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Oliver Twist: an orphan in London falls in with Fagin's gang of pickpockets."
+            },
+            {
+              "canonical": "A Christmas Carol",
+              "aliases": [
+                "Christmas Carol"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "A Christmas Carol (Christmas Carol): Ebenezer Scrooge is visited by three spirits (a novella, 1843)."
+            },
+            {
+              "canonical": "Great Expectations",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Great Expectations: the orphan Pip, the convict Magwitch and Miss Havisham."
+            },
+            {
+              "canonical": "A Tale of Two Cities",
+              "aliases": [
+                "Tale of Two Cities"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "A Tale of Two Cities (Tale of Two Cities): London and Paris during the French Revolution: \"It was the best of times...\""
+            },
+            {
+              "canonical": "David Copperfield",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "David Copperfield: the novel Dickens called his favourite, drawn from his own life."
+            },
+            {
+              "canonical": "Bleak House",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Bleak House: a never-ending court case, Jarndyce and Jarndyce."
+            },
+            {
+              "canonical": "Hard Times",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Hard Times: Mr Gradgrind's world of facts in an industrial town."
+            },
+            {
+              "canonical": "The Pickwick Papers",
+              "aliases": [
+                "Pickwick Papers",
+                "Pickwick"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "The Pickwick Papers (Pickwick Papers, Pickwick): his first novel (1836-37), the comic travels of Mr Pickwick's club."
+            },
+            {
+              "canonical": "Nicholas Nickleby",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Nicholas Nickleby: a young man and the cruel school Dotheboys Hall."
+            },
+            {
+              "canonical": "Little Dorrit",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Little Dorrit: a family imprisoned for debt in the Marshalsea prison."
+            },
+            {
+              "canonical": "The Old Curiosity Shop",
+              "aliases": [
+                "Old Curiosity Shop"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "The Old Curiosity Shop (Old Curiosity Shop): Little Nell and her grandfather flee London."
+            },
+            {
+              "canonical": "Our Mutual Friend",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Our Mutual Friend: his last completed novel (1864-65), set around the river Thames."
+            }
+          ],
+          "explanation": "Dickens wrote 15 novels plus Christmas books such as A Christmas Carol."
+        },
+        {
+          "kind": "cloze",
+          "text": "In George Orwell's Nineteen Eighty-Four, the all-seeing leader of the Party is known as Big ______.",
+          "tier": "common",
+          "hint": "A family member, but not a sister.",
+          "explanation": "Posters in Orwell's Oceania warn that Big Brother is watching you.",
+          "answers": [
+            {
+              "canonical": "Brother",
+              "aliases": [
+                "Big Brother"
+              ],
+              "exact_only": false,
+              "evidence_page": 4,
+              "evidence_quote": "Its leader is Big Brother, and posters warn: \"Big Brother is watching you.\""
+            }
+          ]
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "A poem of 14 lines, often in iambic pentameter, made famous by Petrarch and Shakespeare.",
+          "tier": "common",
+          "hint": "Its name comes from the Italian for little song.",
+          "explanation": "Shakespeare wrote 154 sonnets; the English form ends with a rhyming couplet.",
+          "answers": [
+            {
+              "canonical": "sonnet",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 5,
+              "evidence_quote": "A sonnet is a poem of 14 lines, often written in iambic pentameter."
+            }
+          ]
+        },
+        {
+          "kind": "ordered_recall",
+          "text": "Put these novels in order of first publication, earliest first.",
+          "tier": "solid",
+          "hint": "The Spanish knight comes first; the Alabama courtroom comes last.",
+          "explanation": "Don Quixote 1605, Pride and Prejudice 1813, Moby-Dick 1851, The Great Gatsby 1925, To Kill a Mockingbird 1960.",
+          "items": [
+            "Don Quixote",
+            "Pride and Prejudice",
+            "Moby-Dick",
+            "The Great Gatsby",
+            "To Kill a Mockingbird"
+          ],
+          "evidence_page": 6
+        },
+        {
+          "kind": "odd_one_out",
+          "text": "Which one of these novels was not written by Jane Austen?",
+          "tier": "solid",
+          "hint": "Its author published under a man's name.",
+          "explanation": "Emma, Persuasion and Sense and Sensibility are Jane Austen's; Middlemarch is by George Eliot (Mary Ann Evans).",
+          "options": [
+            "Emma",
+            "Persuasion",
+            "Middlemarch",
+            "Sense and Sensibility"
+          ],
+          "correct_option": "Middlemarch",
+          "evidence_page": 7
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "day": "2026-10-09",
+      "theme": "Mathematics",
+      "title": "Math: Primes, Triangles and Polygons",
+      "fact_sheet": {
+        "pages": [
+          {
+            "page_number": 1,
+            "content_md": "# Prime numbers below 30\n\nA prime number is a whole number greater than 1 whose only divisors are 1 and itself. There are ten primes below 30. (1 is not prime.)\n\n- 2 (two): the only even prime.\n- 3 (three): the first odd prime.\n- 5 (five): the only prime ending in 5.\n- 7 (seven): the largest single-digit prime.\n- 11 (eleven): the smallest two-digit prime.\n- 13 (thirteen): a prime often considered unlucky.\n- 17 (seventeen): a prime; 17 = 16 + 1.\n- 19 (nineteen): a prime; 19 = 20 - 1.\n- 23 (twenty-three): a prime; the next prime after 19.\n- 29 (twenty-nine): the largest prime below 30."
+          },
+          {
+            "page_number": 2,
+            "content_md": "# Types of triangle\n\nTriangles are classified by their sides and by their angles.\n\n- Equilateral (equilateral triangle): all three sides equal and every angle 60°.\n- Isosceles (isosceles triangle): at least two sides equal.\n- Right (right triangle, right-angled, right-angled triangle): one angle is exactly 90°.\n- Scalene (scalene triangle): all three sides have different lengths.\n- Obtuse (obtuse triangle, obtuse-angled): one angle is greater than 90°.\n- Acute (acute triangle, acute-angled): all three angles are less than 90°."
+          },
+          {
+            "page_number": 3,
+            "content_md": "# Naming polygons\n\nPolygons are named with a Greek-based prefix for their number of sides, plus -gon.\n\n- Pentagon: 5 sides; the US defence headquarters has this shape.\n- Hexagon: 6 sides; the shape of honeycomb cells.\n- Octagon: 8 sides; the shape of a stop sign.\n- Heptagon (septagon): 7 sides.\n- Decagon: 10 sides.\n- Nonagon (enneagon): 9 sides.\n- Dodecagon: 12 sides.\n- Hendecagon (undecagon): 11 sides."
+          },
+          {
+            "page_number": 4,
+            "content_md": "# The Pythagorean theorem\n\nThe Pythagorean theorem says that in a triangle with a 90° angle, a² + b² = c², where c is the hypotenuse (the longest side).\n\n- It is named after the Greek mathematician Pythagoras of Samos.\n- Example: a 3-4-5 triangle, since 9 + 16 = 25."
+          },
+          {
+            "page_number": 5,
+            "content_md": "# Pi\n\nPi is the ratio of a circle's circumference to its diameter, about 3.14159.\n\n- It is written with the Greek letter π.\n- Pi is irrational: its decimals never end or repeat.\n- Pi Day is celebrated on March 14 (3/14)."
+          },
+          {
+            "page_number": 6,
+            "content_md": "# Four famous numbers\n\nFrom smallest to largest:\n\n1. The square root of 2 (√2) ≈ 1.414\n2. The golden ratio (φ) ≈ 1.618\n3. Euler's number (e) ≈ 2.718\n4. The square root of 10 (√10) ≈ 3.162"
+          },
+          {
+            "page_number": 7,
+            "content_md": "# Perfect squares\n\nA perfect square is a whole number times itself.\n\n- 16 = 4 × 4\n- 25 = 5 × 5\n- 81 = 9 × 9\n- 48 is not a perfect square: it lies between 36 (6 × 6) and 49 (7 × 7).\n\nSo 48 is the odd one out."
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "kind": "open",
+          "text": "Name a prime number less than 30",
+          "answers": [
+            {
+              "canonical": "2",
+              "aliases": [
+                "two"
+              ],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "2 (two): the only even prime."
+            },
+            {
+              "canonical": "3",
+              "aliases": [
+                "three"
+              ],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "3 (three): the first odd prime."
+            },
+            {
+              "canonical": "5",
+              "aliases": [
+                "five"
+              ],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "5 (five): the only prime ending in 5."
+            },
+            {
+              "canonical": "7",
+              "aliases": [
+                "seven"
+              ],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "7 (seven): the largest single-digit prime."
+            },
+            {
+              "canonical": "11",
+              "aliases": [
+                "eleven"
+              ],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "11 (eleven): the smallest two-digit prime."
+            },
+            {
+              "canonical": "13",
+              "aliases": [
+                "thirteen"
+              ],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "13 (thirteen): a prime often considered unlucky."
+            },
+            {
+              "canonical": "17",
+              "aliases": [
+                "seventeen"
+              ],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "17 (seventeen): a prime; 17 = 16 + 1."
+            },
+            {
+              "canonical": "19",
+              "aliases": [
+                "nineteen"
+              ],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "19 (nineteen): a prime; 19 = 20 - 1."
+            },
+            {
+              "canonical": "23",
+              "aliases": [
+                "twenty-three"
+              ],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "23 (twenty-three): a prime; the next prime after 19."
+            },
+            {
+              "canonical": "29",
+              "aliases": [
+                "twenty-nine"
+              ],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "29 (twenty-nine): the largest prime below 30."
+            }
+          ],
+          "explanation": "The primes below 30 are 2, 3, 5, 7, 11, 13, 17, 19, 23 and 29."
+        },
+        {
+          "kind": "open",
+          "text": "Name a type of triangle",
+          "answers": [
+            {
+              "canonical": "Equilateral",
+              "aliases": [
+                "equilateral triangle"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Equilateral (equilateral triangle): all three sides equal and every angle 60°."
+            },
+            {
+              "canonical": "Isosceles",
+              "aliases": [
+                "isosceles triangle"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Isosceles (isosceles triangle): at least two sides equal."
+            },
+            {
+              "canonical": "Right",
+              "aliases": [
+                "right triangle",
+                "right-angled",
+                "right-angled triangle"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Right (right triangle, right-angled, right-angled triangle): one angle is exactly 90°."
+            },
+            {
+              "canonical": "Scalene",
+              "aliases": [
+                "scalene triangle"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Scalene (scalene triangle): all three sides have different lengths."
+            },
+            {
+              "canonical": "Obtuse",
+              "aliases": [
+                "obtuse triangle",
+                "obtuse-angled"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Obtuse (obtuse triangle, obtuse-angled): one angle is greater than 90°."
+            },
+            {
+              "canonical": "Acute",
+              "aliases": [
+                "acute triangle",
+                "acute-angled"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Acute (acute triangle, acute-angled): all three angles are less than 90°."
+            }
+          ],
+          "explanation": "By sides: equilateral, isosceles, scalene. By angles: acute, right, obtuse."
+        },
+        {
+          "kind": "open",
+          "text": "Name a polygon with 5 to 12 sides by its general name",
+          "answers": [
+            {
+              "canonical": "Pentagon",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Pentagon: 5 sides; the US defence headquarters has this shape."
+            },
+            {
+              "canonical": "Hexagon",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Hexagon: 6 sides; the shape of honeycomb cells."
+            },
+            {
+              "canonical": "Octagon",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Octagon: 8 sides; the shape of a stop sign."
+            },
+            {
+              "canonical": "Heptagon",
+              "aliases": [
+                "septagon"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Heptagon (septagon): 7 sides."
+            },
+            {
+              "canonical": "Decagon",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Decagon: 10 sides."
+            },
+            {
+              "canonical": "Nonagon",
+              "aliases": [
+                "enneagon"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Nonagon (enneagon): 9 sides."
+            },
+            {
+              "canonical": "Dodecagon",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Dodecagon: 12 sides."
+            },
+            {
+              "canonical": "Hendecagon",
+              "aliases": [
+                "undecagon"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Hendecagon (undecagon): 11 sides."
+            }
+          ],
+          "explanation": "Five to twelve sides: pentagon, hexagon, heptagon, octagon, nonagon, decagon, hendecagon, dodecagon."
+        },
+        {
+          "kind": "cloze",
+          "text": "The rule a² + b² = c², linking the three sides of a triangle with a 90° angle, is the ______ theorem.",
+          "tier": "common",
+          "hint": "Named after a Greek mathematician from the island of Samos.",
+          "explanation": "The Pythagorean theorem says the square on the hypotenuse equals the sum of the squares on the other two sides.",
+          "answers": [
+            {
+              "canonical": "Pythagorean",
+              "aliases": [
+                "Pythagoras",
+                "Pythagoras theorem",
+                "Pythagorean theorem"
+              ],
+              "exact_only": false,
+              "evidence_page": 4,
+              "evidence_quote": "The Pythagorean theorem says that in a triangle with a 90° angle, a² + b² = c², where c is the hypotenuse (the longest side)."
+            }
+          ]
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "The ratio of a circle's circumference to its diameter, about 3.14159.",
+          "tier": "common",
+          "hint": "A Greek letter, celebrated every March 14.",
+          "explanation": "Pi is irrational: its decimal digits never end and never repeat.",
+          "answers": [
+            {
+              "canonical": "pi",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 5,
+              "evidence_quote": "Pi is the ratio of a circle's circumference to its diameter, about 3.14159."
+            }
+          ]
+        },
+        {
+          "kind": "ordered_recall",
+          "text": "Put these numbers in order from smallest to largest.",
+          "tier": "deep",
+          "hint": "The smallest is a little over 1.4.",
+          "explanation": "√2 ≈ 1.414, the golden ratio φ ≈ 1.618, e ≈ 2.718 and √10 ≈ 3.162.",
+          "items": [
+            "The square root of 2",
+            "The golden ratio",
+            "Euler's number e",
+            "The square root of 10"
+          ],
+          "evidence_page": 6
+        },
+        {
+          "kind": "odd_one_out",
+          "text": "Which one of these numbers is not a perfect square?",
+          "tier": "common",
+          "hint": "Three of them are 4², 5² and 9².",
+          "explanation": "16, 25 and 81 are 4², 5² and 9²; 48 lies between 6² = 36 and 7² = 49, so it is not a perfect square.",
+          "options": [
+            "16",
+            "25",
+            "48",
+            "81"
+          ],
+          "correct_option": "48",
+          "evidence_page": 7
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "day": "2026-10-10",
+      "theme": "Art & Music",
+      "title": "Art & Music: Masters and Melodies",
+      "fact_sheet": {
+        "pages": [
+          {
+            "page_number": 1,
+            "content_md": "# Painters of the Italian Renaissance\n\nItaly, especially Florence, Rome and Venice, was the centre of Renaissance painting in the 15th and 16th centuries.\n\n- Leonardo da Vinci (Leonardo, da Vinci): painted the Mona Lisa and The Last Supper.\n- Michelangelo (Michelangelo Buonarroti, Buonarroti): painted the Sistine Chapel ceiling in Rome.\n- Raphael (Raffaello, Raffaello Sanzio): painted The School of Athens in the Vatican.\n- Sandro Botticelli (Botticelli): painted The Birth of Venus in Florence.\n- Titian (Tiziano, Tiziano Vecellio): the leading painter of Renaissance Venice.\n- Giovanni Bellini (Bellini): a Venetian master and teacher of Titian.\n- Masaccio: an early Florentine pioneer of perspective in painting.\n- Andrea Mantegna (Mantegna): known for dramatic foreshortening, as in The Lamentation over the Dead Christ.\n- Fra Angelico: a Dominican friar who painted the frescoes of San Marco in Florence.\n- Piero della Francesca: a painter and mathematician of perspective.\n- Giorgione: a Venetian painter of mysterious landscapes such as The Tempest."
+          },
+          {
+            "page_number": 2,
+            "content_md": "# Woodwind instruments\n\nWoodwind instruments make sound with air: across an edge (flutes) or through a reed. Not all are made of wood.\n\n- Flute: played sideways by blowing across a hole.\n- Clarinet: a single-reed instrument with a cylindrical bore.\n- Saxophone (sax): a single-reed instrument made of brass but classed as a woodwind.\n- Oboe: a double-reed instrument; the orchestra tunes to its A.\n- Bassoon: a low double-reed instrument with a long folded tube.\n- Recorder: a simple wooden or plastic flute played straight, common in schools.\n- Piccolo: a small flute that plays an octave higher.\n- Cor anglais (English horn): an alto double-reed relative of the oboe.\n- Contrabassoon (double bassoon): plays an octave below the bassoon; the lowest orchestral woodwind."
+          },
+          {
+            "page_number": 3,
+            "content_md": "# Baroque composers\n\nThe Baroque era of music ran from about 1600 to 1750, the year Johann Sebastian Bach died.\n\n- Bach (Johann Sebastian Bach, J. S. Bach): wrote the Brandenburg Concertos and the Mass in B minor.\n- Vivaldi (Antonio Vivaldi): Venetian composer of The Four Seasons.\n- Handel (George Frideric Handel, Händel): composed the oratorio Messiah and Water Music.\n- Pachelbel (Johann Pachelbel): remembered for his Canon in D.\n- Purcell (Henry Purcell): English composer of the opera Dido and Aeneas.\n- Monteverdi (Claudio Monteverdi): his L'Orfeo (1607) is one of the first great operas.\n- Telemann (Georg Philipp Telemann): one of the most prolific composers in history.\n- Corelli (Arcangelo Corelli): Italian violinist who shaped the concerto grosso.\n- Scarlatti (Domenico Scarlatti): wrote 555 keyboard sonatas.\n- Rameau (Jean-Philippe Rameau): French composer and music theorist.\n- Lully (Jean-Baptiste Lully): court composer to Louis XIV of France."
+          },
+          {
+            "page_number": 4,
+            "content_md": "# The Starry Night\n\nThe Starry Night was painted by Vincent van Gogh in 1889, while he stayed at an asylum in Saint-Rémy-de-Provence, France.\n\n- Van Gogh was a Dutch Post-Impressionist.\n- The painting shows a swirling night sky over a village."
+          },
+          {
+            "page_number": 5,
+            "content_md": "# Fresco\n\nFresco is a painting technique in which pigment is applied to wet lime plaster.\n\n- As the plaster dries, the colour becomes part of the wall.\n- The Sistine Chapel ceiling is painted in fresco.\n- The word means \"fresh\" in Italian."
+          },
+          {
+            "page_number": 6,
+            "content_md": "# Art movements through time\n\n1. Renaissance: 14th to 16th centuries.\n2. Baroque: 17th century, dramatic light and movement.\n3. Romanticism: late 18th to mid 19th century, emotion and nature.\n4. Impressionism: from the 1870s in France, light and everyday scenes.\n5. Cubism: from about 1907, led by Picasso and Braque."
+          },
+          {
+            "page_number": 7,
+            "content_md": "# Impressionists and an old master\n\n- Claude Monet was an Impressionist; his painting Impression, Sunrise gave the movement its name.\n- Pierre-Auguste Renoir was an Impressionist who painted lively Parisian scenes.\n- Camille Pissarro was an Impressionist and the only one to show at all eight Impressionist exhibitions.\n- Rembrandt was a Dutch Golden Age painter of the 17th century, long before Impressionism.\n\nSo Rembrandt is the odd one out."
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "kind": "open",
+          "text": "Name a painter of the Italian Renaissance",
+          "answers": [
+            {
+              "canonical": "Leonardo da Vinci",
+              "aliases": [
+                "Leonardo",
+                "da Vinci"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Leonardo da Vinci (Leonardo, da Vinci): painted the Mona Lisa and The Last Supper."
+            },
+            {
+              "canonical": "Michelangelo",
+              "aliases": [
+                "Michelangelo Buonarroti",
+                "Buonarroti"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Michelangelo (Michelangelo Buonarroti, Buonarroti): painted the Sistine Chapel ceiling in Rome."
+            },
+            {
+              "canonical": "Raphael",
+              "aliases": [
+                "Raffaello",
+                "Raffaello Sanzio"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Raphael (Raffaello, Raffaello Sanzio): painted The School of Athens in the Vatican."
+            },
+            {
+              "canonical": "Sandro Botticelli",
+              "aliases": [
+                "Botticelli"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Sandro Botticelli (Botticelli): painted The Birth of Venus in Florence."
+            },
+            {
+              "canonical": "Titian",
+              "aliases": [
+                "Tiziano",
+                "Tiziano Vecellio"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Titian (Tiziano, Tiziano Vecellio): the leading painter of Renaissance Venice."
+            },
+            {
+              "canonical": "Giovanni Bellini",
+              "aliases": [
+                "Bellini"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Giovanni Bellini (Bellini): a Venetian master and teacher of Titian."
+            },
+            {
+              "canonical": "Masaccio",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Masaccio: an early Florentine pioneer of perspective in painting."
+            },
+            {
+              "canonical": "Andrea Mantegna",
+              "aliases": [
+                "Mantegna"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Andrea Mantegna (Mantegna): known for dramatic foreshortening, as in The Lamentation over the Dead Christ."
+            },
+            {
+              "canonical": "Fra Angelico",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Fra Angelico: a Dominican friar who painted the frescoes of San Marco in Florence."
+            },
+            {
+              "canonical": "Piero della Francesca",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Piero della Francesca: a painter and mathematician of perspective."
+            },
+            {
+              "canonical": "Giorgione",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Giorgione: a Venetian painter of mysterious landscapes such as The Tempest."
+            }
+          ],
+          "explanation": "Leonardo, Michelangelo and Raphael are the three giants of the High Renaissance."
+        },
+        {
+          "kind": "open",
+          "text": "Name a woodwind instrument",
+          "answers": [
+            {
+              "canonical": "Flute",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Flute: played sideways by blowing across a hole."
+            },
+            {
+              "canonical": "Clarinet",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Clarinet: a single-reed instrument with a cylindrical bore."
+            },
+            {
+              "canonical": "Saxophone",
+              "aliases": [
+                "sax"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Saxophone (sax): a single-reed instrument made of brass but classed as a woodwind."
+            },
+            {
+              "canonical": "Oboe",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 2,
+              "evidence_quote": "Oboe: a double-reed instrument; the orchestra tunes to its A."
+            },
+            {
+              "canonical": "Bassoon",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Bassoon: a low double-reed instrument with a long folded tube."
+            },
+            {
+              "canonical": "Recorder",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Recorder: a simple wooden or plastic flute played straight, common in schools."
+            },
+            {
+              "canonical": "Piccolo",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Piccolo: a small flute that plays an octave higher."
+            },
+            {
+              "canonical": "Cor anglais",
+              "aliases": [
+                "English horn"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Cor anglais (English horn): an alto double-reed relative of the oboe."
+            },
+            {
+              "canonical": "Contrabassoon",
+              "aliases": [
+                "double bassoon"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Contrabassoon (double bassoon): plays an octave below the bassoon; the lowest orchestral woodwind."
+            }
+          ],
+          "explanation": "The standard orchestral woodwinds are flute, oboe, clarinet and bassoon."
+        },
+        {
+          "kind": "open",
+          "text": "Name a composer of the Baroque era (about 1600-1750)",
+          "answers": [
+            {
+              "canonical": "Bach",
+              "aliases": [
+                "Johann Sebastian Bach",
+                "J. S. Bach"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Bach (Johann Sebastian Bach, J. S. Bach): wrote the Brandenburg Concertos and the Mass in B minor."
+            },
+            {
+              "canonical": "Vivaldi",
+              "aliases": [
+                "Antonio Vivaldi"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Vivaldi (Antonio Vivaldi): Venetian composer of The Four Seasons."
+            },
+            {
+              "canonical": "Handel",
+              "aliases": [
+                "George Frideric Handel",
+                "Händel"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Handel (George Frideric Handel, Händel): composed the oratorio Messiah and Water Music."
+            },
+            {
+              "canonical": "Pachelbel",
+              "aliases": [
+                "Johann Pachelbel"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Pachelbel (Johann Pachelbel): remembered for his Canon in D."
+            },
+            {
+              "canonical": "Purcell",
+              "aliases": [
+                "Henry Purcell"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Purcell (Henry Purcell): English composer of the opera Dido and Aeneas."
+            },
+            {
+              "canonical": "Monteverdi",
+              "aliases": [
+                "Claudio Monteverdi"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Monteverdi (Claudio Monteverdi): his L'Orfeo (1607) is one of the first great operas."
+            },
+            {
+              "canonical": "Telemann",
+              "aliases": [
+                "Georg Philipp Telemann"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Telemann (Georg Philipp Telemann): one of the most prolific composers in history."
+            },
+            {
+              "canonical": "Corelli",
+              "aliases": [
+                "Arcangelo Corelli"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Corelli (Arcangelo Corelli): Italian violinist who shaped the concerto grosso."
+            },
+            {
+              "canonical": "Scarlatti",
+              "aliases": [
+                "Domenico Scarlatti"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Scarlatti (Domenico Scarlatti): wrote 555 keyboard sonatas."
+            },
+            {
+              "canonical": "Rameau",
+              "aliases": [
+                "Jean-Philippe Rameau"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Rameau (Jean-Philippe Rameau): French composer and music theorist."
+            },
+            {
+              "canonical": "Lully",
+              "aliases": [
+                "Jean-Baptiste Lully"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Lully (Jean-Baptiste Lully): court composer to Louis XIV of France."
+            }
+          ],
+          "explanation": "Bach, Vivaldi and Handel are the best-known composers of the Baroque era."
+        },
+        {
+          "kind": "cloze",
+          "text": "The Starry Night (1889) was painted by Vincent van ______.",
+          "tier": "common",
+          "hint": "A Dutch Post-Impressionist famous for his sunflowers.",
+          "explanation": "Vincent van Gogh painted The Starry Night in 1889 from his window at the asylum in Saint-Rémy.",
+          "answers": [
+            {
+              "canonical": "Gogh",
+              "aliases": [
+                "van Gogh",
+                "Vincent van Gogh"
+              ],
+              "exact_only": true,
+              "evidence_page": 4,
+              "evidence_quote": "The Starry Night was painted by Vincent van Gogh in 1889"
+            }
+          ]
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "A painting technique in which pigment is applied to wet lime plaster, as on the Sistine Chapel ceiling.",
+          "tier": "solid",
+          "hint": "Its name is Italian for fresh.",
+          "explanation": "As the plaster dries, the pigment becomes part of the wall itself.",
+          "answers": [
+            {
+              "canonical": "fresco",
+              "aliases": [
+                "buon fresco"
+              ],
+              "exact_only": false,
+              "evidence_page": 5,
+              "evidence_quote": "Fresco is a painting technique in which pigment is applied to wet lime plaster."
+            }
+          ]
+        },
+        {
+          "kind": "ordered_recall",
+          "text": "Put these art movements in chronological order, earliest first.",
+          "tier": "solid",
+          "hint": "The rebirth comes first; the movement of cubes comes last.",
+          "explanation": "Renaissance (14th-16th c.), Baroque (17th c.), Romanticism (late 18th-19th c.), Impressionism (1870s), Cubism (about 1907).",
+          "items": [
+            "Renaissance",
+            "Baroque",
+            "Romanticism",
+            "Impressionism",
+            "Cubism"
+          ],
+          "evidence_page": 6
+        },
+        {
+          "kind": "odd_one_out",
+          "text": "Which one of these painters was not an Impressionist?",
+          "tier": "common",
+          "hint": "He lived in the Dutch Golden Age, two centuries too early.",
+          "explanation": "Monet, Renoir and Pissarro were French Impressionists; Rembrandt was a Dutch Golden Age painter of the 17th century.",
+          "options": [
+            "Claude Monet",
+            "Rembrandt",
+            "Pierre-Auguste Renoir",
+            "Camille Pissarro"
+          ],
+          "correct_option": "Rembrandt",
+          "evidence_page": 7
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "day": null,
+      "theme": "Space & Astronomy",
+      "title": "Star Charts",
+      "fact_sheet": {
+        "pages": [
+          {
+            "page_number": 1,
+            "content_md": "# The eight planets\n\nOur solar system has eight planets. In order from the Sun: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus and Neptune.\n\n- Earth: the third planet from the Sun and the only one known to support life.\n- Mars: the fourth planet, called the Red Planet because of iron oxide dust on its surface.\n- Jupiter: the fifth planet and the largest, a gas giant with the Great Red Spot storm.\n- Saturn: the sixth planet, a gas giant famous for its bright rings.\n- Venus: the second planet and the hottest, because its thick carbon dioxide atmosphere traps heat.\n- Mercury: the smallest planet and the closest to the Sun.\n- Uranus: the seventh planet, an ice giant that spins on its side.\n- Neptune: the eighth and farthest planet, an ice giant with the fastest winds in the solar system."
+          },
+          {
+            "page_number": 2,
+            "content_md": "# The zodiac constellations\n\nThe zodiac is the band of sky the Sun appears to pass through during the year. Its 12 traditional constellations are:\n\n- Leo: the lion; its brightest star is Regulus.\n- Gemini: the twins; its two brightest stars are Castor and Pollux.\n- Scorpius: the scorpion (often called Scorpio); its bright red star is Antares.\n- Taurus: the bull; it contains the Pleiades star cluster and the red star Aldebaran.\n- Aries: the ram; a small constellation next to Taurus.\n- Cancer: the crab; a faint constellation that holds the Beehive Cluster.\n- Virgo: the maiden; its brightest star is Spica.\n- Libra: the scales; the only zodiac constellation named after an object rather than a living thing.\n- Aquarius: the water-bearer.\n- Pisces: the fishes.\n- Sagittarius: the archer; it lies in the direction of the centre of the Milky Way.\n- Capricornus: the sea-goat (often called Capricorn)."
+          },
+          {
+            "page_number": 3,
+            "content_md": "# Layers of the Sun\n\nFrom the centre outward, the Sun is made of these layers:\n\n- core: the centre of the Sun, where nuclear fusion turns hydrogen into helium.\n- corona: the Sun's outer atmosphere, seen as a white halo during a total solar eclipse.\n- photosphere: the visible surface of the Sun, which gives off most of its light.\n- chromosphere: the thin reddish layer of atmosphere just above the photosphere.\n- convective zone: the outer interior layer, where hot gas rises and cooler gas sinks (also called the convection zone).\n- radiative zone: the layer around the core, where energy moves outward as radiation (also called the radiation zone).\n- transition region: the thin layer between the chromosphere and the corona, where the temperature jumps sharply."
+          },
+          {
+            "page_number": 4,
+            "content_md": "# Perihelion and aphelion\n\nPlanets move in elliptical orbits, so their distance from the Sun changes. Perihelion is the point in a planet's orbit where it is closest to the Sun. Aphelion is the point where it is farthest from the Sun. Earth reaches perihelion in early January."
+          },
+          {
+            "page_number": 5,
+            "content_md": "# The light-year\n\nA light-year is the distance light travels in one year, about 9.46 trillion kilometres. It is a unit of distance, not of time. The Alpha Centauri system, the nearest to the Sun, is about 4.4 light-years away."
+          },
+          {
+            "page_number": 6,
+            "content_md": "# Life of a Sun-like star\n\nA star like the Sun goes through these stages, in order:\n\n1. Main-sequence star: it spends most of its life fusing hydrogen into helium in its core.\n2. Red giant: when the core's hydrogen runs low, the star swells and cools.\n3. Planetary nebula: the star sheds its outer layers as a glowing shell of gas.\n4. White dwarf: the hot, dense core left behind slowly cools."
+          },
+          {
+            "page_number": 7,
+            "content_md": "# Stars and planets\n\nMars, Venus and Jupiter are planets: they orbit the Sun and shine by reflecting its light. Sirius is a star, not a planet: it makes its own light and is the brightest star in the night sky."
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "kind": "open",
+          "text": "Name a planet in our solar system",
+          "answers": [
+            {
+              "canonical": "Earth",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Earth: the third planet from the Sun and the only one known to support life."
+            },
+            {
+              "canonical": "Mars",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "Mars: the fourth planet, called the Red Planet because of iron oxide dust on its surface."
+            },
+            {
+              "canonical": "Jupiter",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Jupiter: the fifth planet and the largest, a gas giant with the Great Red Spot storm."
+            },
+            {
+              "canonical": "Saturn",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Saturn: the sixth planet, a gas giant famous for its bright rings."
+            },
+            {
+              "canonical": "Venus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Venus: the second planet and the hottest, because its thick carbon dioxide atmosphere traps heat."
+            },
+            {
+              "canonical": "Mercury",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Mercury: the smallest planet and the closest to the Sun."
+            },
+            {
+              "canonical": "Uranus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Uranus: the seventh planet, an ice giant that spins on its side."
+            },
+            {
+              "canonical": "Neptune",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Neptune: the eighth and farthest planet, an ice giant with the fastest winds in the solar system."
+            }
+          ]
+        },
+        {
+          "kind": "open",
+          "text": "Name one of the 12 traditional constellations of the zodiac",
+          "answers": [
+            {
+              "canonical": "Leo",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 2,
+              "evidence_quote": "Leo: the lion; its brightest star is Regulus."
+            },
+            {
+              "canonical": "Gemini",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Gemini: the twins; its two brightest stars are Castor and Pollux."
+            },
+            {
+              "canonical": "Scorpius",
+              "aliases": [
+                "Scorpio"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Scorpius: the scorpion (often called Scorpio); its bright red star is Antares."
+            },
+            {
+              "canonical": "Taurus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Taurus: the bull; it contains the Pleiades star cluster and the red star Aldebaran."
+            },
+            {
+              "canonical": "Aries",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Aries: the ram; a small constellation next to Taurus."
+            },
+            {
+              "canonical": "Cancer",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Cancer: the crab; a faint constellation that holds the Beehive Cluster."
+            },
+            {
+              "canonical": "Virgo",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Virgo: the maiden; its brightest star is Spica."
+            },
+            {
+              "canonical": "Libra",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Libra: the scales; the only zodiac constellation named after an object rather than a living thing."
+            },
+            {
+              "canonical": "Aquarius",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Aquarius: the water-bearer."
+            },
+            {
+              "canonical": "Pisces",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Pisces: the fishes."
+            },
+            {
+              "canonical": "Sagittarius",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Sagittarius: the archer; it lies in the direction of the centre of the Milky Way."
+            },
+            {
+              "canonical": "Capricornus",
+              "aliases": [
+                "Capricorn"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Capricornus: the sea-goat (often called Capricorn)."
+            }
+          ]
+        },
+        {
+          "kind": "open",
+          "text": "Name a layer of the Sun",
+          "answers": [
+            {
+              "canonical": "core",
+              "aliases": [
+                "the core",
+                "solar core"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "core: the centre of the Sun, where nuclear fusion turns hydrogen into helium."
+            },
+            {
+              "canonical": "corona",
+              "aliases": [
+                "solar corona"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "corona: the Sun's outer atmosphere, seen as a white halo during a total solar eclipse."
+            },
+            {
+              "canonical": "photosphere",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "photosphere: the visible surface of the Sun, which gives off most of its light."
+            },
+            {
+              "canonical": "chromosphere",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "chromosphere: the thin reddish layer of atmosphere just above the photosphere."
+            },
+            {
+              "canonical": "convective zone",
+              "aliases": [
+                "convection zone"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "convective zone: the outer interior layer, where hot gas rises and cooler gas sinks (also called the convection zone)."
+            },
+            {
+              "canonical": "radiative zone",
+              "aliases": [
+                "radiation zone"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "radiative zone: the layer around the core, where energy moves outward as radiation (also called the radiation zone)."
+            },
+            {
+              "canonical": "transition region",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "transition region: the thin layer between the chromosphere and the corona, where the temperature jumps sharply."
+            }
+          ]
+        },
+        {
+          "kind": "cloze",
+          "text": "The point in a planet's orbit where it is closest to the Sun is called ______.",
+          "tier": "solid",
+          "hint": "Its opposite is aphelion, the farthest point.",
+          "explanation": "Orbits are ellipses, so every planet has one closest point (perihelion) and one farthest point (aphelion).",
+          "answers": [
+            {
+              "canonical": "perihelion",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 4,
+              "evidence_quote": "Perihelion is the point in a planet's orbit where it is closest to the Sun."
+            }
+          ]
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "The distance light travels in one year, about 9.46 trillion kilometres.",
+          "tier": "common",
+          "hint": "Despite its name, it measures distance, not time.",
+          "explanation": "Astronomers use it for distances between stars: the nearest star system to the Sun, Alpha Centauri, is about 4.4 of them away.",
+          "answers": [
+            {
+              "canonical": "light-year",
+              "aliases": [
+                "light year",
+                "lightyear",
+                "light-years",
+                "light years"
+              ],
+              "exact_only": false,
+              "evidence_page": 5,
+              "evidence_quote": "A light-year is the distance light travels in one year, about 9.46 trillion kilometres."
+            }
+          ]
+        },
+        {
+          "kind": "ordered_recall",
+          "text": "Put the life stages of a Sun-like star in order.",
+          "tier": "solid",
+          "hint": "It ends small, dim and very dense.",
+          "explanation": "A Sun-like star fuses hydrogen on the main sequence, swells into a red giant, sheds its outer layers as a planetary nebula, and leaves a white dwarf.",
+          "items": [
+            "Main-sequence star",
+            "Red giant",
+            "Planetary nebula",
+            "White dwarf"
+          ],
+          "evidence_page": 6
+        },
+        {
+          "kind": "odd_one_out",
+          "text": "Which one is a different kind of object from the other three?",
+          "tier": "common",
+          "hint": "Three of them orbit the Sun.",
+          "explanation": "Sirius is a star, the brightest in the night sky; Mars, Venus and Jupiter are planets.",
+          "options": [
+            "Mars",
+            "Sirius",
+            "Venus",
+            "Jupiter"
+          ],
+          "correct_option": "Sirius",
+          "evidence_page": 7
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "day": null,
+      "theme": "The Human Body",
+      "title": "Inside Out",
+      "fact_sheet": {
+        "pages": [
+          {
+            "page_number": 1,
+            "content_md": "# Long bones of the limbs\n\nEach arm has three major long bones (humerus, radius, ulna) and each leg has three (femur, tibia, fibula).\n\n- femur: the thigh bone, the longest and strongest bone in the body.\n- humerus: the upper arm bone, between the shoulder and the elbow.\n- tibia: the shinbone, the larger of the two lower leg bones.\n- fibula: the thinner lower leg bone, beside the tibia.\n- ulna: the forearm bone on the little-finger side.\n- radius: the forearm bone on the thumb side."
+          },
+          {
+            "page_number": 2,
+            "content_md": "# The digestive system\n\nFood passes through the digestive tract (mouth, esophagus, stomach, small intestine, large intestine, rectum), helped by other organs that add digestive juices.\n\n- stomach: mixes food with acid and enzymes to start breaking down proteins.\n- small intestine: where most digestion and nutrient absorption happens (also called the small bowel).\n- large intestine: absorbs water from what is left of the food (also called the colon or large bowel).\n- liver: makes bile, which helps digest fats.\n- esophagus: the muscular tube that carries food from the throat to the stomach (also spelled oesophagus).\n- mouth: where teeth chew food and saliva starts digesting starch.\n- pancreas: releases digestive enzymes into the small intestine and makes insulin.\n- gallbladder: stores bile from the liver (also written gall bladder).\n- rectum: the last part of the large intestine, which stores waste before it leaves the body.\n- salivary glands: make saliva, which moistens food and contains the enzyme amylase."
+          },
+          {
+            "page_number": 3,
+            "content_md": "# Organ systems\n\nOrgans work together in organ systems. The main organ systems of the human body are:\n\n- circulatory system: the heart, blood and blood vessels, which carry oxygen and nutrients (also called the cardiovascular system).\n- respiratory system: the lungs and airways, which take in oxygen and remove carbon dioxide.\n- digestive system: breaks food down and absorbs nutrients.\n- nervous system: the brain, spinal cord and nerves, which carry signals around the body.\n- skeletal system: the bones, which support and protect the body.\n- muscular system: the muscles, which move the body.\n- immune system: defends the body against infection.\n- endocrine system: glands that release hormones into the blood.\n- reproductive system: the organs that make it possible to have children.\n- urinary system: the kidneys and bladder, which filter blood and remove waste as urine (also called the excretory system).\n- lymphatic system: lymph vessels and nodes that drain fluid and help fight infection.\n- integumentary system: the skin, hair and nails, which protect the body."
+          },
+          {
+            "page_number": 4,
+            "content_md": "# The largest organ\n\nThe skin is the largest organ of the human body. It protects the body from germs, helps control temperature, and holds the nerve endings that sense touch, heat and pain."
+          },
+          {
+            "page_number": 5,
+            "content_md": "# Gas exchange in the lungs\n\nAir travels down the trachea and bronchi into the lungs. The alveoli are tiny air sacs at the ends of the airways, where oxygen passes into the blood and carbon dioxide passes out. One of them is called an alveolus."
+          },
+          {
+            "page_number": 6,
+            "content_md": "# The path of blood through the heart\n\nBlood coming back from the body passes through these places, in order:\n\n1. Right atrium: receives oxygen-poor blood from the body.\n2. Right ventricle: pumps it to the lungs.\n3. Lungs: the blood picks up oxygen and drops off carbon dioxide.\n4. Left atrium: receives oxygen-rich blood from the lungs.\n5. Left ventricle: the strongest chamber, pumps blood out to the body.\n6. Aorta: the largest artery, which carries that blood to the rest of the body."
+          },
+          {
+            "page_number": 7,
+            "content_md": "# Eye or ear?\n\nThe retina, the cornea and the iris are parts of the eye. The cornea is the clear front window, the iris is the coloured ring that controls the pupil, and the retina is the light-sensitive layer at the back. The cochlea is not part of the eye: it is the snail-shaped organ of hearing in the inner ear."
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "kind": "open",
+          "text": "Name one of the six major long bones of the human arms and legs",
+          "answers": [
+            {
+              "canonical": "femur",
+              "aliases": [
+                "thigh bone",
+                "thighbone"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "femur: the thigh bone, the longest and strongest bone in the body."
+            },
+            {
+              "canonical": "humerus",
+              "aliases": [
+                "upper arm bone"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "humerus: the upper arm bone, between the shoulder and the elbow."
+            },
+            {
+              "canonical": "tibia",
+              "aliases": [
+                "shinbone",
+                "shin bone"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "tibia: the shinbone, the larger of the two lower leg bones."
+            },
+            {
+              "canonical": "fibula",
+              "aliases": [
+                "calf bone"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "fibula: the thinner lower leg bone, beside the tibia."
+            },
+            {
+              "canonical": "ulna",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "ulna: the forearm bone on the little-finger side."
+            },
+            {
+              "canonical": "radius",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "radius: the forearm bone on the thumb side."
+            }
+          ]
+        },
+        {
+          "kind": "open",
+          "text": "Name an organ of the human digestive system",
+          "answers": [
+            {
+              "canonical": "stomach",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "stomach: mixes food with acid and enzymes to start breaking down proteins."
+            },
+            {
+              "canonical": "small intestine",
+              "aliases": [
+                "small bowel"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "small intestine: where most digestion and nutrient absorption happens (also called the small bowel)."
+            },
+            {
+              "canonical": "large intestine",
+              "aliases": [
+                "colon",
+                "large bowel"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "large intestine: absorbs water from what is left of the food (also called the colon or large bowel)."
+            },
+            {
+              "canonical": "liver",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "liver: makes bile, which helps digest fats."
+            },
+            {
+              "canonical": "esophagus",
+              "aliases": [
+                "oesophagus",
+                "gullet"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "esophagus: the muscular tube that carries food from the throat to the stomach (also spelled oesophagus)."
+            },
+            {
+              "canonical": "mouth",
+              "aliases": [
+                "oral cavity"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "mouth: where teeth chew food and saliva starts digesting starch."
+            },
+            {
+              "canonical": "pancreas",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "pancreas: releases digestive enzymes into the small intestine and makes insulin."
+            },
+            {
+              "canonical": "gallbladder",
+              "aliases": [
+                "gall bladder"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "gallbladder: stores bile from the liver (also written gall bladder)."
+            },
+            {
+              "canonical": "rectum",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "rectum: the last part of the large intestine, which stores waste before it leaves the body."
+            },
+            {
+              "canonical": "salivary glands",
+              "aliases": [
+                "salivary gland"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "salivary glands: make saliva, which moistens food and contains the enzyme amylase."
+            }
+          ]
+        },
+        {
+          "kind": "open",
+          "text": "Name an organ system of the human body",
+          "answers": [
+            {
+              "canonical": "circulatory system",
+              "aliases": [
+                "circulatory",
+                "cardiovascular system",
+                "cardiovascular"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "circulatory system: the heart, blood and blood vessels, which carry oxygen and nutrients (also called the cardiovascular system)."
+            },
+            {
+              "canonical": "respiratory system",
+              "aliases": [
+                "respiratory"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "respiratory system: the lungs and airways, which take in oxygen and remove carbon dioxide."
+            },
+            {
+              "canonical": "digestive system",
+              "aliases": [
+                "digestive"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "digestive system: breaks food down and absorbs nutrients."
+            },
+            {
+              "canonical": "nervous system",
+              "aliases": [
+                "nervous"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "nervous system: the brain, spinal cord and nerves, which carry signals around the body."
+            },
+            {
+              "canonical": "skeletal system",
+              "aliases": [
+                "skeletal"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "skeletal system: the bones, which support and protect the body."
+            },
+            {
+              "canonical": "muscular system",
+              "aliases": [
+                "muscular"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "muscular system: the muscles, which move the body."
+            },
+            {
+              "canonical": "immune system",
+              "aliases": [
+                "immune"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "immune system: defends the body against infection."
+            },
+            {
+              "canonical": "endocrine system",
+              "aliases": [
+                "endocrine"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "endocrine system: glands that release hormones into the blood."
+            },
+            {
+              "canonical": "reproductive system",
+              "aliases": [
+                "reproductive"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "reproductive system: the organs that make it possible to have children."
+            },
+            {
+              "canonical": "urinary system",
+              "aliases": [
+                "urinary",
+                "excretory system",
+                "excretory",
+                "renal system"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "urinary system: the kidneys and bladder, which filter blood and remove waste as urine (also called the excretory system)."
+            },
+            {
+              "canonical": "lymphatic system",
+              "aliases": [
+                "lymphatic"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "lymphatic system: lymph vessels and nodes that drain fluid and help fight infection."
+            },
+            {
+              "canonical": "integumentary system",
+              "aliases": [
+                "integumentary"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "integumentary system: the skin, hair and nails, which protect the body."
+            }
+          ]
+        },
+        {
+          "kind": "cloze",
+          "text": "The ______ is the largest organ of the human body.",
+          "tier": "common",
+          "hint": "It covers you from head to toe.",
+          "explanation": "The skin protects the body, helps control temperature and senses touch, and it outweighs every other organ.",
+          "answers": [
+            {
+              "canonical": "skin",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 4,
+              "evidence_quote": "The skin is the largest organ of the human body."
+            }
+          ]
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "The tiny air sacs in the lungs where oxygen passes into the blood.",
+          "tier": "solid",
+          "hint": "The word comes from Latin for 'small hollow'.",
+          "explanation": "The lungs hold hundreds of millions of these sacs, giving a huge surface for gas exchange.",
+          "answers": [
+            {
+              "canonical": "alveoli",
+              "aliases": [
+                "alveolus"
+              ],
+              "exact_only": false,
+              "evidence_page": 5,
+              "evidence_quote": "The alveoli are tiny air sacs at the ends of the airways, where oxygen passes into the blood and carbon dioxide passes out."
+            }
+          ]
+        },
+        {
+          "kind": "ordered_recall",
+          "text": "Blood returns from the body to the heart. Put the places it passes through in order.",
+          "tier": "deep",
+          "hint": "The right side of the heart pumps to the lungs first.",
+          "explanation": "Blood from the body enters the right atrium, is pumped by the right ventricle to the lungs, returns to the left atrium, and the left ventricle pumps it out through the aorta.",
+          "items": [
+            "Right atrium",
+            "Right ventricle",
+            "Lungs",
+            "Left atrium",
+            "Left ventricle",
+            "Aorta"
+          ],
+          "evidence_page": 6
+        },
+        {
+          "kind": "odd_one_out",
+          "text": "Which one is not part of the eye?",
+          "tier": "solid",
+          "hint": "Think about which sense each part serves.",
+          "explanation": "The cochlea is the snail-shaped hearing organ of the inner ear; the retina, cornea and iris are parts of the eye.",
+          "options": [
+            "Retina",
+            "Cornea",
+            "Cochlea",
+            "Iris"
+          ],
+          "correct_option": "Cochlea",
+          "evidence_page": 7
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "day": null,
+      "theme": "Inventions & Discoveries",
+      "title": "Eureka Moments",
+      "fact_sheet": {
+        "pages": [
+          {
+            "page_number": 1,
+            "content_md": "# The six simple machines\n\nRenaissance scientists listed six classical simple machines, devices that change the size or direction of a force:\n\n- lever: a rigid bar that turns on a fixed point called a fulcrum, like a seesaw or crowbar.\n- pulley: a wheel with a rope or cable around it, used to lift loads.\n- wheel and axle: a wheel fixed to a smaller rod, like a doorknob or steering wheel.\n- inclined plane: a sloping surface, such as a ramp, that lets you raise a load with less force.\n- wedge: two inclined planes back to back, like an axe blade, used to split things.\n- screw: an inclined plane wrapped around a cylinder, like a jar lid or bolt."
+          },
+          {
+            "page_number": 2,
+            "content_md": "# The Nobel Prizes\n\nAlfred Nobel, the Swedish chemist who invented dynamite, left his fortune to fund prizes for the greatest benefit to humankind. The first five were awarded in 1901. The categories are:\n\n- Peace: awarded in Oslo, Norway; the other prizes are presented in Stockholm, Sweden.\n- Physics: first awarded in 1901 to Wilhelm Röntgen for discovering X-rays.\n- Chemistry: Marie Curie won it in 1911, after sharing the 1903 Physics prize.\n- Literature: given for an author's body of work, not usually for a single book.\n- Physiology or Medicine: often just called the Nobel Prize in Medicine.\n- Economic Sciences: added in 1968 by Sweden's central bank and first awarded in 1969; often just called the Nobel Prize in Economics."
+          },
+          {
+            "page_number": 3,
+            "content_md": "# Renewable energy\n\nRenewable energy comes from sources that are naturally replenished, unlike coal, oil and gas. The main ones are:\n\n- Solar: sunlight turned into electricity by photovoltaic panels, or into heat.\n- Wind: moving air spins the blades of wind turbines.\n- Hydroelectric: falling or flowing water, usually held back by a dam, drives turbines.\n- Geothermal: heat from inside the Earth, used to make steam or warm buildings.\n- Biomass: plant and animal material, such as wood or crop waste, burned or turned into fuel.\n- Tidal: the rise and fall of the tides drives turbines in the sea or in estuaries.\n- Wave: the up-and-down motion of ocean waves is captured to make electricity."
+          },
+          {
+            "page_number": 4,
+            "content_md": "# Penicillin\n\nIn 1928, Alexander Fleming discovered penicillin when a Penicillium mould contaminated a dish of bacteria and killed the bacteria around it. Penicillin was mass-produced during the Second World War and saved millions of lives."
+          },
+          {
+            "page_number": 5,
+            "content_md": "# Gutenberg's printing press\n\nJohannes Gutenberg developed the printing press with movable metal type in Germany around 1440. Before it, books were copied by hand; afterwards they could be printed quickly and cheaply."
+          },
+          {
+            "page_number": 6,
+            "content_md": "# Four inventions in time\n\n1. Telephone: Alexander Graham Bell patented it in 1876.\n2. Powered airplane: the Wright brothers made the first powered, controlled flight in 1903.\n3. Transistor: invented at Bell Labs in 1947.\n4. World Wide Web: proposed by Tim Berners-Lee in 1989."
+          },
+          {
+            "page_number": 7,
+            "content_md": "# Names behind the units\n\nMichael Faraday (the farad), Alessandro Volta (the volt) and André-Marie Ampère (the ampere) all pioneered the study of electricity, and electrical units are named after them. Charles Darwin is known for the theory of evolution by natural selection, not for electricity."
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "kind": "open",
+          "text": "Name one of the six classical simple machines",
+          "answers": [
+            {
+              "canonical": "lever",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "lever: a rigid bar that turns on a fixed point called a fulcrum, like a seesaw or crowbar."
+            },
+            {
+              "canonical": "pulley",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "pulley: a wheel with a rope or cable around it, used to lift loads."
+            },
+            {
+              "canonical": "wheel and axle",
+              "aliases": [
+                "wheel"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "wheel and axle: a wheel fixed to a smaller rod, like a doorknob or steering wheel."
+            },
+            {
+              "canonical": "inclined plane",
+              "aliases": [
+                "ramp",
+                "slope"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "inclined plane: a sloping surface, such as a ramp, that lets you raise a load with less force."
+            },
+            {
+              "canonical": "wedge",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "wedge: two inclined planes back to back, like an axe blade, used to split things."
+            },
+            {
+              "canonical": "screw",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "screw: an inclined plane wrapped around a cylinder, like a jar lid or bolt."
+            }
+          ]
+        },
+        {
+          "kind": "open",
+          "text": "Name a Nobel Prize category",
+          "answers": [
+            {
+              "canonical": "Peace",
+              "aliases": [
+                "Nobel Peace Prize",
+                "peace prize"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Peace: awarded in Oslo, Norway; the other prizes are presented in Stockholm, Sweden."
+            },
+            {
+              "canonical": "Physics",
+              "aliases": [
+                "Nobel Prize in Physics"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Physics: first awarded in 1901 to Wilhelm Röntgen for discovering X-rays."
+            },
+            {
+              "canonical": "Chemistry",
+              "aliases": [
+                "Nobel Prize in Chemistry"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Chemistry: Marie Curie won it in 1911, after sharing the 1903 Physics prize."
+            },
+            {
+              "canonical": "Literature",
+              "aliases": [
+                "Nobel Prize in Literature"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Literature: given for an author's body of work, not usually for a single book."
+            },
+            {
+              "canonical": "Physiology or Medicine",
+              "aliases": [
+                "Medicine",
+                "Physiology",
+                "Nobel Prize in Medicine"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Physiology or Medicine: often just called the Nobel Prize in Medicine."
+            },
+            {
+              "canonical": "Economic Sciences",
+              "aliases": [
+                "Economics",
+                "Economic Science"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "Economic Sciences: added in 1968 by Sweden's central bank and first awarded in 1969; often just called the Nobel Prize in Economics."
+            }
+          ]
+        },
+        {
+          "kind": "open",
+          "text": "Name a renewable energy source",
+          "answers": [
+            {
+              "canonical": "Solar",
+              "aliases": [
+                "solar power",
+                "solar energy",
+                "sunlight",
+                "sun"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Solar: sunlight turned into electricity by photovoltaic panels, or into heat."
+            },
+            {
+              "canonical": "Wind",
+              "aliases": [
+                "wind power",
+                "wind energy"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Wind: moving air spins the blades of wind turbines."
+            },
+            {
+              "canonical": "Hydroelectric",
+              "aliases": [
+                "hydro",
+                "hydropower",
+                "hydroelectricity",
+                "hydroelectric power"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Hydroelectric: falling or flowing water, usually held back by a dam, drives turbines."
+            },
+            {
+              "canonical": "Geothermal",
+              "aliases": [
+                "geothermal energy",
+                "geothermal power"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Geothermal: heat from inside the Earth, used to make steam or warm buildings."
+            },
+            {
+              "canonical": "Biomass",
+              "aliases": [
+                "bioenergy",
+                "biofuel",
+                "biofuels"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Biomass: plant and animal material, such as wood or crop waste, burned or turned into fuel."
+            },
+            {
+              "canonical": "Tidal",
+              "aliases": [
+                "tidal power",
+                "tidal energy",
+                "tides"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "Tidal: the rise and fall of the tides drives turbines in the sea or in estuaries."
+            },
+            {
+              "canonical": "Wave",
+              "aliases": [
+                "wave power",
+                "wave energy",
+                "waves"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "Wave: the up-and-down motion of ocean waves is captured to make electricity."
+            }
+          ]
+        },
+        {
+          "kind": "cloze",
+          "text": "In 1928, Alexander Fleming discovered the antibiotic ______.",
+          "tier": "common",
+          "hint": "It came from a mould that contaminated his dishes of bacteria.",
+          "explanation": "Fleming noticed that a mould killed the bacteria around it; the drug made from it was mass-produced during the Second World War.",
+          "answers": [
+            {
+              "canonical": "penicillin",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 4,
+              "evidence_quote": "In 1928, Alexander Fleming discovered penicillin"
+            }
+          ]
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "The machine with movable metal type that Johannes Gutenberg developed in Germany around 1440.",
+          "tier": "common",
+          "hint": "It made books much cheaper and faster to copy.",
+          "explanation": "Gutenberg's press spread across Europe within decades and helped spread literacy and new ideas.",
+          "answers": [
+            {
+              "canonical": "printing press",
+              "aliases": [
+                "press",
+                "the printing press",
+                "Gutenberg press",
+                "movable type printing press"
+              ],
+              "exact_only": false,
+              "evidence_page": 5,
+              "evidence_quote": "Johannes Gutenberg developed the printing press with movable metal type in Germany around 1440."
+            }
+          ]
+        },
+        {
+          "kind": "ordered_recall",
+          "text": "Put these inventions in order, oldest first.",
+          "tier": "solid",
+          "hint": "The Wright brothers flew at Kitty Hawk in 1903.",
+          "explanation": "The telephone (1876) came before powered flight (1903), the transistor (1947) and the World Wide Web (1989).",
+          "items": [
+            "Telephone",
+            "Powered airplane",
+            "Transistor",
+            "World Wide Web"
+          ],
+          "evidence_page": 6
+        },
+        {
+          "kind": "odd_one_out",
+          "text": "Which scientist is not known for work on electricity?",
+          "tier": "common",
+          "hint": "Three of them gave their names to electrical units.",
+          "explanation": "Darwin is known for the theory of evolution by natural selection; Faraday, Volta and Ampère gave their names to the farad, the volt and the ampere.",
+          "options": [
+            "Faraday",
+            "Volta",
+            "Darwin",
+            "Ampère"
+          ],
+          "correct_option": "Darwin",
+          "evidence_page": 7
+        }
+      ]
+    },
+    {
+      "number": 11,
+      "day": null,
+      "theme": "Chemistry: The Elements",
+      "title": "Periodic Picks",
+      "fact_sheet": {
+        "pages": [
+          {
+            "page_number": 1,
+            "content_md": "# The noble gases\n\nThe noble gases are the elements of group 18 of the periodic table. Their full outer electron shells make them very unreactive.\n\n- helium: atomic number 2; lighter than air, so it lifts party balloons.\n- neon: atomic number 10; glows red-orange in advertising signs.\n- argon: atomic number 18; the most common noble gas in Earth's air, used inside light bulbs.\n- krypton: atomic number 36; used in some flash lamps.\n- xenon: atomic number 54; used in bright car headlights and flash lamps.\n- radon: atomic number 86; a radioactive gas that can build up in basements.\n- oganesson: atomic number 118; a synthetic element placed in group 18."
+          },
+          {
+            "page_number": 2,
+            "content_md": "# The alkali metals\n\nThe alkali metals are the metals of group 1 of the periodic table (hydrogen sits above them but is not an alkali metal). They are soft and react strongly with water.\n\n- sodium: symbol Na; half of table salt, sodium chloride.\n- potassium: symbol K; found in bananas and reacts violently with water.\n- lithium: symbol Li; the lightest metal, used in rechargeable batteries.\n- caesium: symbol Cs; used in atomic clocks (also spelled cesium).\n- rubidium: symbol Rb; soft enough to cut with a knife.\n- francium: symbol Fr; extremely rare and radioactive."
+          },
+          {
+            "page_number": 3,
+            "content_md": "# Symbols from Latin\n\nSome chemical symbols don't match the English name because they come from the element's Latin name:\n\n- gold: symbol Au, from the Latin aurum.\n- iron: symbol Fe, from the Latin ferrum.\n- silver: symbol Ag, from the Latin argentum.\n- lead: symbol Pb, from the Latin plumbum.\n- copper: symbol Cu, from the Latin cuprum.\n- sodium: symbol Na, from the Latin natrium.\n- potassium: symbol K, from the Latin kalium.\n- mercury: symbol Hg, from the Latin hydrargyrum, meaning liquid silver.\n- tin: symbol Sn, from the Latin stannum.\n- antimony: symbol Sb, from the Latin stibium."
+          },
+          {
+            "page_number": 4,
+            "content_md": "# Atomic number 1\n\nHydrogen has atomic number 1: each of its atoms has a single proton. It is the lightest element and the most abundant element in the universe."
+          },
+          {
+            "page_number": 5,
+            "content_md": "# Isotopes\n\nIsotopes are atoms of the same element that have different numbers of neutrons. Carbon-12 and carbon-14 both have 6 protons, but carbon-14 has two more neutrons, which makes it radioactive."
+          },
+          {
+            "page_number": 6,
+            "content_md": "# Atomic numbers\n\nThe atomic number is the number of protons in an atom's nucleus.\n\n1. Carbon: atomic number 6.\n2. Oxygen: atomic number 8.\n3. Iron: atomic number 26.\n4. Gold: atomic number 79."
+          },
+          {
+            "page_number": 7,
+            "content_md": "# Halogens\n\nThe halogens are the elements of group 17: fluorine, chlorine, bromine, iodine and astatine. They are very reactive and form salts with metals. Neon is not a halogen: it is a noble gas in group 18."
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "kind": "open",
+          "text": "Name a noble gas",
+          "answers": [
+            {
+              "canonical": "helium",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "helium: atomic number 2; lighter than air, so it lifts party balloons."
+            },
+            {
+              "canonical": "neon",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "neon: atomic number 10; glows red-orange in advertising signs."
+            },
+            {
+              "canonical": "argon",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "argon: atomic number 18; the most common noble gas in Earth's air, used inside light bulbs."
+            },
+            {
+              "canonical": "krypton",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "krypton: atomic number 36; used in some flash lamps."
+            },
+            {
+              "canonical": "xenon",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "xenon: atomic number 54; used in bright car headlights and flash lamps."
+            },
+            {
+              "canonical": "radon",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "radon: atomic number 86; a radioactive gas that can build up in basements."
+            },
+            {
+              "canonical": "oganesson",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "oganesson: atomic number 118; a synthetic element placed in group 18."
+            }
+          ]
+        },
+        {
+          "kind": "open",
+          "text": "Name an alkali metal",
+          "answers": [
+            {
+              "canonical": "sodium",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "sodium: symbol Na; half of table salt, sodium chloride."
+            },
+            {
+              "canonical": "potassium",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "potassium: symbol K; found in bananas and reacts violently with water."
+            },
+            {
+              "canonical": "lithium",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "lithium: symbol Li; the lightest metal, used in rechargeable batteries."
+            },
+            {
+              "canonical": "caesium",
+              "aliases": [
+                "cesium"
+              ],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "caesium: symbol Cs; used in atomic clocks (also spelled cesium)."
+            },
+            {
+              "canonical": "rubidium",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "rubidium: symbol Rb; soft enough to cut with a knife."
+            },
+            {
+              "canonical": "francium",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "francium: symbol Fr; extremely rare and radioactive."
+            }
+          ]
+        },
+        {
+          "kind": "open",
+          "text": "Name an element whose chemical symbol comes from its Latin name",
+          "answers": [
+            {
+              "canonical": "gold",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "gold: symbol Au, from the Latin aurum."
+            },
+            {
+              "canonical": "iron",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "iron: symbol Fe, from the Latin ferrum."
+            },
+            {
+              "canonical": "silver",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "silver: symbol Ag, from the Latin argentum."
+            },
+            {
+              "canonical": "lead",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "lead: symbol Pb, from the Latin plumbum."
+            },
+            {
+              "canonical": "copper",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "copper: symbol Cu, from the Latin cuprum."
+            },
+            {
+              "canonical": "sodium",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "sodium: symbol Na, from the Latin natrium."
+            },
+            {
+              "canonical": "potassium",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "potassium: symbol K, from the Latin kalium."
+            },
+            {
+              "canonical": "mercury",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "mercury: symbol Hg, from the Latin hydrargyrum, meaning liquid silver."
+            },
+            {
+              "canonical": "tin",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "tin: symbol Sn, from the Latin stannum."
+            },
+            {
+              "canonical": "antimony",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "antimony: symbol Sb, from the Latin stibium."
+            }
+          ]
+        },
+        {
+          "kind": "cloze",
+          "text": "The element with atomic number 1 is ______.",
+          "tier": "common",
+          "hint": "It's the lightest element and the most abundant in the universe.",
+          "explanation": "Its atoms have just one proton, which is what atomic number 1 means.",
+          "answers": [
+            {
+              "canonical": "hydrogen",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 4,
+              "evidence_quote": "Hydrogen has atomic number 1: each of its atoms has a single proton."
+            }
+          ]
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "Atoms of the same element that have different numbers of neutrons.",
+          "tier": "solid",
+          "hint": "Carbon-12 and carbon-14 are an example.",
+          "explanation": "They share an atomic number, so they behave the same chemically, but their masses differ.",
+          "answers": [
+            {
+              "canonical": "isotopes",
+              "aliases": [
+                "isotope"
+              ],
+              "exact_only": false,
+              "evidence_page": 5,
+              "evidence_quote": "Isotopes are atoms of the same element that have different numbers of neutrons."
+            }
+          ]
+        },
+        {
+          "kind": "ordered_recall",
+          "text": "Put these elements in order of atomic number, smallest first.",
+          "tier": "solid",
+          "hint": "Count the protons.",
+          "explanation": "Carbon has 6 protons, oxygen 8, iron 26 and gold 79.",
+          "items": [
+            "Carbon",
+            "Oxygen",
+            "Iron",
+            "Gold"
+          ],
+          "evidence_page": 6
+        },
+        {
+          "kind": "odd_one_out",
+          "text": "Which one is not a halogen?",
+          "tier": "common",
+          "hint": "Three of them sit in group 17.",
+          "explanation": "Fluorine, chlorine and bromine are halogens in group 17; neon is a noble gas in group 18.",
+          "options": [
+            "Fluorine",
+            "Chlorine",
+            "Neon",
+            "Bromine"
+          ],
+          "correct_option": "Neon",
+          "evidence_page": 7
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "day": null,
+      "theme": "Oceans & Earth",
+      "title": "Blue Planet Basics",
+      "fact_sheet": {
+        "pages": [
+          {
+            "page_number": 1,
+            "content_md": "# The air we breathe\n\nDry air is mostly nitrogen and oxygen, with small amounts of other gases. Gases in Earth's atmosphere include:\n\n- Nitrogen: about 78% of dry air, the largest share.\n- Oxygen: about 21% of dry air; animals need it to breathe.\n- Carbon dioxide: a trace gas that plants use for photosynthesis and that traps heat.\n- Argon: a noble gas that makes up almost 1% of dry air, the third largest share.\n- Water vapour: the gas form of water; its amount varies with weather and makes clouds possible.\n- Ozone: a form of oxygen; the ozone layer in the stratosphere absorbs ultraviolet light.\n- Neon: a noble gas present in tiny traces.\n- Helium: a very light noble gas present in tiny traces; much of it escapes to space.\n- Methane: a trace gas from wetlands, livestock and natural gas leaks that traps heat.\n- Krypton: a rare noble gas present in tiny traces."
+          },
+          {
+            "page_number": 2,
+            "content_md": "# The ten cloud types\n\nMeteorologists sort clouds into ten main types (genera):\n\n- cumulus: puffy, cotton-like clouds with flat bases, common on sunny days.\n- cirrus: thin, wispy clouds high in the sky, made of ice crystals.\n- stratus: flat, grey layers that cover the sky like a blanket.\n- cumulonimbus: towering thunderstorm clouds that bring heavy rain, lightning and hail.\n- nimbostratus: thick, dark layers that bring steady rain or snow.\n- stratocumulus: low, lumpy grey or white patches in rows or rolls.\n- altostratus: grey or bluish mid-level sheets through which the Sun looks dim.\n- altocumulus: mid-level white or grey patches, often in waves.\n- cirrostratus: thin, high veils of ice crystals that can make a halo around the Sun.\n- cirrocumulus: small, high white ripples, sometimes called a mackerel sky."
+          },
+          {
+            "page_number": 3,
+            "content_md": "# Marine mammals\n\nMarine mammals breathe air and feed their young milk, but live in or depend on the sea. Examples:\n\n- whale: the largest marine mammals, such as the blue whale, humpback whale, beluga and narwhal.\n- dolphin: a toothed, highly social mammal, such as the bottlenose dolphin.\n- seal: a sea mammal with flippers and no visible ear flaps.\n- sea lion: like a seal, but with visible ear flaps and flippers it can walk on.\n- orca: the largest member of the dolphin family, also called the killer whale.\n- walrus: an Arctic mammal with long tusks and whiskers.\n- sea otter: uses rocks as tools to crack open shellfish.\n- manatee: a slow, plant-eating mammal of warm coastal waters and rivers.\n- porpoise: a small toothed whale related to dolphins, with a blunt snout.\n- polar bear: hunts seals on Arctic sea ice and is classed as a marine mammal.\n- dugong: a plant-eating relative of the manatee that lives in the Indian and Pacific Oceans."
+          },
+          {
+            "page_number": 4,
+            "content_md": "# The deepest point\n\nThe deepest known point in Earth's oceans is the Challenger Deep, in the Mariana Trench in the western Pacific Ocean near Guam. It is roughly 11 km deep, more than the height of Mount Everest."
+          },
+          {
+            "page_number": 5,
+            "content_md": "# Plate tectonics\n\nPlate tectonics is the theory that Earth's outer shell, the lithosphere, is split into large plates that slowly move. Where plates meet, we get earthquakes, volcanoes and mountain ranges."
+          },
+          {
+            "page_number": 6,
+            "content_md": "# Earth's layers\n\nFrom the surface to the centre, Earth's layers are:\n\n1. Crust: the thin, rocky outer layer.\n2. Mantle: the thickest layer, hot rock that flows very slowly.\n3. Outer core: liquid iron and nickel.\n4. Inner core: solid iron and nickel at the centre."
+          },
+          {
+            "page_number": 7,
+            "content_md": "# Oceans and seas\n\nEarth has five oceans: the Pacific, the Atlantic, the Indian, the Southern and the Arctic. The Mediterranean is not an ocean: it is a sea, almost completely enclosed by land, between Europe, Africa and Asia."
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "kind": "open",
+          "text": "Name a gas found in Earth's atmosphere",
+          "answers": [
+            {
+              "canonical": "Nitrogen",
+              "aliases": [
+                "N2"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Nitrogen: about 78% of dry air, the largest share."
+            },
+            {
+              "canonical": "Oxygen",
+              "aliases": [
+                "O2"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Oxygen: about 21% of dry air; animals need it to breathe."
+            },
+            {
+              "canonical": "Carbon dioxide",
+              "aliases": [
+                "CO2"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Carbon dioxide: a trace gas that plants use for photosynthesis and that traps heat."
+            },
+            {
+              "canonical": "Argon",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Argon: a noble gas that makes up almost 1% of dry air, the third largest share."
+            },
+            {
+              "canonical": "Water vapour",
+              "aliases": [
+                "water vapor",
+                "water"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Water vapour: the gas form of water; its amount varies with weather and makes clouds possible."
+            },
+            {
+              "canonical": "Ozone",
+              "aliases": [
+                "O3"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Ozone: a form of oxygen; the ozone layer in the stratosphere absorbs ultraviolet light."
+            },
+            {
+              "canonical": "Neon",
+              "aliases": [],
+              "exact_only": true,
+              "evidence_page": 1,
+              "evidence_quote": "Neon: a noble gas present in tiny traces."
+            },
+            {
+              "canonical": "Helium",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Helium: a very light noble gas present in tiny traces; much of it escapes to space."
+            },
+            {
+              "canonical": "Methane",
+              "aliases": [
+                "CH4"
+              ],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Methane: a trace gas from wetlands, livestock and natural gas leaks that traps heat."
+            },
+            {
+              "canonical": "Krypton",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 1,
+              "evidence_quote": "Krypton: a rare noble gas present in tiny traces."
+            }
+          ]
+        },
+        {
+          "kind": "open",
+          "text": "Name one of the ten main types of cloud",
+          "answers": [
+            {
+              "canonical": "cumulus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "cumulus: puffy, cotton-like clouds with flat bases, common on sunny days."
+            },
+            {
+              "canonical": "cirrus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "cirrus: thin, wispy clouds high in the sky, made of ice crystals."
+            },
+            {
+              "canonical": "stratus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "stratus: flat, grey layers that cover the sky like a blanket."
+            },
+            {
+              "canonical": "cumulonimbus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "cumulonimbus: towering thunderstorm clouds that bring heavy rain, lightning and hail."
+            },
+            {
+              "canonical": "nimbostratus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "nimbostratus: thick, dark layers that bring steady rain or snow."
+            },
+            {
+              "canonical": "stratocumulus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "stratocumulus: low, lumpy grey or white patches in rows or rolls."
+            },
+            {
+              "canonical": "altostratus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "altostratus: grey or bluish mid-level sheets through which the Sun looks dim."
+            },
+            {
+              "canonical": "altocumulus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "altocumulus: mid-level white or grey patches, often in waves."
+            },
+            {
+              "canonical": "cirrostratus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "cirrostratus: thin, high veils of ice crystals that can make a halo around the Sun."
+            },
+            {
+              "canonical": "cirrocumulus",
+              "aliases": [],
+              "exact_only": false,
+              "evidence_page": 2,
+              "evidence_quote": "cirrocumulus: small, high white ripples, sometimes called a mackerel sky."
+            }
+          ]
+        },
+        {
+          "kind": "open",
+          "text": "Name a marine mammal",
+          "answers": [
+            {
+              "canonical": "whale",
+              "aliases": [
+                "whales",
+                "blue whale",
+                "humpback whale",
+                "sperm whale",
+                "beluga",
+                "narwhal"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "whale: the largest marine mammals, such as the blue whale, humpback whale, beluga and narwhal."
+            },
+            {
+              "canonical": "dolphin",
+              "aliases": [
+                "dolphins",
+                "bottlenose dolphin"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "dolphin: a toothed, highly social mammal, such as the bottlenose dolphin."
+            },
+            {
+              "canonical": "seal",
+              "aliases": [
+                "seals"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "seal: a sea mammal with flippers and no visible ear flaps."
+            },
+            {
+              "canonical": "sea lion",
+              "aliases": [
+                "sea lions"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "sea lion: like a seal, but with visible ear flaps and flippers it can walk on."
+            },
+            {
+              "canonical": "orca",
+              "aliases": [
+                "orcas",
+                "killer whale"
+              ],
+              "exact_only": true,
+              "evidence_page": 3,
+              "evidence_quote": "orca: the largest member of the dolphin family, also called the killer whale."
+            },
+            {
+              "canonical": "walrus",
+              "aliases": [
+                "walruses"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "walrus: an Arctic mammal with long tusks and whiskers."
+            },
+            {
+              "canonical": "sea otter",
+              "aliases": [
+                "sea otters"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "sea otter: uses rocks as tools to crack open shellfish."
+            },
+            {
+              "canonical": "manatee",
+              "aliases": [
+                "manatees"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "manatee: a slow, plant-eating mammal of warm coastal waters and rivers."
+            },
+            {
+              "canonical": "porpoise",
+              "aliases": [
+                "porpoises"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "porpoise: a small toothed whale related to dolphins, with a blunt snout."
+            },
+            {
+              "canonical": "polar bear",
+              "aliases": [
+                "polar bears"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "polar bear: hunts seals on Arctic sea ice and is classed as a marine mammal."
+            },
+            {
+              "canonical": "dugong",
+              "aliases": [
+                "dugongs"
+              ],
+              "exact_only": false,
+              "evidence_page": 3,
+              "evidence_quote": "dugong: a plant-eating relative of the manatee that lives in the Indian and Pacific Oceans."
+            }
+          ]
+        },
+        {
+          "kind": "cloze",
+          "text": "The deepest known point in Earth's oceans, the Challenger Deep, lies in the ______ Trench.",
+          "tier": "solid",
+          "hint": "It's in the western Pacific, near Guam.",
+          "explanation": "The Challenger Deep is roughly 11 km below the sea surface, deeper than Mount Everest is tall.",
+          "answers": [
+            {
+              "canonical": "Mariana",
+              "aliases": [
+                "Marianas",
+                "Mariana Trench"
+              ],
+              "exact_only": false,
+              "evidence_page": 4,
+              "evidence_quote": "The deepest known point in Earth's oceans is the Challenger Deep, in the Mariana Trench in the western Pacific Ocean near Guam."
+            }
+          ]
+        },
+        {
+          "kind": "definition_to_term",
+          "text": "The theory that Earth's outer shell is split into large pieces that slowly move.",
+          "tier": "common",
+          "hint": "Alfred Wegener's idea of continental drift grew into it.",
+          "explanation": "Moving plates explain earthquakes, volcanoes, mountain ranges and the drifting of the continents.",
+          "answers": [
+            {
+              "canonical": "plate tectonics",
+              "aliases": [
+                "plate tectonic theory",
+                "theory of plate tectonics"
+              ],
+              "exact_only": false,
+              "evidence_page": 5,
+              "evidence_quote": "Plate tectonics is the theory that Earth's outer shell, the lithosphere, is split into large plates that slowly move."
+            }
+          ]
+        },
+        {
+          "kind": "ordered_recall",
+          "text": "Put the layers of Earth in order, from the surface inward.",
+          "tier": "common",
+          "hint": "The thinnest layer is the one you stand on.",
+          "explanation": "Earth has a thin rocky crust, a thick mantle, a liquid outer core and a solid inner core.",
+          "items": [
+            "Crust",
+            "Mantle",
+            "Outer core",
+            "Inner core"
+          ],
+          "evidence_page": 6
+        },
+        {
+          "kind": "odd_one_out",
+          "text": "Which one is not an ocean?",
+          "tier": "common",
+          "hint": "Count Earth's five oceans.",
+          "explanation": "The Mediterranean is a sea almost enclosed by land; the Pacific, Indian and Arctic are oceans.",
+          "options": [
+            "Pacific",
+            "Indian",
+            "Mediterranean",
+            "Arctic"
+          ],
+          "correct_option": "Mediterranean",
+          "evidence_page": 7
+        }
+      ]
+    }
+  ]
+}

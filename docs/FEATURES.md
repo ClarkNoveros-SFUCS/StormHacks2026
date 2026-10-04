@@ -29,9 +29,9 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F17 | Overgenerate and select the best Prompts | Pipelines | F04, F14 | #27 | planned |
 | F18 | Open Prompt answer expansion with retrieval (pgvector, stretch) | Pipelines | F04, F14 | #28 | planned |
 | F19 | Landing page and site-wide UI overhaul | Frontend | F10 | #32 | planned |
-| F20 | Game Modes engine and generation: Apogee, Leap, Pairs, Blitz | Platform | F04, F06 | #33 | planned |
-| F21 | Social backend: profiles, XP, streaks, heatmap, badges, friends, leaderboards | Platform | F01, F07 | #34 | planned |
-| F22 | Courses backend and the seeded Python Basics course | Platform | F20 | #35 | planned |
+| F20 | Game Modes engine and generation: Apogee, Leap, Pairs, Blitz | Platform | F04, F06 | #33 | done |
+| F21 | Social backend: profiles, XP, streaks, heatmap, badges, friends, leaderboards | Platform | F01, F07 | #34 | done |
+| F22 | Courses backend and the seeded Python Basics course | Platform | F20 | #35 | done |
 | F23 | Daily Dive backend | Platform | F21, F22 | #36 | planned |
 | F24 | Apogee and Leap screens (three.js) | Frontend | F10, F20 | #37 | planned |
 | F25 | Pairs and Blitz screens | Frontend | F10, F20 | #38 | planned |
@@ -262,7 +262,7 @@ Entry points: — · Notes for others: —
 Spec: `docs/architecture/game-modes.md`, ADR-0004
 - [x] Migration: `games.mode text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive'))`; `data-model.md` updated from "planned" to the real column (shipped with F04; applied to stormhacks-dev)
 - [x] `lib/modes/index.ts` (`MODES`, `ModeId`); `POST /api/modules/[moduleId]/games` accepts `mode` (default `'dive'`) and validates it (shipped with F04)
-- [ ] Generation and the run engine read `game.mode` (assert `'dive'` for now). Generation: done in F04. Run engine: still open
+- [x] Generation and the run engine read `game.mode` (generation since F04; F20 made both dispatch on it for five Modes)
 - [ ] New Game dialog: Mode tiles (Dive + locked "More modes soon"); Game cards and the Game page show the Mode badge
 
 Entry points: — · Notes for others: —
@@ -318,22 +318,51 @@ Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #32 (checklist live
 Entry points: — · Notes for others: —
 
 ## F20 Game Modes engine and generation: Apogee, Leap, Pairs, Blitz
-Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #33 (checklist lives on the issue until this feature ships)
-- [ ] See the issue checklist
+Spec: `docs/architecture/game-modes.md`, `run-and-scoring.md`, `game-generation-pipeline.md` (decisions: `docs/worklog/aaf1007/overnight-decisions.md` §4, §12–13) · Issue #33
+- [x] Migration: widen `games.mode` CHECK to dive, apogee, leap, pairs, blitz (+ arena reserved); new Prompt kinds `multiple_choice` and `true_false` (additive) (`20261004T1000_game_modes_engine.sql`, applied to stormhacks-dev; also `prompts.is_true`, `runs.mode_state`, `run_prompts.position` ≥ 1)
+- [x] `lib/modes/<mode>/` split: generate (instructions, schema, kinds, checks) and rules (Run length, clock, penalties, scoring, pass bar); Dive moved without behaviour change
+- [x] Apogee = Dive rules; Leap (10 MCQ, 15 s, hearts, streak multiplier, 50/50); Pairs (2×6 boards, 60 s); Blitz (60 s true/false, combo)
+- [x] Run engine dispatches on `game.mode`; API types extended per Mode; Answers never leak early
+- [x] Unit + DB tests per Mode; `generate:check --mode <m>`; docs (game-modes.md, run-and-scoring.md, CONTEXT.md)
 
-Entry points: — · Notes for others: —
+Entry points: `lib/modes/index.ts` (`MODES`), `lib/modes/rules.ts` (`passedRun`), `lib/runs/types.ts` (state/result/Reveal unions on `mode`), `lib/runs/run-engine.ts` (`answer`, `pair`, `applyLifeline`, `getRunSummary`), routes `POST /api/runs/[runId]/answer|pair|lifeline`, `npm run generate:check -- --seed --mode leap`, `npm run db:seed -- <playerId>` (now also seeds Apogee, Leap, Pairs and Blitz Games) · Notes for others: **UI lanes (F24, F25, F29):** build against `lib/runs/types.ts`; narrow with `switch (state.mode)` or `assertMode`. For Leap, Pairs and Blitz the question/Board/statement is `null` until `start-prompt` (show a "ready" beat), and the next one needs another `start-prompt` (Blitz deals the next statement in the answer response). Pairs card ids are opaque. Rule constants for HUDs are in `lib/modes/<mode>/rules.ts` (client-safe). **F21/F22:** every Reveal has `summary: RunSummary` and `passed`; server code can call `getRunSummary(tx, playerId, runId)`. `GameSummary.mode` can now be any of the five. Design stubs: `docs/design/modes/{apogee,leap,pairs,blitz}.md`.
 
 ## F21 Social backend: profiles, XP, streaks, heatmap, badges, friends, leaderboards
-Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #34 (checklist lives on the issue until this feature ships)
-- [ ] See the issue checklist
+Spec: `docs/architecture/social.md`, ADR-0005, decisions §6, §8, §12 (Q8, Q11, Q12), §13 (Q17) · Issue #34
+- [x] players: username, display_name, image_url, avatar (pixel id), use_photo (plus bio, banner)
+- [x] xp_events hypertable, levels, ocean ranks, streak (Vancouver days)
+- [x] player_activity_daily continuous aggregate + gapfilled heatmap query
+- [x] badges, friendships (request/accept/decline/remove), username search
+- [x] leaderboards (Daily today, Weekly XP, Course) Global/Friends via continuous aggregates
+- [x] API routes + tests
+- [x] Also: `player_xp_weekly` continuous aggregate, compression policy on `guess_events` (> 30 days), XP backfill (`npm run social:backfill`), ADR-0005, `CONTEXT.md` § Social
 
-Entry points: — · Notes for others: —
+Entry points: `lib/social/` (`xp.ts` hooks `onRunFinished`, `onTopicPassed`, `onTopicRead`, `onCourseFinished`, `onDailyPlayed`, `awardBadge`; `profile.ts` `ensureProfile`, `profileFor`, `myProfile`, `profileCard`, `updateProfile`, `publicGame`; `activity.ts` `heatmap`; `friends.ts`; `leaderboards.ts` `weeklyXp`, `gameLeaderboard`, `courseLeaderboard`; client-safe `types.ts`, `rules.ts`, `badges.ts`), API under `app/api/me/*`, `app/api/profiles/[username]`, `app/api/players/search`, `app/api/friends/*`, `app/api/leaderboards/*`, migration `db/migrations/20261004T1015_social.sql` (applied to `stormhacks-dev`), `scripts/social-backfill.mjs`, tests `lib/social/*.test.ts` and `lib/social/social.db.test.ts`
+
+Notes for others:
+- **F20 (Runs):** inside the transaction that sets `status = 'finished'`, call `await onRunFinished(playerId, { runId, ...summary }, tx)` where `summary` is your `RunSummary` (`{ mode, score, finishedAt, outcome, stats }`). Never for abandoned Runs. It awards `floor(score/5)` XP (5..200) once per Run and evaluates First Dive, Trench Diver (rare-tier `guess_events` in the Run), Perfect Leap (`outcome !== "fell"`, `stats.correct === stats.questions`), Pairs Speedrun (`outcome === "cleared"`, `stats.timeBonus >= 300`), Level and Streak Badges. Returns `XpAward { xpAwarded, totalXp, levelBefore, levelAfter, leveledUp, newBadges, streak }`: put it in the Reveal if you want "+XP" / level-up moments. Safe to call twice.
+- **F22 (Courses):** `onTopicPassed(playerId, { course: "python-basics", topicNumber: n }, tx)` (+150, badge `topic-python-basics-<n>`), `onTopicRead(...)` (+20, Q27), `onCourseFinished(playerId, "python-basics", tx)` (+500, badge `course-python-basics`). Public Games: add `games.visibility`; until then `publicGame()` in `lib/social/profile.ts` treats Games owned by player `'system'` as public, and already honours `visibility = 'public'` once the column exists (via `to_jsonb(g)`), so no change is required here. The Course board counts `topic_passed` events by ref `<course>:<n>`.
+- **F23 (Daily):** for the counted Daily Run call `onRunFinished` first, then `onDailyPlayed(playerId, day, tx)` (+50 + 5 × Streak, bonus ≤ 50, once per day). Today's board: `GET /api/leaderboards/games/[dailyGameId]?day=YYYY-MM-DD&counting=first` (one counted attempt = the first finished Run that day). Award `daily-top-10` with `awardBadge(playerId, "daily-top-10", day, tx)`.
+- **F26 / F19 (UI):** API table and shapes in `docs/architecture/social.md` § API; import types from `@/lib/social/types` (and `levelFor`, `badgeInfo`, `badgeCatalogue` from `rules.ts`/`badges.ts`, both client-safe). Home card: `GET /api/me/summary` → `ProfileCard`. Profile page: `GET /api/profiles/[username]` → `{ profile }` (`/profile` can use `GET /api/me/profile`, which adds `usePhoto`/`clerkImageUrl` for the Edit dialog; `PATCH` it with `{ username?, displayName?, avatar?, usePhoto?, bio?, banner? }`, 409 = username taken). Avatar ids: `AVATARS` (16, default `anglerfish`). Heatmap: `days[i]` → column `floor(i/7)`, row `i%7` (Sunday first), `level` 0–4. Leaderboard rows use **`place`** (position) because `player.rank` is the ocean Rank; `me` is your row even outside the top N.
+- **Pages** that render the signed-in Player outside the API can call `ensureProfile(playerId, await currentUser())` (`lib/auth.ts` is untouched; social routes already call it).
+- `xp_events` has no FK (event log); idempotency is `(player_id, reason, ref)` under a per-Player advisory lock, because a hypertable's unique index must include `at`.
+- Both new continuous aggregates are real-time; never refresh them with a NULL end (see `data-model.md`). Runs finished before the hook existed: `npm run social:backfill`.
 
 ## F22 Courses backend and the seeded Python Basics course
-Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #35 (checklist lives on the issue until this feature ships)
-- [ ] See the issue checklist
+Spec: `docs/architecture/courses.md` (decisions: overnight-decisions §5, Q10, Q24, Q27) · Issue #35
+- [x] public Games (visibility) owned by a system Player; run engine allows public Games (`games.visibility`, player `'system'`; `createRun` on public Games, 403 on a locked Topic; Mastery/progress per Player; leaderboards use `visibility`)
+- [x] courses, course_topics, topic_games, topic_progress; pass bars per Mode; unlock rule (`20261004T1100_courses.sql`, applied to stormhacks-dev; pass = F20's `passedRun`)
+- [x] Python Basics: 6 Topics with readings (as Source Document pages), resources, hand-written practice Games for Dive, Apogee, Leap, Pairs, Blitz (content from `content/seed-content`, 30 public Games seeded on stormhacks-dev)
+- [x] `npm run db:seed:courses` (idempotent); API routes; XP/badges on pass; tests
+- [x] Also: XP for **every** finished Run (F21's `onRunFinished` wired into the run engine), Reveal `topic` block, "mark as read" (+20 XP), docs (courses.md, data-model, CONTEXT, overview, ui-map)
 
-Entry points: — · Notes for others: —
+Entry points: `lib/courses/` (`types.ts` client-safe API shapes; `rules.ts` `lockedTopics`, `recordRun`; `progress.ts` `assertTopicUnlocked`, `recordTopicRun`, `topicReveal`; `queries.ts` `listCourses`, `getCourse`, `getTopic`, `markTopicRead`; `seed.ts`), `lib/runs/run-engine.ts` (`play()`/`afterFinish()`), routes `GET /api/courses`, `GET /api/courses/[slug]`, `GET /api/courses/[slug]/topics/[topicSlug]`, `POST …/read`, `npm run db:seed:courses [-- --check]`, migration `db/migrations/20261004T1100_courses.sql`, tests `lib/courses/*.test.ts`, `lib/courses/courses.db.test.ts`
+
+Notes for others:
+- **F27 (Explore UI, #40):** import types from `@/lib/courses/types`. `/explore` ← `GET /api/courses` → `{ courses: CourseSummary[] }` (`progress: { passed, total, finished, nextTopicSlug } | null`). `/explore/[course]` ← `GET /api/courses/[slug]` → `{ course }` with `topics[]: { number, slug, title, summary, minutes, modes, badgeId, progress: { locked, passed, passedAt, read, readAt } | null }`. `/explore/[course]/[topic]` ← `GET /api/courses/[slug]/topics/[topicSlug]` → `{ topic }` with `reading.pages[] { pageNumber, contentMd }` (markdown with ```python blocks), `resources[] { title, url, source }`, `games[] { mode, gameId, title, promptCount, passBar, me: { best, passed, runs } | null }` (MODES order), `prev`/`next`, `progress`. All three GETs are public: signed out every `progress`/`me` is null (show "Sign in to play"). Play = `POST /api/games/[gameId]/runs` → `{ runId }`, then the normal Run screens; **403 = Topic locked**. Mark as read = `POST …/read` → `{ progress, xp: XpAward }` (+20 once). The Reveal of a Topic Game has `topic: { courseSlug, topicSlug, topicNumber, topicTitle, passed, passedNow, passedBefore, nextTopicSlug, unlockedNext, courseFinished }`: `passedNow` → pixel burst + "+150 XP" + Topic Badge; `unlockedNext` → unlock animation for `nextTopicSlug`; `courseFinished` → Course Badge (+500). Badge names/icons: `badgeInfo(badgeId)`. Locked Topics still show their reading.
+- **F23 (Daily Dive, #36):** make the Daily a public Game owned by `'system'`: put its Module/fact-sheet document/Game under the system Player with `visibility = 'public'` (copy the pattern in `lib/courses/seed.ts`: content-derived ids, `generatorFor('dive').validate` + `finalize`, insert rows, never delete Games). Any signed-in Player can then `createRun` it, Mastery/PB stay per Player, and `/api/leaderboards/games/[id]` works. XP for the Run is already awarded by the engine (`afterFinish()` in `lib/runs/run-engine.ts` calls `onRunFinished`); add the Daily step there (e.g. `recordDailyRun(tx, run, summary)` → `onDailyPlayed` for the counted attempt), after `recordTopicRun`. Don't call `onRunFinished` yourself.
+- **Everyone:** every finished Run (any Mode, any Game) now gets Run XP and Badges in its finishing transaction. Commands that can finish a Run must go through `play()` in `run-engine.ts`. `RunError` can be 403. `Reveal` has a new `topic` field (null outside Courses). `npm run social:backfill` was run (nothing pending).
+- Re-seeding after content edits is safe: changed Games are replaced by new ones and the old ones are retired (set private), so nobody's Runs are lost; Topic passes stay.
 
 ## F23 Daily Dive backend
 Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #36 (checklist lives on the issue until this feature ships)
