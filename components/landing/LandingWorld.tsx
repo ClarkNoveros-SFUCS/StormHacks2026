@@ -61,7 +61,17 @@ function makeCreatures(): Creature[] {
 /** Pixel size in CSS px. */
 const pixel = (w: number) => (w < 640 ? 2 : 3);
 
+/** Rendered through BackdropPortal into <body> (see components/site/BackdropPortal). */
 export function LandingWorld() {
+  return (
+    <BackdropPortal>
+      <WorldLayer />
+    </BackdropPortal>
+  );
+}
+
+// Mounted inside the portal, so its canvas exists when the effect runs.
+function WorldLayer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gaugeValue = useRef<HTMLSpanElement>(null);
   const gaugeZone = useRef<HTMLSpanElement>(null);
@@ -325,7 +335,7 @@ export function LandingWorld() {
         else if (s.y > h) s.y -= h;
         if (s.y < wl + 2) continue;
         ctx.globalAlpha = 0.1 + s.z * 0.25;
-        ctx.fillRect(Math.round(s.x - mx * s.z * 3), Math.round(s.y), 1, 1 + Math.min(4, Math.round(Math.abs(camDelta * s.z))));
+        ctx.fillRect(Math.round(s.x - mx * s.z * 3), Math.round(s.y), 1, 1 + Math.min(3, Math.round(Math.abs(camDelta * s.z))));
       }
       ctx.globalAlpha = 1;
 
@@ -409,13 +419,13 @@ export function LandingWorld() {
   }, []);
 
   return (
-    <BackdropPortal>
+    <>
       <canvas
         ref={canvasRef}
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 -z-10 h-full w-full [image-rendering:pixelated]"
       />
-      <div aria-hidden="true" className="pointer-events-none fixed top-1/2 right-3 z-0 hidden -translate-y-1/2 items-center gap-2 lg:flex">
+      <div aria-hidden="true" className="pointer-events-none fixed top-1/2 right-4 z-0 hidden -translate-y-1/2 items-center gap-2 min-[1400px]:flex">
         <div className="flex flex-col items-end text-right">
           <span ref={gaugeValue} className="font-hud text-2xl leading-none text-signal glow-signal">
             +300 m
@@ -436,6 +446,6 @@ export function LandingWorld() {
           </div>
         </div>
       </div>
-    </BackdropPortal>
+    </>
   );
 }

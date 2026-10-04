@@ -27,7 +27,7 @@ Site pages (landing, home, Explore, Daily, social, Modules) share one look. The 
 
 **Dev auth bypass.** When `DEV_PLAYER_ID` is set **and** `NODE_ENV === 'development'`, `requirePlayer()` / `getApiPlayer()` return that id before calling Clerk (and upsert the `players` row as usual), so agents can render signed-in pages without a session. It's a no-op in production builds. Set it only in a worktree's `.env.local`.
 
-**Nav (signed in).** Logo · Explore · My Modules · Daily · Leaderboard — right: streak flame + count, XP/level chip, mute toggle, avatar (Clerk `UserButton` with Profile and Friends). On mobile the links collapse into a bottom menu sheet. Built in F19 (#32); F10 ships a minimal header (Logo, mute, `UserButton`).
+**Nav (signed in).** Logo · Explore · My Modules · Daily · Leaderboard — right: streak flame + count, XP/level chip, mute toggle, avatar menu (Profile, Friends, My Modules, Sign out). Signed out: Explore, Daily, Sign in, "Start playing". On mobile the links collapse into a bottom menu sheet. Built in F19 (#32): `components/site/`.
 
 ## `/`: Landing (signed out) · F19 (#32)
 

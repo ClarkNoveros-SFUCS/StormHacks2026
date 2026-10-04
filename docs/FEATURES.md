@@ -28,7 +28,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F16 | Gemini verification pass for Answers | Pipelines | F04 (F14 to measure) | #26 | planned |
 | F17 | Overgenerate and select the best Prompts | Pipelines | F04, F14 | #27 | planned |
 | F18 | Open Prompt answer expansion with retrieval (pgvector, stretch) | Pipelines | F04, F14 | #28 | planned |
-| F19 | Landing page and site-wide UI overhaul | Frontend | F10 | #32 | planned |
+| F19 | Landing page and site-wide UI overhaul | Frontend | F10 | #32 | done |
 | F20 | Game Modes engine and generation: Apogee, Leap, Pairs, Blitz | Platform | F04, F06 | #33 | planned |
 | F21 | Social backend: profiles, XP, streaks, heatmap, badges, friends, leaderboards | Platform | F01, F07 | #34 | done |
 | F22 | Courses backend and the seeded Python Basics course | Platform | F20 | #35 | planned |
@@ -312,10 +312,24 @@ Spec: `docs/architecture/game-generation-pipeline.md` § Improving output qualit
 Entry points: — · Notes for others: —
 
 ## F19 Landing page and site-wide UI overhaul
-Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #32 (checklist lives on the issue until this feature ships)
-- [ ] See the issue checklist
+Spec: `docs/worklog/aaf1007/overnight-decisions.md` §2, §9, §12 (Q4), §13 (Q17, Q24, Q25), §14 · `docs/design/design-system.md` · `docs/architecture/ui-map.md` · Issue #32
+- [x] Landing (signed out): living pixel sky→ocean hero with parallax, Logo, CTAs (sign up / today's Daily), How it works, Game Modes showcase (hover mini-scenes), Explore teaser, Daily teaser (first Prompt only), Why it sticks, Social preview, footer
+- [x] Site shell: nav (Explore · My Modules · Daily · Leaderboard; streak, XP/level chip, mute, avatar menu), mobile menu sheet, page transitions
+- [x] Signed-in `/` redirects to `/home`; `/home` dashboard: greeting + mascot bubble, Jump back in, Continue progress, Daily card, profile card sidebar, friends activity (placeholder data where backends aren't merged yet)
+- [x] Mascot with reactions, cursor-tilt cards, odometer numbers, confetti, synthesized UI sounds; reduced motion respected
+- [x] Works at 375 px; no console errors
+- [x] Also: Konami code (↑↑↓↓←→←→BA) opens Lumen's fishing mini-game; avatar picker on the home profile card saves via `PATCH /api/me/profile`
 
-Entry points: — · Notes for others: —
+Entry points: `app/layout.tsx` (shell), `components/site/` (`SiteNav`, `UserMenu`, `SiteFooter`, `RouteTransition`, `BackdropPortal`, `KonamiFishing`, `PlayerAvatar`, `nav-data.ts` `getNavState()`, `nav-types.ts` `isFullBleed`/`profileHref`), `app/page.tsx` + `components/landing/` (`Landing`, `Hero`, `LandingWorld` scroll world + depth gauge, `Sections`, `Surface`, `world.ts` maths, `daily-teaser.ts` `getDailyTeaser()` stub, `Countdown`), `app/home/` (`page.tsx`, `data.ts` `recentGames`/`photoSettings`/`coursesAvailable`, `Greeting`, `MainCards`, `ProfileSidebar`, `Sidebar`, `CourseProgress`)
+
+Notes for others:
+- **Nav and footer** live in `components/site/` and hide themselves on Mode screens (`/runs/*`, `/styleguide/dive`; `FULL_BLEED` in `nav-types.ts`). Add a nav link in `SiteNav.tsx` `LINKS`. F10's `SiteHeader` is no longer used.
+- **Signed-in state** comes from `getApiPlayer()` in the root layout (so `DEV_PLAYER_ID` works under `next dev`); the nav refetches `GET /api/me/summary` on every route change, so XP/streak update after a Run without a reload.
+- **Fixed layers** (canvas backdrops, sheets) must render through `BackdropPortal` (into `<body>`): the header's `backdrop-filter` and transforms would otherwise trap `position: fixed`. `RouteTransition` removes its animation when it ends for the same reason. For a site page backdrop: `<BackdropPortal><SkyBackdrop … /></BackdropPortal>` (see `app/home/HomeBackdrop.tsx`).
+- **F23/F28 (Daily):** replace `getDailyTeaser()` in `components/landing/daily-teaser.ts` (TODO there) with today's real puzzle; its example Answers are shown only while `isSample`. The home `DailyCard` (`app/home/MainCards.tsx`, TODO) should show "played · your result" once the backend exists. `dailyNumber(day)` (Daily #1 = 2026-10-04) and `msUntilNextDaily()` are reusable.
+- **F22 (Courses):** `app/home/CourseProgress.tsx` fetches `/api/courses/python-basics` (TODO: point it at your real progress route and response) and is only rendered once a `courses` table exists (`coursesAvailable()` in `app/home/data.ts`).
+- **F26:** profile links go to `/u/[username]` (or `/profile` without a username); the avatar menu links Profile, Friends, My Modules and Sign out. `lib/social/types.ts` `AVATARS` now equals the 16 drawn sprites (test `components/site/avatar-ids.test.ts`).
+- Landing copy has no invented stats or testimonials: the example leaderboard, share card, evidence line and heatmap are labelled "Example".
 
 ## F20 Game Modes engine and generation: Apogee, Leap, Pairs, Blitz
 Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #33 (checklist lives on the issue until this feature ships)

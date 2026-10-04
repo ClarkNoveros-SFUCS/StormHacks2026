@@ -127,7 +127,7 @@ Budget: 60 fps on a mid laptop, no heavy assets (SVG/canvas pixel art; three.js 
 
 ### 2.6 Nav (signed in)
 
-Logo · Explore · My Modules · Daily · Leaderboard — right side: streak flame + count, XP/level chip, mute toggle, avatar (Clerk `UserButton` with Profile and Friends links). On mobile the links collapse into a menu sheet (`Drawer side="bottom"`). F10 ships only a minimal header (Logo, `SoundToggle`, `UserButton`); the full nav is F19 (#32).
+Logo · Explore · My Modules · Daily · Leaderboard — right side: streak flame + count, level chip (hover/focus opens the `XpBar` and Rank), mute toggle, avatar menu (`PixelAvatar` or the Clerk photo per `use_photo`; Profile, Friends, My Modules, Sign out via Clerk). Signed out: Explore, Daily, Sign in and the yellow "Start playing". On mobile the links collapse into a menu sheet (`Drawer side="bottom"`). Built in F19 (#32): `components/site/SiteNav.tsx`, with `SiteFooter`, `RouteTransition` (page transitions) and the Konami fishing easter egg (`KonamiFishing`), all mounted in `app/layout.tsx`.
 
 ## 3. Mode themes (`data-theme`)
 
@@ -304,7 +304,7 @@ All client components are `"use client"`; static ones (Logo, PixelSprite, PixelI
 | `PageTransition` | `PageTransition.tsx` | wraps page content |
 | `PixelIcon`, `PixelSprite` | `PixelIcon.tsx`, `PixelSprite.tsx` | `PixelIcon { name: PixelIconName, size?, palette? }`; `PixelSprite { rows, palette, size? }` (character grid → one crispEdges SVG) |
 | `SoundToggle` | `SoundToggle.tsx` | `className?` (the mute tile) |
-| `SiteHeader` | `SiteHeader.tsx` | wraps the header contents in the root layout; returns null on Mode screens (`/runs/*`, `/styleguide/dive`) so they're full-bleed |
+| `SiteHeader` | `SiteHeader.tsx` | F10's minimal header shell; superseded by F19's `components/site/SiteNav` (same full-bleed rule) |
 
 Everything above is re-exported from `components/ui/index.ts`: `import { Button, ProfileCard } from "@/components/ui"`. Avatar helpers: `AVATARS`, `DEFAULT_AVATAR`, `avatarById(id)`, `defaultAvatarFor(playerId)`.
 

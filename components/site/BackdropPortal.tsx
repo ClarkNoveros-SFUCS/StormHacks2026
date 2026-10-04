@@ -5,8 +5,9 @@ import { createPortal } from "react-dom";
 const noop = () => () => {};
 
 /**
- * Renders a fixed, full-viewport backdrop (a canvas behind the page) straight into <body>, so
- * the route transition's transform can never become its containing block. Client-only.
+ * Renders fixed layers (a backdrop canvas behind the page, the nav's menu sheet) straight into
+ * <body>, so an ancestor's transform or backdrop-filter can never become their containing
+ * block. Client-only.
  */
 export function BackdropPortal({ children }: { children: ReactNode }) {
   const mounted = useSyncExternalStore(noop, () => true, () => false);

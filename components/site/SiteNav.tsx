@@ -8,6 +8,7 @@ import type { ProfileCard } from "@/lib/social/types";
 import { sfx } from "@/lib/ui/sfx";
 import { isFullBleed, navPlayerFrom, profileHref, type NavPlayer, type NavState } from "./nav-types";
 import { SignOutAction, UserMenu } from "./UserMenu";
+import { BackdropPortal } from "./BackdropPortal";
 import { PlayerAvatar } from "./PlayerAvatar";
 
 type NavLink = { href: string; label: string; signedInOnly?: boolean };
@@ -125,9 +126,12 @@ export function SiteNav({ initial }: { initial: NavState }) {
         </div>
       </nav>
 
-      <Drawer open={sheet} onClose={() => setSheet(false)} side="bottom" title="Menu">
-        <MobileSheet links={links} pathname={pathname} state={state} onNavigate={() => setSheet(false)} />
-      </Drawer>
+      {/* Portalled: the header's backdrop-filter would otherwise trap the fixed sheet inside it. */}
+      <BackdropPortal>
+        <Drawer open={sheet} onClose={() => setSheet(false)} side="bottom" title="Menu">
+          <MobileSheet links={links} pathname={pathname} state={state} onNavigate={() => setSheet(false)} />
+        </Drawer>
+      </BackdropPortal>
     </header>
   );
 }
