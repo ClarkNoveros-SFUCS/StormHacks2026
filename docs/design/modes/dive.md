@@ -158,7 +158,7 @@ The camera starts at your **final depth**; the results are a centred column (max
 1. **Header row:** small `Logo` left, `DIVE #N COMPLETE` right-aligned (N = this Player's dive count on this Game; the Daily uses its day number).
 2. **ResultHeader:** the score counting up big (VT323 ~96 px), the depth beside it in signal (`−1,400m`), and a `★ NEW PERSONAL BEST` banner when it applies.
 3. **DistributionChart:** a smooth curve over 0–700 with `YOU` marked in accent.
-   - Module Games (private): the curve of **your own past Run scores** on this Game, plus your Personal Best marked; caption `BETTER THAN 6 OF YOUR 9 DIVES`.
+   - Module Games (private): the curve of **your own past Run scores** on this Game, plus your Personal Best marked; caption `BETTER THAN 6 OF YOUR 9 OTHER DIVES`.
    - Public Games (Daily Dive, Course Topics): **today's players**, from the TimescaleDB daily results aggregate (`approx_percentile`); caption `BETTER THAN 62% OF TODAY'S PLAYERS`.
    - Fewer than 3 data points: skip the curve, show the caption only.
 4. **DiveLogChart**, labelled `DIVE LOG · deeper = rarer`: x = Prompt 1–7, y = metres going down (gridlines every 25 points/250 m). Each scored Prompt is a dropline from the surface to its tier depth ending in that tier's creature icon; misses are a dim bubble at the surface.

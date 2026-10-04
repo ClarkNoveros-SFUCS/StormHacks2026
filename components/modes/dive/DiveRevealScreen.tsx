@@ -27,7 +27,7 @@ export function personalCaption(score: number, scores: number[]): string {
   const others = scores.length - 1;
   if (others <= 0) return "YOUR FIRST DIVE ON THIS GAME · DIVE AGAIN TO DRAW YOUR CURVE";
   const beaten = scores.filter((s) => s < score).length;
-  return `BETTER THAN ${beaten} OF YOUR ${scores.length} DIVES`;
+  return `BETTER THAN ${beaten} OF YOUR ${others} OTHER DIVE${others === 1 ? "" : "S"}`;
 }
 
 export function DiveRevealScreen({ reveal, context, history, crowd, title }: Props) {

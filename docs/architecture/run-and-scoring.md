@@ -113,6 +113,7 @@ type DiveRunState = {
   prompt: {
     kind: 'open' | 'cloze' | 'definition_to_term' | 'ordered_recall' | 'odd_one_out';
     text: string;
+    tier?: Tier;               // single-answer kinds only: the Tier it scores on before a Hint drop (never on open)
     options?: string[];        // odd_one_out, shuffled
     items?: string[];          // ordered_recall, shuffled (never already in the correct order)
     hintAvailable: boolean; hintUsed: boolean;
@@ -137,7 +138,7 @@ The client renders the countdown from `deadlineAt` and the clock offset. When it
 
 `DiveReveal` and `RevealPrompt` in `lib/runs/types.ts`. For each of the 7 Prompts:
 - what the Player answered (`yourAnswer`) and the points, with `stale` (Open Prompts only: points below the Answer's Tier value, so Staleness reduced them) and `hintUsed` (set even if the Prompt then scored 0)
-- **Open Prompts:** every Answer, most obvious first, with its Tier, found or missed, and Evidence: the Source Document's filename (`documentTitle`; there's no separate title), page number and `evidence_quote`
+- **Open Prompts:** every Answer, most obvious first, with its Tier, found or missed, and Evidence: the Source Document's id (`documentId`, for the file viewer link `/modules/[moduleId]?doc=<documentId>&page=<n>`), filename (`documentTitle`; there's no separate title), page number and `evidence_quote`
 - **Single-answer Prompts:** the correct Answer, the `explanation`, and the Evidence page
 
 **Pass bar:** score ≥ 150 (−1,500 m).
@@ -299,6 +300,7 @@ Every finished Run has a Mode-agnostic `RunSummary` (in `Reveal.summary`, and fr
 | `lib/runs/engines/dive.ts` | Dive and Apogee (moved unchanged from the old `run-engine.ts`) |
 | `lib/runs/engines/leap.ts`, `pairs.ts`, `blitz.ts` | The other Modes' state machines; their per-Run state lives in `runs.mode_state` |
 | `lib/runs/types.ts` | Client-safe API types (unions on `mode`) |
+| `lib/runs/client.ts` | Browser fetch helpers (`runApi.create/state/startPrompt/timeout/guess/hint/reveal`, `RunApiError`, `msUntil` with the server clock offset) |
 | `lib/runs/http.ts` | `runRoute()`: auth, one transaction, the server clock, `RunError` → HTTP status |
 | `lib/runs/shuffle.ts` | Seeded shuffles (seed `runId:promptId`, so a reload shows the same order and the client can't undo it) |
 | `lib/modes/<mode>/rules.ts` | Each Mode's constants, scoring and `passed()`: pure, unit-tested. Dive's re-exports `lib/scoring/points.ts` |

@@ -207,7 +207,7 @@ export function DiveRunScreen({ initial, context }: Props) {
     setCorrection(null);
     setLocked(true);
     if (p.kind === "odd_one_out") setRightOption(result.answer);
-    setSink({ key: counter.current++, text: result.answer, tier: scored, points: result.points, stale: result.stale, hinted });
+    setSink({ key: counter.current++, text: p.kind === "ordered_recall" ? "All in order" : result.answer, tier: scored, points: result.points, stale: result.stale, hinted });
     go("sinking");
   };
 
