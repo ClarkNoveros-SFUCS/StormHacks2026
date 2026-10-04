@@ -19,14 +19,9 @@ import { streakFor, totalXp, type Db } from "./xp";
 /** F22's system Player owns the Course Modules and Games; it never has a Profile. */
 export const SYSTEM_PLAYER_ID = "system";
 
-/**
- * Whether Game `g` is public (anyone signed in can play it, so it has a leaderboard).
- * TODO(F22): `games.visibility` doesn't exist yet. Until it does, Games owned by the system
- * Player count as public; to_jsonb(g) reads the column without failing while it's missing.
- * Once F22's migration lands this can become `g.visibility = 'public'`.
- */
+/** Whether Game `g` is public (anyone signed in can play it, so it has a leaderboard): F22's games.visibility. */
 export function publicGame(db: Db) {
-  return db`((to_jsonb(g) ->> 'visibility') = 'public' or g.player_id = ${SYSTEM_PLAYER_ID})`;
+  return db`(g.visibility = 'public')`;
 }
 
 async function fetchClerkUser(playerId: string): Promise<ClerkProfileSource | null> {

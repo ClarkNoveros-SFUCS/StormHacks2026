@@ -91,7 +91,7 @@ Every board returns `{ board, scope, period, entries, me, total }`: the top `lim
 | `gameLeaderboard(gameId, { day?, counting? })` | one counted Run per Player: `best` (default; highest, earliest on a tie) or `first` (first finished, for the Daily's one counted attempt); `day` limits to Runs finished that Vancouver day | score desc, then finish time asc | `runs` |
 | `courseLeaderboard({ course? })` | Topics passed | count desc, then whoever got there first | `topic_passed` XP events |
 
-`gameLeaderboard` returns null (API 404) unless the Game is public. **Public Games:** F22 decides; until `games.visibility` exists, `publicGame()` treats Games owned by the `system` Player (or with `visibility = 'public'` once the column appears) as public.
+`gameLeaderboard` returns null (API 404) unless the Game is public: `publicGame()` checks `games.visibility = 'public'` (F22, [`courses.md`](./courses.md)).
 
 ## API
 
@@ -130,5 +130,7 @@ await onCourseFinished(playerId, "python-basics", tx);
 await onDailyPlayed(playerId, "2026-10-04", tx);
 await awardBadge(playerId, "daily-top-10", "2026-10-04", tx); // when the day's top 10 is known
 ```
+
+**Wired (F22):** `onRunFinished` and the Topic/Course hooks are called by the run engine itself, in `afterFinish()` in `lib/runs/run-engine.ts`, once per finished Run of any Mode on any Game, inside the finishing transaction (`courses.md` § What happens when a Run finishes). F23 adds `onDailyPlayed` there too.
 
 Each returns `XpAward { xpAwarded, totalXp, levelBefore, levelAfter, leveledUp, newBadges, streak }`; the Reveal can show "+104 XP", a level-up burst and new Badges. Runs that finished without the hook (or before it existed) get their XP from `npm run social:backfill` (idempotent).

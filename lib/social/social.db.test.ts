@@ -50,12 +50,13 @@ async function expectSocialError(p: Promise<unknown>, status: number) {
   await expect(p).rejects.toSatisfy((e) => e instanceof SocialError && e.status === status);
 }
 
-/** A ready Game owned by the system Player (public until F22 adds games.visibility). */
+/** A ready public Game owned by the system Player (like a Course practice Game). */
 async function publicGame(tx: Tx): Promise<string> {
   await tx`insert into players (id) values (${SYSTEM_PLAYER_ID}) on conflict (id) do nothing`;
   const [mod] = await tx`insert into modules (player_id, name) values (${SYSTEM_PLAYER_ID}, 'F21 test') returning id`;
   const [game] = await tx`
-    insert into games (module_id, player_id, title, status) values (${mod.id}, ${SYSTEM_PLAYER_ID}, 'F21 public', 'ready') returning id`;
+    insert into games (module_id, player_id, title, status, visibility)
+    values (${mod.id}, ${SYSTEM_PLAYER_ID}, 'F21 public', 'ready', 'public') returning id`;
   return game.id;
 }
 
