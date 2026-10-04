@@ -2,21 +2,34 @@ import "server-only";
 import { auth } from "@clerk/nextjs/server";
 import { sql } from "./db";
 
-// Players already upserted by this server process, so most requests skip the write.
-const knownPlayers = new Set<string>();
+// proxy.ts doesn't gate routes, so one of these is the auth check. Call it first in every
+// page, server action and route handler that touches Player data, then filter every query
+// by the returned id. Both ensure a `players` row exists.
 
 /**
- * The signed-in Player's id (the Clerk user id), for filtering every query.
- * Call it first in every page, route handler and server action that touches Player data:
- * it is the auth check (proxy.ts doesn't gate routes). Signed out, `auth.protect()`
- * redirects pages to sign-in and returns 404 for route handlers.
- * Ensures a `players` row exists.
+ * Pages and server actions: the signed-in Player's id (the Clerk user id).
+ * Signed out, it redirects to sign-in.
  */
 export async function requirePlayer(): Promise<string> {
   const { userId } = await auth.protect();
-  if (!knownPlayers.has(userId)) {
-    await sql`insert into players (id) values (${userId}) on conflict (id) do nothing`;
-    knownPlayers.add(userId);
-  }
+  await ensurePlayer(userId);
   return userId;
+}
+
+/**
+ * Route handlers: the signed-in Player's id, or null when signed out.
+ * `auth.protect()` would redirect a signed-out fetch to the sign-in page, so instead:
+ *   const playerId = await getApiPlayer();
+ *   if (!playerId) return Response.json({ error: "Not signed in" }, { status: 401 });
+ */
+export async function getApiPlayer(): Promise<string | null> {
+  const { userId } = await auth();
+  if (!userId) return null;
+  await ensurePlayer(userId);
+  return userId;
+}
+
+// Not cached per process: a shared dev DB can be reset under a running server.
+async function ensurePlayer(id: string) {
+  await sql`insert into players (id) values (${id}) on conflict (id) do nothing`;
 }

@@ -3,8 +3,8 @@
 // Usage: npm run db:migrate            apply pending migrations
 //        npm run db:migrate -- --status  list applied and pending, change nothing
 //
-// Each file runs in its own transaction. Create continuous aggregates `WITH NO DATA`
-// so they can run inside one.
+// Each file runs in its own transaction, so never put BEGIN/COMMIT in a file. Create
+// continuous aggregates `WITH NO DATA` so they can run inside one.
 
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -28,23 +28,27 @@ if (!process.env.DATABASE_URL) {
 const sql = postgres(process.env.DATABASE_URL, { max: 1, onnotice: () => {} });
 const LOCK_ID = 727_001; // arbitrary; stops two teammates migrating the shared DB at once
 
+const statusOnly = process.argv.includes('--status');
+
 try {
-  await sql`select pg_advisory_lock(${LOCK_ID})`;
-  await sql`
-    create table if not exists schema_migrations (
-      name        text primary key,
-      applied_at  timestamptz not null default now()
-    )`;
-
   const files = (await readdir(migrationsDir)).filter((f) => f.endsWith('.sql')).sort();
-  const applied = new Set((await sql`select name from schema_migrations`).map((r) => r.name));
-  const pending = files.filter((f) => !applied.has(f));
 
-  if (process.argv.includes('--status')) {
+  if (statusOnly) {
+    // Read-only: takes no lock and doesn't create schema_migrations
+    const [{ exists }] = await sql`select to_regclass('schema_migrations') is not null as exists`;
+    const rows = exists ? await sql`select name from schema_migrations` : [];
+    const applied = new Set(rows.map((r) => r.name));
     for (const f of files) console.log(`${applied.has(f) ? 'applied' : 'pending'}  ${f}`);
-  } else if (pending.length === 0) {
-    console.log('Database is up to date.');
   } else {
+    await sql`select pg_advisory_lock(${LOCK_ID})`;
+    await sql`
+      create table if not exists schema_migrations (
+        name        text primary key,
+        applied_at  timestamptz not null default now()
+      )`;
+    const applied = new Set((await sql`select name from schema_migrations`).map((r) => r.name));
+    const pending = files.filter((f) => !applied.has(f));
+
     for (const name of pending) {
       const body = await readFile(path.join(migrationsDir, name), 'utf8');
       process.stdout.write(`Applying ${name} … `);
@@ -54,7 +58,7 @@ try {
       });
       console.log('done');
     }
-    console.log(`Applied ${pending.length} migration(s).`);
+    console.log(pending.length ? `Applied ${pending.length} migration(s).` : 'Database is up to date.');
   }
 } catch (err) {
   console.error('\nMigration failed:', err.message);

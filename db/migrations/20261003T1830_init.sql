@@ -30,6 +30,7 @@ CREATE TABLE source_documents (
   created_at  timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX source_documents_module ON source_documents (module_id);
+CREATE INDEX source_documents_player ON source_documents (player_id);
 
 CREATE TABLE source_pages (
   id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -51,6 +52,7 @@ CREATE TABLE games (
   created_at    timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX games_module ON games (module_id);
+CREATE INDEX games_player ON games (player_id);
 
 -- Foreign keys that cross from the games branch into the source_documents branch are
 -- DEFERRABLE INITIALLY DEFERRED: checked at commit, after a Module or Player delete has
@@ -78,6 +80,8 @@ CREATE TABLE prompts (
   CHECK ((kind = 'open') = (tier IS NULL))
 );
 CREATE INDEX prompts_game ON prompts (game_id);
+CREATE INDEX prompts_document ON prompts (source_document_id);
+CREATE INDEX prompts_evidence ON prompts (evidence_page_id);
 
 -- Every Prompt has ≥1 Answer row: Open = 4–15, single-answer kinds = exactly 1.
 -- ordered_recall's single Answer has canonical = 'correct order'; odd_one_out's is the correct option.
@@ -93,6 +97,7 @@ CREATE TABLE answers (
   evidence_quote    text
 );
 CREATE INDEX answers_prompt ON answers (prompt_id);
+CREATE INDEX answers_evidence ON answers (evidence_page_id);
 
 CREATE TABLE answer_keys (          -- typed matching lookup; see answer-matching.md
   prompt_id   uuid NOT NULL REFERENCES prompts(id) ON DELETE CASCADE,
@@ -101,6 +106,7 @@ CREATE TABLE answer_keys (          -- typed matching lookup; see answer-matchin
   exact_only  boolean NOT NULL,
   PRIMARY KEY (prompt_id, normalized)
 );
+CREATE INDEX answer_keys_answer ON answer_keys (answer_id);
 
 CREATE TABLE runs (
   id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -113,6 +119,7 @@ CREATE TABLE runs (
   finished_at       timestamptz
 );
 CREATE INDEX runs_best ON runs (player_id, game_id, score DESC) WHERE status = 'finished';
+CREATE INDEX runs_game ON runs (game_id);
 
 CREATE TABLE run_prompts (
   run_id       uuid NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
@@ -127,6 +134,8 @@ CREATE TABLE run_prompts (
   points       integer NOT NULL DEFAULT 0,
   PRIMARY KEY (run_id, position)
 );
+CREATE INDEX run_prompts_prompt ON run_prompts (prompt_id);
+CREATE INDEX run_prompts_answer ON run_prompts (answer_id);
 
 -- Every guess, correct or not. Append-only event log, partitioned by time.
 -- No foreign keys: it's an event log, and deleting a Game leaves harmless orphans
