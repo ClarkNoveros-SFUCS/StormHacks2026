@@ -11,6 +11,11 @@ The shell (landing, Modules list, Module page) is the same for every Game Mode. 
         └── /games/[gameId]       Game page: progress + Play
             └── /runs/[runId]     Run (play screen)
                 └── /runs/[runId]/reveal   Reveal (results)
+
+/explore                          Course catalogue (public, signed out too)
+└── /explore/[course]             Course page: hero + numbered Topic timeline (public)
+    └── /explore/[course]/[topic] Topic page: reading, resources, practice Games (public; playing needs sign-in)
+                                  Practice → POST /api/games/[gameId]/runs → /runs/[runId] → Reveal (with `topic`)
 ```
 
 Every route except `/`, `/sign-in` and `/sign-up` (Clerk's pages) is protected at the top of its page (`requirePlayer()`) or route handler (`getApiPlayer()`), both in `lib/auth.ts`. A signed-in user visiting `/` is redirected to `/modules`.
@@ -64,3 +69,12 @@ Two panels side by side; stacked on mobile.
   - **Open Prompts:** every Answer grouped by Tier (common → rare), found ones ticked and missed ones listed, each showing "📄 Week 9 slides · p.41" and the Evidence quote on hover or tap
   - **Single-answer Prompts:** the correct Answer, the explanation and the Evidence page
 - Buttons: Play again, Back to Game.
+- **Course practice Games:** when `reveal.topic` is set, Back goes to the Topic page, and `topic.passedNow` triggers the Topic-pass moment (pixel burst, +150 XP, the Topic Badge, then the next Topic's unlock animation when `topic.unlockedNext`; Course Badge when `topic.courseFinished`) (Q27).
+
+## `/explore`, `/explore/[course]`, `/explore/[course]/[topic]`: Courses (F22 backend, F27 UI)
+
+All three are public (Q24): signed out they render without progress and the Play buttons ask to sign in. Data and shapes: [`courses.md`](./courses.md) § API.
+
+- **`/explore`** (`GET /api/courses`): a card per Course with banner, level chip, topic count, minutes, Modes and, signed in, progress (`passed / total`, Continue → `nextTopicSlug`).
+- **`/explore/[course]`** (`GET /api/courses/[slug]`): banner hero (title, level, description, CTA to the next Topic), numbered Topic timeline (each Topic: number, title, summary, minutes, Mode icons, state locked / unlocked / passed and read), sidebar with progress and the Topic and Course Badges (`badgeInfo(badgeId)`).
+- **`/explore/[course]/[topic]`** (`GET /api/courses/[slug]/topics/[topicSlug]`): the reading page by page (markdown with code blocks) with an optional **Mark as read** (`POST …/read`, +20 XP, gates nothing); resources (title, source, link); a **Practice** panel with one tile per Mode (pass bar text, your best and a passed tick), and Play → `POST /api/games/[gameId]/runs` (403 = locked: show "Pass Topic N−1 first"); prev/next Topic links, "Next topic" highlighted once passed.

@@ -18,6 +18,12 @@ Social (F21, ADR-0005):
 Player 1──N xp_events      (hypertable: every XP award)
 Player 1──N player_badges
 Player N──M Player         (friendships: one row per pair, pending or accepted)
+
+Courses (F22, courses.md):
+Course 1──1 Module         (owned by the system Player 'system')
+Course 1──N Course Topic 1──1 Source Document   (the reading)
+Course Topic 1──N topic_games N──1 Game          (one per Mode; the Game is public)
+Player 1──N topic_progress N──1 Course Topic
 ```
 
 ## Conventions
@@ -80,7 +86,9 @@ CREATE TABLE games (
   prompt_count  integer,
   created_at    timestamptz NOT NULL DEFAULT now(),
   -- Game Mode (ADR-0004): added by 20261004T0750_games_mode.sql, widened by 20261004T1000 (arena is reserved, not creatable)
-  mode          text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive','apogee','leap','pairs','blitz','arena'))
+  mode          text NOT NULL DEFAULT 'dive' CHECK (mode IN ('dive','apogee','leap','pairs','blitz','arena')),
+  -- Added by 20261004T1100_courses.sql (F22): 'public' Games (Course practice, Daily Dive) can be played by any Player
+  visibility    text NOT NULL DEFAULT 'private' CHECK (visibility IN ('private','public'))
 );
 
 CREATE TABLE game_sources (
@@ -228,7 +236,7 @@ WHERE player_id = $1 AND prompt_id = $2 AND matched_answer_id = $3 AND is_correc
 ```
 
 These are sketches; `lib/progress.ts` (F07) implements them with two refinements:
-- Answers are counted only through a Game the caller owns (`games.player_id`), so another Player's `gameId` reads 0 of 0.
+- Answers are counted only through a Game the caller owns (`games.player_id`) or a public Game (`games.visibility = 'public'`, F22), so another Player's private `gameId` reads 0 of 0. Guesses and Runs are always the caller's own.
 - The Mastery percentage rounds **down**, so 100% means every Answer was found.
 
 ## Continuous aggregate for the stats chart (Tiger Data showcase)
@@ -333,3 +341,45 @@ The heatmap query gap-fills with `time_bucket_gapfill('1 day', day, 'America/Van
 ### Compression on `guess_events`
 
 `add_compression_policy('guess_events', compress_after => 30 days)`. Compression itself was enabled in the init migration (`segmentby player_id`, `orderby created_at DESC`); this schedules it. TimescaleDB 2.11+ allows INSERT/UPDATE/DELETE on compressed chunks, so the Game delete route and Mastery/Staleness queries are unaffected, and `player_game_daily` only refreshes the last 30 days. Tiger Cloud `stormhacks-dev` runs TimescaleDB 2.30.
+
+## Course tables (F22)
+
+Migration: `db/migrations/20261004T1100_courses.sql`. Code: `lib/courses/`. Behaviour (unlock rule, Pass, seed, API): [`courses.md`](./courses.md).
+
+**Privacy changes here.** Any signed-in Player can start a Run on a `games.visibility = 'public'` Game (`createRun`). Its Runs, `guess_events`, Personal Best and Mastery stay per Player. The Course catalogue, Topic readings (the system Player's Source Pages) and resources are readable by anyone through the Courses API only, signed out included (Q24).
+
+```sql
+ALTER TABLE games ADD COLUMN visibility text NOT NULL DEFAULT 'private' CHECK (visibility IN ('private', 'public'));
+INSERT INTO players (id) VALUES ('system');   -- owns the Course Modules and Games; never has a Profile
+
+CREATE TABLE courses (
+  id uuid PRIMARY KEY,                     -- deterministic (seed)
+  slug text NOT NULL UNIQUE, title text NOT NULL, level text NOT NULL, summary text NOT NULL, description text NOT NULL,
+  banner text, module_id uuid NOT NULL REFERENCES modules(id) ON DELETE CASCADE,
+  sort integer NOT NULL DEFAULT 0, published boolean NOT NULL DEFAULT true, created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE course_topics (
+  id uuid PRIMARY KEY, course_id uuid NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  position integer NOT NULL,               -- Topic number (UNIQUE per Course, deferrable so a seed can reorder)
+  slug text NOT NULL,                      -- UNIQUE per Course
+  title text NOT NULL, summary text NOT NULL, minutes integer,
+  source_document_id uuid NOT NULL REFERENCES source_documents(id) DEFERRABLE INITIALLY DEFERRED,   -- the reading
+  resources jsonb NOT NULL DEFAULT '[]'    -- [{ title, url, source? }]
+);
+CREATE TABLE topic_games (                 -- a Topic's practice Games, one per Mode
+  topic_id uuid NOT NULL REFERENCES course_topics(id) ON DELETE CASCADE, mode text NOT NULL,
+  game_id uuid NOT NULL UNIQUE REFERENCES games(id) ON DELETE CASCADE,
+  PRIMARY KEY (topic_id, mode)
+);
+CREATE TABLE topic_progress (              -- written by "mark as read" and by every finished Run on a Topic Game
+  player_id text NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+  topic_id uuid NOT NULL REFERENCES course_topics(id) ON DELETE CASCADE,
+  read_at timestamptz, passed_at timestamptz,                               -- first Pass
+  passed_run_id uuid REFERENCES runs(id) ON DELETE SET NULL, passed_mode text,
+  modes jsonb NOT NULL DEFAULT '{}',       -- { "<mode>": { "best": int, "passed": bool, "runs": int } }
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (player_id, topic_id)
+);
+```
+
+Unlocks aren't stored. Topic N+1 is unlocked when the Player's `topic_progress` row for Topic N has `passed_at` (`lockedTopics()` in `lib/courses/rules.ts`). Topic and Course XP and Badges live in `xp_events` and `player_badges`, written by F21's hooks: `topic_passed` (ref `<course>:<n>`), `course_finished` (ref `<course>`) and `topic_read` (ref `<course>:<n>`).

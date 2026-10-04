@@ -249,7 +249,7 @@ Reveal (`BlitzReveal.statements`): every statement that was dealt, in order, wit
 
 # Every Mode
 
-## API (all under Clerk auth; the Run must belong to the caller)
+## API (all under Clerk auth; the Run must belong to the caller, the Game to the caller or be public)
 
 | Method + path | Body | Returns | Modes |
 |---|---|---|---|
@@ -264,7 +264,7 @@ Reveal (`BlitzReveal.statements`): every statement that was dealt, in order, wit
 | `POST /api/runs/[runId]/lifeline` | optional `{ position }` | `LifelineResponse { hiddenOptionIds, state }` | Leap |
 | `POST /api/runs/[runId]/pair` | `{ termId, definitionId, board? }` | `PairResponse` | Pairs |
 
-Errors are `{ error }` with 400 (bad body, empty or over-long guess, an option/order/card that isn't on screen, a hidden option), 401 (signed out), 404 (not yours, or a malformed id) and 409 (wrong state: Game not ready or too few Prompts, the clock hasn't started or the item already closed, Run finished or abandoned, no Hint, 50/50 already used, a route of another Mode, Reveal before finish).
+Errors are `{ error }` with 400 (bad body, empty or over-long guess, an option/order/card that isn't on screen, a hidden option), 401 (signed out), 403 (a locked Course Topic's practice Game, F22), 404 (not yours and not public, or a malformed id) and 409 (wrong state: Game not ready or too few Prompts, the clock hasn't started or the item already closed, Run finished or abandoned, no Hint, 50/50 already used, a route of another Mode, Reveal before finish).
 
 Every play request may carry the `position` (or `board`) it was meant for: if that item already closed, the request gets 409 instead of landing on the next one. A request that arrives after the deadline plus 500 ms grace is ignored and returns `{ correct: false, timedOut: true }` with the state that closing it produced.
 
@@ -284,6 +284,8 @@ Every finished Run has a Mode-agnostic `RunSummary` (in `Reveal.summary`, and fr
 
 `Reveal.passed` applies the Mode's **pass bar** (`passedRun(summary)` in `lib/modes/rules.ts`, used by Courses): Dive/Apogee score ≥ 150; Leap ≥ 7 correct and not fallen; Pairs both Boards cleared; Blitz ≥ 150 points.
 
+`Reveal.topic` (F22) is set when the Game is a Course Topic's practice Game: `{ courseSlug, courseTitle, topicSlug, topicNumber, topicTitle, passed, passedNow, passedBefore, nextTopicSlug, unlockedNext, courseFinished }`, else `null`. See `courses.md`.
+
 ## Progress in every Reveal
 
 `Reveal.progress: { personalBest, isNewPersonalBest, masteryBefore, masteryAfter }` comes from `runProgress()` in `lib/progress.ts` (F07), the same for every Mode (Mastery as percentages, rounded down). `personalBest` is the best as of this Run: the higher of this score and the previous best. Both use the Run's own timestamps, so an old Reveal keeps showing what was true then:
@@ -294,7 +296,7 @@ Every finished Run has a Mode-agnostic `RunSummary` (in `Reveal.summary`, and fr
 
 | File | Responsibility |
 |---|---|
-| `lib/runs/run-engine.ts` | Public commands, dispatching on the Game's Mode: `createRun`, `getRunState`, `startPrompt`, `timeoutPrompt`, `guess`, `revealHint`, `answer`, `pair`, `applyLifeline`, `getReveal`, `getRunSummary`, `RunError`. Commands take `(tx, playerId, …, now)` and lock the run row (`createRun` locks the player row); `getReveal`/`getRunSummary` read without a lock. |
+| `lib/runs/run-engine.ts` | Public commands, dispatching on the Game's Mode: `createRun`, `getRunState`, `startPrompt`, `timeoutPrompt`, `guess`, `revealHint`, `answer`, `pair`, `applyLifeline`, `getReveal`, `getRunSummary`, `RunError`. Commands take `(tx, playerId, …, now)` and lock the run row (`createRun` locks the player row); `getReveal`/`getRunSummary` read without a lock. Every command that can finish a Run goes through `play()`, which runs `afterFinish()` once in the same transaction: F21 `onRunFinished` (XP, Badges) and F22 `recordTopicRun` (`courses.md`). `createRun` accepts public Games. |
 | `lib/runs/engines/common.ts` | `ModeEngine` interface, `lockRun`/`readRun` (with `games.mode`), `saveRun`, `logGuess`, Evidence lookup, Reveal progress |
 | `lib/runs/engines/dive.ts` | Dive and Apogee (moved unchanged from the old `run-engine.ts`) |
 | `lib/runs/engines/leap.ts`, `pairs.ts`, `blitz.ts` | The other Modes' state machines; their per-Run state lives in `runs.mode_state` |

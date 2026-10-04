@@ -168,6 +168,24 @@ _Avoid_: Achievement, trophy, medal
 Another Player who accepted your friend request (or whose request you accepted). Friends scope the Leaderboards; there is no chat.
 _Avoid_: Follower, contact
 
+**Public Game**:
+A Game any signed-in Player can play, unlike a Module's Games, which only their owner can. Course practice Games and the Daily Dive are Public Games, owned by the app (the system Player) rather than by a Player. Each Player's Runs, Personal Best and Mastery on one are their own, and it has a Leaderboard.
+_Avoid_: Shared game, global game
+
 **Leaderboard**:
 Players ordered on one measure: a public Game's counted Run score (ties go to the earlier finish), XP earned this week, or Course Topics passed. Shown Global or Friends-only. A Player's position on it is their **Place**.
 _Avoid_: Ranking, high-score table
+
+## Courses (docs/architecture/courses.md)
+
+**Course**:
+A public learning path that ships with the app (the first is Python Basics): an ordered list of Topics anyone can read and any signed-in Player can follow. No Player owns it, and it is unrelated to a Player's own Modules.
+_Avoid_: Module (that's a Player's private container), class, track
+
+**Topic**:
+One step of a Course: a reading (pages of notes, which practice Answers cite as Evidence), learning resources (links), and one Practice Game per Game Mode. Topic 1 is open; each later Topic unlocks once a Practice Game of the Topic before it is Passed. Marking the reading as read is optional and unlocks nothing.
+_Avoid_: Lesson, chapter, unit
+
+**Practice Game**:
+A Public Game attached to a Topic, built from that Topic's reading. A Topic has at most one per Game Mode, and Passing any of them Passes the Topic.
+_Avoid_: Exercise, quiz
