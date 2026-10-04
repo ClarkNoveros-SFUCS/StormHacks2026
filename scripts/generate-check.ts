@@ -6,33 +6,22 @@
 //   npm run generate:check -- path/to/lecture.pdf --pages 1-20  only those pages (cheaper)
 //   npm run generate:check -- --seed                            the seed fixture's pages
 //   ... --mode leap                                             a Game Mode's generator (default dive)
-//   ... --save out.json                                         keep Gemini's raw response
+//   ... --save out.json                                         keep Gemini's response (+ model, time, cost)
 //   ... --from out.json                                         re-check a saved response (no call)
+//
+// For the scorecard over every eval deck, use npm run generate:eval (scripts/generate-eval.ts).
 
-import { readFile, stat, writeFile } from "node:fs/promises";
-import path from "node:path";
-import { extractPages } from "../lib/documents/extract/index.ts";
-import { toParsedPages, validateUpload } from "../lib/documents/parsed-pages.ts";
+import { readFile, writeFile } from "node:fs/promises";
 import { generateDocumentPrompts } from "../lib/gemini.ts";
+import { estimateCostUsd } from "../lib/gemini/pricing.ts";
+import { formatScorecardTable, scoreDocument, unwrapSaved, type RunInfo, type SavedResponse } from "../lib/games/scorecard.ts";
 import { dedupeAcrossDocuments, type DocumentPage } from "../lib/games/validate.ts";
 import type { GeneratedPrompt } from "../lib/modes/generation.ts";
 import { generatorFor } from "../lib/modes/generators.ts";
 import { MODES, type ModeId } from "../lib/modes/index.ts";
+import { charCount, loadEnv, loadFileDeck, loadSeedDeck, promptVersion } from "./deck-pages.ts";
 
-// USD per 1M tokens (thinking is billed as output). Estimates only; check ai.google.dev/pricing.
-const PRICES: Record<string, { input: number; output: number }> = {
-  "gemini-3.8-flash": { input: 0.75, output: 3.75 },
-  "gemini-3.7-flash": { input: 0.75, output: 3.75 },
-  "gemini-3.6-flash": { input: 0.75, output: 3.75 },
-  "gemini-3.5-flash-lite": { input: 0.3, output: 2.5 },
-};
-
-const root = path.resolve(import.meta.dirname, "..");
-for (const file of [".env.local", ".env"]) {
-  try {
-    process.loadEnvFile(path.join(root, file));
-  } catch {}
-}
+loadEnv();
 
 const args = process.argv.slice(2);
 const flag = (name: string) => {
@@ -55,46 +44,40 @@ if (!generator) {
 }
 
 // ---- pages ----
-let title: string;
-let pages: DocumentPage[];
-if (file) {
-  const { size } = await stat(file);
-  const mimeType = validateUpload(path.basename(file), "", size);
-  title = path.basename(file);
-  pages = toParsedPages(await extractPages(new Uint8Array(await readFile(file)), mimeType)).map((p) => ({
-    pageNumber: p.pageNumber,
-    contentMd: p.contentMd,
-  }));
-} else {
-  const fixture = JSON.parse(await readFile(path.join(root, "db/seed/graph-algorithms.json"), "utf8"));
-  title = fixture.document.filename;
-  pages = fixture.document.pages.map((p: { page_number: number; content_md: string }) => ({ pageNumber: p.page_number, contentMd: p.content_md }));
-}
+const deck = file ? await loadFileDeck(file) : await loadSeedDeck();
+const title = deck.title;
+let pages: DocumentPage[] = deck.pages;
 const range = flag("--pages")?.match(/^(\d+)-(\d+)$/);
 if (range) pages = pages.filter((p) => p.pageNumber >= +range[1] && p.pageNumber <= +range[2]);
-console.log(`${title}: ${pages.length} pages, ${pages.reduce((n, p) => n + p.contentMd.length, 0)} chars · Mode ${MODES[mode].name}`);
+console.log(`${title}: ${pages.length} pages, ${charCount(pages)} chars · Mode ${MODES[mode].name}`);
 
 // ---- Gemini (or a saved response) ----
 let response: unknown;
+let run: RunInfo | null = null;
 const from = flag("--from");
 if (from) {
-  response = JSON.parse(await readFile(from, "utf8"));
-  console.log(`Replaying ${from} (no Gemini call)\n`);
+  const { response: r, saved } = unwrapSaved(JSON.parse(await readFile(from, "utf8")));
+  response = r;
+  run = saved?.run ?? null;
+  const made = saved ? ` (made by ${saved.run.model}, prompt version ${saved.promptVersion}; current ${promptVersion()})` : "";
+  console.log(`Replaying ${from}${made}: no Gemini call\n`);
 } else {
   const started = Date.now();
   const out = await generateDocumentPrompts(title, pages, generator.request);
   response = out.response;
+  const seconds = (Date.now() - started) / 1000;
   const { inputTokens, outputTokens, thinkingTokens } = out.usage;
-  const price = PRICES[out.model];
-  const cost = price ? (inputTokens * price.input + (outputTokens + thinkingTokens) * price.output) / 1e6 : null;
+  const cost = estimateCostUsd(out.model, out.usage);
   console.log(
-    `${out.model}: ${((Date.now() - started) / 1000).toFixed(1)} s, tokens in ${inputTokens} / out ${outputTokens} / thinking ${thinkingTokens}` +
+    `${out.model}: ${seconds.toFixed(1)} s, tokens in ${inputTokens} / out ${outputTokens} / thinking ${thinkingTokens}` +
       (cost === null ? "" : `, ≈ $${cost.toFixed(4)} USD`) + "\n",
   );
+  run = { model: out.model, seconds, usage: out.usage, costUsd: cost };
   const save = flag("--save");
   if (save) {
-    await writeFile(save, JSON.stringify(response, null, 2));
-    console.log(`Saved the raw response to ${save}\n`);
+    const saved: SavedResponse = { deck: title, createdAt: new Date().toISOString(), promptVersion: promptVersion(), run, response };
+    await writeFile(save, JSON.stringify(saved, null, 2) + "\n");
+    console.log(`Saved the response to ${save}\n`);
   }
 }
 
@@ -104,7 +87,6 @@ const deduped = dedupeAcrossDocuments([{ doc: title, prompts: result.prompts }])
 const final = generator.finalize(deduped.kept);
 const prompts = final.kept.map((k) => k.prompt);
 const returned = (response as { prompts?: unknown[] })?.prompts?.length ?? 0;
-
 for (const p of prompts) printPrompt(p);
 
 const dropped = [...result.dropped, ...deduped.dropped, ...final.dropped];
@@ -124,10 +106,14 @@ console.log(
   `Answers: ${answers.length}; quotes not found on their page: ${result.quotesCleared}` +
     (hinted.length ? `; Hints removed: ${hinted.filter((p) => !p.hint).length}` : ""),
 );
+// The F14 scorecard row scores Dive's checks (lib/games/validate.ts), so only Dive-engine Modes get one
+if (MODES[mode].engine === "dive") {
+  console.log("\n" + formatScorecardTable([{ deck: title, pages: pages.length, run, card: scoreDocument(response, pages) }]));
+}
 console.log(
   prompts.length >= generator.minPrompts
-    ? `Enough for a Game in ${MODES[mode].name} (≥ ${generator.minPrompts}).`
-    : `NOT enough for a Game in ${MODES[mode].name} (< ${generator.minPrompts}): it would fail.`,
+    ? `\nEnough for a Game in ${MODES[mode].name} (≥ ${generator.minPrompts}).`
+    : `\nNOT enough for a Game in ${MODES[mode].name} (< ${generator.minPrompts}): it would fail.`,
 );
 
 function printPrompt(p: GeneratedPrompt) {

@@ -1,0 +1,527 @@
+{
+  "deck": "ml-midterm-notes",
+  "createdAt": "2026-10-04T12:28:55.629Z",
+  "promptVersion": "a6b826d6",
+  "run": {
+    "model": "gemini-3.6-flash",
+    "seconds": 101.669,
+    "usage": {
+      "inputTokens": 3968,
+      "outputTokens": 4169,
+      "thinkingTokens": 8238
+    },
+    "costUsd": 0.04950225
+  },
+  "response": {
+    "prompts": [
+      {
+        "kind": "open",
+        "text": "Name an evaluation metric in machine learning",
+        "answers": [
+          {
+            "canonical": "Accuracy",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Accuracy: Proportion of all correct predictions"
+          },
+          {
+            "canonical": "Precision",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Precision: of all predicted positives, probability that a positive prediction is correct"
+          },
+          {
+            "canonical": "Recall",
+            "aliases": [
+              "sensitivity"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Recall (sensitivity): of all actual positive, probability that an actual positive outcome is predicted correctly"
+          },
+          {
+            "canonical": "Specificity",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Specificity: of all actual negatives, probability that an actual negative outcome is predicted correctly"
+          },
+          {
+            "canonical": "F1 score",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "F1 score: Combination of precision and recall (harmonic mean)"
+          },
+          {
+            "canonical": "Mean Absolute Error",
+            "aliases": [
+              "MAE"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Mean Absolute Error (MAE): Average of absolute difference between actual and prediction"
+          },
+          {
+            "canonical": "Root mean square error",
+            "aliases": [
+              "RMSE"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Root mean square error (RMSE): Average distance between predicted value from model and actual values in dataset:"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a performance metric used for classification models",
+        "answers": [
+          {
+            "canonical": "Accuracy",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Accuracy: Proportion of all correct predictions"
+          },
+          {
+            "canonical": "Precision",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Precision: of all predicted positives, probability that a positive prediction is correct"
+          },
+          {
+            "canonical": "Recall",
+            "aliases": [
+              "sensitivity"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Recall (sensitivity): of all actual positive, probability that an actual positive outcome is predicted correctly"
+          },
+          {
+            "canonical": "Specificity",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Specificity: of all actual negatives, probability that an actual negative outcome is predicted correctly"
+          },
+          {
+            "canonical": "F1 score",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "F1 score: Combination of precision and recall (harmonic mean)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a machine learning model or search algorithm",
+        "answers": [
+          {
+            "canonical": "K-nearest neighbors",
+            "aliases": [
+              "KNN",
+              "K-NN"
+            ],
+            "exact_only": true,
+            "evidence_page": 1,
+            "evidence_quote": "3. K-nearest neighbors (K-NN)"
+          },
+          {
+            "canonical": "Decision Trees",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Decision Trees: Make decisions by splitting up training set based on specific features"
+          },
+          {
+            "canonical": "K-means",
+            "aliases": [
+              "K-means algorithm",
+              "K-means clustering"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "1. K-means clustering"
+          },
+          {
+            "canonical": "Linear regression",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "8. Linear regression"
+          },
+          {
+            "canonical": "Linear classifiers",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "7. Linear classifiers"
+          },
+          {
+            "canonical": "Multilayer neural networks",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "10. Multilayer neural networks (including activation functions such as sigmoid)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a component in the anatomy of a neural network node",
+        "answers": [
+          {
+            "canonical": "Input",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Input: Multiple input signals + bias (constant)"
+          },
+          {
+            "canonical": "Input function",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Input function: Apply weights to inputs"
+          },
+          {
+            "canonical": "Activation function",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Activation function: Controls how strongly the “neuron” activates (usually non-linear)"
+          },
+          {
+            "canonical": "Output",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Output: single number"
+          },
+          {
+            "canonical": "bias",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Input: Multiple input signals + bias (constant)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a variable or parameter used in gradient descent weight updating",
+        "answers": [
+          {
+            "canonical": "learning rate",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "alpha is the learning rate"
+          },
+          {
+            "canonical": "current weight",
+            "aliases": [
+              "weight"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "w_i is the current weight"
+          },
+          {
+            "canonical": "gradient",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "by definition of gradient, we have"
+          },
+          {
+            "canonical": "loss function",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "L is the direction in which the loss function is increasing"
+          },
+          {
+            "canonical": "bias",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "sum of all inputs with weights and bias"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a supervised learning model or classifier",
+        "answers": [
+          {
+            "canonical": "K-nearest neighbors",
+            "aliases": [
+              "KNN",
+              "K-NN"
+            ],
+            "exact_only": true,
+            "evidence_page": 1,
+            "evidence_quote": "3. K-nearest neighbors (K-NN)"
+          },
+          {
+            "canonical": "Decision Trees",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Decision Trees: Make decisions by splitting up training set based on specific features"
+          },
+          {
+            "canonical": "Linear classifiers",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "7. Linear classifiers"
+          },
+          {
+            "canonical": "Multilayer neural networks",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "10. Multilayer neural networks (including activation functions such as sigmoid)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a metric that measures error or distance between predicted and actual values",
+        "answers": [
+          {
+            "canonical": "Mean Squared Error",
+            "aliases": [
+              "MSE"
+            ],
+            "exact_only": true,
+            "evidence_page": 2,
+            "evidence_quote": "Mean Squared Error: Used for regression"
+          },
+          {
+            "canonical": "Mean Absolute Error",
+            "aliases": [
+              "MAE"
+            ],
+            "exact_only": true,
+            "evidence_page": 1,
+            "evidence_quote": "Mean Absolute Error (MAE): Average of absolute difference between actual and prediction"
+          },
+          {
+            "canonical": "Root mean square error",
+            "aliases": [
+              "RMSE"
+            ],
+            "exact_only": true,
+            "evidence_page": 1,
+            "evidence_quote": "Root mean square error (RMSE): Average distance between predicted value from model and actual values in dataset:"
+          },
+          {
+            "canonical": "Loss function",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Loss function (objective function): Difference / error between the predicted output and true output"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a classification performance metric defined as a probability or proportion",
+        "answers": [
+          {
+            "canonical": "Accuracy",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Accuracy: Proportion of all correct predictions"
+          },
+          {
+            "canonical": "Precision",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Precision: of all predicted positives, probability that a positive prediction is correct"
+          },
+          {
+            "canonical": "Recall",
+            "aliases": [
+              "sensitivity"
+            ],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Recall (sensitivity): of all actual positive, probability that an actual positive outcome is predicted correctly"
+          },
+          {
+            "canonical": "Specificity",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Specificity: of all actual negatives, probability that an actual negative outcome is predicted correctly"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "cloze",
+        "text": "The F1 score is the ______ mean of precision and recall.",
+        "answers": [
+          {
+            "canonical": "harmonic",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "F1 score: Combination of precision and recall (harmonic mean)"
+          }
+        ],
+        "tier": "solid",
+        "hint": "It is a specific type of mathematical mean used for rates and ratios.",
+        "explanation": "The F1 score is defined as the harmonic mean of precision and recall."
+      },
+      {
+        "kind": "cloze",
+        "text": "Rectified Linear Unit avoids the ______ gradient problem faced by the logistic sigmoid function.",
+        "answers": [
+          {
+            "canonical": "vanishing",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "avoids the vanishing gradient problem logistic sigmoid function faces"
+          }
+        ],
+        "tier": "solid",
+        "hint": "This problem occurs when gradient signals diminish during backpropagation.",
+        "explanation": "ReLU has a constant slope for positive inputs, which prevents gradients from vanishing."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "The evaluation metric defined as the proportion of all correct predictions.",
+        "answers": [
+          {
+            "canonical": "Accuracy",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 1,
+            "evidence_quote": "Accuracy: Proportion of all correct predictions"
+          }
+        ],
+        "tier": "common",
+        "hint": "It measures overall correctness across all predictions.",
+        "explanation": "Accuracy measures the total number of correct predictions divided by total predictions."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "The error measure representing the difference between predicted output and true output.",
+        "answers": [
+          {
+            "canonical": "Loss function",
+            "aliases": [
+              "objective function"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Loss function (objective function): Difference / error between the predicted output and true output"
+          }
+        ],
+        "tier": "solid",
+        "hint": "Optimization algorithms minimize this expression during training.",
+        "explanation": "The loss function evaluates how far model predictions deviate from actual ground truth."
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of K-means clustering in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Start by setting initial random points.",
+        "explanation": "K-means initializes means, assigns data points to the closest mean, recomputes cluster means, and repeats until convergence.",
+        "items": [
+          "Initialize K means",
+          "Assign each point to closest mean",
+          "Compute new mean for each cluster",
+          "Repeat until means do not change"
+        ],
+        "evidence_page": 1
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of KNN classification in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "The algorithm begins by measuring proximity across the training dataset.",
+        "explanation": "KNN measures distances from query point to training points, picks k nearest neighbors, retrieves labels, votes, and outputs the majority class.",
+        "items": [
+          "Compute distance from query point to all training points",
+          "Select the k closest neighbors",
+          "Get the labels of these k neighbors",
+          "Count votes for each label",
+          "Output the most frequent label"
+        ],
+        "evidence_page": 1
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps for building a decision tree in order.",
+        "answers": [],
+        "tier": "deep",
+        "hint": "The algorithm starts by finding the best split feature.",
+        "explanation": "Decision tree construction iteratively picks optimal splits, creates nodes, splits data, and adds child nodes when stopping conditions are met.",
+        "items": [
+          "Select feature that gives best split",
+          "Create a new node in the tree based on the split",
+          "Separate data based on the split",
+          "Repeat process until stopping criterion is met",
+          "Create a child node that represents the class"
+        ],
+        "evidence_page": 1
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which metric evaluates regression models rather than classification predictions?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Three options measure performance on discrete class predictions.",
+        "explanation": "Mean Absolute Error measures numeric difference for regression tasks, whereas the others assess classification performance.",
+        "options": [
+          "Accuracy",
+          "Precision",
+          "Recall",
+          "Mean Absolute Error"
+        ],
+        "correct_option": "Mean Absolute Error",
+        "evidence_page": 1
+      }
+    ]
+  }
+}

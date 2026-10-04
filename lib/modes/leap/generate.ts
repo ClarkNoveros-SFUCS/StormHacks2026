@@ -18,7 +18,7 @@ export const LEAP_SYSTEM_INSTRUCTION = `You write multiple-choice questions for 
 GROUNDING
 - Use only facts stated in the pages you are given. Never add outside knowledge, even if it's true.
 - The correct option must be supported by the pages. Give evidence_page (the number from its "=== Page N ===" marker) and evidence_quote: a short passage copied character for character from that page, at most 200 characters, that shows the correct option is right. Copy it exactly; don't fix typos, reword, or join text from different places.
-- Skip pages with no study content (title slides, agendas, outlines, references, "questions?").
+- Skip pages with no study content (title slides, agendas, outlines, references, "questions?"). Course administration (exams, grading, deadlines, policies) is never a question.
 
 QUESTIONS (write 12-16)
 - "text": the question stem. It stands on its own, like an exam question. Never mention pages, slides, "the document", "the lecture" or "according to". Don't put the answer in the stem.
@@ -29,7 +29,11 @@ QUESTIONS (write 12-16)
 - "explanation": one sentence shown after answering, saying why the correct option is right (and, if useful, why a tempting distractor is wrong).
 - "tier": how obscure the fact is for a student in this course: "common", "solid", "deep" or "rare".
 - Cover different pages and ideas; don't ask the same fact twice.
-- Write in the language of the document.`;
+- Write in the language of the document.
+
+EXAMPLE (format and quality only, from a lecture on graph algorithms; not content to reuse)
+{"kind":"multiple_choice","text":"Which algorithm finds single-source shortest paths when some edge weights are negative?","options":["Dijkstra","Bellman-Ford","Prim","BFS"],"correct_option":"Bellman-Ford","explanation":"Bellman-Ford relaxes every edge V - 1 times, so it handles negative weights; Dijkstra assumes they can't occur.","tier":"solid","evidence_page":6,"evidence_quote":"Finds shortest paths from one source, and works with negative edge weights."}
+BAD: "Which algorithm was NOT covered this week?", or distractors that aren't the same kind of thing ("Dijkstra", "O(V^3)", "a queue", "Kruskal"). GOOD: four algorithms from the notes, one of them right for the stem.`;
 
 export const LEAP_RESPONSE_SCHEMA = {
   type: "object",

@@ -23,8 +23,8 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F11 | Game page UI | Frontend | F07 | #11 | done |
 | F12 | Deploy and demo prep | Platform | everything | #12 | planned |
 | F13 | Game Modes: `games.mode` and the Mode picker | Platform | F01 | #21 | planned |
-| F14 | Generation scorecard (eval on real decks) | Pipelines | F04 | #24 | planned |
-| F15 | Example Prompts in the generator instructions | Pipelines | F04 (F14 to measure) | #25 | planned |
+| F14 | Generation scorecard (eval on real decks) | Pipelines | F04 | #24 | done |
+| F15 | Example Prompts in the generator instructions | Pipelines | F04 (F14 to measure) | #25 | done |
 | F16 | Gemini verification pass for Answers | Pipelines | F04 (F14 to measure) | #26 | planned |
 | F17 | Overgenerate and select the best Prompts | Pipelines | F04, F14 | #27 | planned |
 | F18 | Open Prompt answer expansion with retrieval (pgvector, stretch) | Pipelines | F04, F14 | #28 | planned |
@@ -304,20 +304,32 @@ Entry points: — · Notes for others: —
 
 ## F14 Generation scorecard (eval on real decks)
 Spec: `docs/architecture/game-generation-pipeline.md` § Improving output quality · Issue #24 (do this first: F15–F17 are judged by it)
-- [ ] 3–4 real eval decks (PDF, PPTX, DOCX + the seed deck); Gemini responses saved with `--save`
-- [ ] A scorecard per deck: Prompts returned/kept, kinds, Open Prompts, Answers per Open Prompt, quotes verified, Hints removed, drops by reason, seconds, cost
-- [ ] Replays saved responses (`--from`) for free code-only comparisons
-- [ ] Baseline recorded in the spec
+- [x] 3–4 real eval decks (PDF, PPTX, DOCX + the seed deck); Gemini responses saved with `--save` (`eval/decks.json`; responses in `eval/responses/`)
+- [x] A scorecard per deck: Prompts returned/kept, kinds, Open Prompts, Answers per Open Prompt, quotes verified, Hints removed, drops by reason, seconds, cost
+- [x] Replays saved responses (`--from`) for free code-only comparisons (the default for `npm run generate:eval`)
+- [x] Baseline recorded in the spec (§ Scorecard (F14): 64 → 56 Prompts kept over 4 decks, ~5 Answers per Open Prompt, ≈ $0.20 per live run)
 
-Entry points: — · Notes for others: —
+Entry points: `npm run generate:eval` (`scripts/generate-eval.ts`; `--live`, `--from <dir>`, `--save <dir>`, `--deck`, `--no-fallback`, `--drops`, `--json`), `eval/decks.json`, `eval/responses/`, `lib/games/scorecard.ts` (`scoreDocument`, `formatScorecardTable`, `dropCode`, `unwrapSaved`), `lib/gemini/pricing.ts` (`estimateCostUsd`, price constants), `scripts/deck-pages.ts` (shared deck loading); `generate:check` now prints the same scorecard row
+
+Notes for others:
+- **F15–F18:** run `npm run generate:eval -- --live --no-fallback --save eval/runs/<name>` after a prompt change (≈ $0.20, ~5 min) and compare with the baseline table in `game-generation-pipeline.md` § Scorecard. A checks-only change (validate.ts) needs no Gemini call: plain `npm run generate:eval` replays the committed responses. Gemini varies run to run, so a Prompt or two per deck is noise.
+- **Course decks aren't in git.** Copy them into `eval/decks/` (gitignored) or set `EVAL_DECKS_DIR`; ask Anton for the files. Without them only the seed deck scores.
+- **Baseline findings worth fixing first:** "Name a step in …" Open Prompts with sentence-long Answers (most drops), symbol Answers (`+ - * /`), odd_one_out whose correct option isn't in the deck, and Prompts about course logistics. Details in the spec.
+- **3.6-flash latency is 60–100 s per deck**, and it answered 503 to the 94-page PDF on three of four attempts; the app's fallback model would have taken over.
 
 ## F15 Example Prompts in the generator instructions
 Spec: `docs/architecture/game-generation-pipeline.md` § Improving output quality · Issue #25
-- [ ] 3–4 example Prompts from the seed fixture in `lib/gemini/game-prompt.ts`
-- [ ] "Bad → good" pairs for compound Open Prompts and give-away Hints
-- [ ] F14 scorecard before/after
+- [x] 3–4 example Prompts from the seed fixture in `lib/gemini/game-prompt.ts` (an open, a cloze, an ordered_recall, an odd_one_out), labelled as examples of the format and quality, not content to reuse
+- [x] "Bad → good" pairs for compound Open Prompts and give-away Hints, plus the F14 baseline's faults: step sentences as Open Answers, symbol Answers, odd-one-out options not in the deck, course-admin Prompts
+- [x] F14 scorecard before/after (spec § Scorecard → F15)
 
-Entry points: — · Notes for others: —
+Entry points: `GAME_PROMPT_EXAMPLES` and the EXAMPLES / BAD → GOOD sections of `GAME_SYSTEM_INSTRUCTION` in `lib/gemini/game-prompt.ts`; one example (+ a bad → good line) each in `lib/modes/{leap,blitz,pairs}/generate.ts`; tests `lib/gemini/game-prompt.test.ts`, `lib/modes/examples.test.ts`
+
+Notes for others:
+- **Examples must pass the checks.** `lib/modes/examples.test.ts` parses every one-line `{"kind":…}` example out of each Mode's instructions and runs it through that Mode's `validate` on the seed pages. If you edit an example (or a check), keep it passing: an example the checks would drop teaches Gemini to make drops.
+- **The seed deck now scores optimistically:** the examples come from it, so Gemini can copy them on that deck. Judge prompt changes on the three course decks.
+- **Before/after** (spec § Scorecard → F15): 56 → 64 / 60 Prompts kept over two live runs, quotes verified 95% → 97% / 98%, drops 8 P / 19 A → 0 / 1 and 4 / 3. "Name a step in …" Opens, admin Prompts and invented odd-one-out options are gone. Symbol cloze Answers (`%`, `_`) and acronym Hints remain (F16).
+- Prompt version is now `a6b826d6`, and `eval/responses/` holds its run (F15 run 2), so a plain `npm run generate:eval` replays the current prompt. The F14 baseline is kept as tables in the spec. The examples add ~1,100 input tokens per call.
 
 ## F16 Gemini verification pass for Answers
 Spec: `docs/architecture/game-generation-pipeline.md` § Improving output quality · Issue #26

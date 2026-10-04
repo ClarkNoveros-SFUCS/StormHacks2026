@@ -1,0 +1,536 @@
+{
+  "deck": "cmpt354-sql-basics",
+  "createdAt": "2026-10-04T12:09:35.297Z",
+  "promptVersion": "a6b826d6",
+  "run": {
+    "model": "gemini-3.6-flash",
+    "seconds": 64.617,
+    "usage": {
+      "inputTokens": 14026,
+      "outputTokens": 4286,
+      "thinkingTokens": 10457
+    },
+    "costUsd": 0.06580575
+  },
+  "response": {
+    "prompts": [
+      {
+        "kind": "open",
+        "text": "Name a primitive data type supported in SQL",
+        "answers": [
+          {
+            "canonical": "INTEGER",
+            "aliases": [
+              "INT",
+              "SHORTINT"
+            ],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Integer (INT, INTEGER, SHORTINT)"
+          },
+          {
+            "canonical": "VARCHAR",
+            "aliases": [
+              "VARCHAR(n)"
+            ],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Character string of fixed or varying Length (CHAR(n), VARCHAR(n))"
+          },
+          {
+            "canonical": "CHAR",
+            "aliases": [
+              "CHAR(n)"
+            ],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Character string of fixed or varying Length (CHAR(n), VARCHAR(n))"
+          },
+          {
+            "canonical": "BOOLEAN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Boolean (BOOLEAN)"
+          },
+          {
+            "canonical": "FLOAT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          },
+          {
+            "canonical": "DATE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Date and Time (DATE, TIME)"
+          },
+          {
+            "canonical": "REAL",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          },
+          {
+            "canonical": "NUMERIC",
+            "aliases": [
+              "DECIMAL"
+            ],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an aggregate function in SQL",
+        "answers": [
+          {
+            "canonical": "COUNT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          },
+          {
+            "canonical": "SUM",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          },
+          {
+            "canonical": "AVG",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          },
+          {
+            "canonical": "MAX",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          },
+          {
+            "canonical": "MIN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an operator or keyword used with subqueries in SQL conditions",
+        "answers": [
+          {
+            "canonical": "IN",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 89,
+            "evidence_quote": "IN\nNOT IN\nEXISTS\nNOT EXISTS\nANY\nALL"
+          },
+          {
+            "canonical": "EXISTS",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 89,
+            "evidence_quote": "IN\nNOT IN\nEXISTS\nNOT EXISTS\nANY\nALL"
+          },
+          {
+            "canonical": "NOT IN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 89,
+            "evidence_quote": "IN\nNOT IN\nEXISTS\nNOT EXISTS\nANY\nALL"
+          },
+          {
+            "canonical": "NOT EXISTS",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 89,
+            "evidence_quote": "IN\nNOT IN\nEXISTS\nNOT EXISTS\nANY\nALL"
+          },
+          {
+            "canonical": "ANY",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 89,
+            "evidence_quote": "IN\nNOT IN\nEXISTS\nNOT EXISTS\nANY\nALL"
+          },
+          {
+            "canonical": "ALL",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 89,
+            "evidence_quote": "IN\nNOT IN\nEXISTS\nNOT EXISTS\nANY\nALL"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a type of join supported in SQL",
+        "answers": [
+          {
+            "canonical": "INNER JOIN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 71,
+            "evidence_quote": "Students INNER JOIN Enrolled ON sid = stid;"
+          },
+          {
+            "canonical": "LEFT OUTER JOIN",
+            "aliases": [
+              "LEFT JOIN"
+            ],
+            "exact_only": false,
+            "evidence_page": 71,
+            "evidence_quote": "Students LEFT OUTER JOIN Enrolled ON sid = stid;"
+          },
+          {
+            "canonical": "RIGHT OUTER JOIN",
+            "aliases": [
+              "RIGHT JOIN"
+            ],
+            "exact_only": false,
+            "evidence_page": 71,
+            "evidence_quote": "Students RIGHT OUTER JOIN Enrolled ON sid = stid;"
+          },
+          {
+            "canonical": "FULL OUTER JOIN",
+            "aliases": [
+              "FULL JOIN"
+            ],
+            "exact_only": false,
+            "evidence_page": 71,
+            "evidence_quote": "Students FULL OUTER JOIN Enrolled ON sid = stid;"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a set operation keyword in SQL",
+        "answers": [
+          {
+            "canonical": "UNION",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "Called UNION, INTERSECT, and EXCEPT"
+          },
+          {
+            "canonical": "INTERSECT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "Called UNION, INTERSECT, and EXCEPT"
+          },
+          {
+            "canonical": "EXCEPT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "Called UNION, INTERSECT, and EXCEPT"
+          },
+          {
+            "canonical": "MINUS",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "May be implemented as MINUS"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a basic SQL statement used to query or modify data",
+        "answers": [
+          {
+            "canonical": "SELECT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 16,
+            "evidence_quote": "SELECT <columns>"
+          },
+          {
+            "canonical": "INSERT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 11,
+            "evidence_quote": "To insert a record into an existing table use the INSERT statement"
+          },
+          {
+            "canonical": "UPDATE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "Use the UPDATE statement to modify a record, or records, in a table"
+          },
+          {
+            "canonical": "DELETE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 13,
+            "evidence_quote": "To delete a record use the DELETE statement"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a constraint keyword or declaration used in SQL table definitions",
+        "answers": [
+          {
+            "canonical": "PRIMARY KEY",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Either PRIMARY KEY"
+          },
+          {
+            "canonical": "FOREIGN KEY",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 41,
+            "evidence_quote": "FOREIGN KEY (stid) REFERENCES"
+          },
+          {
+            "canonical": "UNIQUE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Or UNIQUE"
+          },
+          {
+            "canonical": "NOT NULL",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 31,
+            "evidence_quote": "name CHAR(20) NOT NULL,"
+          },
+          {
+            "canonical": "DEFAULT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 7,
+            "evidence_quote": "Keyword DEFAULT, Value either NULL or a Constant"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a clause keyword used in a SQL query",
+        "answers": [
+          {
+            "canonical": "SELECT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 16,
+            "evidence_quote": "SELECT <columns>"
+          },
+          {
+            "canonical": "FROM",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 16,
+            "evidence_quote": "FROM | <table name>"
+          },
+          {
+            "canonical": "WHERE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 16,
+            "evidence_quote": "WHERE | <conditions>"
+          },
+          {
+            "canonical": "GROUP BY",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 77,
+            "evidence_quote": "GROUP BY <columns>"
+          },
+          {
+            "canonical": "HAVING",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 80,
+            "evidence_quote": "HAVING <columns>"
+          },
+          {
+            "canonical": "ORDER BY",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 27,
+            "evidence_quote": "ordered using ORDER BY"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "cloze",
+        "text": "In SQL pattern matching with LIKE, the ______ symbol stands for zero or more arbitrary characters.",
+        "answers": [
+          {
+            "canonical": "%",
+            "aliases": [
+              "percent sign"
+            ],
+            "exact_only": true,
+            "evidence_page": 29,
+            "evidence_quote": "The % symbol stands for zero or more arbitrary characters"
+          }
+        ],
+        "tier": "common",
+        "hint": "It is the wildcard symbol representing any number of characters.",
+        "explanation": "In SQL LIKE clause pattern matching, % represents zero or more arbitrary characters."
+      },
+      {
+        "kind": "cloze",
+        "text": "In SQL pattern matching with LIKE, the ______ symbol stands for exactly one arbitrary character.",
+        "answers": [
+          {
+            "canonical": "_",
+            "aliases": [
+              "underscore"
+            ],
+            "exact_only": true,
+            "evidence_page": 29,
+            "evidence_quote": "The _ symbol stands for exactly one arbitrary character"
+          }
+        ],
+        "tier": "common",
+        "hint": "It is a single horizontal mark used for single-character matching.",
+        "explanation": "In SQL LIKE clauses, the underscore symbol matches exactly one arbitrary character."
+      },
+      {
+        "kind": "cloze",
+        "text": "In SQL, arithmetic operations involving a NULL value evaluate to ______.",
+        "answers": [
+          {
+            "canonical": "NULL",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 33,
+            "evidence_quote": "Arithmetic operations (+, -, *, /) on nulls return NULL"
+          }
+        ],
+        "tier": "solid",
+        "hint": "Performing calculations on missing data keeps the outcome missing.",
+        "explanation": "Any arithmetic operation performed on a NULL value returns NULL in SQL."
+      },
+      {
+        "kind": "cloze",
+        "text": "In SQL, comparisons with NULL evaluate to ______.",
+        "answers": [
+          {
+            "canonical": "UNKNOWN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 33,
+            "evidence_quote": "Comparisons with nulls evaluate to UNKNOWN"
+          }
+        ],
+        "tier": "solid",
+        "hint": "It is the third truth value in three-valued logic besides true and false.",
+        "explanation": "Comparing any value to NULL evaluates to UNKNOWN in SQL."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is the sublanguage of SQL used for declaring database schemas?",
+        "answers": [
+          {
+            "canonical": "Data Definition Language",
+            "aliases": [
+              "DDL"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Data Definition Language (DDL)\nThe Data-Definition sublanguage for declaring database schemas"
+          }
+        ],
+        "tier": "common",
+        "hint": "Its acronym is three letters long and starts with D.",
+        "explanation": "Data Definition Language (DDL) consists of commands used to define database structures like tables."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "What is the sublanguage of SQL used for querying and modifying databases?",
+        "answers": [
+          {
+            "canonical": "Data Manipulation Language",
+            "aliases": [
+              "DML"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Data Manipulation Language (DML)\nThe Data-Manipulation sublanguage for querying databases and for modifying the database"
+          }
+        ],
+        "tier": "common",
+        "hint": "Its three-letter acronym concerns working with table contents.",
+        "explanation": "Data Manipulation Language (DML) includes statements such as SELECT, INSERT, UPDATE, and DELETE."
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of evaluating a SQL query with HAVING in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Evaluation begins by taking table products before applying filters.",
+        "explanation": "SQL processes FROM first, applies WHERE filters, constructs groups via GROUP BY, filters groups via HAVING, and projects SELECT columns.",
+        "items": [
+          "Create the cross product of the tables in the FROM clause",
+          "Remove rows not meeting the WHERE condition",
+          "Divide records into groups by the GROUP BY clause",
+          "Remove groups not meeting the HAVING clause",
+          "Create one row for each group and remove columns not in the SELECT clause"
+        ],
+        "evidence_page": 82
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which operation is NOT one of the standard set operations in SQL?",
+        "answers": [],
+        "tier": "common",
+        "hint": "Three of these operations require input tables to be union compatible.",
+        "explanation": "UNION, INTERSECT, and EXCEPT are set operations in SQL, whereas JOIN combines rows across relations via conditions.",
+        "options": [
+          "UNION",
+          "INTERSECT",
+          "EXCEPT",
+          "JOIN"
+        ],
+        "correct_option": "JOIN",
+        "evidence_page": 59
+      }
+    ]
+  }
+}
