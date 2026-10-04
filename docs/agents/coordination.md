@@ -45,9 +45,15 @@ If setup hasn't been done, `scripts/agent-sync.sh` prints a `!!!` warning. The a
 - **Changing a shared contract?** Post a comment on your issue *before* merging. That includes the DB schema, a public function signature in `lib/`, an API route shape, or a `CONTEXT.md` term. Other agents read issue comments.
 - **DB migrations** go in `db/migrations/` with a timestamp prefix (`20261003T1530_add_runs.sql`), never a sequence number. That way two branches can't pick the same number.
 - **Stay in your lane.** If you need a change in another claimed feature's files, comment on that issue and don't edit them.
-- **Open a draft PR early** (`gh pr create --draft`, body includes `Closes #<n>`) so your work shows up in everyone's sync output.
+- **Never open a PR on your own, not even a draft.** Push your branch so the work is backed up and resumable, but the PR waits for step 4.
 
-## 4. Finishing (in the same PR)
+## 4. Finishing: the user reviews, then the PR
+
+1. When the checklist is complete, **stop and hand over for review.** Tell the user what was built, how to try it (commands, URL, test results), and what's left or risky. Then wait.
+2. If the user asks for changes, make them and hand over again.
+3. **Only after the user explicitly approves** ("looks good", "ship it", "open the PR") do the steps below and open the PR with `gh pr create`. Approval for one feature or one PR doesn't carry over to the next.
+
+Do these on the branch right before opening the PR:
 
 - [ ] In `docs/FEATURES.md`, edit only your feature's section and board row: tick the boxes, set Status `done`, and fill **Entry points** and **Notes for others** (e.g. "call `matchGuess(promptId, text)` from `lib/matching/match-guess.ts`").
 - [ ] If the implementation differs from the spec, update the matching `docs/architecture/*.md`.

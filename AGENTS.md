@@ -16,7 +16,7 @@ Several people with different agents build this repo in parallel. Full protocol:
 2. **Before coding a feature:** find or create its GitHub issue. If someone else has claimed it (label `in-progress` and an assignee), stop and tell the user. Otherwise claim it (`gh issue edit <n> --add-assignee @me --add-label in-progress`) and branch `feat/<n>-<slug>` from `origin/main`.
 3. **Worklog:** keep resumable notes in `docs/worklog/<github-login>/<issue#>-<slug>.md` (template in `docs/worklog/README.md`). Create it when you claim, update it after each chunk and before the session ends, and commit it with the code. At session start, offer to resume any unfinished worklog the sync lists.
 4. **Changing a shared contract** (DB schema, `lib/` signatures, API routes, `CONTEXT.md` terms): comment on your issue first.
-5. **In the PR that ships it:** in `docs/FEATURES.md`, tick your feature's checklist, set Status `done`, and fill Entry points and Notes for others, set your worklog to `Status: done`, and include `Closes #<n>` in the PR body.
+5. **No PRs until the user approves.** Never open a PR (not even a draft) on your own. When the work is done, hand it to the user for review. Only after they explicitly say it's good, open the PR. In that PR: in `docs/FEATURES.md`, tick your feature's checklist, set Status `done`, and fill Entry points and Notes for others, set your worklog to `Status: done`, and include `Closes #<n>` in the PR body.
 
 **No AI attribution.** Never add `Co-Authored-By:` trailers for Claude, Codex or any other agent, nor "Generated with …" lines, to commits, PR titles or PR bodies. Only the humans on the team are contributors.
 

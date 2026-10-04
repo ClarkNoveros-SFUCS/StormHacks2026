@@ -12,7 +12,7 @@ Default labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-huma
 
 ### Team coordination
 
-Follow `docs/agents/coordination.md` every session without being asked: sync, claim the issue before coding, keep your worklog in `docs/worklog/<github-login>/` current so work can be resumed, update `docs/FEATURES.md` in the PR that ships the feature. A SessionStart hook runs `scripts/agent-sync.sh` automatically.
+Follow `docs/agents/coordination.md` every session without being asked: sync, claim the issue before coding, keep your worklog in `docs/worklog/<github-login>/` current so work can be resumed, never open a PR (not even a draft) until the user has reviewed the work and explicitly approved it, then update `docs/FEATURES.md` in that PR. A SessionStart hook runs `scripts/agent-sync.sh` automatically.
 
 ### No AI attribution
 
