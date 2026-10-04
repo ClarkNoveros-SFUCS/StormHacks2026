@@ -12,13 +12,17 @@ export type Playable =
   | { ok: true; gameId: string; title: string; mode: ModeId; topicSlug: string | null }
   | { ok: false; reason: string };
 
-/** The Game exists and is ready, it's the Player's own or public, and its Topic (if any) isn't locked. */
-export async function checkPlayable(playerId: string, gameId: string, db: Db = sql): Promise<Playable> {
+/**
+ * The Game exists and is ready, it's the Player's own or public, and its Topic (if any) isn't locked.
+ * With `moduleId`, it must also be one of that Module's Games.
+ */
+export async function checkPlayable(playerId: string, gameId: string, moduleId?: string, db: Db = sql): Promise<Playable> {
   if (!isUuid(gameId)) return { ok: false, reason: "gameId is not a Game id" };
-  const [g] = await db<{ title: string; mode: ModeId; status: string; mine: boolean; public: boolean }[]>`
-    select title, mode, status, (player_id = ${playerId}) as mine, (visibility = 'public') as public
+  const [g] = await db<{ title: string; mode: ModeId; status: string; mine: boolean; public: boolean; module_id: string | null }[]>`
+    select title, mode, status, module_id, (player_id = ${playerId}) as mine, (visibility = 'public') as public
       from games where id = ${gameId}`;
   if (!g || (!g.mine && !g.public)) return { ok: false, reason: "No such Game" };
+  if (moduleId && g.module_id !== moduleId) return { ok: false, reason: "That Game isn't in this Module" };
   if (g.status !== "ready") return { ok: false, reason: `The Game isn't ready (${g.status})` };
 
   const [topic] = await db<{ topic_id: string; slug: string; course_id: string }[]>`
@@ -58,4 +62,25 @@ export async function checkProposal(
   const notReady = docs.filter((d) => d.status !== "parsed");
   if (notReady.length) return { ok: false, reason: `Not Ready yet: ${notReady.map((d) => d.filename).join(", ")}` };
   return { ok: true, mode: p.mode };
+}
+
+/** The file is in the Player's Module, parsed (Ready), and has that page. */
+export async function checkReading(
+  playerId: string,
+  moduleId: string,
+  documentId: string,
+  page: number,
+  db: Db = sql,
+): Promise<{ ok: true; filename: string } | { ok: false; reason: string }> {
+  if (!isUuid(documentId)) return { ok: false, reason: "documentId must be a file id from the Module" };
+  const [d] = await db<{ filename: string; status: string; has_page: boolean; pages: number }[]>`
+    select d.filename, d.status,
+           exists (select 1 from source_pages sp where sp.source_document_id = d.id and sp.page_number = ${page}) as has_page,
+           (select count(*)::int from source_pages sp where sp.source_document_id = d.id) as pages
+      from source_documents d
+     where d.id = ${documentId} and d.module_id = ${moduleId} and d.player_id = ${playerId}`;
+  if (!d) return { ok: false, reason: "That file isn't in this Module" };
+  if (d.status !== "parsed") return { ok: false, reason: `${d.filename} isn't Ready yet` };
+  if (!d.has_page) return { ok: false, reason: `${d.filename} has no page ${page} (it has ${d.pages} pages)` };
+  return { ok: true, filename: d.filename };
 }

@@ -5,7 +5,8 @@ import { getTopic } from "@/lib/courses/queries";
 import { sql } from "@/lib/db";
 import { isUuid, recentMistakes, type MistakeScope } from "./mistakes";
 import { mistakeLine } from "./page-context";
-import { checkPlayable, checkProposal } from "./playable";
+import { customModuleFor, type CustomModule } from "./module-scope";
+import { checkPlayable, checkProposal, checkReading } from "./playable";
 import { loadSonarModel } from "./queries";
 import type { Action, PageContext, SonarModel } from "./types";
 
@@ -23,11 +24,27 @@ export function scopeFor(ctx: PageContext): MistakeScope {
   return { kind: "course" };
 }
 
-/** `getModel` lets the agent share one model load per request; it defaults to loading on first use. */
-export function buildTools(playerId: string, ctx: PageContext, sink: Action[], getModel?: () => Promise<SonarModel>) {
+/** One Game card (play or create) per turn. */
+const hasGameCard = (sink: Action[]) => sink.some((a) => a.kind === "play" || a.kind === "create_game");
+
+/**
+ * `getModel` and `getModule` let the agent share one load per request; they default to loading on
+ * first use. `getModule` is the Player's own Module the page belongs to: when set, the tools stay on
+ * it (no planner ranks, no Games from elsewhere).
+ */
+export function buildTools(
+  playerId: string,
+  ctx: PageContext,
+  sink: Action[],
+  getModel?: () => Promise<SonarModel>,
+  getModule?: () => Promise<CustomModule | null>,
+) {
   let cached: Promise<SonarModel> | undefined;
+  let cachedModule: Promise<CustomModule | null> | undefined;
   getModel ??= () => (cached ??= loadSonarModel(playerId));
+  getModule ??= () => (cachedModule ??= customModuleFor(playerId, ctx));
   const model = getModel;
+  const ownModule = getModule;
 
   const getConcept = tool(
     async ({ id }) => {
@@ -55,8 +72,11 @@ export function buildTools(playerId: string, ctx: PageContext, sink: Action[], g
 
   const getMistakes = tool(
     async ({ scope, conceptId, limit }) => {
+      const mod = await ownModule();
       const s: MistakeScope =
-        scope === "course" ? { kind: "course" } : scope === "page" || !scope ? scopeFor(ctx) : { kind: "course" };
+        scope === "course" ? { kind: "course" }
+        : scope === "module" ? (mod ? { kind: "module", moduleId: mod.moduleId } : scopeFor(ctx))
+        : scopeFor(ctx);
       const list = await recentMistakes(playerId, s, conceptId ? 40 : (limit ?? 8));
       const picked = (conceptId ? list.filter((x) => x.conceptIds.includes(conceptId)) : list).slice(0, limit ?? 8);
       if (!picked.length) return "No mistakes found in that scope.";
@@ -69,7 +89,8 @@ export function buildTools(playerId: string, ctx: PageContext, sink: Action[], g
       description:
         "The Player's recent wrong answers and timeouts: the Prompt, what they answered, the right answer, the explanation and the evidence page.",
       schema: z.object({
-        scope: z.enum(["page", "course"]).optional().describe("page = this page's Module/Run/Game (default); course = Python Basics"),
+        scope: z.enum(["page", "module", "course"]).optional()
+          .describe("page = this page's Module/Run/Game (default); module = every Game of the Player's Module this page belongs to; course = Python Basics"),
         conceptId: z.string().optional().describe("Only misses on this Python Basics Concept"),
         limit: z.number().int().min(1).max(20).optional(),
       }),
@@ -112,8 +133,10 @@ export function buildTools(playerId: string, ctx: PageContext, sink: Action[], g
 
   const recommend = tool(
     async ({ rank, gameId, why }) => {
-      if (sink.some((a) => a.kind === "play")) return "You already recommended a Game this turn.";
+      if (hasGameCard(sink)) return "You already showed a Game card this turn.";
+      const mod = await ownModule();
       if (rank !== undefined) {
+        if (mod) return `Planner ranks are Python Basics only. This page is the Player's Module "${mod.name}": pass a gameId of one of its ready Games, or use propose_game.`;
         const a = (await model()).actions[rank];
         if (!a) return `No planner action at rank ${rank}.`;
         sink.push(a.kind === "play" ? { ...a, source: "planner", rank } : a.kind === "read" ? { ...a, source: "planner" } : a);
@@ -121,8 +144,8 @@ export function buildTools(playerId: string, ctx: PageContext, sink: Action[], g
       }
       if (!gameId) return "Pass either rank (0–2) or gameId with why.";
       if (!why) return "Sonar's pick needs a one-line why.";
-      const p = await checkPlayable(playerId, gameId);
-      if (!p.ok) return `Can't recommend that Game: ${p.reason}. Pick another or use a planner rank.`;
+      const p = await checkPlayable(playerId, gameId, mod?.moduleId);
+      if (!p.ok) return `Can't recommend that Game: ${p.reason}. ${mod ? "Pick another of this Module's Games or use propose_game." : "Pick another or use a planner rank."}`;
       sink.push({
         kind: "play", gameId, mode: p.mode, title: p.title, conceptId: null, topicSlug: p.topicSlug,
         why, source: "sonar", rank: null,
@@ -132,7 +155,7 @@ export function buildTools(playerId: string, ctx: PageContext, sink: Action[], g
     {
       name: "recommend",
       description:
-        "Show the Player a card to start a Game. Either rank (0–2) picks one of the planner's ranked actions (preferred), or gameId + why recommends any other existing Game (Sonar's pick).",
+        "Show the Player a card to start a Game. On Python Basics pages, rank (0–2) picks one of the planner's ranked actions (preferred). On the Player's own Module (Module page, or a Reveal/Game of a Module Game) ranks are refused: pass gameId + why for one of that Module's ready Games.",
       schema: z.object({
         rank: z.number().int().min(0).max(2).optional(),
         gameId: z.string().optional(),
@@ -142,7 +165,11 @@ export function buildTools(playerId: string, ctx: PageContext, sink: Action[], g
   );
 
   const proposeGame = tool(
-    async ({ moduleId, sourceDocumentIds, mode, title, why }) => {
+    async ({ sourceDocumentIds, mode, title, why }) => {
+      const mod = await ownModule();
+      if (!mod) return "propose_game only works on the Player's own Module (its page, or a Reveal of one of its Games).";
+      if (hasGameCard(sink)) return "You already showed a Game card this turn.";
+      const moduleId = mod.moduleId;
       const p = await checkProposal(playerId, { moduleId, sourceDocumentIds, mode });
       if (!p.ok) return `Can't propose that Game: ${p.reason}`;
       sink.push({ kind: "create_game", moduleId, sourceDocumentIds: [...new Set(sourceDocumentIds)], mode: p.mode, title, why, source: "sonar" });
@@ -151,9 +178,8 @@ export function buildTools(playerId: string, ctx: PageContext, sink: Action[], g
     {
       name: "propose_game",
       description:
-        "Propose a new Game from whole files of the Player's Module. The Player confirms on a card; nothing is created yet. Modes: leap (recognition), dive (recall), blitz (misconceptions), pairs, apogee, arena.",
+        "Propose a new Game from whole files of the Player's Module this page belongs to (the Module is taken from the page). The Player confirms on a card; nothing is created yet. Modes: leap (recognition), dive (recall), blitz (misconceptions), pairs, apogee, arena.",
       schema: z.object({
-        moduleId: z.string(),
         sourceDocumentIds: z.array(z.string()).min(1),
         mode: z.string(),
         title: z.string().min(1).max(80),
@@ -162,5 +188,27 @@ export function buildTools(playerId: string, ctx: PageContext, sink: Action[], g
     },
   );
 
-  return [getConcept, getMistakes, readTopic, readSourcePage, recommend, proposeGame];
+  const suggestReading = tool(
+    async ({ documentId, page, why }) => {
+      const mod = await ownModule();
+      if (!mod) return "suggest_reading only works on the Player's own Module. For Python Basics use a planner rank.";
+      if (sink.some((a) => a.kind === "read")) return "You already showed a Read card this turn.";
+      const r = await checkReading(playerId, mod.moduleId, documentId, page);
+      if (!r.ok) return `Can't suggest that page: ${r.reason}`;
+      sink.push({ kind: "read", href: `/modules/files/${documentId}?page=${page}`, title: `Read: ${r.filename} p.${page}`, why, source: "sonar" });
+      return "Suggested. The Player sees a Read card that opens the page; don't repeat the link.";
+    },
+    {
+      name: "suggest_reading",
+      description:
+        "Show the Player a Read card that opens one page of a file in their Module (the one this page belongs to) as study notes. Use it when misses show a gap in what the page teaches.",
+      schema: z.object({
+        documentId: z.string().describe("A file's documentId from the Module"),
+        page: z.number().int().min(1),
+        why: z.string().max(160).describe("One line for the card: what this page covers that they missed"),
+      }),
+    },
+  );
+
+  return [getConcept, getMistakes, readTopic, readSourcePage, recommend, proposeGame, suggestReading];
 }

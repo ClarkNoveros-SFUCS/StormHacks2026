@@ -54,6 +54,7 @@ type Row = {
   kind: string;
   explanation: string | null;
   correct: string | null;
+  doc_id: string | null;
   doc_title: string | null;
   page_number: number | null;
   quote: string | null;
@@ -105,7 +106,7 @@ export async function recentMistakes(playerId: string, scope: MistakeScope, limi
     )
     select ev.at, ev.game_id, ev.prompt_id, ev.raw_text,
            g.title as game_title, g.mode, p.text as prompt, p.kind, p.explanation,
-           ans.correct, sd.filename as doc_title, sp.page_number, ans.quote,
+           ans.correct, sd.id as doc_id, sd.filename as doc_title, sp.page_number, ans.quote,
            t.slug as topic_slug, (c.id is not null) as in_course
       from ev
       join prompts p on p.id = ev.prompt_id
@@ -138,7 +139,7 @@ export async function recentMistakes(playerId: string, scope: MistakeScope, limi
     answered: decodeAnswered(r.raw_text),
     correct: r.correct ?? "",
     explanation: r.explanation,
-    evidence: r.page_number !== null ? { documentTitle: r.doc_title ?? "", pageNumber: r.page_number, quote: r.quote } : null,
+    evidence: r.page_number !== null && r.doc_id ? { documentId: r.doc_id, documentTitle: r.doc_title ?? "", pageNumber: r.page_number, quote: r.quote } : null,
     conceptIds: r.in_course ? conceptsForPrompt(r.prompt, r.topic_slug) : [],
   }));
 }

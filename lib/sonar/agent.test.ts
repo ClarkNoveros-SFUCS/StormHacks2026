@@ -1,6 +1,6 @@
 import { AIMessage, HumanMessage, ToolMessage } from "@langchain/core/messages";
 import { describe, expect, it } from "vitest";
-import { briefingFor, modelSnapshot, trimHistory } from "./agent";
+import { briefingFor, modelSnapshot, tagPage, trimHistory } from "./agent";
 import { parseChatRequest } from "./chat-request";
 import { FIXTURE_MODEL } from "./fixtures";
 import { decodeAnswered } from "./mistakes";
@@ -55,9 +55,18 @@ describe("prompt pieces", () => {
     expect(modelSnapshot({ ...FIXTURE_MODEL, observations: 0 })).toContain("hasn't played");
   });
   it("briefs per page and scopes mistakes per page", () => {
-    expect(briefingFor({ kind: "module", path: "/modules/x", moduleId: "x" })).toContain("propose_game");
+    expect(briefingFor({ kind: "module", path: "/modules/x", moduleId: "x" }, true)).toContain("propose_game");
+    const revealOfModule = briefingFor({ kind: "reveal", path: "/runs/r/reveal", runId: "r" }, true);
+    expect(revealOfModule).toContain("suggest_reading");
+    expect(revealOfModule).toContain("this Run");
+    expect(briefingFor({ kind: "reveal", path: "/runs/r/reveal", runId: "r" })).not.toContain("suggest_reading");
     expect(scopeFor({ kind: "reveal", path: "/runs/r/reveal", runId: "r" })).toEqual({ kind: "run", runId: "r" });
     expect(scopeFor({ kind: "home", path: "/home" })).toEqual({ kind: "course" });
+  });
+  it("tags the Player's message with its page", () => {
+    expect(tagPage("why?", { kind: "reveal", path: "/runs/r/reveal", runId: "r" }, { moduleId: "m", name: "CMPT 354" }))
+      .toBe('[Page: reveal /runs/r/reveal, Module "CMPT 354"]\nwhy?');
+    expect(tagPage("hi", { kind: "home", path: "/home" }, null)).toBe("[Page: home /home]\nhi");
   });
   it("pulls headings from a page", () => {
     expect(headings("# A\ntext\n## B")).toEqual(["A", "B"]);

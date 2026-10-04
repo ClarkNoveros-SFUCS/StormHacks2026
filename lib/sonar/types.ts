@@ -117,7 +117,7 @@ export type Mistake = {
   answered: string;
   correct: string;
   explanation: string | null;
-  evidence: { documentTitle: string; pageNumber: number; quote: string | null } | null;
+  evidence: { documentId: string; documentTitle: string; pageNumber: number; quote: string | null } | null;
   /** Empty outside Python Basics. */
   conceptIds: string[];
 };

@@ -3,6 +3,7 @@ import { getTopic } from "@/lib/courses/queries";
 import { sql } from "@/lib/db";
 import type { Db } from "@/lib/progress";
 import { COURSE_SLUG, isUuid, recentMistakes } from "./mistakes";
+import type { CustomModule } from "./module-scope";
 import type { Mistake, PageContext } from "./types";
 
 // Sonar (F32): what the page the Player is on holds, as a compact text block for the agent's
@@ -14,7 +15,7 @@ const clip = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…`
 
 /** One line per mistake, for prompts. */
 export function mistakeLine(m: Mistake): string {
-  const ev = m.evidence ? ` [${m.evidence.documentTitle} p.${m.evidence.pageNumber}]` : "";
+  const ev = m.evidence ? ` [${m.evidence.documentTitle} p.${m.evidence.pageNumber}, documentId ${m.evidence.documentId}]` : "";
   const c = m.conceptIds.length ? ` {${m.conceptIds.join(",")}}` : "";
   return `- (${m.mode}) "${clip(m.prompt, 140)}" answered "${clip(m.answered, 60)}", correct "${clip(m.correct, 80)}"${ev}${c}`;
 }
@@ -25,9 +26,28 @@ export function headings(md: string): string[] {
   return hs.length ? hs : [clip(md.trim().split("\n")[0] ?? "", 80)];
 }
 
-export async function describeContext(playerId: string, ctx: PageContext, db: Db = sql): Promise<string> {
+/** `mod`: the Player's own Module the page belongs to (lib/sonar/module-scope.ts); its files and Games are added. */
+export async function describeContext(playerId: string, ctx: PageContext, mod: CustomModule | null = null, db: Db = sql): Promise<string> {
   const lines = await describe(playerId, ctx, db);
+  if (mod && ctx.kind !== "module") lines.push(`This Game is from the Player's Module:`, ...(await moduleLines(playerId, mod.moduleId, db)));
   return clip(lines.join("\n"), MAX_CHARS);
+}
+
+/** A Module's name, files (with documentIds) and Games, or [] when it isn't the Player's. */
+async function moduleLines(playerId: string, moduleId: string, db: Db): Promise<string[]> {
+  const [m] = await db<{ name: string }[]>`select name from modules where id = ${moduleId} and player_id = ${playerId}`;
+  if (!m) return ["Module not found."];
+  const files = await db<{ id: string; filename: string; status: string; page_count: number | null }[]>`
+    select id, filename, status, page_count from source_documents
+     where module_id = ${moduleId} and player_id = ${playerId} order by created_at`;
+  const games = await db<{ id: string; title: string; mode: string; status: string }[]>`
+    select id, title, mode, status from games
+     where module_id = ${moduleId} and player_id = ${playerId} order by created_at desc limit 20`;
+  return [
+    `Module "${m.name}" (moduleId ${moduleId}).`,
+    `Files: ${files.map((f) => `${f.filename} [documentId ${f.id}, ${f.status === "parsed" ? "Ready" : f.status}, ${f.page_count ?? "?"} pages]`).join("; ") || "none"}`,
+    `Games: ${games.map((g) => `${g.title} [gameId ${g.id}, ${g.mode}, ${g.status}]`).join("; ") || "none"}`,
+  ];
 }
 
 async function describe(playerId: string, ctx: PageContext, db: Db): Promise<string[]> {
@@ -48,20 +68,7 @@ async function describe(playerId: string, ctx: PageContext, db: Db): Promise<str
     }
     case "module": {
       if (!ctx.moduleId || !isUuid(ctx.moduleId)) return [head];
-      const [m] = await db<{ name: string }[]>`select name from modules where id = ${ctx.moduleId} and player_id = ${playerId}`;
-      if (!m) return [head, "Module not found."];
-      const files = await db<{ id: string; filename: string; status: string; page_count: number | null }[]>`
-        select id, filename, status, page_count from source_documents
-         where module_id = ${ctx.moduleId} and player_id = ${playerId} order by created_at`;
-      const games = await db<{ id: string; title: string; mode: string; status: string }[]>`
-        select id, title, mode, status from games
-         where module_id = ${ctx.moduleId} and player_id = ${playerId} order by created_at desc limit 20`;
-      return [
-        head,
-        `Module "${m.name}" (moduleId ${ctx.moduleId}).`,
-        `Files: ${files.map((f) => `${f.filename} [documentId ${f.id}, ${f.status === "parsed" ? "Ready" : f.status}, ${f.page_count ?? "?"} pages]`).join("; ") || "none"}`,
-        `Games: ${games.map((g) => `${g.title} [gameId ${g.id}, ${g.mode}, ${g.status}]`).join("; ") || "none"}`,
-      ];
+      return [head, ...(await moduleLines(playerId, ctx.moduleId, db))];
     }
     case "reveal": {
       if (!ctx.runId || !isUuid(ctx.runId)) return [head];

@@ -45,6 +45,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F33 | Dive matches Krillion: continuous descent, catch and miss screens, intro pan | Frontend | F09 | #72 | done |
 | F34 | Clerk sign-in and sign-up match the site style | Frontend | F10, F19 | #77 | done |
 | F36 | Pop-up when a friend accepts your request | Platform | F21, F26 | #79 | done |
+| F37 | Sonar stays on custom Modules: Read + Game cards, no Python Basics leak | Gameplay | F32, F35 | #83 | done |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -633,6 +634,23 @@ Notes for others:
 - Applies to every Clerk component (SignIn, SignUp, the modals from `SignInButton`/`SignUpButton`, UserButton, UserProfile). Style a new one by adding its element key to `elements`, or a `.cl-<element>` rule in globals.css.
 - Colours are hex copies of the :root tokens: Clerk derives shades from them and can't read CSS variables. Change both if the palette changes.
 - "Secured by Clerk" stays (removing it needs a paid Clerk plan).
+
+## F37 Sonar stays on custom Modules: Read + Game cards, no Python Basics leak
+Issue #83
+- [x] A Reveal or Game page of a Game from the Player's own Module resolves that Module (files with documentIds, Games), like the Module page
+- [x] On the Player's own Module, the snapshot has no Python Basics model or planner; `recommend` refuses planner ranks and Games from other Modules
+- [x] `suggest_reading` tool: a Read card that opens one page of a Module file on its study page (`/modules/files/<docId>?page=N`), checked server-side
+- [x] `propose_game` takes the Module from the page, not from the model; one Game card and one Read card per turn
+- [x] The agent decides: gaps in what a page teaches → read; slow recall / timeouts → replay or propose a Game; both when both help
+- [x] Each Player message is tagged with its page; the drawer re-briefs (under a "Now on this Module" divider) when opened on a different Module/Reveal/Topic/Game page
+- [x] DB test: Module resolution (not for Course Modules or other players), Module-scoped Game and page checks
+
+Entry points: `customModuleFor` in `lib/sonar/module-scope.ts`; `checkReading` and `checkPlayable(…, moduleId)` in `lib/sonar/playable.ts`; `suggest_reading` in `lib/sonar/tools.ts`; `briefingFor(ctx, custom)` and `tagPage` in `lib/sonar/agent.ts`
+
+Notes for others:
+- **Contract:** `Mistake.evidence` gains `documentId`; `describeContext(playerId, ctx, mod?, db?)` (new third arg); `propose_game` no longer takes `moduleId`.
+- Python Basics pages behave as before.
+- Follow-up #84: a concept map for custom Modules, so the planner can work there too.
 
 ## F36 Pop-up when a friend accepts your request
 Issue #79
