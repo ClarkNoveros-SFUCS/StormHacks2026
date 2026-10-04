@@ -30,7 +30,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F18 | Open Prompt answer expansion with retrieval (pgvector, stretch) | Pipelines | F04, F14 | #28 | planned |
 | F19 | Landing page and site-wide UI overhaul | Frontend | F10 | #32 | planned |
 | F20 | Game Modes engine and generation: Apogee, Leap, Pairs, Blitz | Platform | F04, F06 | #33 | planned |
-| F21 | Social backend: profiles, XP, streaks, heatmap, badges, friends, leaderboards | Platform | F01, F07 | #34 | planned |
+| F21 | Social backend: profiles, XP, streaks, heatmap, badges, friends, leaderboards | Platform | F01, F07 | #34 | done |
 | F22 | Courses backend and the seeded Python Basics course | Platform | F20 | #35 | planned |
 | F23 | Daily Dive backend | Platform | F21, F22 | #36 | planned |
 | F24 | Apogee and Leap screens (three.js) | Frontend | F10, F20 | #37 | planned |
@@ -296,10 +296,25 @@ Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #33 (checklist live
 Entry points: — · Notes for others: —
 
 ## F21 Social backend: profiles, XP, streaks, heatmap, badges, friends, leaderboards
-Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #34 (checklist lives on the issue until this feature ships)
-- [ ] See the issue checklist
+Spec: `docs/architecture/social.md`, ADR-0005, decisions §6, §8, §12 (Q8, Q11, Q12), §13 (Q17) · Issue #34
+- [x] players: username, display_name, image_url, avatar (pixel id), use_photo (plus bio, banner)
+- [x] xp_events hypertable, levels, ocean ranks, streak (Vancouver days)
+- [x] player_activity_daily continuous aggregate + gapfilled heatmap query
+- [x] badges, friendships (request/accept/decline/remove), username search
+- [x] leaderboards (Daily today, Weekly XP, Course) Global/Friends via continuous aggregates
+- [x] API routes + tests
+- [x] Also: `player_xp_weekly` continuous aggregate, compression policy on `guess_events` (> 30 days), XP backfill (`npm run social:backfill`), ADR-0005, `CONTEXT.md` § Social
 
-Entry points: — · Notes for others: —
+Entry points: `lib/social/` (`xp.ts` hooks `onRunFinished`, `onTopicPassed`, `onTopicRead`, `onCourseFinished`, `onDailyPlayed`, `awardBadge`; `profile.ts` `ensureProfile`, `profileFor`, `myProfile`, `profileCard`, `updateProfile`, `publicGame`; `activity.ts` `heatmap`; `friends.ts`; `leaderboards.ts` `weeklyXp`, `gameLeaderboard`, `courseLeaderboard`; client-safe `types.ts`, `rules.ts`, `badges.ts`), API under `app/api/me/*`, `app/api/profiles/[username]`, `app/api/players/search`, `app/api/friends/*`, `app/api/leaderboards/*`, migration `db/migrations/20261004T1015_social.sql` (applied to `stormhacks-dev`), `scripts/social-backfill.mjs`, tests `lib/social/*.test.ts` and `lib/social/social.db.test.ts`
+
+Notes for others:
+- **F20 (Runs):** inside the transaction that sets `status = 'finished'`, call `await onRunFinished(playerId, { runId, ...summary }, tx)` where `summary` is your `RunSummary` (`{ mode, score, finishedAt, outcome, stats }`). Never for abandoned Runs. It awards `floor(score/5)` XP (5..200) once per Run and evaluates First Dive, Trench Diver (rare-tier `guess_events` in the Run), Perfect Leap (`outcome !== "fell"`, `stats.correct === stats.questions`), Pairs Speedrun (`outcome === "cleared"`, `stats.timeBonus >= 300`), Level and Streak Badges. Returns `XpAward { xpAwarded, totalXp, levelBefore, levelAfter, leveledUp, newBadges, streak }`: put it in the Reveal if you want "+XP" / level-up moments. Safe to call twice.
+- **F22 (Courses):** `onTopicPassed(playerId, { course: "python-basics", topicNumber: n }, tx)` (+150, badge `topic-python-basics-<n>`), `onTopicRead(...)` (+20, Q27), `onCourseFinished(playerId, "python-basics", tx)` (+500, badge `course-python-basics`). Public Games: add `games.visibility`; until then `publicGame()` in `lib/social/profile.ts` treats Games owned by player `'system'` as public, and already honours `visibility = 'public'` once the column exists (via `to_jsonb(g)`), so no change is required here. The Course board counts `topic_passed` events by ref `<course>:<n>`.
+- **F23 (Daily):** for the counted Daily Run call `onRunFinished` first, then `onDailyPlayed(playerId, day, tx)` (+50 + 5 × Streak, bonus ≤ 50, once per day). Today's board: `GET /api/leaderboards/games/[dailyGameId]?day=YYYY-MM-DD&counting=first` (one counted attempt = the first finished Run that day). Award `daily-top-10` with `awardBadge(playerId, "daily-top-10", day, tx)`.
+- **F26 / F19 (UI):** API table and shapes in `docs/architecture/social.md` § API; import types from `@/lib/social/types` (and `levelFor`, `badgeInfo`, `badgeCatalogue` from `rules.ts`/`badges.ts`, both client-safe). Home card: `GET /api/me/summary` → `ProfileCard`. Profile page: `GET /api/profiles/[username]` → `{ profile }` (`/profile` can use `GET /api/me/profile`, which adds `usePhoto`/`clerkImageUrl` for the Edit dialog; `PATCH` it with `{ username?, displayName?, avatar?, usePhoto?, bio?, banner? }`, 409 = username taken). Avatar ids: `AVATARS` (16, default `anglerfish`). Heatmap: `days[i]` → column `floor(i/7)`, row `i%7` (Sunday first), `level` 0–4. Leaderboard rows use **`place`** (position) because `player.rank` is the ocean Rank; `me` is your row even outside the top N.
+- **Pages** that render the signed-in Player outside the API can call `ensureProfile(playerId, await currentUser())` (`lib/auth.ts` is untouched; social routes already call it).
+- `xp_events` has no FK (event log); idempotency is `(player_id, reason, ref)` under a per-Player advisory lock, because a hypertable's unique index must include `at`.
+- Both new continuous aggregates are real-time; never refresh them with a NULL end (see `data-model.md`). Runs finished before the hook existed: `npm run social:backfill`.
 
 ## F22 Courses backend and the seeded Python Basics course
 Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #35 (checklist lives on the issue until this feature ships)

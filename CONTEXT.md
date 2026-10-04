@@ -1,11 +1,11 @@
 # StormHacks Study Game
 
-A solo study app: a student uploads their own course files, and the app turns them into games they choose the kind of. The first kind, Dive, is in the style of Krillion: timed prompts where less obvious correct answers score more.
+A study app: a student uploads their own course files, and the app turns them into games they choose the kind of. The first kind, Dive, is in the style of Krillion: timed prompts where less obvious correct answers score more. Study stays private; what Players share is a public Profile and leaderboards on public Games (ADR-0005).
 
 ## Language
 
 **Player**:
-The single student who uploads files and plays the Games made from them. There is no shared play between Players.
+A student who uploads files and plays the Games made from them. Their Modules, Source Documents and Module Games are private; other Players see only their Profile and their places on Leaderboards.
 _Avoid_: User (in game logic), contestant
 
 **Module**:
@@ -81,9 +81,47 @@ _Avoid_: Decay, repeat penalty
 ## Progress
 
 **Personal Best**:
-The Player's highest Run score on a Game.
-_Avoid_: High score, leaderboard, ranking
+The Player's highest Run score on a Game. On a public Game it is also the Player's entry on that Game's Leaderboard.
+_Avoid_: High score, ranking
 
 **Mastery**:
 The share of a Game's Answers the Player has ever found.
 _Avoid_: Progress, completion
+
+## Social (ADR-0005, docs/architecture/social.md)
+
+**Profile**:
+What other signed-in Players can see about a Player: Username, display name, avatar, Level, XP, Rank, Streak, Badges, activity heatmap, counts and best scores on public Games. Never anything inside a Module.
+_Avoid_: Account, user page
+
+**Username**:
+A Player's unique public handle (3–20 lowercase letters, digits or underscores), shown as @username and used in `/u/[username]`. Derived from Clerk on first visit; the Player can change it.
+_Avoid_: Handle, login, user id
+
+**XP**:
+Points earned for playing, separate from any Run's score: every finished Run (score ÷ 5, 5 to 200), passing a Topic, finishing a Course, playing the Daily Dive. Each event earns XP once.
+_Avoid_: Points (that's a Run's score), experience
+
+**Level**:
+Where a Player's total XP puts them: Level n starts at 50·(n−1)·n XP (Level 2 at 100, Level 3 at 300, Level 4 at 600 …).
+_Avoid_: Tier (that's an Answer's points band), rank
+
+**Rank**:
+The ocean title for a range of Levels: Plankton (1–2), Shrimp (3–4), Reef Fish (5–7), Dolphin (8–11), Orca (12–16), Leviathan (17+).
+_Avoid_: Place (a Leaderboard position), Tier
+
+**Streak**:
+How many Vancouver days in a row the Player has finished at least one Run, counting today once it's played (until then, up to yesterday).
+_Avoid_: Combo (that's within a Run)
+
+**Badge**:
+A named achievement a Player earns once and keeps (First Dive, Trench Diver, a Topic badge …).
+_Avoid_: Achievement, trophy, medal
+
+**Friend**:
+Another Player who accepted your friend request (or whose request you accepted). Friends scope the Leaderboards; there is no chat.
+_Avoid_: Follower, contact
+
+**Leaderboard**:
+Players ordered on one measure: a public Game's counted Run score (ties go to the earlier finish), XP earned this week, or Course Topics passed. Shown Global or Friends-only. A Player's position on it is their **Place**.
+_Avoid_: Ranking, high-score table

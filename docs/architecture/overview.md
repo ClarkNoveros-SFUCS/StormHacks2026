@@ -4,7 +4,7 @@ Start here. Read `CONTEXT.md` (repo root) first for vocabulary: every capitalise
 
 ## What we're building
 
-A solo, Krillion-style study game. A Player uploads course files into a **Module**, picks some of those files to generate a **Game**, then plays **Runs** of that Game: 7 timed Prompts where less obvious correct Answers score more. There is no multiplayer, no crowd data, and no leaderboard. Progress is measured against yourself (Personal Best, Mastery).
+A Krillion-style study game. A Player uploads course files into a **Module**, picks some of those files to generate a **Game**, then plays **Runs** of that Game: 7 timed Prompts where less obvious correct Answers score more. Study is private and progress on a Game is measured against yourself (Personal Best, Mastery). Since ADR-0005 there is a social layer on top: a public Profile (Level, XP, Rank, Streak, Badges, activity heatmap), Friends, and Leaderboards on public Games (Daily Dive, Course Topics) and weekly XP; see [`social.md`](./social.md). There is still no live multiplayer, and Rarity never comes from the crowd (ADR-0001).
 
 ## Stack
 
@@ -45,6 +45,7 @@ Nothing talks to Gemini during a Run. A Run touches only Tiger Data, so play sta
 5. [`data-model.md`](./data-model.md): tables, relationships, hypertable, progress queries.
 6. [`ui-map.md`](./ui-map.md): pages and what each one shows. Visual design: `docs/design/design-system.md` (shared) and `docs/design/modes/` (one per Game Mode).
 7. [`game-modes.md`](./game-modes.md): what a Game Mode owns vs. shares, `games.mode`, and how to add a Mode. Docs 2 and 3 describe the first Mode, **Dive**.
+8. [`social.md`](./social.md): Profiles, XP, Levels, Ranks, Streaks, Badges, Friends, Leaderboards, and the hooks other features call.
 
 ## Rules every agent should keep
 
@@ -54,7 +55,7 @@ Nothing talks to Gemini during a Run. A Run touches only Tiger Data, so play sta
 - **Games are immutable.** No regeneration and no adding files later. A change means a new Game.
 - **One Game Mode per Game** (ADR-0004). Generation, Run rules and screens follow `game.mode`. Only `'dive'` exists today.
 - **The server owns the clock and the score.** The browser never receives Answers or Hints before they're earned or revealed.
-- **Everything is private to its Player.** Every page and server action starts with `requirePlayer()`, every route handler with `getApiPlayer()` (`lib/auth.ts`), and every query filters by the returned id.
+- **Everything in a Module is private to its Player.** Every page and server action starts with `requirePlayer()`, every route handler with `getApiPlayer()` (`lib/auth.ts`), and every query on Module content filters by the returned id. Only Profile fields, XP/Badges/friendships and Runs on public Games are readable across Players (ADR-0005, `lib/social/`).
 
 ## Environment variables
 
