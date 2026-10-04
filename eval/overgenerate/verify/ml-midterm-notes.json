@@ -1,0 +1,484 @@
+{
+  "deck": "ml-midterm-notes",
+  "createdAt": "2026-10-04T13:26:29.572Z",
+  "verifyVersion": "28c4606d",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 7.588,
+    "usage": {
+      "inputTokens": 6715,
+      "outputTokens": 3125,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.009827
+  },
+  "prompts": [
+    "Name an evaluation metric used in machine learning",
+    "Name a metric used to evaluate classification performance",
+    "Name a component of an artificial neural network node",
+    "Name a variable or parameter used in updating neural network weights via gradient descent",
+    "Name a calculus concept used in training neural networks",
+    "Name a machine learning algorithm or model type",
+    "F1 score is the ______ mean of precision and recall.",
+    "The gradient of a zero-one loss function is ______, which prevents the use of gradient descent.",
+    "ReLU avoids the ______ gradient problem faced by the logistic sigmoid function.",
+    "Mean Squared Error is a loss function typically used for ______.",
+    "The gradient of a function is a ______ function where each component is a partial derivative.",
+    "A* search combines UCS with a ______.",
+    "What validation technique splits training data such that the training set and test set are disjoint for each fold?",
+    "What evaluation metric measures the proportion of all correct predictions made by a model?",
+    "What evaluation metric calculates the probability that a positive prediction is correct out of all predicted positives?",
+    "What metric measures the probability that an actual positive instance is correctly predicted?",
+    "What evaluation metric measures the probability that an actual negative outcome is predicted correctly?",
+    "What error metric computes the average of the absolute differences between actual and predicted values?",
+    "What evaluation metric calculates the average distance between predicted values from a model and actual values in a dataset?",
+    "What neural network procedure updates weights by working backwards using chain rules to determine error contributions?",
+    "Which activation function compares the input value against zero and selects the larger number?",
+    "Put the steps of the K-means clustering algorithm in order.",
+    "Put the steps of decision tree construction in order.",
+    "Put the steps of KNN classification in order.",
+    "Which metric is used to evaluate regression error rather than binary classification predictions?",
+    "Which option is an activation function rather than an evaluation metric?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "Page 1 lists Accuracy as an evaluation metric.",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "Page 1 lists Precision as an evaluation metric.",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "Page 1 lists Recall as an evaluation metric.",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "Page 1 lists Specificity as an evaluation metric.",
+            "supports": true
+          },
+          {
+            "id": "P1.A5",
+            "reason": "Page 1 lists F1 score as an evaluation metric.",
+            "supports": true
+          },
+          {
+            "id": "P1.A6",
+            "reason": "Page 1 lists Mean Absolute Error as an evaluation metric.",
+            "supports": true
+          },
+          {
+            "id": "P1.A7",
+            "reason": "Page 1 lists Root mean square error as an evaluation metric.",
+            "supports": true
+          },
+          {
+            "id": "P1.A8",
+            "reason": "Page 2 lists Mean Squared Error as a loss function.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "Accuracy is a classification performance metric on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "Precision is a classification performance metric on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "Recall is a classification performance metric on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "Specificity is a classification performance metric on page 1.",
+            "supports": true
+          },
+          {
+            "id": "P2.A5",
+            "reason": "F1 score is a classification performance metric on page 1.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "Page 2 lists Input as a component of a node.",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "Page 2 lists bias under inputs of a node.",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "Page 2 lists Input function as part of a node.",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "Page 2 lists Activation function as part of a node.",
+            "supports": true
+          },
+          {
+            "id": "P3.A5",
+            "reason": "Page 2 lists Output as a component of a node.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "Page 2 discusses updating weights via gradient descent.",
+            "supports": true
+          },
+          {
+            "id": "P4.A2",
+            "reason": "Page 3 mentions the learning rate alpha in weight updates.",
+            "supports": true
+          },
+          {
+            "id": "P4.A3",
+            "reason": "Page 2 and 3 discuss gradients in weight updates.",
+            "supports": true
+          },
+          {
+            "id": "P4.A4",
+            "reason": "Page 2 and 3 use the loss function in gradient descent.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "Page 2 discusses partial derivatives for neural networks.",
+            "supports": true
+          },
+          {
+            "id": "P5.A2",
+            "reason": "Page 2 discusses the gradient of a function.",
+            "supports": true
+          },
+          {
+            "id": "P5.A3",
+            "reason": "Page 2 discusses the chain rule of derivatives.",
+            "supports": true
+          },
+          {
+            "id": "P5.A4",
+            "reason": "Page 3 uses derivatives of loss functions.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "Page 1 lists K-means clustering.",
+            "supports": true
+          },
+          {
+            "id": "P6.A2",
+            "reason": "Page 1 lists K-nearest neighbors.",
+            "supports": true
+          },
+          {
+            "id": "P6.A3",
+            "reason": "Page 1 lists Decision Trees.",
+            "supports": true
+          },
+          {
+            "id": "P6.A4",
+            "reason": "Page 1 lists Linear regression.",
+            "supports": true
+          },
+          {
+            "id": "P6.A5",
+            "reason": "Page 1 lists Multilayer neural networks.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "Page 1 states F1 score is the harmonic mean.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "Page 2 states gradient of a zero-one loss function is 0.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "Page 2 states ReLU avoids the vanishing gradient problem.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "Page 2 states Mean Squared Error is used for regression.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "Page 2 defines gradient as a vector function.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "Page 1 states A* combines UCS and heuristic.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "Page 1 defines cross-validation.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "Page 1 defines accuracy.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P15",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P15.A1",
+            "reason": "Page 1 defines precision.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P16",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P16.A1",
+            "reason": "Page 1 defines recall.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P17",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P17.A1",
+            "reason": "Page 1 defines specificity.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P18",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P18.A1",
+            "reason": "Page 1 defines Mean Absolute Error.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P19",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P19.A1",
+            "reason": "Page 1 defines Root mean square error.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P20",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P20.A1",
+            "reason": "Page 3 defines backpropagation.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P21",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P21.A1",
+            "reason": "Page 2 defines ReLU.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P22",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P22.A1",
+            "reason": "Page 1 lists K-means steps in this exact order.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P23",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P23.A1",
+            "reason": "Page 1 lists decision tree steps in this exact order.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P24",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P24.A1",
+            "reason": "Page 1 lists KNN classification steps in this exact order.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P25",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P25.A1",
+            "reason": "Mean Absolute Error is a regression error metric, unlike the other three classification metrics.",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P26",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P26.A1",
+            "reason": "ReLU is an activation function, while the others are evaluation metrics.",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}

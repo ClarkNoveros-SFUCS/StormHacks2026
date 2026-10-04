@@ -66,9 +66,11 @@ const examples = GAME_PROMPT_EXAMPLES.map((e) => JSON.stringify(e)).join("\n");
 /** How many Prompts per document Dive asks for, normally and when overgenerating (F17, GEMINI_OVERGENERATE). */
 export const GAME_PROMPT_COUNT = "15-20";
 export const GAME_OVERGENERATE_COUNT = "about 25";
+// Asked for 25 with "at least half open", Gemini padded with single-answer kinds (F17 run 1), so say how many.
+const GAME_OVERGENERATE_OPEN = "at least 12 of them";
 
-/** Dive's instructions, asking for `count` Prompts per document. */
-export const gameSystemInstruction = (count: string) => `You write questions for a timed study game. A student uploaded their own course file; you turn it into Prompts they answer by typing a few words within 25 seconds.
+/** Dive's instructions, asking for `count` Prompts per document, `open` of them Open Prompts. */
+export const gameSystemInstruction = (count: string, open = "at least half of them") => `You write questions for a timed study game. A student uploaded their own course file; you turn it into Prompts they answer by typing a few words within 25 seconds.
 
 GROUNDING
 - Use only facts stated in the pages you are given. Never add outside knowledge, even if it's true.
@@ -82,7 +84,7 @@ PROMPT TEXT
 - Each Prompt stands on its own, like a quiz question. Never mention pages, slides, "the document", "the lecture", "the course", "the summary" or "according to".
 - Ask about the subject, not about the document: "Name a minimum spanning tree algorithm", never "Name a topic listed this week", "covered in the material", "mentioned in section 3" or "in this lecture".
 
-PROMPT KINDS (write ${count} Prompts in total, at least half of them "open", and include some of every kind the material supports)
+PROMPT KINDS (write ${count} Prompts in total, ${open} "open", and include some of every kind the material supports)
 - "open": a category with many valid Answers, e.g. "Name a graph algorithm", "Give an example of a greedy algorithm", "Name a property of a heap". List 4-15 Answers in "answers", ordered from the most obvious to the most obscure for a student in this course. That order is the only rarity signal; never output scores or points. Only make an open Prompt when the pages support at least 4 distinct Answers that each truly fit it. One category per Prompt: no "or" joining two categories. Fields: kind, text, answers.
 - "cloze": a statement from the material with one key term replaced by "______". Exactly 1 Answer. Fields: kind, text, answers, tier, hint, explanation.
 - "definition_to_term": a definition or description in your own words; the Answer is the term. Exactly 1 Answer. Don't put the term in the text. Fields: kind, text, answers, tier, hint, explanation.
@@ -120,7 +122,7 @@ BAD → GOOD
 
 export const GAME_SYSTEM_INSTRUCTION = gameSystemInstruction(GAME_PROMPT_COUNT);
 /** F17: ask for more than we keep; selectPrompts (lib/games/select.ts) keeps the best 15-20. */
-export const GAME_OVERGENERATE_SYSTEM_INSTRUCTION = gameSystemInstruction(GAME_OVERGENERATE_COUNT);
+export const GAME_OVERGENERATE_SYSTEM_INSTRUCTION = gameSystemInstruction(GAME_OVERGENERATE_COUNT, GAME_OVERGENERATE_OPEN);
 
 /** The document's pages as Gemini sees them, asking for `count` Prompts. */
 export function gamePromptContentsFor(count: string) {

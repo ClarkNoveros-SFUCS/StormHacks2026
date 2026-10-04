@@ -1,0 +1,561 @@
+{
+  "deck": "cmpt354-sql-basics",
+  "createdAt": "2026-10-04T13:23:45.197Z",
+  "verifyVersion": "28c4606d",
+  "run": {
+    "model": "gemini-3.5-flash-lite",
+    "seconds": 8.67,
+    "usage": {
+      "inputTokens": 8227,
+      "outputTokens": 3695,
+      "thinkingTokens": 0
+    },
+    "costUsd": 0.0117056
+  },
+  "prompts": [
+    "Name an SQL primitive data type",
+    "Name an SQL aggregation function",
+    "Name a floating-point data type supported in SQL",
+    "Name a set operation keyword supported in SQL",
+    "Name a type of join supported in SQL",
+    "Name an operator or keyword used in SQL conditions involving subqueries",
+    "Name a clause present in an SQL grouped aggregation query",
+    "Name a declaration or constraint used when defining attributes or keys in SQL schemas",
+    "Name a category of primitive data types in SQL",
+    "Name an SQL statement used to define schemas or manipulate data",
+    "Name a usage form for subqueries in SQL WHERE clauses",
+    "In SQL, arithmetic operations performed on NULL values return ______.",
+    "In SQL three-valued logic, comparisons with NULL evaluate to ______.",
+    "In SQL pattern matching, the % symbol stands for zero or more ______ characters.",
+    "SQL set operations eliminate duplicates by default unless retained using the ______ keyword.",
+    "In an SQL query, the ______ clause contains conditions applied to aggregates.",
+    "The SQL sublanguage used specifically for declaring database schemas.",
+    "The SQL sublanguage used for querying databases and modifying database contents.",
+    "A inner query that is evaluated multiple times, once for each assignment of a tuple variable from the outer query.",
+    "An atomic value that can serve as a single component of a database tuple.",
+    "An execution model where join conditions are evaluated using nested iteration over relations.",
+    "Put the evaluation steps of an SQL query containing a HAVING clause in order.",
+    "Put the conceptual processing steps of a GROUP BY query in order.",
+    "Which statement is a Data Manipulation Language statement, while the other three are Data Definition Language statements?",
+    "Which option is an SQL filtering clause rather than an aggregation function?"
+  ],
+  "response": {
+    "prompts": [
+      {
+        "id": "P1",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P1.A1",
+            "reason": "CHAR is listed as a primitive type",
+            "supports": true
+          },
+          {
+            "id": "P1.A2",
+            "reason": "VARCHAR is listed as a primitive type",
+            "supports": true
+          },
+          {
+            "id": "P1.A3",
+            "reason": "BOOLEAN is listed as a primitive type",
+            "supports": true
+          },
+          {
+            "id": "P1.A4",
+            "reason": "INT is listed as a primitive type",
+            "supports": true
+          },
+          {
+            "id": "P1.A5",
+            "reason": "FLOAT is listed as a primitive type",
+            "supports": true
+          },
+          {
+            "id": "P1.A6",
+            "reason": "DATE is listed as a primitive type",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P2",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P2.A1",
+            "reason": "COUNT is listed as an aggregation function",
+            "supports": true
+          },
+          {
+            "id": "P2.A2",
+            "reason": "SUM is listed as an aggregation function",
+            "supports": true
+          },
+          {
+            "id": "P2.A3",
+            "reason": "AVG is listed as an aggregation function",
+            "supports": true
+          },
+          {
+            "id": "P2.A4",
+            "reason": "MAX is listed as an aggregation function",
+            "supports": true
+          },
+          {
+            "id": "P2.A5",
+            "reason": "MIN is listed as an aggregation function",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P3",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P3.A1",
+            "reason": "FLOAT is listed under floating-point types",
+            "supports": true
+          },
+          {
+            "id": "P3.A2",
+            "reason": "REAL is listed under floating-point types",
+            "supports": true
+          },
+          {
+            "id": "P3.A3",
+            "reason": "DOUBLE PRECISION is listed under floating-point types",
+            "supports": true
+          },
+          {
+            "id": "P3.A4",
+            "reason": "DECIMAL is listed under floating-point types",
+            "supports": true
+          },
+          {
+            "id": "P3.A5",
+            "reason": "NUMERIC is listed under floating-point types",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P4",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P4.A1",
+            "reason": "UNION is listed as a set operation",
+            "supports": true
+          },
+          {
+            "id": "P4.A2",
+            "reason": "INTERSECT is listed as a set operation",
+            "supports": true
+          },
+          {
+            "id": "P4.A3",
+            "reason": "EXCEPT is listed as a set operation",
+            "supports": true
+          },
+          {
+            "id": "P4.A4",
+            "reason": "MINUS is mentioned as an implementation of EXCEPT",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P5",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P5.A1",
+            "reason": "INNER JOIN is shown in queries",
+            "supports": true
+          },
+          {
+            "id": "P5.A2",
+            "reason": "FULL OUTER JOIN is shown in queries",
+            "supports": true
+          },
+          {
+            "id": "P5.A3",
+            "reason": "LEFT OUTER JOIN is shown in queries",
+            "supports": true
+          },
+          {
+            "id": "P5.A4",
+            "reason": "RIGHT OUTER JOIN is shown in queries",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P6",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P6.A1",
+            "reason": "IN is listed for conditions involving relations",
+            "supports": true
+          },
+          {
+            "id": "P6.A2",
+            "reason": "NOT IN is listed for conditions involving relations",
+            "supports": true
+          },
+          {
+            "id": "P6.A3",
+            "reason": "EXISTS is listed for conditions involving relations",
+            "supports": true
+          },
+          {
+            "id": "P6.A4",
+            "reason": "ALL is listed for conditions involving relations",
+            "supports": true
+          },
+          {
+            "id": "P6.A5",
+            "reason": "ANY is listed for conditions involving relations",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P7",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P7.A1",
+            "reason": "SELECT is listed in the query syntax",
+            "supports": true
+          },
+          {
+            "id": "P7.A2",
+            "reason": "FROM is listed in the query syntax",
+            "supports": true
+          },
+          {
+            "id": "P7.A3",
+            "reason": "WHERE is listed in the query syntax",
+            "supports": true
+          },
+          {
+            "id": "P7.A4",
+            "reason": "GROUP BY is listed in the query syntax",
+            "supports": true
+          },
+          {
+            "id": "P7.A5",
+            "reason": "HAVING is listed in the query syntax",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P8",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P8.A1",
+            "reason": "PRIMARY KEY is used for declaring keys",
+            "supports": true
+          },
+          {
+            "id": "P8.A2",
+            "reason": "UNIQUE is used for declaring keys",
+            "supports": true
+          },
+          {
+            "id": "P8.A3",
+            "reason": "NOT NULL is used as a constraint",
+            "supports": true
+          },
+          {
+            "id": "P8.A4",
+            "reason": "DEFAULT is used for default values",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P9",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P9.A1",
+            "reason": "Character string is listed as a primitive data type category",
+            "supports": true
+          },
+          {
+            "id": "P9.A2",
+            "reason": "Bit Strings is listed as a primitive data type category",
+            "supports": true
+          },
+          {
+            "id": "P9.A3",
+            "reason": "Boolean is listed as a primitive data type category",
+            "supports": true
+          },
+          {
+            "id": "P9.A4",
+            "reason": "Integer is listed as a primitive data type category",
+            "supports": true
+          },
+          {
+            "id": "P9.A5",
+            "reason": "Floating-point is listed as a primitive data type category",
+            "supports": true
+          },
+          {
+            "id": "P9.A6",
+            "reason": "Date and Time is listed as a primitive data type category",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P10",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P10.A1",
+            "reason": "CREATE TABLE is a schema definition statement",
+            "supports": true
+          },
+          {
+            "id": "P10.A2",
+            "reason": "ALTER TABLE is a schema modification statement",
+            "supports": true
+          },
+          {
+            "id": "P10.A3",
+            "reason": "DROP TABLE is a schema deletion statement",
+            "supports": true
+          },
+          {
+            "id": "P10.A4",
+            "reason": "INSERT is a data manipulation statement",
+            "supports": true
+          },
+          {
+            "id": "P10.A5",
+            "reason": "UPDATE is a data manipulation statement",
+            "supports": true
+          },
+          {
+            "id": "P10.A6",
+            "reason": "DELETE is a data manipulation statement",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P11",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P11.A1",
+            "reason": "Scalar values subqueries are listed",
+            "supports": true
+          },
+          {
+            "id": "P11.A2",
+            "reason": "Conditions involving relations subqueries are listed",
+            "supports": true
+          },
+          {
+            "id": "P11.A3",
+            "reason": "Conditions involving tuples subqueries are listed",
+            "supports": true
+          },
+          {
+            "id": "P11.A4",
+            "reason": "Correlated subqueries are listed",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P12",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P12.A1",
+            "reason": "Arithmetic operations on nulls return NULL",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P13",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P13.A1",
+            "reason": "Comparisons with nulls evaluate to UNKNOWN",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P14",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P14.A1",
+            "reason": "The % symbol stands for zero or more arbitrary characters",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P15",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P15.A1",
+            "reason": "Duplicates can be retained using the ALL keyword",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P16",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P16.A1",
+            "reason": "HAVING clause contains conditions on aggregates",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P17",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P17.A1",
+            "reason": "DDL is defined as the sublanguage for declaring database schemas",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P18",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P18.A1",
+            "reason": "DML is defined as the sublanguage for querying and modifying databases",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P19",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P19.A1",
+            "reason": "Correlated subqueries are evaluated many times based on outer tuple variables",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P20",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P20.A1",
+            "reason": "Scalar is defined as an atomic value that can be one component of a tuple",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P21",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P21.A1",
+            "reason": "Nested loop semantics interprets join meaning using a nested loop",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P22",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P22.A1",
+            "reason": "The steps match the evaluation order for HAVING clauses on page 82",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P23",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P23.A1",
+            "reason": "The steps match the query semantics on page 78",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P24",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P24.A1",
+            "reason": "INSERT is a DML statement while the others are DDL",
+            "supports": true
+          }
+        ]
+      },
+      {
+        "id": "P25",
+        "clear": true,
+        "duplicate_of": "",
+        "answers": [
+          {
+            "id": "P25.A1",
+            "reason": "WHERE is a filtering clause while the others are aggregation functions",
+            "supports": true
+          }
+        ]
+      }
+    ]
+  }
+}
