@@ -18,8 +18,11 @@ generateGame:
   a. claim it: UPDATE … SET status = 'generating' WHERE status = 'queued' (so it runs once);
      generator = generatorFor(game.mode)  (Apogee → Dive's; a reserved Mode fails "This Game Mode can't be generated yet")
   b. for each selected document, IN PARALLEL: load its source_pages, then call Gemini with the Mode's request
-  c. the Mode's per-document checks (Dive's below); drop what fails, keep the rest. Then check 7 across
-     documents, then the Mode's Game-level checks (Pairs: one Prompt per term; Blitz: true/false balance)
+  c. the Mode's per-document checks (Dive's below); drop what fails, keep the rest. Then, per document, the
+     verification pass (§ Verification pass (F16)): a second Gemini call drops Answers their page doesn't
+     support, unclear Prompts and duplicates (GEMINI_VERIFY=off skips it; a failed call keeps everything).
+     Then check 7 across documents, then the Mode's Game-level checks (Pairs: one Prompt per term; Blitz:
+     true/false balance)
   d. assign Tiers to Open Prompt Answers (code, not Gemini; Dive only)
   e. if fewer than the Mode's minimum survive (Dive/Apogee 7, Leap 10, Pairs 12, Blitz 30) → status = 'failed',
      error = 'Not enough usable content to make a Game' (other Modes add: "a Leap Game needs 10 questions and only 6 passed the checks. Try adding more files")
@@ -173,7 +176,7 @@ Planned, in order (each measured with F14's scorecard, which comes first):
 |---|---|---|---|
 | F14 (#24) | Scorecard over 3–4 real decks: kept Prompts, kinds, Answers per Open Prompt, quotes verified, drops by reason, time, cost; `--from` replays for free | judging changes by eye | none per Game |
 | F15 (#25, done) | Example Prompts from the seed fixture in the instructions, plus "bad → good" pairs (§ Scorecard → F15) | broad Prompts, give-away Hints, steps as Answers, admin Prompts | ~1,100 input tokens |
-| F16 (#26) | Second Gemini call per document: does each quote show its Answer fits the Prompt? Is the Prompt clear, or a duplicate? | mentioned-but-wrong Answers, duplicates | ~+20 s, ~+$0.02 per document |
+| F16 (#26), **done** | Second Gemini call per document: does each quote show its Answer fits the Prompt? Is the Prompt clear, or a duplicate? (§ Verification pass) | mentioned-but-wrong Answers, duplicates | measured +4–7 s, ≈ +$0.006–0.010 per document (flash-lite) |
 | F17 (#27) | Ask for ~25 Prompts, keep the best 15–20 by code (Answers per Open Prompt, kind and page coverage, near-duplicates) | uneven quality and coverage | more output tokens |
 | F18 (#28, stretch) | pgvector on `source_pages`: per Open Prompt, retrieve the related pages and ask for every Answer they support, then merge and re-rank | too few Answers per Open Prompt, weak Rarity | embeddings at upload + one call per Open Prompt |
 
@@ -186,6 +189,10 @@ npm run generate:eval                          replay eval/responses/ (no Gemini
 npm run generate:eval -- --from <dir>          replay another saved set
 npm run generate:eval -- --live                one call per deck (≈ $0.20 for all four), saved to eval/runs/<time>/
   ... --save <dir>  --deck <id>[,<id>]  --no-fallback  --drops  --json
+  ... --verify                                 also run the verification pass (F16), one more call per deck (≈ $0.03 for all four),
+                                               saved to <save dir>/verify/
+  ... --verify-from <dir>                      replay saved verifications instead ($0): eval/verify (for eval/responses)
+  ... --verify-model <model>                   the verifier's model (default: GEMINI_VERIFY_MODEL, else GEMINI_FALLBACK_MODEL)
 ```
 
 - **Code change** (validate.ts, the checks): replay. It's free and the Gemini output is fixed, so any difference comes from your change.
@@ -194,7 +201,7 @@ npm run generate:eval -- --live                one call per deck (≈ $0.20 for 
 - **Saved responses** (`eval/responses/<deck>.json`, ~20 KB each; since F15, from the current prompt `a6b826d6`, F15 run 2) are committed, with the model, seconds, token usage and estimated cost of the call. They quote the decks only in short evidence quotes. `--save` from `generate:check` writes the same format.
 - **Cost** is an estimate: tokens × `GEMINI_PRICES_USD_PER_M` in `lib/gemini/pricing.ts` (3.6-flash: $0.75 input / $3.75 output per 1M tokens, thinking billed as output; 3.5-flash-lite: $0.30 / $2.50). Check ai.google.dev/pricing before trusting a total.
 
-Columns: **Prompts ret → kept** (⚠ under 7, a one-document Game would fail) · **Kinds** open/cloze/definition_to_term/ordered_recall/odd_one_out · **Ans/Open** mean kept Answers per Open Prompt · **Quotes ok** kept Answers whose evidence quote is on its page · **Hints removed** by check 5, of the Hints given on cloze, definition and odd-one-out Prompts · **Dropped P / A** Prompts / Answers dropped · **Drops by reason** short codes from `dropCode` in `lib/games/scorecard.ts` · **s**, **$** for the Gemini call.
+Columns: **Prompts ret → kept** (⚠ under 7, a one-document Game would fail) · **Kinds** open/cloze/definition_to_term/ordered_recall/odd_one_out · **Ans/Open** mean kept Answers per Open Prompt · **Quotes ok** kept Answers whose evidence quote is on its page · **Hints removed** by check 5, of the Hints given on cloze, definition and odd-one-out Prompts · **Dropped P / A** Prompts / Answers dropped · **Drops by reason** short codes from `dropCode` in `lib/games/scorecard.ts` · **s**, **$** for the Gemini call. With `--verify` or `--verify-from`, every other column describes what survives the verification pass, and three columns are added: **Verify removed A / P** (Answers judged unsupported / Prompts removed by the pass; these are not in Dropped P / A) and **Verify s**, **Verify $** for the verification call.
 
 #### Baseline (prompt version `11c93557`, 2026-10-04)
 
@@ -261,6 +268,64 @@ What changed. Read it with the noise in mind: there was one run per deck, and be
 - **The seed deck now copies the examples:** its shortest-path, Dijkstra-steps, union-find and MST odd-one-out Prompts are the examples themselves. Judge prompt changes on the three course decks.
 - **Cost and latency** are the same within noise: ≈ $0.20–0.22 and 330–350 s per four-deck run. 3.6-flash often answered 503 during these runs. Each failed deck was retried 90–120 s later (up to 8 times), and failed calls aren't billed.
 
+## Verification pass (F16)
+
+Code checks only confirm an Answer is *mentioned* on its page. A second Gemini call per Source Document judges meaning: does the cited page show the Answer actually answers the Prompt, is the Prompt clear, and is it a reworded duplicate of an earlier one? It runs in `generateGame` right after the Mode's per-document checks (step c), for **every Mode**: the documents' calls run in parallel, like generation.
+
+**What the verifier sees** (`verificationInput` in `lib/games/verify.ts`): only the pages something cites, then the checked Prompts as JSON: id (`P1`, `P2`, … in order), kind, text, `options`/`items` when the kind has them, and each Answer with its id (`P1.A1`), canonical, cited page and quote. The Answer is the canonical for typed kinds, the correct option for odd_one_out and multiple_choice, `True`/`False` for true_false (so Blitz's truth value is checked) and `correct order` for ordered_recall (so the order is checked).
+
+**What it returns** (structured JSON, `VERIFY_RESPONSE_SCHEMA` in `lib/gemini/verify.ts`): per Prompt `{ id, clear, duplicate_of, reason?, answers: [{ id, reason, supports }] }`. Each Answer's `reason` (what the page says that decides it) comes **before** `supports`: asking for it first made the lite model catch a wrong option/truth value it had passed without it. Temperature 0.
+
+**Applying it** (`applyVerdicts`, pure, unit-tested with a fake verifier):
+
+| Verdict | Effect |
+|---|---|
+| `supports: false` on an Open Answer | the Answer is dropped; then **check 4 again** (fewer than 4 left → the Prompt is dropped) and **Tier assignment again** on what's left (order unchanged, rarity ranks 1…n) |
+| `supports: false` on a single-answer Prompt (cloze, definition_to_term, ordered_recall, odd_one_out, multiple_choice, true_false) | the Prompt is dropped |
+| `clear: false` | the Prompt is dropped |
+| `duplicate_of: "Pk"` naming an **earlier, kept** Prompt | the Prompt is dropped (a pointer to itself, a later Prompt or a dropped one is ignored) |
+| no verdict for a Prompt or Answer, or a malformed one | kept as it was (counted as unverified) |
+
+Drops are reported like the code checks' (`verify: …` reasons, with the verifier's few words), so `generate:check` and `generate:eval --drops` list them. Duplicates are judged within one document; across documents check 7 still compares exact text.
+
+**Failure never fails the Game.** `verifyDocument` never throws: if the call fails (after the shared retries and fallback, 120 s timeout per attempt) or its response isn't `{ prompts: [...] }`, every Prompt is kept unverified and `generateGame` logs `verify: kept N unverified Prompts …`. A successful pass logs the model, seconds and what it removed (never document text).
+
+**Switch and model.** On by default; `GEMINI_VERIFY=off` (or `0`/`false`/`no`) skips it. The verifier tries `GEMINI_VERIFY_MODEL`, else `GEMINI_FALLBACK_MODEL` (`gemini-3.5-flash-lite`), then the usual `GEMINI_MODEL` → fallback. Lite was chosen because its quality held on the tests below while 3.6-flash cost 2–3× as much, took 11–31 s instead of 4–7 s, and answered 503 on 4 of 7 verification calls. In tests, a fake `generate` without a `verify` skips the pass, so DB tests never call Gemini.
+
+### Measurements (2026-10-04)
+
+**Real decks: before/after on the F15 replay set** (`eval/responses`, prompt `a6b826d6`; verdicts in `eval/verify/`, replay with `npm run generate:eval -- --verify-from eval/verify`):
+
+| Deck | Prompts kept: before → after | Ans/Open | Quotes ok | Verify removed A / P | Verify s | Verify $ |
+|---|---|---|---|---|---|---|
+| seed-graph-algorithms | 16 → 16 | 5.5 | 100% | 0 / 0 | 6 | 0.009 |
+| cmpt354-sql-basics | 14 → 14 | 5.3 | 100% | 0 / 0 | 7 | 0.008 |
+| cmpt225-avl-trees | 14 → 14 | 4.6 | 98% | 0 / 0 | 6 | 0.007 |
+| ml-midterm-notes | 16 → 16 | 5.0 | 93% | 0 / 0 | 6 | 0.008 |
+| **Total** | **60 → 60** | 5.1 | 98% | **0 / 0** | 25 | **0.032** |
+
+The F14 baseline responses (prompt `11c93557`) gave the same: 56 → 56 kept, 0 / 0 removed, 21 s, $0.028. Across nine four-deck runs over both sets (lite, every version of the verifier wording) the pass removed one Answer once ("bias" for "Name a variable or parameter used in gradient descent weight updating", debatable). 3.6-flash on the F15 set (three decks; the fourth answered 503) also removed nothing, in 11–31 s for $0.014–0.017 a deck. **On these decks, after F15, the generator's Answers are already right**, so the pass changes no scorecard number; it's a safety net.
+
+**Planted errors: recall** (`eval/planted/`: the seed deck's 16 Prompts plus 9 hand-made bad ones that pass every code check; replay with `npm run generate:eval -- --from eval/planted --verify-from eval/planted/verify --deck seed-graph-algorithms --drops`). The 16 real Prompts were kept in every run (no false positives). Of the 9 planted:
+
+| Run (verifier wording) | Planted Prompts removed | Missed |
+|---|---|---|
+| 1 (first wording) | 8 / 9 | the compound "Name a traversal, a shortest-path algorithm, or what Kruskal uses" |
+| 2 (+ an example of a compound Prompt) | 9 / 9 | – |
+| 3 (+ `reason` before `supports`) | 9 / 9 | – |
+| 4 (+ a Hint check, since removed) | 8 / 9 | the odd-one-out with the wrong option marked |
+| 5 (+ odd_one_out wording) | 9 / 9 | – |
+| 6 (final: run 5 without the Hint check) | 8 / 9 | Kruskal and Prim for "Name an algorithm that handles negative edge weights" (its reason: "Kruskal deals with weighted graphs"; MST algorithms do accept negative weights, so the Prompt is ambiguous). The committed verdicts are this run |
+
+On the Mode fixtures (`db/seed/graph-algorithms-modes.json`, via `generate:check --seed --mode <m> --from … --verify`): Leap 14 → 14, Pairs 16 → 16, Blitz 38 → 38 (no false positives, 3–8 s, $0.004–0.010). With planted errors (3 Leap questions given a wrong `correct_option`, 4 Blitz statements with a flipped truth value) it removed 3 / 3 and 4 / 4 once `reason` came before `supports` (2 / 3 and 3 / 4 without it).
+
+**Cost and time:** ≈ $0.006–0.010 and 4–8 s per document with lite (Blitz's 38 statements: ≈ $0.010, 8 s), against the issue's estimate of +20 s and +$0.02. Documents verify in parallel, so a Game waits for the slowest one: generation takes 60–100 s, so this adds under 10 %.
+
+**Not done (follow-ups):**
+- **Give-away Hints** (F15's acronym Hints: "Its acronym is three letters long and starts with D"). A `hint_gives_away` verdict was tried and dropped: lite wrote "reveals the acronym length and starting letter" and still answered false for every real give-away. A code rule in check 5 (`acronym|letters|starts with`) or a stronger verifier model would do it.
+- **Lite varies run to run** even at temperature 0 (8 or 9 of 9 planted Prompts removed). A second vote, or 3.6-flash when it isn't overloaded, would make it steadier at ~2–3× the cost.
+- Duplicates are judged within one document only.
+
 ## Code layout
 
 | File | Responsibility |
@@ -277,5 +342,8 @@ What changed. Read it with the noise in mind: there was one run per deck, and be
 | `scripts/generate-check.ts` | `npm run generate:check`: tune a Mode's prompt on a local file |
 | `scripts/seed.mts`, `db/seed/graph-algorithms-modes.json` | The demo Module's Games in every Mode, run through each Mode's own checks |
 | `scripts/generate-eval.ts`, `eval/decks.json`, `eval/responses/` | `npm run generate:eval`: the F14 scorecard over the eval decks (§ Scorecard), Dive's generator |
-| `lib/games/scorecard.ts`, `lib/gemini/pricing.ts` | `scoreDocument`, `formatScorecardTable`; Gemini price constants and `estimateCostUsd` (scripts only) |
+| `lib/games/scorecard.ts`, `lib/gemini/pricing.ts` | `scoreDocument` (optionally with saved verdicts), `formatScorecardTable`; Gemini price constants and `estimateCostUsd` (scripts only) |
+| `lib/gemini/verify.ts` | The verification call (F16): instructions, schema, `geminiVerifyCall`, `verificationEnabled()` (`GEMINI_VERIFY`), `verifyModels()` |
+| `lib/games/verify.ts` | Pure verification logic: `verificationInput`, `applyVerdicts` (drops, check 4 + Tiers again), `verifyDocument` (never throws) |
+| `eval/verify/`, `eval/planted/` | Saved verifications of `eval/responses/`; the planted-errors response and its verification (§ Verification pass) |
 | `lib/scoring/tiers.ts` | Tier table + Open Prompt tier assignment |
