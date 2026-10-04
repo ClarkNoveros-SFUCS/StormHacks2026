@@ -24,6 +24,8 @@
 
 ### Clerk
 
-1. https://dashboard.clerk.com → **Create application** (enable Email and Google sign-in).
-2. Copy the two keys from **API keys** into `.env.local`.
-3. Already wired up by F01 (`@clerk/nextjs` v7, `proxy.ts`, `lib/auth.ts`). Without both keys in `.env.local`, every page returns a 500 "Clerk keys are missing" error. The whole team can share one Clerk dev app.
+The team shares one Clerk app, "StormHacks 2026" (`app_3KD2aK00S1UcQuDBmQNjW62B79Y`). The code is already wired up by F01: `@clerk/nextjs` v7, `proxy.ts`, `lib/auth.ts`, and `/sign-in` and `/sign-up` pages. Each teammate only needs the keys:
+
+1. Ask the app's owner to invite you to the Clerk app, or get the two keys from them privately.
+2. With access: `npm install -g clerk`, `clerk auth login`, then `clerk env pull` in the repo, which writes the keys to `.env.local`. Without access: paste the keys into `.env.local` (names in `.env.example`).
+3. Check with `clerk doctor`. Without both keys, every page returns a 500 "Clerk keys are missing" error.
