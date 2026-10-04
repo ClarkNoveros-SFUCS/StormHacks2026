@@ -26,7 +26,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F14 | Generation scorecard (eval on real decks) | Pipelines | F04 | #24 | done |
 | F15 | Example Prompts in the generator instructions | Pipelines | F04 (F14 to measure) | #25 | done |
 | F16 | Gemini verification pass for Answers | Pipelines | F04 (F14 to measure) | #26 | done |
-| F17 | Overgenerate and select the best Prompts | Pipelines | F04, F14 | #27 | planned |
+| F17 | Overgenerate and select the best Prompts | Pipelines | F04, F14 | #27 | done |
 | F18 | Open Prompt answer expansion with retrieval (pgvector, stretch) | Pipelines | F04, F14 | #28 | planned |
 | F19 | Landing page and site-wide UI overhaul | Frontend | F10 | #32 | done |
 | F20 | Game Modes engine and generation: Apogee, Leap, Pairs, Blitz | Platform | F04, F06 | #33 | done |
@@ -350,12 +350,20 @@ Notes for others:
 - **F17:** the pass runs after the Mode's checks and before check 7 / `finalize`, so a selection step belongs after it (or before it, to verify fewer Prompts). If you change the generator prompt, re-run `npm run generate:eval -- --live --verify` and commit the new `eval/verify/` with the new `eval/responses/` (a replay notes when saved verdicts belong to other Prompts).
 
 ## F17 Overgenerate and select the best Prompts
-Spec: `docs/architecture/game-generation-pipeline.md` § Improving output quality · Issue #27
-- [ ] Ask for ~25 Prompts per document
-- [ ] `selectPrompts`: score by Answers, kind and page coverage, near-duplicates; keep the best 15–20; unit-tested
-- [ ] F14 scorecard before/after, including latency
+Spec: `docs/architecture/game-generation-pipeline.md` § Overgenerate and select (F17) · Issue #27 · **Off by default** (`GEMINI_OVERGENERATE=on`)
+- [x] Ask Gemini for ~25 Prompts per document instead of 15–20 (Dive and Apogee; "about 25, at least 12 of them open")
+- [x] `selectPrompts` in code: score each kept Prompt (Open: more Answers is better; prefer kinds and pages not yet covered; penalize near-duplicate text or shared Answers with an already-chosen Prompt; verification status) and keep the best 15–20 per document. Order: generate → checks → F16 verification → select
+- [x] Unit-tested; F14 scorecard before/after (watch latency, since output tokens grow)
 
-Entry points: — · Notes for others: —
+Entry points: `selectPrompts`, `quality`, `textSimilarity`, `answerOverlap` in `lib/games/select.ts`; `overgenerateEnabled()` and the optional `ModeGenerator.overgenerate` hook in `lib/modes/generation.ts`; `diveOvergenerateRequest` in `lib/modes/dive/generate.ts`; `gameSystemInstruction(count, open)`, `GAME_OVERGENERATE_SYSTEM_INSTRUCTION` in `lib/gemini/game-prompt.ts`; `generateGame(gameId, { …, overgenerate })`; `applyVerdicts(...).statuses`; env `GEMINI_OVERGENERATE`; `npm run generate:eval -- --overgenerate`, `npm run generate:check -- … --overgenerate`; replay set `eval/overgenerate/`
+
+Notes for others:
+- **Why it's off:** on the three course decks (one live run each) it kept 44 → 60 Prompts, Open Prompts 24 → 26, and cited pages 33 → 47 on the PDF/PPTX, with Answers per Open Prompt and quotes unchanged, for +17 % generation cost (+29 % in run 1), +43 % verification cost (≈ $0.01 a document) and +6–15 % time. A Dive Run draws only 7 Prompts, so 14–16 per document is already enough; it mostly buys replay variety and coverage. Turn it on for long decks.
+- **Ask for the Open count explicitly.** Run 1 asked for "about 25, at least half open" and Gemini padded with cloze/definition Prompts (Open Prompts fell 24 → 18). The shipped overgenerate prompt says "at least 12 of them open". The default prompt is untouched (`a6b826d6`).
+- **Near-duplicates are never kept** (content-word Dice ≥ 0.8, Answer-set Jaccard ≥ 0.8, or the same term in two cloze/definition Prompts), even below 15. The selector found real ones on two decks; the verifier found none.
+- **Leap/Blitz/Pairs don't overgenerate.** To add one, give its `ModeGenerator` an `overgenerate: { request, select }`; `generateGame` already calls it after verification.
+- **`--no-fallback` also unsets the verifier's default model** (lite); pass `--verify-model gemini-3.5-flash-lite` with `--verify`, or verification runs on 3.6-flash (it 503'd twice in run 1).
+- Gemini spend for F17 ≈ $0.60.
 
 ## F18 Open Prompt answer expansion with retrieval (pgvector, stretch)
 Spec: `docs/architecture/game-generation-pipeline.md` § Improving output quality · Issue #28 · Stretch; Tiger Data sponsor angle

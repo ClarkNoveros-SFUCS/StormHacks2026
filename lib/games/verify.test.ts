@@ -117,6 +117,15 @@ describe("applyVerdicts", () => {
     expect(out.unverified).toBe(2);
   });
 
+  it("reports each kept Prompt as verified, trimmed (Open Answers removed) or unverified, for selectPrompts (F17)", () => {
+    const input = verdicts(verificationInput(prompts, pages), (v, i) => i === 0 && reject(v, 1));
+    input.prompts.splice(2, 1); // no verdict for P3
+    input.prompts[2] = { ...input.prompts[2], clear: false }; // P4 unclear → dropped
+    const out = applyVerdicts(prompts, input);
+    expect(out.statuses).toHaveLength(out.prompts.length);
+    expect(out.statuses.slice(0, 4)).toEqual(["trimmed", "verified", "unverified", "verified"]);
+  });
+
   it("throws on a response that isn't { prompts: [...] }", () => {
     expect(() => applyVerdicts(prompts, { verdicts: [] })).toThrow();
     expect(() => applyVerdicts(prompts, null)).toThrow();

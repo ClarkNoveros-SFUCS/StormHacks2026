@@ -72,8 +72,13 @@ const PromptVerdict = z.object({
 });
 const Verdicts = z.object({ prompts: z.array(z.unknown()) });
 
+/** What the pass said about a kept Prompt: all verified, some Open Answers removed, or no verdict. */
+export type VerifyStatus = "verified" | "trimmed" | "unverified";
+
 export type Applied<P> = {
   prompts: P[];
+  /** One per kept Prompt, same order (used by selectPrompts, F17). */
+  statuses: VerifyStatus[];
   dropped: Drop[];
   /** Answers the verifier judged unsupported (any kind). */
   answersRemoved: number;
@@ -100,6 +105,7 @@ export function applyVerdicts<P extends VerifiablePrompt>(prompts: P[], response
 
   const dropped: Drop[] = [];
   const kept: P[] = [];
+  const statuses: VerifyStatus[] = [];
   const keptIds = new Set<string>();
   let answersRemoved = 0;
   let unverified = 0;
@@ -113,6 +119,7 @@ export function applyVerdicts<P extends VerifiablePrompt>(prompts: P[], response
     if (!v) {
       unverified++;
       kept.push(p);
+      statuses.push("unverified");
       keptIds.add(id);
       return;
     }
@@ -132,7 +139,7 @@ export function applyVerdicts<P extends VerifiablePrompt>(prompts: P[], response
       return verdict && !verdict.supports ? [{ a, verdict }] : [];
     });
     answersRemoved += unsupported.length;
-    if (!unsupported.length) return keep(p);
+    if (!unsupported.length) return keep(p, "verified");
 
     if (p.kind !== "open") {
       // Single-answer kinds: the Prompt's only Answer (the term, option, order or truth value) is wrong
@@ -143,15 +150,16 @@ export function applyVerdicts<P extends VerifiablePrompt>(prompts: P[], response
     // Check 4 again, then Tiers again: the order (most obvious first) is unchanged
     if (left.length < MIN_OPEN_ANSWERS) return drop(`only ${left.length} supported Answers (need ${MIN_OPEN_ANSWERS})`);
     const tiers = assignOpenTiers(left.length);
-    keep({ ...p, answers: left.map((a, k) => ({ ...a, tier: tiers[k], rarityRank: k + 1 })) });
+    keep({ ...p, answers: left.map((a, k) => ({ ...a, tier: tiers[k], rarityRank: k + 1 })) }, "trimmed");
 
-    function keep(prompt: P) {
+    function keep(prompt: P, status: VerifyStatus) {
       kept.push(prompt);
+      statuses.push(status);
       keptIds.add(id);
     }
   });
 
-  return { prompts: kept, dropped, answersRemoved, promptsRemoved: prompts.length - kept.length, unverified };
+  return { prompts: kept, statuses, dropped, answersRemoved, promptsRemoved: prompts.length - kept.length, unverified };
 }
 
 // ---------- One document ----------
@@ -182,7 +190,7 @@ export async function verifyDocument<P extends VerifiablePrompt>(
   call: VerifyCall,
 ): Promise<VerifyOutcome<P>> {
   const unchanged = (status: "failed" | "skipped", error: string | null, seconds = 0): VerifyOutcome<P> => ({
-    prompts, dropped: [], answersRemoved: 0, promptsRemoved: 0, unverified: prompts.length,
+    prompts, statuses: prompts.map(() => "unverified" as const), dropped: [], answersRemoved: 0, promptsRemoved: 0, unverified: prompts.length,
     status, error, seconds, model: null, usage: null, response: null,
   });
   if (!prompts.length) return unchanged("skipped", null);

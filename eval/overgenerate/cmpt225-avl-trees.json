@@ -1,0 +1,818 @@
+{
+  "deck": "cmpt225-avl-trees",
+  "createdAt": "2026-10-04T13:24:56.794Z",
+  "promptVersion": "f6987a82",
+  "run": {
+    "model": "gemini-3.6-flash",
+    "seconds": 71.508,
+    "usage": {
+      "inputTokens": 9812,
+      "outputTokens": 6501,
+      "thinkingTokens": 11082
+    },
+    "costUsd": 0.07329525
+  },
+  "response": {
+    "prompts": [
+      {
+        "kind": "open",
+        "text": "Name a field in an AVLNode class implementation.",
+        "answers": [
+          {
+            "canonical": "data",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private T data;"
+          },
+          {
+            "canonical": "leftChild",
+            "aliases": [
+              "left child"
+            ],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private AVLNode<T> leftChild;"
+          },
+          {
+            "canonical": "rightChild",
+            "aliases": [
+              "right child"
+            ],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private AVLNode<T> rightChild;"
+          },
+          {
+            "canonical": "parent",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private AVLNode<T> parent;"
+          },
+          {
+            "canonical": "height",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private int height;"
+          },
+          {
+            "canonical": "balance",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private byte balance;"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an application scenario for a priority queue.",
+        "answers": [
+          {
+            "canonical": "Printer's queue",
+            "aliases": [
+              "printer queue"
+            ],
+            "exact_only": false,
+            "evidence_page": 45,
+            "evidence_quote": "Printer’s queue – may prefer to print shorter jobs first"
+          },
+          {
+            "canonical": "Job scheduling in CPU",
+            "aliases": [
+              "CPU job scheduling"
+            ],
+            "exact_only": false,
+            "evidence_page": 45,
+            "evidence_quote": "Job scheduling in CPU – some processes are more important"
+          },
+          {
+            "canonical": "Line for customer services",
+            "aliases": [
+              "customer service line"
+            ],
+            "exact_only": false,
+            "evidence_page": 45,
+            "evidence_quote": "Line for customer services – some customers are more valued"
+          },
+          {
+            "canonical": "Order book in the stock market",
+            "aliases": [
+              "stock market order book"
+            ],
+            "exact_only": false,
+            "evidence_page": 45,
+            "evidence_quote": "Order book in the stock market – highest bids are matched with lowest asks"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a public method provided by a min-heap implementation.",
+        "answers": [
+          {
+            "canonical": "addElement",
+            "aliases": [
+              "add element"
+            ],
+            "exact_only": false,
+            "evidence_page": 48,
+            "evidence_quote": "addElement(element)"
+          },
+          {
+            "canonical": "getMin",
+            "aliases": [
+              "get min"
+            ],
+            "exact_only": false,
+            "evidence_page": 48,
+            "evidence_quote": "getMin()"
+          },
+          {
+            "canonical": "removeMin",
+            "aliases": [
+              "remove min"
+            ],
+            "exact_only": false,
+            "evidence_page": 48,
+            "evidence_quote": "removeMin()"
+          },
+          {
+            "canonical": "getSize",
+            "aliases": [
+              "get size"
+            ],
+            "exact_only": false,
+            "evidence_page": 48,
+            "evidence_quote": "getSize()"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a method defined on a priority queue.",
+        "answers": [
+          {
+            "canonical": "add item",
+            "aliases": [
+              "addItem"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "add item(item): add an item to the queue"
+          },
+          {
+            "canonical": "getTop",
+            "aliases": [
+              "get top"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "getTop(): return the item with highest priority"
+          },
+          {
+            "canonical": "removeTop",
+            "aliases": [
+              "remove top"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "removeTop(): remove the item with highest priority"
+          },
+          {
+            "canonical": "getSize",
+            "aliases": [
+              "get size"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "getSize() / isEmpty()"
+          },
+          {
+            "canonical": "isEmpty",
+            "aliases": [
+              "is empty"
+            ],
+            "exact_only": false,
+            "evidence_page": 46,
+            "evidence_quote": "getSize() / isEmpty()"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a suggested meaning for the letter B in B-tree.",
+        "answers": [
+          {
+            "canonical": "Boeing",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          },
+          {
+            "canonical": "balanced",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          },
+          {
+            "canonical": "broad",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          },
+          {
+            "canonical": "bushy",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          },
+          {
+            "canonical": "Bayer",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Boeing, balanced, broad, bushy, and Bayer have been suggested."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a balanced search tree or heap data structure.",
+        "answers": [
+          {
+            "canonical": "AVL tree",
+            "aliases": [
+              "AVL trees"
+            ],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "AVL tree is a Binary Search Tree"
+          },
+          {
+            "canonical": "2-3 tree",
+            "aliases": [
+              "2-3 trees"
+            ],
+            "exact_only": false,
+            "evidence_page": 34,
+            "evidence_quote": "2-3 tree properties"
+          },
+          {
+            "canonical": "B-tree",
+            "aliases": [
+              "B-trees"
+            ],
+            "exact_only": false,
+            "evidence_page": 36,
+            "evidence_quote": "B-tree or order m"
+          },
+          {
+            "canonical": "min heap",
+            "aliases": [
+              "min-heap"
+            ],
+            "exact_only": false,
+            "evidence_page": 48,
+            "evidence_quote": "We will typically use min heap."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an inventor associated with AVL trees or B-trees.",
+        "answers": [
+          {
+            "canonical": "Georgy Adelson-Velsky",
+            "aliases": [
+              "Adelson-Velsky"
+            ],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "named after the inventorsGeorgy Adelson-Velsky and Evgenii Landis"
+          },
+          {
+            "canonical": "Evgenii Landis",
+            "aliases": [
+              "Landis"
+            ],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "named after the inventorsGeorgy Adelson-Velsky and Evgenii Landis"
+          },
+          {
+            "canonical": "Bayer",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Invented by Bayer and M. McCreight"
+          },
+          {
+            "canonical": "McCreight",
+            "aliases": [
+              "M. McCreight"
+            ],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "Invented by Bayer and M. McCreight"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an internal operation or procedure used in min-heap or heap sort algorithms.",
+        "answers": [
+          {
+            "canonical": "heapifyUp",
+            "aliases": [
+              "heapify up"
+            ],
+            "exact_only": false,
+            "evidence_page": 51,
+            "evidence_quote": "This propagation is sometimes called heapifyUp"
+          },
+          {
+            "canonical": "heapifyDown",
+            "aliases": [
+              "heapify down"
+            ],
+            "exact_only": false,
+            "evidence_page": 52,
+            "evidence_quote": "This propagation is called heapifyDown"
+          },
+          {
+            "canonical": "buildMaxHeap",
+            "aliases": [
+              "build max heap"
+            ],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "buildMaxHeap(array) – in place"
+          },
+          {
+            "canonical": "heapify",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 61,
+            "evidence_quote": "heapify(7)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an organization or operating system associated with B-tree history or usage.",
+        "answers": [
+          {
+            "canonical": "Boeing",
+            "aliases": [
+              "Boeing Research Labs"
+            ],
+            "exact_only": false,
+            "evidence_page": 37,
+            "evidence_quote": "working at Boeing Research Labs."
+          },
+          {
+            "canonical": "Apple",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 43,
+            "evidence_quote": "Apple's filesystem HFS+"
+          },
+          {
+            "canonical": "Microsoft",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 43,
+            "evidence_quote": "Microsoft's NTFS"
+          },
+          {
+            "canonical": "Linux",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 43,
+            "evidence_quote": "Some Linux file systems"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a structural role or relative of a node in a binary tree.",
+        "answers": [
+          {
+            "canonical": "root",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "children of the root"
+          },
+          {
+            "canonical": "leaf",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 19,
+            "evidence_quote": "add as a leaf in BST"
+          },
+          {
+            "canonical": "parent",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private AVLNode<T> parent;"
+          },
+          {
+            "canonical": "child",
+            "aliases": [
+              "children"
+            ],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "children of the root"
+          },
+          {
+            "canonical": "ancestor",
+            "aliases": [
+              "ancestors"
+            ],
+            "exact_only": false,
+            "evidence_page": 19,
+            "evidence_quote": "update the heights of all ancestors"
+          },
+          {
+            "canonical": "grandchild",
+            "aliases": [
+              "grand child"
+            ],
+            "exact_only": false,
+            "evidence_page": 23,
+            "evidence_quote": "Rotation is done on the grand child"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a quantitative node property or measurement defined for trees.",
+        "answers": [
+          {
+            "canonical": "height",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "|height(v.leftSubtree) - height(v.rightSubtree)| ≤ 1"
+          },
+          {
+            "canonical": "size",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 9,
+            "evidence_quote": "Then height ≤ 2 log2(size)"
+          },
+          {
+            "canonical": "depth",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 34,
+            "evidence_quote": "All leaves has the same depth"
+          },
+          {
+            "canonical": "balance",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 17,
+            "evidence_quote": "private byte balance;"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an asymptotic time complexity bound associated with heap or tree operations.",
+        "answers": [
+          {
+            "canonical": "O(1)",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 50,
+            "evidence_quote": "Running time O(1)"
+          },
+          {
+            "canonical": "O(log(n))",
+            "aliases": [
+              "O(logn)",
+              "O(log n)"
+            ],
+            "exact_only": false,
+            "evidence_page": 4,
+            "evidence_quote": "operations cost O(log(n)) time"
+          },
+          {
+            "canonical": "O(n)",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "Step 1 can be done in O(n) time"
+          },
+          {
+            "canonical": "O(n log(n))",
+            "aliases": [
+              "O(nlogn)",
+              "O(n log n)"
+            ],
+            "exact_only": false,
+            "evidence_page": 58,
+            "evidence_quote": "Step 1 can be done in O(n log(n)) time"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "cloze",
+        "text": "In an AVL tree node v, the balance condition requires that |height(v.leftSubtree) - height(v.rightSubtree)| is less than or equal to ______.",
+        "answers": [
+          {
+            "canonical": "1",
+            "aliases": [
+              "one"
+            ],
+            "exact_only": true,
+            "evidence_page": 6,
+            "evidence_quote": "|height(v.leftSubtree) - height(v.rightSubtree)| ≤ 1"
+          }
+        ],
+        "tier": "common",
+        "hint": "It represents the maximum allowed difference between subtree heights.",
+        "explanation": "An AVL tree maintains height balance by requiring the height difference between left and right subtrees to be at most 1."
+      },
+      {
+        "kind": "cloze",
+        "text": "In a B-tree, when a leaf node contains 3 values after insertion, it is described as ______.",
+        "answers": [
+          {
+            "canonical": "overfilled",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 38,
+            "evidence_quote": "If the leaf has 3 values (the leaf is “overfilled”)"
+          }
+        ],
+        "tier": "solid",
+        "hint": "A term describing a leaf exceeding its maximum permitted value capacity.",
+        "explanation": "When a B-tree leaf node reaches 3 values, it becomes overfilled and needs to be split."
+      },
+      {
+        "kind": "cloze",
+        "text": "When deleting a node from a B-tree leaf leaves it empty, this condition is called ______.",
+        "answers": [
+          {
+            "canonical": "underflow",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 40,
+            "evidence_quote": "This sometimes called “underflow”"
+          }
+        ],
+        "tier": "solid",
+        "hint": "The state when a leaf becomes empty upon node removal.",
+        "explanation": "Underflow occurs when deleting an element leaves a B-tree leaf without any values."
+      },
+      {
+        "kind": "cloze",
+        "text": "Heaps are complete binary trees where vertices in the last row are added from ______ to right.",
+        "answers": [
+          {
+            "canonical": "left",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 49,
+            "evidence_quote": "The vertices in the last row are added left to right"
+          }
+        ],
+        "tier": "common",
+        "hint": "The side opposite to right.",
+        "explanation": "To maintain a complete binary structure, heap leaves in the last row are filled starting from the left."
+      },
+      {
+        "kind": "cloze",
+        "text": "Building a max heap from an array in-place using BuildMaxHeap takes ______ time.",
+        "answers": [
+          {
+            "canonical": "O(n)",
+            "aliases": [
+              "linear"
+            ],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "Step 1 can be done in O(n) time"
+          }
+        ],
+        "tier": "solid",
+        "hint": "Linear time complexity.",
+        "explanation": "BuildMaxHeap builds a heap bottom-up in O(n) linear time."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "The operation in a min-heap that restores the heap property by moving an inserted node up toward the root.",
+        "answers": [
+          {
+            "canonical": "heapifyUp",
+            "aliases": [
+              "heapify up"
+            ],
+            "exact_only": false,
+            "evidence_page": 51,
+            "evidence_quote": "This propagation is sometimes called heapifyUp"
+          }
+        ],
+        "tier": "solid",
+        "hint": "The upward movement of a newly added node.",
+        "explanation": "heapifyUp bubbles a newly added key up until the parent is smaller or equal."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "The operation in a min-heap that moves the new root node down to restore the min-heap condition after removing the minimum.",
+        "answers": [
+          {
+            "canonical": "heapifyDown",
+            "aliases": [
+              "heapify down"
+            ],
+            "exact_only": false,
+            "evidence_page": 52,
+            "evidence_quote": "This propagation is called heapifyDown"
+          }
+        ],
+        "tier": "solid",
+        "hint": "The downward shifting process applied after replacing the top element.",
+        "explanation": "heapifyDown pushes the new root downward by swapping with its smaller child until heap order is restored."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "A balanced search structure where every non-leaf vertex has 2 or 3 children and all leaves are at the same depth.",
+        "answers": [
+          {
+            "canonical": "2-3 tree",
+            "aliases": [
+              "2-3 trees"
+            ],
+            "exact_only": false,
+            "evidence_page": 34,
+            "evidence_quote": "Every non-leaf vertex has 2 or 3 children"
+          }
+        ],
+        "tier": "common",
+        "hint": "A multi-way structure named after the permitted number of children per non-leaf node.",
+        "explanation": "A 2-3 tree is a multi-way search tree whose non-leaf vertices have either 2 or 3 children and store 1 or 2 values."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "A priority queue implementation structured as a complete binary tree satisfying the order property where parent values are smaller than or equal to their children.",
+        "answers": [
+          {
+            "canonical": "min-heap",
+            "aliases": [
+              "min heap"
+            ],
+            "exact_only": false,
+            "evidence_page": 48,
+            "evidence_quote": "Heap is an implementation of Priority Queue."
+          }
+        ],
+        "tier": "common",
+        "hint": "A complete binary structure where the smallest key stays at the root.",
+        "explanation": "A min-heap maintains the minimal value at the root while ensuring every node is smaller than or equal to its children."
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps for adding an element to an AVL tree in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Start with standard binary search placement before adjusting balance.",
+        "explanation": "AVL insertion places a node as a BST leaf, updates ancestor heights going up, and applies rotations if balance is violated.",
+        "items": [
+          "Insert a new node as a leaf in BST",
+          "Update the heights of ancestors of the added node",
+          "Check if a node becomes unbalanced",
+          "Apply rotation to fix the balance in this node"
+        ],
+        "evidence_page": 23
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of removing the minimum element from a min-heap in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Store the top item first before overwriting it with the bottom leaf.",
+        "explanation": "Removing the min saves the root value, moves the last leaf to the root position, bubbles it down, and returns the original min.",
+        "items": [
+          "Save the root value as min",
+          "Move the last element in the tree to be the root",
+          "Propagate the root down to satisfy the min-heap condition",
+          "Return min"
+        ],
+        "evidence_page": 52
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the steps of HeapSort in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "First build the heap structure from the input array.",
+        "explanation": "HeapSort constructs a max-heap in place, then iteratively removes the maximum to place it at the end of the array.",
+        "items": [
+          "Call buildMaxHeap on the array in place",
+          "Remove the maximum element from the heap",
+          "Add the maximum to the end of the array in the right place",
+          "Repeat for all elements"
+        ],
+        "evidence_page": 70
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which of the following operations on a min-heap runs in O(1) time instead of O(log(n)) time?",
+        "answers": [],
+        "tier": "common",
+        "hint": "One operation only inspects the top element without altering structure.",
+        "explanation": "getMin runs in O(1) time because the minimum key is stored at the root, while additions and removals take logarithmic time.",
+        "options": [
+          "getMin",
+          "addElement",
+          "removeMin",
+          "heapifyUp"
+        ],
+        "correct_option": "getMin",
+        "evidence_page": 50
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which item is an abstract data type interface rather than a specific balanced search tree implementation?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Three of them are concrete tree structures.",
+        "explanation": "Priority Queue is an abstract data type interface, whereas AVL tree, 2-3 tree, and B-tree are specific balanced search tree structures.",
+        "options": [
+          "AVL tree",
+          "2-3 tree",
+          "B-tree",
+          "Priority Queue"
+        ],
+        "correct_option": "Priority Queue",
+        "evidence_page": 45
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which node class field is listed as optional in the AVL tree node implementation?",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Three fields are essential structural links or data, while one is explicitly marked optional.",
+        "explanation": "The balance field is marked optional in the AVLNode implementation, while data, leftChild, rightChild, and parent are primary fields.",
+        "options": [
+          "data",
+          "leftChild",
+          "parent",
+          "balance"
+        ],
+        "correct_option": "balance",
+        "evidence_page": 17
+      }
+    ]
+  }
+}

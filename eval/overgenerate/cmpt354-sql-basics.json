@@ -1,0 +1,773 @@
+{
+  "deck": "cmpt354-sql-basics",
+  "createdAt": "2026-10-04T13:23:36.516Z",
+  "promptVersion": "f6987a82",
+  "run": {
+    "model": "gemini-3.6-flash",
+    "seconds": 120.2,
+    "usage": {
+      "inputTokens": 14024,
+      "outputTokens": 6562,
+      "thinkingTokens": 10953
+    },
+    "costUsd": 0.07619925
+  },
+  "response": {
+    "prompts": [
+      {
+        "kind": "open",
+        "text": "Name an SQL primitive data type",
+        "answers": [
+          {
+            "canonical": "CHAR",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Character string of fixed or varying Length (CHAR(n), VARCHAR(n))"
+          },
+          {
+            "canonical": "VARCHAR",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Character string of fixed or varying Length (CHAR(n), VARCHAR(n))"
+          },
+          {
+            "canonical": "BOOLEAN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Boolean (BOOLEAN)"
+          },
+          {
+            "canonical": "INT",
+            "aliases": [
+              "INTEGER"
+            ],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Integer (INT, INTEGER, SHORTINT)"
+          },
+          {
+            "canonical": "FLOAT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          },
+          {
+            "canonical": "DATE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Date and Time (DATE, TIME)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an SQL aggregation function",
+        "answers": [
+          {
+            "canonical": "COUNT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          },
+          {
+            "canonical": "SUM",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          },
+          {
+            "canonical": "AVG",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          },
+          {
+            "canonical": "MAX",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          },
+          {
+            "canonical": "MIN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 73,
+            "evidence_quote": "AGG = COUNT, SUM, AVG, MAX, MIN, etc"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a floating-point data type supported in SQL",
+        "answers": [
+          {
+            "canonical": "FLOAT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          },
+          {
+            "canonical": "REAL",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          },
+          {
+            "canonical": "DOUBLE PRECISION",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          },
+          {
+            "canonical": "DECIMAL",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          },
+          {
+            "canonical": "NUMERIC",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a set operation keyword supported in SQL",
+        "answers": [
+          {
+            "canonical": "UNION",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "Called UNION, INTERSECT, and EXCEPT"
+          },
+          {
+            "canonical": "INTERSECT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "Called UNION, INTERSECT, and EXCEPT"
+          },
+          {
+            "canonical": "EXCEPT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "Called UNION, INTERSECT, and EXCEPT"
+          },
+          {
+            "canonical": "MINUS",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 59,
+            "evidence_quote": "May be implemented as MINUS"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a type of join supported in SQL",
+        "answers": [
+          {
+            "canonical": "INNER JOIN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 71,
+            "evidence_quote": "Students INNER JOIN Enrolled ON sid = stid;"
+          },
+          {
+            "canonical": "FULL OUTER JOIN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 71,
+            "evidence_quote": "Students FULL OUTER JOIN Enrolled ON sid = stid;"
+          },
+          {
+            "canonical": "LEFT OUTER JOIN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 71,
+            "evidence_quote": "Students LEFT OUTER JOIN Enrolled ON sid = stid;"
+          },
+          {
+            "canonical": "RIGHT OUTER JOIN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 71,
+            "evidence_quote": "Students RIGHT OUTER JOIN Enrolled ON sid = stid;"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an operator or keyword used in SQL conditions involving subqueries",
+        "answers": [
+          {
+            "canonical": "IN",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 90,
+            "evidence_quote": "s IN R: true if and only if s is equal to one of the values in unary relation R."
+          },
+          {
+            "canonical": "NOT IN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 90,
+            "evidence_quote": "s NOT IN R: true if and only if s is equal to no value in unary relation R."
+          },
+          {
+            "canonical": "EXISTS",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 90,
+            "evidence_quote": "EXISTS R: true if and only if R is not empty."
+          },
+          {
+            "canonical": "ALL",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 90,
+            "evidence_quote": "s > ALL R: true if and only if s is greater than every value in unary relation R."
+          },
+          {
+            "canonical": "ANY",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 90,
+            "evidence_quote": "s > ANY R: true if and only if s is greater than at least one value in unary relation R."
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a clause present in an SQL grouped aggregation query",
+        "answers": [
+          {
+            "canonical": "SELECT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 80,
+            "evidence_quote": "SELECT agg(column)\nFROM | <table name>\nWHERE | <conditions>\nGROUP BY <columns>\nHAVING <columns>"
+          },
+          {
+            "canonical": "FROM",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 80,
+            "evidence_quote": "SELECT agg(column)\nFROM | <table name>\nWHERE | <conditions>\nGROUP BY <columns>\nHAVING <columns>"
+          },
+          {
+            "canonical": "WHERE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 80,
+            "evidence_quote": "SELECT agg(column)\nFROM | <table name>\nWHERE | <conditions>\nGROUP BY <columns>\nHAVING <columns>"
+          },
+          {
+            "canonical": "GROUP BY",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 80,
+            "evidence_quote": "SELECT agg(column)\nFROM | <table name>\nWHERE | <conditions>\nGROUP BY <columns>\nHAVING <columns>"
+          },
+          {
+            "canonical": "HAVING",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 80,
+            "evidence_quote": "SELECT agg(column)\nFROM | <table name>\nWHERE | <conditions>\nGROUP BY <columns>\nHAVING <columns>"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a declaration or constraint used when defining attributes or keys in SQL schemas",
+        "answers": [
+          {
+            "canonical": "PRIMARY KEY",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Either PRIMARY KEY"
+          },
+          {
+            "canonical": "UNIQUE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 8,
+            "evidence_quote": "Or UNIQUE"
+          },
+          {
+            "canonical": "NOT NULL",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 31,
+            "evidence_quote": "name CHAR(20) NOT NULL,"
+          },
+          {
+            "canonical": "DEFAULT",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 7,
+            "evidence_quote": "Keyword DEFAULT, Value either NULL or a Constant"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a type of relation distinguished in SQL",
+        "answers": [
+          {
+            "canonical": "Stored relations",
+            "aliases": [
+              "Tables"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Stored relations (Tables): Exists in DB and can be modified and queried"
+          },
+          {
+            "canonical": "Views",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Views (Defined by Computation): Not stored but constructed when needed"
+          },
+          {
+            "canonical": "Temporary tables",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Temporary tables: Constructed by SQL processor when it performs its job of executing queries and data modifications"
+          },
+          {
+            "canonical": "Tables",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Stored relations (Tables): Exists in DB and can be modified and queried"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a category of primitive data types in SQL",
+        "answers": [
+          {
+            "canonical": "Character string",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Character string of fixed or varying Length (CHAR(n), VARCHAR(n))"
+          },
+          {
+            "canonical": "Bit Strings",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Bit Strings (BIT VARYING(n))"
+          },
+          {
+            "canonical": "Boolean",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Boolean (BOOLEAN)"
+          },
+          {
+            "canonical": "Integer",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Integer (INT, INTEGER, SHORTINT)"
+          },
+          {
+            "canonical": "Floating-point",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Floating-point (FLOAT, REAL, DOUBLE PRECISION, DECIMAL, NUMERIC)"
+          },
+          {
+            "canonical": "Date and Time",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 3,
+            "evidence_quote": "Date and Time (DATE, TIME)"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name an SQL statement used to define schemas or manipulate data",
+        "answers": [
+          {
+            "canonical": "CREATE TABLE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 5,
+            "evidence_quote": "To create a table, use the CREATE TABLE statement"
+          },
+          {
+            "canonical": "ALTER TABLE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "Modify Schema of relation R: ALTER TABLE R"
+          },
+          {
+            "canonical": "DROP TABLE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 6,
+            "evidence_quote": "Delete a relation R: DROP TABLE R;"
+          },
+          {
+            "canonical": "INSERT",
+            "aliases": [
+              "INSERT INTO"
+            ],
+            "exact_only": false,
+            "evidence_page": 11,
+            "evidence_quote": "To insert a record into an existing table use the INSERT statement"
+          },
+          {
+            "canonical": "UPDATE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 12,
+            "evidence_quote": "Use the UPDATE statement to modify a record, or records, in a table"
+          },
+          {
+            "canonical": "DELETE",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 13,
+            "evidence_quote": "To delete a record use the DELETE statement"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "open",
+        "text": "Name a usage form for subqueries in SQL WHERE clauses",
+        "answers": [
+          {
+            "canonical": "Scalar values",
+            "aliases": [
+              "Subqueries that Produce Scalar Values"
+            ],
+            "exact_only": false,
+            "evidence_page": 86,
+            "evidence_quote": "Subqueries that Produce Scalar Values"
+          },
+          {
+            "canonical": "Conditions Involving Relations",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 86,
+            "evidence_quote": "Conditions Involving Relations"
+          },
+          {
+            "canonical": "Conditions Involving Tuples",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 86,
+            "evidence_quote": "Conditions Involving Tuples"
+          },
+          {
+            "canonical": "Correlated Subqueries",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 86,
+            "evidence_quote": "Correlated Subqueries"
+          }
+        ],
+        "tier": "common",
+        "hint": "",
+        "explanation": ""
+      },
+      {
+        "kind": "cloze",
+        "text": "In SQL, arithmetic operations performed on NULL values return ______.",
+        "answers": [
+          {
+            "canonical": "NULL",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 33,
+            "evidence_quote": "Arithmetic operations (+, -, *, /) on nulls return NULL"
+          }
+        ],
+        "tier": "solid",
+        "hint": "The output represents missing or unknown data.",
+        "explanation": "In SQL, evaluating arithmetic operations with NULL always yields NULL."
+      },
+      {
+        "kind": "cloze",
+        "text": "In SQL three-valued logic, comparisons with NULL evaluate to ______.",
+        "answers": [
+          {
+            "canonical": "UNKNOWN",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 33,
+            "evidence_quote": "Comparisons with nulls evaluate to UNKNOWN"
+          }
+        ],
+        "tier": "solid",
+        "hint": "It is a logical status distinct from true and false.",
+        "explanation": "Comparing NULL with any value results in UNKNOWN in SQL's three-valued logic."
+      },
+      {
+        "kind": "cloze",
+        "text": "In SQL pattern matching, the % symbol stands for zero or more ______ characters.",
+        "answers": [
+          {
+            "canonical": "arbitrary",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 29,
+            "evidence_quote": "The % symbol stands for zero or more arbitrary characters"
+          }
+        ],
+        "tier": "solid",
+        "hint": "Meaning any unspecified character.",
+        "explanation": "The % wildcard symbol matches zero or more arbitrary characters in LIKE expressions."
+      },
+      {
+        "kind": "cloze",
+        "text": "SQL set operations eliminate duplicates by default unless retained using the ______ keyword.",
+        "answers": [
+          {
+            "canonical": "ALL",
+            "aliases": [],
+            "exact_only": true,
+            "evidence_page": 67,
+            "evidence_quote": "SQL allows duplicates to be retained in these three operations using the ALL keyword"
+          }
+        ],
+        "tier": "solid",
+        "hint": "A short keyword placed right after UNION, INTERSECT, or EXCEPT.",
+        "explanation": "Appending ALL to a set operation operator forces SQL to retain duplicates."
+      },
+      {
+        "kind": "cloze",
+        "text": "In an SQL query, the ______ clause contains conditions applied to aggregates.",
+        "answers": [
+          {
+            "canonical": "HAVING",
+            "aliases": [],
+            "exact_only": false,
+            "evidence_page": 80,
+            "evidence_quote": "HAVING clause contains conditions on aggregates."
+          }
+        ],
+        "tier": "common",
+        "hint": "This clause filters groups after grouping is performed.",
+        "explanation": "The HAVING clause specifies filtering conditions directly on aggregated group values."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "The SQL sublanguage used specifically for declaring database schemas.",
+        "answers": [
+          {
+            "canonical": "Data Definition Language",
+            "aliases": [
+              "DDL"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Data Definition Language (DDL)\nThe Data-Definition sublanguage for declaring database schemas"
+          }
+        ],
+        "tier": "common",
+        "hint": "A sublanguage dealing with schema definitions rather than data rows.",
+        "explanation": "Data Definition Language (DDL) includes commands like CREATE TABLE to declare table structures."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "The SQL sublanguage used for querying databases and modifying database contents.",
+        "answers": [
+          {
+            "canonical": "Data Manipulation Language",
+            "aliases": [
+              "DML"
+            ],
+            "exact_only": false,
+            "evidence_page": 2,
+            "evidence_quote": "Data Manipulation Language (DML)\nThe Data-Manipulation sublanguage for querying databases and for modifying the database"
+          }
+        ],
+        "tier": "common",
+        "hint": "A sublanguage containing queries and row modification commands.",
+        "explanation": "Data Manipulation Language (DML) includes statements such as SELECT, INSERT, UPDATE, and DELETE."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "A inner query that is evaluated multiple times, once for each assignment of a tuple variable from the outer query.",
+        "answers": [
+          {
+            "canonical": "Correlated Subquery",
+            "aliases": [
+              "correlated subqueries"
+            ],
+            "exact_only": false,
+            "evidence_page": 92,
+            "evidence_quote": "A subquery to be evaluated many times, once for each assignment of a value to some term in the subquery that comes from a tuple variable outside the subquery."
+          }
+        ],
+        "tier": "deep",
+        "hint": "This nested query depends directly on values supplied from outside itself.",
+        "explanation": "A correlated subquery references columns from the outer query, requiring execution for each outer row."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "An atomic value that can serve as a single component of a database tuple.",
+        "answers": [
+          {
+            "canonical": "Scalar",
+            "aliases": [
+              "scalar value"
+            ],
+            "exact_only": false,
+            "evidence_page": 87,
+            "evidence_quote": "Scalar: atomic value that can be one component of a tuple"
+          }
+        ],
+        "tier": "deep",
+        "hint": "A single non-composite data value.",
+        "explanation": "A scalar is a single atomic value fitting into one attribute of a tuple."
+      },
+      {
+        "kind": "definition_to_term",
+        "text": "An execution model where join conditions are evaluated using nested iteration over relations.",
+        "answers": [
+          {
+            "canonical": "Nested loop semantics",
+            "aliases": [
+              "nested loop"
+            ],
+            "exact_only": false,
+            "evidence_page": 56,
+            "evidence_quote": "This is called nested loop semantics since we are interpreting what a join means using a nested loop"
+          }
+        ],
+        "tier": "deep",
+        "hint": "Named after programming control loops embedded inside one another.",
+        "explanation": "Nested loop semantics interprets join processing as outer and inner loops over candidate relation rows."
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the evaluation steps of an SQL query containing a HAVING clause in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Evaluation begins by forming table products before applying row filters.",
+        "explanation": "SQL processes FROM first, filters rows with WHERE, forms groups, filters groups with HAVING, and finally formats SELECT outputs.",
+        "items": [
+          "Create the cross product of the tables in the FROM clause",
+          "Remove rows not meeting the WHERE condition",
+          "Divide records into groups by the GROUP BY clause",
+          "Remove groups not meeting the HAVING clause",
+          "Create one row for each group and remove columns not in the SELECT clause"
+        ],
+        "evidence_page": 82
+      },
+      {
+        "kind": "ordered_recall",
+        "text": "Put the conceptual processing steps of a GROUP BY query in order.",
+        "answers": [],
+        "tier": "solid",
+        "hint": "Row filtering occurs prior to grouping.",
+        "explanation": "The query engine evaluates table joins and row filters first, groups the remaining rows, and then evaluates aggregate selection.",
+        "items": [
+          "Compute the FROM and WHERE clauses",
+          "Group by the attributes in the GROUP BY",
+          "Compute the SELECT clause: grouped attributes and aggregates"
+        ],
+        "evidence_page": 78
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which statement is a Data Manipulation Language statement, while the other three are Data Definition Language statements?",
+        "answers": [],
+        "tier": "common",
+        "hint": "Three options alter database table schemas.",
+        "explanation": "INSERT is a DML command for adding data rows, whereas CREATE TABLE, ALTER TABLE, and DROP TABLE are DDL schema commands.",
+        "options": [
+          "CREATE TABLE",
+          "ALTER TABLE",
+          "DROP TABLE",
+          "INSERT"
+        ],
+        "correct_option": "INSERT",
+        "evidence_page": 11
+      },
+      {
+        "kind": "odd_one_out",
+        "text": "Which option is an SQL filtering clause rather than an aggregation function?",
+        "answers": [],
+        "tier": "common",
+        "hint": "Three options compute summary calculations over groups of values.",
+        "explanation": "WHERE is an SQL clause specifying row filtering conditions, whereas COUNT, SUM, and AVG are aggregation functions.",
+        "options": [
+          "COUNT",
+          "SUM",
+          "AVG",
+          "WHERE"
+        ],
+        "correct_option": "WHERE",
+        "evidence_page": 16
+      }
+    ]
+  }
+}

@@ -39,10 +39,13 @@ export async function loadSeedDeck(): Promise<Deck> {
   };
 }
 
-/** Short hash of what Gemini is asked (instructions, schema, temperature): tells saved responses apart. */
-export function promptVersion(): string {
+/**
+ * Short hash of what Gemini is asked (instructions, schema, temperature): tells saved responses
+ * apart. `instruction`: the overgenerate one (F17) when overgenerating.
+ */
+export function promptVersion(instruction: string = GAME_SYSTEM_INSTRUCTION): string {
   return createHash("sha256")
-    .update(`${GAME_SYSTEM_INSTRUCTION}\n${JSON.stringify(GAME_RESPONSE_SCHEMA)}\n${GAME_PROMPT_TEMPERATURE}`)
+    .update(`${instruction}\n${JSON.stringify(GAME_RESPONSE_SCHEMA)}\n${GAME_PROMPT_TEMPERATURE}`)
     .digest("hex")
     .slice(0, 8);
 }
