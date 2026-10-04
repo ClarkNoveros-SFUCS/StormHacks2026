@@ -1,19 +1,17 @@
-import { randomUUID } from "node:crypto";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
-
-// Integration test against a real Postgres + TimescaleDB with the migrations applied:
+// Integration tests for lib/progress.ts. Run with `npm run test:db` (DATABASE_URL from
+// .env.local, i.e. Tiger Cloud), or against a local TimescaleDB by setting it in the shell:
 //   docker run -d --name stormhacks-test-db -e POSTGRES_PASSWORD=test -e POSTGRES_DB=stormhacks_test \
 //     -p 5499:5432 timescale/timescaledb:latest-pg17
 //   DATABASE_URL=postgres://postgres:test@localhost:5499/stormhacks_test npm run db:migrate
-//   TEST_DATABASE_URL=postgres://postgres:test@localhost:5499/stormhacks_test npm test
-// Fixtures use fresh Player ids and are deleted afterwards.
+//   DATABASE_URL=postgres://postgres:test@localhost:5499/stormhacks_test npm run test:db
+// Unlike F05's rolled-back fixtures, these are committed (the continuous aggregate can only be
+// refreshed outside a transaction), under fresh Player ids, and deleted in afterAll.
+import { randomUUID } from "node:crypto";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { sql } from "@/lib/db";
+import * as progress from "./progress";
 
-const enabled = Boolean(process.env.TEST_DATABASE_URL);
-
-describe.skipIf(!enabled)("progress", async () => {
-  const { sql } = await import("./db");
-  const progress = await import("./progress");
-
+describe.skipIf(!process.env.DATABASE_URL)("progress", () => {
   const me = `test_progress_${randomUUID()}`;
   const other = `test_progress_${randomUUID()}`;
   const t0 = new Date(Date.now() - 24 * 60 * 60 * 1000);

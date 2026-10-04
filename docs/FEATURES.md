@@ -14,7 +14,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F02 | Seed data: demo Module and Game | Platform | F01 | #2 | planned |
 | F03 | Upload pipeline (Snowflake) | Pipelines | F01 | #3 | planned |
 | F04 | Game generation (Gemini) | Pipelines | F01 (F02 for test pages) | #4 | planned |
-| F05 | Answer matching | Gameplay | F01 | #5 | planned |
+| F05 | Answer matching | Gameplay | F01 | #5 | done |
 | F06 | Run engine and scoring API | Gameplay | F01, F05 | #6 | planned |
 | F07 | Progress: Personal Best and Mastery | Gameplay | F01 | #7 | planned |
 | F08 | Modules list and Module page UI | Frontend | F01 (mock F03/F04) | #8 | planned |
@@ -95,11 +95,18 @@ Entry points: — · Notes for others: —
 
 ## F05 Answer matching
 Spec: `docs/architecture/answer-matching.md`
-- [ ] `lib/matching/normalize.ts` with unit tests for every row of the spec's examples table
-- [ ] `lib/matching/match-guess.ts`: `matchGuess(promptId, raw)` with exact → typo (length budget) → ambiguity rule; `exact_only` respected
-- [ ] Integration test against F02's seeded Prompt (BFS/DFS can't fuzzy-match each other)
+- [x] `lib/matching/normalize.ts` with unit tests for every row of the spec's examples table
+- [x] `lib/matching/match-guess.ts`: `matchGuess(promptId, raw)` with exact → typo (length budget) → ambiguity rule; `exact_only` respected
+- [ ] Integration test against F02's seeded Prompt (BFS/DFS can't fuzzy-match each other). Covered for now by `match-guess.db.test.ts` with its own rolled-back fixture (same graph-algorithm Answers and cases); a seeded-Prompt test follows once F02 merges.
 
-Entry points: — · Notes for others: —
+Entry points: `lib/matching/normalize.ts` (`normalize()`), `lib/matching/match-guess.ts` (`matchGuess(promptId, raw, db?)`, `MatchResult`, `Db`, `typoBudget()`), tests in `lib/matching/*.test.ts`, `vitest.config.mts`
+
+Notes for others:
+- **F04:** write every canonical name and Alias to `answer_keys` as `normalize(text)`, with `exact_only` copied from the Answer. Never normalize in SQL.
+- **F06:** call `matchGuess(promptId, raw, tx)` inside your transaction. `{ matched: false }` with `method: 'ambiguous'` is a wrong guess like `'none'`; log `method` and `distance` to `guess_events`. An empty normalized guess returns `'none'`: don't charge the −3 s for it.
+- Guesses over 255 normalized chars never typo-match (fuzzystrmatch limit); they still exact-match.
+- **Tests:** vitest 4 (vitest 5 needs `@types/node` ≥ 22). `npm test` runs unit tests; `npm run test:db` runs `*.db.test.ts` against `DATABASE_URL` from `.env.local` (skipped without it). `server-only` is aliased to `test/server-only-stub.ts`, so server modules import fine. Pattern for DB tests: build data inside `sql.begin()` and throw to roll back (see `withFixture` in `match-guess.db.test.ts`).
+- Fresh clone: run `npx next typegen` before `npm run typecheck`, or `LayoutProps` in `app/layout.tsx` fails.
 
 ## F06 Run engine and scoring API
 Spec: `docs/architecture/run-and-scoring.md`

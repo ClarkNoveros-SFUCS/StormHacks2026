@@ -9,7 +9,8 @@
     "lint": "eslint",
     "db:migrate": "node scripts/migrate.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --exclude \"**/*.db.test.ts\"",
+    "test:db": "vitest run db.test"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.10",
