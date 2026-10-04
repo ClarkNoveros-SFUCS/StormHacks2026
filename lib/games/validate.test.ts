@@ -136,6 +136,13 @@ describe("validateDocument", () => {
     expect(prompts[0].answers).toEqual([expect.objectContaining({ canonical: "Bellman-Ford", keys: [], tier: "deep" })]);
   });
 
+  it("check 2: odd_one_out citing the wrong page moves its Evidence to a page naming the correct option", () => {
+    const odd = (correct: string, text: string) => ({ kind: "odd_one_out", text, tier: "solid", options: ["BFS", "DFS", "Prim", correct], correct_option: correct, evidence_page: 2 });
+    const { prompts, dropped } = run(odd("Breadth", "Cited the wrong page"), odd("Quicksort", "Not in the file"));
+    expect(prompts.map((p) => [p.text, p.evidencePage, p.answers[0].evidencePage])).toEqual([["Cited the wrong page", 1, 1]]);
+    expect(dropped).toEqual([expect.objectContaining({ reason: "no page mentions the correct option" })]);
+  });
+
   it("check 6: ordered_recall needs 3-6 distinct items; odd_one_out needs 4 distinct options including the correct one", () => {
     const ordered = (items: string[]) => ({ kind: "ordered_recall", text: `Order ${items.length}`, tier: "solid", items, evidence_page: 1 });
     const odd = (options: string[], correct: string, text: string) => ({ kind: "odd_one_out", text, tier: "solid", options, correct_option: correct, evidence_page: 2 });

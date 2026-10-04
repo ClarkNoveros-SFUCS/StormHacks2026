@@ -258,15 +258,22 @@ export function validateDocument(response: unknown, pages: DocumentPage[]): Docu
       return drop("needs exactly 4 distinct options"), null;
     }
     if (!options.includes(correct)) return drop("correct_option isn't one of the options"), null;
-    // Check 2: the page mentions the correct option
-    if (!containsWords(page, normalize(correct))) return drop(`page ${base.evidencePage} doesn't mention the correct option`), null;
+    // Check 2: a page mentions the correct option. Gemini often cites the page about the other
+    // three, so fall back to the first page that does; the option must still be in the file.
+    let evidencePage = base.evidencePage;
+    if (!containsWords(page, normalize(correct))) {
+      const other = pages.find((pg) => containsWords(normalizedPage.get(pg.pageNumber)!, normalize(correct)));
+      if (!other) return drop("no page mentions the correct option"), null;
+      evidencePage = other.pageNumber;
+    }
     return {
       ...base,
+      evidencePage,
       kind: p.kind,
       hint: checkedHint(p.hint, [normalize(correct)]), // check 5
       items: null,
       options,
-      answers: [{ canonical: correct, keys: [], exactOnly: false, evidencePage: base.evidencePage, evidenceQuote: null, tier: p.tier, rarityRank: null }],
+      answers: [{ canonical: correct, keys: [], exactOnly: false, evidencePage, evidenceQuote: null, tier: p.tier, rarityRank: null }],
     };
   }
 

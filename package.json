@@ -15,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --exclude \"**/*.db.test.ts\" --exclude \"**/node_modules/**\" --exclude \".claude/**\"",
     "test:db": "vitest run db.test",
-    "parse:check": "node scripts/parse-check.ts"
+    "parse:check": "node scripts/parse-check.ts",
+    "generate:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-check.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.10",
