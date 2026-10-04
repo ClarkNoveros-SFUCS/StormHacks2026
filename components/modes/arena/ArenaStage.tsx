@@ -109,7 +109,7 @@ export const ArenaStage = forwardRef<ArenaStageHandle, Props>(function ArenaStag
         className="absolute inset-0 h-full w-full touch-none select-none"
         style={{ opacity: state === "failed" ? 0 : 1, cursor: mode === "play" ? "crosshair" : undefined }}
       />
-      {state === "failed" && (
+      {state === "failed" && mode === "play" && (
         <p className="absolute inset-x-0 top-1/3 text-center font-hud text-[20px] text-muted">3D isn&apos;t available here · use keys 1–4 to shoot</p>
       )}
     </div>

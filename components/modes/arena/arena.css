@@ -27,6 +27,8 @@
   --r: 10px;
   background: var(--bg);
   color: var(--text);
+  /* Pixelify Sans draws "fi" as a broken ligature */
+  font-variant-ligatures: none;
 }
 
 .ar-root .ar-plate {

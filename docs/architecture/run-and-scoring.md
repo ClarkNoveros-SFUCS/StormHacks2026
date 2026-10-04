@@ -10,6 +10,7 @@ Shared by every Mode: the lifecycle (create → `start-prompt` → play → fini
 | Leap | `answer { optionId }`, `lifeline` | `lib/runs/engines/leap.ts` | `lib/modes/leap/rules.ts` |
 | Pairs | `pair { termId, definitionId }` | `lib/runs/engines/pairs.ts` | `lib/modes/pairs/rules.ts` |
 | Blitz | `answer { value }` | `lib/runs/engines/blitz.ts` | `lib/modes/blitz/rules.ts` |
+| Arena | `answer { optionId }` (a hit) | `lib/runs/engines/arena.ts` | `lib/modes/arena/rules.ts` |
 
 A play route sent to a Run of another Mode returns 409 (`"A Leap Run doesn't take /guess"`).
 
@@ -248,6 +249,41 @@ type BlitzAnswerResult =
 
 Reveal (`BlitzReveal.statements`): every statement that was dealt, in order, with its truth, your answer (`null` if time ran out on it), points, explanation and Evidence.
 
+# Arena
+
+Leap's multiple-choice questions as 4 targets in a first-person room (F29). **A hit is an answer**, but only the right one closes the question.
+
+| Rule | Value |
+|---|---|
+| Questions per Run | 10 `multiple_choice` Prompts, drawn at random, no repeats (Leap's kind and generator) |
+| Time per question | 20 s |
+| Right target | `max(25, round((100 + speedBonus) × multiplier) − 25 × wrongHits)`; `speedBonus = round(50 × msLeft / 20000)`, 0–50; `wrongHits` = wrong targets hit on this question. Closes the question. |
+| Streak multiplier | Leap's, by right questions in a row, this one included: 1–2 → ×1, 3–4 → ×1.5, 5+ → ×2. **A wrong hit resets the streak** (the right hit after it starts a new one). |
+| Wrong target | the target **shatters** (can't be hit again: 409), −3 s off this question's deadline, streak → 0, the question **stays open**. If the penalty runs the clock out, the question closes as a timeout at once (`closed: true`). |
+| Timeout | 0 points, streak resets |
+| Hearts, Lifeline | none; the Run always plays all 10 and ends `cleared` |
+| Max score | 2,550 (as Leap) |
+| Pass bar | ≥ 7 right |
+
+Flow: `start-prompt` starts the clock and only then does the state carry `question` (text, options A–D shuffled once per Run, `shatteredOptionIds`) → `answer { optionId, position? }` per hit → on the right hit the result names `correctOptionId` and the `explanation` → `start-prompt` for the next. A timed-out question never sends its right option (the Reveal has it). Every hit is a `guess_events` row (`match_method 'choice'`), so the Reveal lists your hits in order. Misses that hit no target are client-only and never reach the server.
+
+```ts
+type ArenaRunState = {
+  mode: 'arena'; runId; gameId; status; score; serverNow;
+  position: number; promptCount: 10; streak: number;
+  nextMultiplier: number; correctCount: number; wrongHits: number;   // wrongHits: whole Run
+  outcome: 'cleared' | null;
+  startedAt: string | null; deadlineAt: string | null;               // 20 s, minus 3 s per wrong hit
+  question: { text; options: { id: 'A'|'B'|'C'|'D'; text }[]; shatteredOptionIds: ('A'|'B'|'C'|'D')[] } | null;
+};
+type ArenaHitResult =
+  | { correct: true; points; speedBonus; multiplier; wrongHits; correctOptionId; explanation }
+  | { correct: false; optionId; penaltyMs: 3000; closed: boolean }   // closed: the penalty ran the clock out
+  | { correct: false; timedOut: true };
+```
+
+Reveal (`ArenaReveal.questions`): all 10 with the options as shown, `hits` in order (`{ optionId, correct, msIntoQuestion }`), the right option, outcome (`correct` | `timeout`), points, the explanation and the Evidence. Accuracy (shown in the Reveal) is `correct / (correct + wrongHits)` (`accuracy()` in the rules module).
+
 # Every Mode
 
 ## API (all under Clerk auth; the Run must belong to the caller)
@@ -261,7 +297,7 @@ Reveal (`BlitzReveal.statements`): every statement that was dealt, in order, wit
 | `GET /api/runs/[runId]/reveal` | — | `Reveal` (409 until finished) | all |
 | `POST /api/runs/[runId]/guess` | `GuessBody` | `GuessResponse` | Dive, Apogee |
 | `POST /api/runs/[runId]/hint` | — | `HintResponse` | Dive, Apogee |
-| `POST /api/runs/[runId]/answer` | Leap `{ optionId, position? }` · Blitz `{ value, position? }` | `LeapAnswerResponse` · `BlitzAnswerResponse` | Leap, Blitz |
+| `POST /api/runs/[runId]/answer` | Leap `{ optionId, position? }` · Blitz `{ value, position? }` · Arena `{ optionId, position? }` (the target hit) | `LeapAnswerResponse` · `BlitzAnswerResponse` · `ArenaHitResponse` (client: `runApi.hit`) | Leap, Blitz, Arena |
 | `POST /api/runs/[runId]/lifeline` | optional `{ position }` | `LifelineResponse { hiddenOptionIds, state }` | Leap |
 | `POST /api/runs/[runId]/pair` | `{ termId, definitionId, board? }` | `PairResponse` | Pairs |
 
@@ -269,7 +305,7 @@ Errors are `{ error }` with 400 (bad body, empty or over-long guess, an option/o
 
 Every play request may carry the `position` (or `board`) it was meant for: if that item already closed, the request gets 409 instead of landing on the next one. A request that arrives after the deadline plus 500 ms grace is ignored and returns `{ correct: false, timedOut: true }` with the state that closing it produced.
 
-**The types live in `lib/runs/types.ts`** (client-safe, import them in the UI) and are the source of truth: `RunState = DiveRunState | LeapRunState | PairsRunState | BlitzRunState`, and `Reveal` likewise, all discriminated on `mode`. `assertMode(state, 'leap')` narrows one; `ModeRunState<'apogee'>` is `DiveRunState`. Every state has `runId`, `gameId`, `mode`, `status`, `score` and `serverNow`.
+**The types live in `lib/runs/types.ts`** (client-safe, import them in the UI) and are the source of truth: `RunState = DiveRunState | LeapRunState | PairsRunState | BlitzRunState | ArenaRunState`, and `Reveal` likewise, all discriminated on `mode`. `assertMode(state, 'leap')` narrows one; `ModeRunState<'apogee'>` is `DiveRunState`. Every state has `runId`, `gameId`, `mode`, `status`, `score` and `serverNow`.
 
 ## Run summary and pass bars
 
@@ -281,15 +317,16 @@ Every finished Run has a Mode-agnostic `RunSummary` (in `Reveal.summary`, and fr
 // leap:        outcome 'cleared' | 'fell';      stats { questions, correct, wrong, timeouts, heartsLeft, bestStreak, lifelineUsed }
 // pairs:       outcome 'cleared' | 'time_up';   stats { boardsCleared, matches, mistakes, timeBonus }
 // blitz:       outcome 'time_up' | 'deck_cleared'; stats { answered, correct, wrong, bestCombo }
+// arena:       outcome 'cleared';               stats { questions, correct, timeouts, wrongHits, bestStreak }
 ```
 
-`Reveal.passed` applies the Mode's **pass bar** (`passedRun(summary)` in `lib/modes/rules.ts`, used by Courses): Dive/Apogee score ≥ 150; Leap ≥ 7 correct and not fallen; Pairs both Boards cleared; Blitz ≥ 150 points.
+`Reveal.passed` applies the Mode's **pass bar** (`passedRun(summary)` in `lib/modes/rules.ts`, used by Courses): Dive/Apogee score ≥ 150; Leap ≥ 7 correct and not fallen; Pairs both Boards cleared; Blitz ≥ 150 points; Arena ≥ 7 right.
 
 ## Progress in every Reveal
 
 `Reveal.progress: { personalBest, isNewPersonalBest, masteryBefore, masteryAfter }` comes from `runProgress()` in `lib/progress.ts` (F07), the same for every Mode (Mastery as percentages, rounded down). `personalBest` is the best as of this Run: the higher of this score and the previous best. Both use the Run's own timestamps, so an old Reveal keeps showing what was true then:
 - **Previous best:** the highest score of this Player's other finished Runs on the Game that finished before this one (`null` if none). **New Personal Best** = score > previous best (or > 0 when there is none). A tie isn't a new best.
-- **Mastery before:** Answers found by correct guesses made before this Run started. **Mastery after:** Answers found up to the moment this Run finished, so this Run's guesses are included. Abandoned Runs count toward both. In Leap, Pairs and Blitz a correct answer finds that Prompt's one Answer row.
+- **Mastery before:** Answers found by correct guesses made before this Run started. **Mastery after:** Answers found up to the moment this Run finished, so this Run's guesses are included. Abandoned Runs count toward both. In Leap, Pairs, Blitz and Arena a correct answer finds that Prompt's one Answer row.
 
 ## Code layout
 

@@ -87,7 +87,12 @@ export function ArenaRunScreen({ initial, context }: Props) {
   const [locked, setLocked] = useState(false);
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
-  const [aimMode, setAimMode] = useState<"lock" | "pointer">("pointer");
+  const [aimMode, setAimState] = useState<"lock" | "pointer">("pointer");
+  const aimRef = useRef<"lock" | "pointer">("pointer");
+  const setAimMode = (m: "lock" | "pointer") => {
+    aimRef.current = m;
+    setAimState(m);
+  };
   // Touch screens aim by tapping (client-only; false while server rendering)
   const touch = useSyncExternalStore(noSubscribe, isTouch, () => false);
   const [stageOk, setStageOk] = useState<boolean | null>(null);
@@ -375,7 +380,7 @@ export function ArenaRunScreen({ initial, context }: Props) {
     }
     wasLocked.current = false;
     const ph = phaseRef.current;
-    if (aimMode === "lock" && (ph === "countdown" || ph === "starting" || ph === "play" || ph === "result")) setPause(true);
+    if (aimRef.current === "lock" && (ph === "countdown" || ph === "starting" || ph === "play" || ph === "result")) setPause(true);
   };
 
   const resume = (aim: "lock" | "pointer") => {
@@ -595,7 +600,7 @@ export function ArenaRunScreen({ initial, context }: Props) {
               </span>
             </div>
             {streakLine && (
-              <span key={streakKey} className="ar-chip flex items-center gap-1.5 text-reward" style={{ animation: streakKey ? "ar-streak .5s var(--ease-snap)" : undefined }}>
+              <span key={streakKey} className="ar-chip flex items-center gap-1.5 whitespace-nowrap text-reward" style={{ animation: streakKey ? "ar-streak .5s var(--ease-snap)" : undefined }}>
                 <PixelIcon name="flame" size={14} /> {streakLine}
               </span>
             )}
@@ -718,8 +723,8 @@ export function ArenaRunScreen({ initial, context }: Props) {
 
       {/* intro / ready */}
       {overlay && (
-        <div className="absolute inset-0 z-30 grid place-items-center bg-[#070914]/40 px-4">
-          <section className="ar-card w-full max-w-[560px] p-5 text-center sm:p-6" style={{ animation: "ar-card-in .45s var(--ease-out) both" }} aria-label="Ready">
+        <div className="absolute inset-0 z-30 flex overflow-y-auto bg-[#070914]/40 px-4 py-4">
+          <section className="ar-card m-auto w-full max-w-[560px] p-5 text-center sm:p-6" style={{ animation: "ar-card-in .45s var(--ease-out) both" }} aria-label="Ready">
             {phase === "intro" ? (
               <>
                 <p className="font-hud text-[16px] tracking-[0.3em] text-signal">TRAINING ARENA · {context.gameTitle.toUpperCase()}</p>

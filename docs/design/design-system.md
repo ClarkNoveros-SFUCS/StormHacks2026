@@ -110,7 +110,7 @@ Everything here is off or reduced under `prefers-reduced-motion` (§5.4). **F10*
 | **Mascot with character** | The pixel anglerfish blinks, its eyes follow the cursor, it bobs, it speaks in a speech bubble, reacts `happy` / `sad` / `wow`, falls asleep (Zzz) when idle, wakes on hover; clicking it plays a reaction | greetings, empty states, streak reminders, level-ups | F10 `Mascot`; placements in F19/F26–F28 |
 | **Tactile buttons** | Squash on press, spring on release, hover lift, UI blip sounds | everywhere | F10 `Button` |
 | **Tilt cards with glare** | Cards tilt in 3D toward the cursor (max ~8°) with a moving glare highlight; settle back on a spring | course cards, Mode tiles, Daily card | F10 `TiltCard` |
-| **Mode tile mini-scenes** | Each Mode tile plays a looping pixel scene on hover/focus (Dive: diver sinking past fish; Apogee: rocket lifting off; Leap: hopper jumping platforms; Pairs: cards snapping together; Blitz: neon T/F flashing; Arena: locked crosshair) | New Game dialog, landing, Topic practice panel | F10 `ModeTile` |
+| **Mode tile mini-scenes** | Each Mode tile plays a looping pixel scene on hover/focus (Dive: diver sinking past fish; Apogee: rocket lifting off; Leap: hopper jumping platforms; Pairs: cards snapping together; Blitz: neon T/F flashing; Arena: crosshair sweeping drifting targets, laser zap) | New Game dialog, landing, Topic practice panel | F10 `ModeTile` |
 | **Odometer numbers** | Digits roll like a mechanical counter to the new value | XP, scores, counts | F10 `Odometer` |
 | **XP bar shine + sparks** | Fill springs to the new value with a shine sweep; pixel sparks fly off the leading edge while it grows | home sidebar, profile card, Reveal | F10 `XpBar` |
 | **Badges flip and gleam** | Earned badges flip once on reveal (`badge-flip`) and catch a shine on hover; locked ones are a dim silhouette with a lock | profile, Topic pass, sidebar | F10 `Badge` |
@@ -152,7 +152,7 @@ A theme never changes the token **names**, the motion timings, the accessibility
 | Leap | `leap` | `#3ddc97` / `#7ad7ff` | theme's choice | three.js voxel hopper on floating sky islands | `START CLIMB` | `modes/leap.md` (F24) | F24 (#37) |
 | Pairs | `pairs` | `#ff9f43` / `#ffd84d` | theme's choice | bright pixel card table, two columns | `DEAL` | `modes/pairs.md` (F25) | F25 (#38) |
 | Blitz | `blitz` | `#ff3df0` / `#3dfcff` | theme's choice | neon arcade, beat-synced pulse | `GO` | `modes/blitz.md` (F25) | F25 (#38) |
-| Arena (stretch) | `arena` | `#9aa6c8` | — | three.js first-person room | `ENTER` | — | F29 (#42) |
+| Arena | `arena` | `#ff4d6d` / `#4de3ff` | Pixelify Sans + VT323 HUD | three.js first-person neon training room, holo-board, drifting targets | `ENTER ARENA` · `AFTER-ACTION REPORT` | `modes/arena.md` (F29) | F29 (#42) |
 
 The Apogee/Leap/Pairs/Blitz blocks in `globals.css` are accent placeholders; the feature that builds each Mode's screens owns its full theme. Site-side presentation (tile name, tagline, rules one-liner, accents, verb, glyph) lives in `lib/ui/modes.ts` (`MODE_UI`), separate from `lib/modes/` (the playable list, F13/F20).
 

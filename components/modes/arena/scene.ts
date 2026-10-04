@@ -31,6 +31,7 @@ const SPAWN = new THREE.Vector3(0, EYE, 8);
 const PANEL_W = 2.6;
 const PANEL_H = 1.3;
 const FIRE_MS = 170;
+const GUN_Z = -0.62;
 
 // Target slots (x, y, z) at varied depths; landscape and portrait layouts. Rotated per question.
 const SLOTS_WIDE: [number, number, number][] = [
@@ -861,6 +862,8 @@ export class ArenaScene {
   }
 
   private lockFailed = () => {
+    // Both the promise and the pointerlockerror event report the same refusal: tell the page once
+    if (this.aim === "pointer" && !this.lockedNow) return;
     this.aim = "pointer";
     this.lockedNow = false;
     this.opts.onLockChange?.(false);
@@ -877,7 +880,8 @@ export class ArenaScene {
     this.tall = w / h < 0.9;
     this.camera.fov = this.tall ? 78 : 68;
     this.camera.updateProjectionMatrix();
-    this.gun.position.set(this.tall ? 0.16 : 0.3, this.tall ? -0.3 : -0.26, -0.45);
+    this.gun.position.set(this.tall ? 0.15 : 0.28, this.tall ? -0.27 : -0.24, GUN_Z);
+    this.gun.scale.setScalar(this.tall ? 0.4 : 0.55);
     // keep the board inside the view on a phone
     const s = this.tall ? 0.62 : 1;
     this.board.scale.setScalar(s);
@@ -1012,7 +1016,7 @@ export class ArenaScene {
     this.recoil = Math.max(0, this.recoil - dt * 9);
     const sway = reduced ? 0 : Math.sin(t * 1.6) * 0.006;
     this.gun.rotation.set(this.recoil * 0.22 + sway, 0, 0);
-    this.gun.position.z = -0.45 + this.recoil * 0.07;
+    this.gun.position.z = GUN_Z + this.recoil * 0.05;
     const fm = this.flash.material as THREE.SpriteMaterial;
     fm.opacity = Math.max(0, fm.opacity - dt * 16);
     this.flashLight.intensity = Math.max(0, this.flashLight.intensity - dt * 70);
