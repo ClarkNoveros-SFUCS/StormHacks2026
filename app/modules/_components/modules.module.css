@@ -220,3 +220,20 @@
 .summary {
   animation: pop-in 0.35s var(--ease-snap) both;
 }
+
+/* ---------- Generating steps (Game cards) ---------- */
+.stepRoll {
+  display: block;
+  animation: step-roll 0.45s var(--ease-snap) both;
+}
+@keyframes step-roll {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+    filter: blur(2px);
+  }
+}
+.tickNow {
+  background: var(--violet);
+  animation: dot-pulse 1.4s ease-in-out infinite;
+}
