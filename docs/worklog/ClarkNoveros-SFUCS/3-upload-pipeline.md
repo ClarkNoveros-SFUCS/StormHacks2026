@@ -18,7 +18,7 @@ Uploaded PDF/PPTX/DOCX → per-page markdown in `source_pages`. Spec: `docs/arch
 - Docs: ADR-0003, upload-pipeline.md rewritten, overview/data-model/setup README/.env.example updated, F03 checklist rewritten.
 
 ## Next steps
-1. Run `npm run parse:check -- <file> --full` on a **real** lecture PDF, PPTX and DOCX (the fixtures are synthetic). Tune `HEADING_RATIO` / `COLUMN_GAP` in `pdf.ts` if headings or columns look wrong.
+1. PDF checked on a real deck (MIT 6.100L lec 1, 57 slides): fixed Wingdings bullets, "-1" read as a bullet, and repeated footers. Still to check: a real PPTX and DOCX. Tune `HEADING_RATIO` / `COLUMN_GAP` in `pdf.ts` if headings or columns look wrong.
 2. Real upload through the app once F08 is merged (or via fetch in devtools).
 3. When the user approves: merge main (F05 added vitest and a `test` script that conflicts with ours; move our tests to vitest or chain both), tick the F03 checklist, set Status done, and open a PR with `Closes #3`.
 

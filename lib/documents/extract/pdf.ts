@@ -2,13 +2,19 @@ import { getDocumentProxy } from "unpdf";
 
 // PDF → one markdown string per page, from the PDF's text layer (pdf.js via unpdf).
 // Rebuilds lines from text positions, marks larger text as headings and bullet
-// glyphs as list items, and keeps wide gaps between runs as " | " so table rows
-// stay readable. Scanned pages have no text layer and come back as "".
+// glyphs as list items, keeps wide gaps between runs as " | " so table rows stay
+// readable, and drops headers/footers that repeat on most pages (slide numbers,
+// course names). Scanned pages have no text layer and come back as "".
 
 type Item = { str: string; x: number; y: number; w: number; h: number; eol: boolean };
 type Line = { text: string; y: number; h: number };
 
-const BULLET = /^[•▪◦‣●○■□–—\-*]\s*/;
+// Bullet glyphs, including symbol-font bullets (Wingdings etc.) that land in the Unicode
+// private-use area. A dash or asterisk only counts when a space follows, so "-1" stays a number.
+const BULLET = /^(?:[•▪◦‣●○■□►▶➢✓✔\uE000-\uF8FF]\s*|[–—\-*]\s+)/;
+const PRIVATE_USE = /[\uE000-\uF8FF]/g;
+// A line on at least this share of pages (and at least 3) is a header or footer.
+const REPEATED_SHARE = 0.5;
 const HEADING_RATIO = 1.25; // line height vs the page's typical body height
 const COLUMN_GAP = 1; // gap wider than this many text heights = a new column
 
@@ -18,7 +24,7 @@ export async function extractPdf(bytes: Uint8Array, maxPages = Infinity): Promis
   const pdf = await getDocumentProxy(new Uint8Array(bytes));
   try {
     if (pdf.numPages > maxPages) throw new TooManyPagesError(`${pdf.numPages} pages`);
-    const pages: string[] = [];
+    const pages: Line[][] = [];
     for (let n = 1; n <= pdf.numPages; n++) {
       const page = await pdf.getPage(n);
       const content = await page.getTextContent();
@@ -27,10 +33,10 @@ export async function extractPdf(bytes: Uint8Array, maxPages = Infinity): Promis
         if (!("str" in it)) continue;
         items.push({ str: it.str, x: it.transform[4], y: it.transform[5], w: it.width, h: Math.abs(it.height || it.transform[3]), eol: it.hasEOL });
       }
-      pages.push(toMarkdown(toLines(items)));
+      pages.push(toLines(items));
       page.cleanup();
     }
-    return pages;
+    return dropRepeatedLines(pages).map(toMarkdown);
   } finally {
     await pdf.loadingTask.destroy(); // frees the worker and document memory
   }
@@ -64,6 +70,26 @@ export function toLines(items: Item[]): Line[] {
   });
 }
 
+/**
+ * Removes running headers and footers: lines that appear (ignoring digits) on most
+ * pages, and lines that are just the page's own number.
+ */
+export function dropRepeatedLines(pages: Line[][]): Line[][] {
+  // A line counts as repeated if its exact text, or its text with the page's own number
+  // masked, is on most pages: "6.100L Lecture 1" everywhere, "Page 3 of 57" on page 3.
+  const norm = (text: string) => text.toLowerCase().replace(/\s+/g, " ").trim();
+  const masked = (text: string, page: number) => norm(text).replace(new RegExp(`(?<!\\d)${page}(?!\\d)`, "g"), "#");
+  const counts = new Map<string, number>();
+  pages.forEach((lines, i) => {
+    const keys = new Set(lines.flatMap((l) => [`=${norm(l.text)}`, `#${masked(l.text, i + 1)}`]));
+    for (const k of keys) counts.set(k, (counts.get(k) ?? 0) + 1);
+  });
+  const threshold = Math.max(3, REPEATED_SHARE * pages.length);
+  const repeated = (text: string, page: number) =>
+    (counts.get(`=${norm(text)}`) ?? 0) >= threshold || (counts.get(`#${masked(text, page)}`) ?? 0) >= threshold;
+  return pages.map((lines, i) => lines.filter((l) => !repeated(l.text, i + 1) && l.text !== String(i + 1)));
+}
+
 export function toMarkdown(lines: Line[]): string {
   if (lines.length === 0) return "";
   const body = median(lines.map((l) => l.h));
@@ -78,6 +104,8 @@ export function toMarkdown(lines: Line[]): string {
     } else if (BULLET.test(text)) {
       text = `- ${text.replace(BULLET, "")}`;
     }
+    text = text.replace(PRIVATE_USE, "").trim(); // stray icon glyphs
+    if (!text || text === "-" || /^#+$/.test(text)) continue;
     // A blank line between blocks: before headings and list items, and at wide vertical gaps.
     const gap = prev ? prev.y - line.y : 0;
     const last = out[out.length - 1] ?? "";

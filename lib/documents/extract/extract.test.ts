@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { extractPages } from "./index.ts";
 import { ALLOWED_TYPES } from "../parsed-pages.ts";
-import { toLines, toMarkdown } from "./pdf.ts";
+import { dropRepeatedLines, toLines, toMarkdown } from "./pdf.ts";
 import { slideToMarkdown } from "./pptx.ts";
 import { htmlToMarkdown, paginate } from "./docx.ts";
 
@@ -63,4 +63,21 @@ test("DOCX: long text without breaks is packed into ~3000-char sections at headi
   const pages = paginate(htmlToMarkdown("") + [1, 2, 3, 4].map(section).join("\n\n"));
   assert.ok(pages.length >= 2 && pages.every((p) => p.length <= 3000));
   assert.ok(pages.every((p) => p.startsWith("## Part")));
+});
+
+test("PDF lines: symbol-font bullets, negative numbers stay numbers", () => {
+  const line = (text: string, y: number) => ({ text, y, h: 12 });
+  assert.equal(toMarkdown([line("\uF0A7 Course info", 700), line("\uF0A7 Python basics", 685)]), "- Course info\n- Python basics");
+  assert.equal(toMarkdown([line("-1, -2, -3", 700)]), "-1, -2, -3");
+  assert.equal(toMarkdown([line("- dash bullet", 700)]), "- dash bullet");
+});
+
+test("PDF: running footers and page-number lines are dropped", () => {
+  const line = (text: string) => ({ text, y: 0, h: 12 });
+  const pages = [1, 2, 3, 4, 5, 6].map((n) => [line(`Topic ${"ABCDEF"[n - 1]}`), line(String(n)), line(`Page ${n} of 6`), line("6.100L Lecture 1")]);
+  pages[2].push(line("YOU TRY IT!"));
+  pages[4].push(line("YOU TRY IT!"));
+  const out = dropRepeatedLines(pages).map((p) => p.map((l) => l.text));
+  assert.deepEqual(out[0], ["Topic A"]);
+  assert.deepEqual(out[2], ["Topic C", "YOU TRY IT!"]);
 });
