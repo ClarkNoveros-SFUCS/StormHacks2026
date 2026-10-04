@@ -14,12 +14,12 @@ export const RANKS = [
 export type RankName = (typeof RANKS)[number]["name"];
 
 /**
- * Pixel avatar ids (Q17). F26 draws one sprite per id. The DB only checks the id's shape,
+ * Pixel avatar ids (Q17): the 16 sprites drawn in components/ui/avatars.ts (keep the two lists equal). The DB only checks the id's shape,
  * so adding an avatar here needs no migration. The first is the default.
  */
 export const AVATARS = [
-  "anglerfish", "octopus", "jellyfish", "pufferfish", "seahorse", "turtle", "crab", "shark",
-  "whale", "narwhal", "axolotl", "squid", "clownfish", "manta", "astronaut", "frog",
+  "anglerfish", "axolotl", "astronaut", "frog", "cat", "robot", "octopus", "penguin",
+  "fox", "ghost", "slime", "owl", "bear", "alien", "crab", "jellyfish",
 ] as const;
 export type AvatarId = (typeof AVATARS)[number];
 
