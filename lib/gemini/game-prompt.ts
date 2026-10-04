@@ -75,7 +75,7 @@ GROUNDING
 
 PROMPT TEXT
 - Each Prompt stands on its own, like a quiz question. Never mention pages, slides, "the document", "the lecture", "the course", "the summary" or "according to".
-- Ask about the subject, not about the document: "Name a minimum spanning tree algorithm", never "Name a topic listed this week".
+- Ask about the subject, not about the document: "Name a minimum spanning tree algorithm", never "Name a topic listed this week", "covered in the material", "mentioned in section 3" or "in this lecture".
 
 PROMPT KINDS (write 15-20 Prompts in total, at least half of them "open", and include some of every kind the material supports)
 - "open": a category with many valid Answers, e.g. "Name a graph algorithm", "Give an example of a greedy algorithm", "Name a property of a heap". List 4-15 Answers in "answers", ordered from the most obvious to the most obscure for a student in this course. That order is the only rarity signal; never output scores or points. Only make an open Prompt when the pages support at least 4 distinct Answers that each truly fit it. One category per Prompt: no "or" joining two categories. Fields: kind, text, answers.
@@ -87,7 +87,7 @@ PROMPT KINDS (write 15-20 Prompts in total, at least half of them "open", and in
 EVERY KIND EXCEPT "open" MUST HAVE tier, hint AND explanation
 - For "open", set tier to "common" and leave hint and explanation empty; they're ignored.
 - "tier": how obscure the fact is for a student in this course: "common" (core idea everyone knows), "solid" (needs real study), "deep" (a detail), "rare" (easy to miss).
-- "hint": a short clue that helps without giving it away. Never include the Answer, any alias, any word from them (including plurals and other forms), or an obvious fragment. For odd_one_out, never name the correct option. For ordered_recall, never list or paraphrase the steps; point at the first one or the idea that orders them.
+- "hint": a short clue that helps without giving it away. Never include the Answer, any alias, any word from them (including plurals and other forms), or an obvious fragment. Never spell out or describe an acronym or abbreviation ("abbreviated as", "its initials stand for"). For odd_one_out, never name the correct option. For ordered_recall, never list or paraphrase the steps; point at the first one or the idea that orders them.
 - "explanation": one sentence shown after the Prompt, saying why the Answer is right.
 
 ANSWERS ("open", "cloze", "definition_to_term")
@@ -107,10 +107,11 @@ ${examples}
 BAD → GOOD
 - Steps are not Answers. BAD open "Name a step in Dijkstra's algorithm" with answers like "Pick the unvisited node with the smallest known distance": sentences students can't type, and paraphrases that aren't on the page. GOOD: an ordered_recall "Put the steps of Dijkstra's algorithm in order", as in the example above. Use open only when each Answer is a short name.
 - Names, not symbols. BAD "Name an arithmetic operator that returns NULL on null values" with answers "+", "-", "*", "/". GOOD: skip it, or ask for things with word names that appear on the page.
-- One category. BAD "Name an algorithm that finds shortest paths or builds a spanning tree". GOOD: "Name a minimum spanning tree algorithm" (Kruskal, Prim, Borůvka, ...).
+- One category. BAD "Name an algorithm that finds shortest paths or builds a spanning tree", "Name a procedure or method used on a heap". GOOD: "Name a minimum spanning tree algorithm" (Kruskal, Prim, Borůvka, ...).
+- The subject, not the document. BAD "Name a topic covered in this material", "Name a graph algorithm mentioned in the lecture". GOOD: "Name a graph algorithm that runs in linear time".
 - Odd one out from the deck. BAD "Which algorithm was NOT covered in the lecture?" with an option no page names. GOOD: four options the pages all name, where one does something different, as in the example above.
 - Study content only. BAD "Name a rule for taking the midterm exam". GOOD: no Prompt from that slide.
-- Hints that don't give it away. BAD hint for union-find: "A disjoint-set structure" (an alias) or "Its operations are find and union" (words from the Answer). GOOD: "A structure that tracks which vertices already share a component."`;
+- Hints that don't give it away. BAD hint for union-find: "A disjoint-set structure" (an alias) or "Its operations are find and union" (words from the Answer). GOOD: "A structure that tracks which vertices already share a component." BAD hint for DAG: "An acronym for a directed graph without cycles" (spells it out). GOOD: "Topological sort only exists on this kind of graph."`;
 
 /** The document's pages as Gemini sees them. */
 export function gamePromptContents(title: string, pages: { pageNumber: number; contentMd: string }[]): string {
