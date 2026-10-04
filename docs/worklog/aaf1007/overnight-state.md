@@ -18,7 +18,7 @@ Comments posted on #10 (direction), #9, #11 (AC), #8 (takeover, Clark unassigned
 | P | 1 | F14 generation scorecard | #24 | pr-open | feat/24-generation-scorecard | #44 | verified: tsc/lint(0 err)/101 tests OK; baseline 64→56 prompts, $0.20 |
 | P | 2 | F15 example Prompts | #25 | pr-open | feat/25-example-prompts | #54 | kept 56→64/60, quotes 95→97/98%; $0.43 |
 | P | 3 | F16 verification pass | #26 | pr-open | feat/26-verification-pass | #60 | verified; catches 8–9/9 planted errors; ~$0.45 |
-| P | 4 | F17 overgenerate + select | #27 | pr-open | feat/27-overgenerate-select | #62 | PR metadata checked; agent-reported checks pass; flag off by default |
+| P | 4 | F17 overgenerate + select | #27 | pr-open | feat/27-overgenerate-select | #62 | verified tsc/lint/172 tests; flag off by default |
 | A | 1 | F20 Game Modes engine + generation | #33 | pr-open | feat/33-game-modes-engine | #46 | verified tsc/lint/110 tests; 59 db tests; Gemini ~$0.17; seed has a Game per Mode |
 | A | 2 | F21 Social backend | #34 | pr-open | feat/34-social-backend | #45 | verified tsc/lint/126 tests; migration applied; onRunFinished hook wired by F22 |
 | A | 3 | F22 Courses + Python Basics + XP wiring | #35 | pr-open | feat/35-courses-backend | #48 | verified tsc/lint/161 tests; seeded 6 topics/30 public games |
@@ -37,7 +37,7 @@ Comments posted on #10 (direction), #9, #11 (AC), #8 (takeover, Clark unassigned
 | — | 10 | F18 retrieval (stretch) | #28 | skipped | | | lower priority than Arena per Anton (Q7); not started |
 | — | 12 | F29 Arena (stretch) | #42 | pr-open | feat/42-arena | #61 | verified; pointer-lock needs a manual check |
 | — | 11 | F12 deploy prep (prep only) | #12 | pr-open | feat/12-deploy-prep | #63 | docs; deploy needs human |
-| — | 13 | overnight/demo integration | — | done | overnight/demo | (none) | all PRs except F17 merged; checks + smoke test pass |
+| — | 13 | overnight/demo integration | — | done | overnight/demo | (none) | all PRs merged incl. F17; tsc/lint/351 tests/build pass |
 
 ## Log
 - 2026-10-04 02:40 — decisions drafted; round 1 of grilling sent (Q1–Q16).
@@ -72,3 +72,4 @@ Gemini spend so far ≈ $0.37 + F15's (≤ $0.80).
 - 10:05 — F29 Arena finished (PR #61).
 - 10:25 — F17 finished (PR #62). Usage limit near: summary written. overnight/demo + F12 agent still running.
 - 10:45 — overnight/demo pushed, F12 PR #63. Queue finished.
+- 11:00 — verified #62 and #63; merged F17 into overnight/demo (clean), checks pass, pushed. All done.

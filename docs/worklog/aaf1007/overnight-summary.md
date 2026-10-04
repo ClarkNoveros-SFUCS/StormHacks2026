@@ -27,9 +27,9 @@ The indented ones are stacked on the PR above them. Merge each base first, or re
    - **#52** F11 Game page. Includes #48.
    - **#53** F27 Explore, Course and Topic pages. Includes #48.
 
-I reran the checks myself on every PR except #62: a clean tree, tsc, lint with 0 errors, and unit tests. I also checked that each PR closes its issue and has no AI attribution. For #62 I only checked the PR's base, `Closes` line and attribution; its own agent reports all checks passing.
+I reran the checks myself on every PR: a clean tree, tsc, lint with 0 errors, and unit tests. I also checked that each PR closes its issue (#63 is "Part of #12") and has no AI attribution.
 
-**`overnight/demo` is pushed.** It's every PR branch merged together except F17 #62, which arrived too late and is flag-off anyway. Checks: tsc, lint, 335 tests, 92 DB tests and build all pass, and every route loads in a smoke test. Run it with `git switch overnight/demo && npm install && npm run dev`.
+**`overnight/demo` is pushed.** It's every PR branch merged together, F17 #62 included. Checks: tsc, lint, 351 tests and build all pass (92 DB tests passed before F17 was added), and every route loads in a smoke test. Run it with `git switch overnight/demo && npm install && npm run dev`.
 
 `docs/worklog/aaf1007/overnight-demo.md` on that branch lists the conflict resolutions and 6 `demo:` integration fixes to port into their PRs:
 - the home Course card
