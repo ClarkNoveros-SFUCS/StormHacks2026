@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { requirePlayer } from "@/lib/auth";
 import { getPlayerGame } from "@/lib/games/queries";
 import { RunClosed } from "../RunClosed";
@@ -15,6 +15,9 @@ export default async function NewRunPage(props: PageProps<"/runs/new">) {
   const gameId = typeof gameParam === "string" ? gameParam : null;
   const playerId = await requirePlayer();
   const game = gameId ? await getPlayerGame(playerId, gameId) : undefined;
+  // This launch beat is Dive-themed and owner-only. Other Modes and public Games (Courses, the
+  // Daily) launch from the Game page, which has each Mode's hero and Play button.
+  if (gameId && (!game || game.mode !== "dive")) redirect(`/games/${gameId}`);
   if (!game) notFound();
   if (game.status !== "ready") {
     return <RunClosed gameId={game.id} gameTitle={game.title} title="This Game isn't ready yet" body="It's still being made from your notes (or it failed). Check the Game page." />;
