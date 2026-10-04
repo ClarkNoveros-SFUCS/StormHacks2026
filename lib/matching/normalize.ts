@@ -1,17 +1,16 @@
-// Owned by F05 (#5). This copy follows docs/architecture/answer-matching.md § 1 exactly so
-// the F02 seed can write answer_keys; when F05 merges, keep F05's version of this file.
-
-/** The one normalization for Answer keys and guesses. Never re-implement it in SQL. */
+// The single normalizer for typed Answers. Used when storing answer_keys at
+// generation time (F04) and when matching guesses (match-guess.ts). Never
+// re-implement it in SQL. Spec: docs/architecture/answer-matching.md §1.
 export function normalize(s: string): string {
   return s
     .normalize("NFKD")
-    .replace(/\p{M}/gu, "") //                 "Borůvka" → "Boruvka"
-    .toLowerCase()
-    .replace(/[‘’‛′]/g, "'")
-    .replace(/[“”‟″]/g, '"')
+    .replace(/\p{M}/gu, "") //               1. strip combining marks: "Borůvka" → "Boruvka"
+    .toLowerCase() //                        2.
+    .replace(/[‘’‚‛]/g, "'") //              3. curly quotes → straight
+    .replace(/[“”„‟]/g, '"')
     .replace(/&/g, " and ")
-    .replace(/'s\b/g, "") //                    "dijkstra's" → "dijkstra"
-    .replace(/'/g, "")
-    .replace(/[^a-z0-9]+/g, " ") //             "bellman-ford" → "bellman ford"
+    .replace(/'s\b/g, "") //                 4. trailing possessive: "dijkstra's" → "dijkstra"
+    .replace(/'/g, "") //                    5. remaining apostrophes
+    .replace(/[^a-z0-9]+/g, " ") //          6 + 7. everything else → one space
     .trim();
 }
