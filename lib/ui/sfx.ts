@@ -22,6 +22,8 @@ export type SfxEvent =
   | "sink"
   | "catch";
 
+export type BeatVoice = "kick" | "snare" | "hat" | "bass" | "blip";
+
 const KEY = "sfx-muted";
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
@@ -207,6 +209,32 @@ export const sfx = {
   catch(band: Band = 1) {
     sfx.correct(band);
     tone({ freq: 196, dur: 0.6, type: "triangle", gain: 0.04, at: 0.1 });
+  },
+
+  // ── Beat voices (Blitz's synthesized loop, F25) ──
+  /** The audio clock in seconds, or null while muted or before the first gesture. Schedule `drum` against it. */
+  audioNow(): number | null {
+    const c = ac();
+    return c ? c.currentTime : null;
+  },
+  /** One drum-machine hit at an absolute audio time (from `audioNow()`). `freq` sets bass/blip pitch. */
+  drum(voice: BeatVoice, at: number, freq = 110) {
+    const c = ac();
+    if (!c) return;
+    const d = Math.max(0, at - c.currentTime);
+    if (voice === "kick") {
+      tone({ freq: 160, to: 42, dur: 0.2, type: "sine", gain: 0.14, at: d, attack: 0.002 });
+    } else if (voice === "snare") {
+      noise({ dur: 0.13, gain: 0.045, freq: 1900, q: 0.7, at: d });
+      tone({ freq: 230, to: 160, dur: 0.06, type: "triangle", gain: 0.04, at: d });
+    } else if (voice === "hat") {
+      noise({ dur: 0.035, gain: 0.018, freq: 8500, q: 0.6, type: "highpass", at: d });
+    } else if (voice === "bass") {
+      tone({ freq, dur: 0.17, type: "triangle", gain: 0.07, at: d, attack: 0.004 });
+      tone({ freq: freq * 2, dur: 0.09, type: "square", gain: 0.012, at: d });
+    } else {
+      tone({ freq, dur: 0.07, type: "square", gain: 0.018, at: d });
+    }
   },
 
   play(event: SfxEvent, band?: Band) {

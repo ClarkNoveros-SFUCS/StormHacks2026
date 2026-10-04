@@ -154,7 +154,7 @@ A theme never changes the token **names**, the motion timings, the accessibility
 | Blitz | `blitz` | `#ff3df0` / `#3dfcff` | theme's choice | neon arcade, beat-synced pulse | `GO` | `modes/blitz.md` (F25) | F25 (#38) |
 | Arena (stretch) | `arena` | `#9aa6c8` | — | three.js first-person room | `ENTER` | — | F29 (#42) |
 
-The Apogee/Leap/Pairs/Blitz blocks in `globals.css` are accent placeholders; the feature that builds each Mode's screens owns its full theme. Site-side presentation (tile name, tagline, rules one-liner, accents, verb, glyph) lives in `lib/ui/modes.ts` (`MODE_UI`), separate from `lib/modes/` (the playable list, F13/F20).
+The Apogee/Leap blocks in `globals.css` are accent placeholders; the feature that builds each Mode's screens owns its full theme. Pairs and Blitz have full themes (F25): see `modes/pairs.md` and `modes/blitz.md` § Visuals. Site-side presentation (tile name, tagline, rules one-liner, accents, verb, glyph) lives in `lib/ui/modes.ts` (`MODE_UI`), separate from `lib/modes/` (the playable list, F13/F20).
 
 **Dive inherits the old Krillion recipes**: VT323 everywhere, the CRT overlay (`.dv-crt`), two-ring box-shadow borders with a 4 px drop (`.dv-px`, `.dv-panel`), no `border-radius` (the round sonar timer is the exception).
 

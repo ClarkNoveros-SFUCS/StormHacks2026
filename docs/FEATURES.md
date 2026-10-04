@@ -34,7 +34,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F22 | Courses backend and the seeded Python Basics course | Platform | F20 | #35 | done |
 | F23 | Daily Dive backend | Platform | F21, F22 | #36 | done |
 | F24 | Apogee and Leap screens (three.js) | Frontend | F10, F20 | #37 | done |
-| F25 | Pairs and Blitz screens | Frontend | F10, F20 | #38 | planned |
+| F25 | Pairs and Blitz screens | Frontend | F10, F20 | #38 | done |
 | F26 | Profile, Friends and Leaderboard pages | Frontend | F10, F21 | #39 | done |
 | F27 | Explore, Course and Topic pages | Frontend | F10, F22 | #40 | planned |
 | F28 | Daily Dive hub page | Frontend | F09, F23 | #41 | done |
@@ -419,10 +419,20 @@ Spec: `docs/worklog/aaf1007/overnight-decisions.md` §4, Q18, Q21 · `docs/desig
 Entry points: `components/modes/apogee/` (`ApogeeRunScreen`, `ApogeeRevealScreen`, `scene.ts`, `altitude.ts` with `LANDMARKS`/`APOGEE_TIERS`/`MISSION_BANDS`, `AltitudeRuler`, `TierReveal`), `components/modes/leap/` (`LeapRunScreen`, `LeapRevealScreen`, `scene.ts`), both wired in `app/runs/[runId]/mode-screens.tsx`; `runApi.answer` / `runApi.lifeline` in `lib/runs/client.ts`; `components/results/TopicPassBanner.tsx` (`revealTopic(reveal)`); `ResultList` takes an optional `tiers` map · Notes for others: three.js scenes are plain classes loaded by a dynamic import from a `*Stage` component (queue commands with `stage.run(fn)`); they pause while hidden, cap DPR at 2 and dispose on unmount. In `next dev` the live scene is on `window.__apogee` / `window.__leap` and `.step(ms)` advances a frame by hand (background tabs don't run rAF). Apogee shows 1 km per point; landmarks are real up to the ISS (408), stylised above. **F25:** `runApi.answer` already covers Blitz's `{ value }`. **F27:** the "Topic passed!" banner renders when a Reveal has `passed` and a `topic` object (`{ title, href? }`); give the F22 Reveal that field and it shows up on every Mode that uses the banner. **F29 (Arena):** `components/modes/leap/LeapStage.tsx` + `scene.ts` are the pattern to copy.
 
 ## F25 Pairs and Blitz screens
-Spec: `docs/worklog/aaf1007/overnight-decisions.md` · Issue #38 (checklist lives on the issue until this feature ships)
-- [ ] See the issue checklist
+Spec: `docs/design/modes/pairs.md`, `docs/design/modes/blitz.md`, `docs/architecture/run-and-scoring.md` § Pairs / § Blitz, `docs/worklog/aaf1007/overnight-decisions.md` §4, Q19, Q20, §14 · Issue #38
+- [x] Pairs two-column board with snap/flip animations, clock, results
+- [x] Blitz neon arcade true/false with combo, beat pulse, results
+- [x] Both wired into the Run/Reveal dispatcher (`app/runs/[runId]/mode-screens.tsx`); "Topic passed!" banner when the Reveal carries F22's `topic`
+- [x] Keyboard-first, reduced motion, phone layouts (Pairs columns become term chips over a definition stack)
 
-Entry points: — · Notes for others: —
+Entry points: `components/modes/pairs/` (`PairsRunScreen`, `PairsRevealScreen`, `pairs.module.css`), `components/modes/blitz/` (`BlitzRunScreen`, `BlitzRevealScreen`, `useBeat`, `beat.ts`, `blitz.module.css`), `components/modes/shared/` (`TopicPassBanner` + `revealTopic`, `MasteryBlock`), `[data-theme="pairs"]` / `[data-theme="blitz"]` in `app/globals.css`
+
+Notes for others:
+- **Try it:** `npx next dev` with `DEV_PLAYER_ID`, then `/runs/new?game=<id>` (or `POST /api/games/<id>/runs`) on a Pairs or Blitz Game, e.g. the seeded "Graph Algorithms (Week 9) · Pairs" / "· Blitz".
+- **API helpers added:** `runApi.pair(runId, { termId, definitionId, board? }, clock)` and `runApi.blitzAnswer(runId, { value, position? }, clock)` in `lib/runs/client.ts` (Leap's `answer` is F24's to add).
+- **Sound:** `sfx.audioNow()` and `sfx.drum(voice, at, freq?)` (`BeatVoice = kick | snare | hat | bass | blip`) in `lib/ui/sfx.ts` schedule beat hits on the audio clock; they respect mute. `useBeat({ active, bpm, layers, target })` writes the pulse to `--beat` on an element, if another Mode wants a beat.
+- **Shared for F24/F27:** `TopicPassBanner` (reads `reveal.topic` structurally, so it works before and after F22 merges) and `MasteryBlock` are Mode-agnostic; Dive/Apogee/Leap Reveals can drop them in.
+- **Known gaps:** leaving mid-Board doesn't pause the clock (same as Dive). Creating any Run abandons your other in-progress Runs (engine rule), so agents testing with the same dev player can abandon each other's Runs.
 
 ## F26 Profile, Friends and Leaderboard pages
 Spec: `docs/architecture/social.md` (API), `docs/architecture/ui-map.md` § F26, decisions §6, §12 (Q8, Q11, Q12), §13 (Q17), §14 · Issue #39

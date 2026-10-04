@@ -1,28 +1,30 @@
-// Which client screen plays and reveals each Game Mode. One line per Mode: when a Mode's screen
-// lands (F24 Apogee/Leap, F25 Pairs/Blitz), replace its placeholder case below. Every screen
+// Which client screen plays and reveals each Game Mode. One line per Mode. Every screen
 // gets the live RunState (or the Reveal) plus the page context from app/runs/queries.ts.
 import { ApogeeRevealScreen } from "@/components/modes/apogee/ApogeeRevealScreen";
 import { ApogeeRunScreen } from "@/components/modes/apogee/ApogeeRunScreen";
+import { BlitzRevealScreen } from "@/components/modes/blitz/BlitzRevealScreen";
+import { BlitzRunScreen } from "@/components/modes/blitz/BlitzRunScreen";
 import { DiveRevealScreen } from "@/components/modes/dive/DiveRevealScreen";
 import { DiveRunScreen } from "@/components/modes/dive/DiveRunScreen";
 import { LeapRevealScreen } from "@/components/modes/leap/LeapRevealScreen";
 import { LeapRunScreen } from "@/components/modes/leap/LeapRunScreen";
+import { PairsRevealScreen } from "@/components/modes/pairs/PairsRevealScreen";
+import { PairsRunScreen } from "@/components/modes/pairs/PairsRunScreen";
 import type { Reveal, RunState } from "@/lib/runs/types";
-import { modeUi } from "@/lib/ui/modes";
 import type { DiveHistory, RunContext } from "../queries";
-import { RunClosed } from "../RunClosed";
 
 export function RunScreen({ state, context }: { state: RunState; context: RunContext }) {
   switch (state.mode) {
     case "dive":
       return <DiveRunScreen initial={state} context={context} />;
-    case "apogee":
+    case "apogee": // F24
       return <ApogeeRunScreen initial={state} context={context} />;
-    case "leap":
+    case "leap": //   F24
       return <LeapRunScreen initial={state} context={context} />;
     case "pairs": //  F25
+      return <PairsRunScreen initial={state} context={context} />;
     case "blitz": //  F25
-      return <ModeComingSoon mode={state.mode} context={context} />;
+      return <BlitzRunScreen initial={state} context={context} />;
   }
 }
 
@@ -30,25 +32,13 @@ export function RevealScreen({ reveal, context, history }: { reveal: Reveal; con
   switch (reveal.mode) {
     case "dive":
       return <DiveRevealScreen reveal={reveal} context={context} history={history} />;
-    case "apogee":
+    case "apogee": // F24
       return <ApogeeRevealScreen reveal={reveal} context={context} history={history} />;
-    case "leap":
+    case "leap": //   F24
       return <LeapRevealScreen reveal={reveal} context={context} history={history} />;
     case "pairs": //  F25
+      return <PairsRevealScreen reveal={reveal} context={context} history={history} />;
     case "blitz": //  F25
-      return <ModeComingSoon mode={reveal.mode} context={context} />;
+      return <BlitzRevealScreen reveal={reveal} context={context} history={history} />;
   }
-}
-
-/** Placeholder until the Mode's own screen ships. */
-function ModeComingSoon({ mode, context }: { mode: string; context: RunContext }) {
-  const ui = modeUi(mode);
-  return (
-    <RunClosed
-      gameId={context.gameId}
-      gameTitle={context.gameTitle}
-      title={`${ui.name}: this Mode's screen is coming`}
-      body={`${ui.tagline} The run engine is ready; the ${ui.name} screen is still being built.`}
-    />
-  );
 }
