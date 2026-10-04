@@ -45,6 +45,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F33 | Dive matches Krillion: continuous descent, catch and miss screens, intro pan | Frontend | F09 | #72 | done |
 | F34 | Clerk sign-in and sign-up match the site style | Frontend | F10, F19 | #77 | done |
 | F36 | Pop-up when a friend accepts your request | Platform | F21, F26 | #79 | done |
+| F37 | Generating Game card: step-by-step text animation | Frontend | F08 | #87 | done |
 
 Status values: `planned` · `done` · `blocked`. "In progress" is shown by the GitHub `in-progress` label.
 
@@ -664,3 +665,14 @@ Notes for others:
 - Notes use the fast model first (GEMINI_FALLBACK_MODEL, ~1 s a page), then GEMINI_MODEL. Re-parsing a file resets its notes; `update source_pages set notes_md = null` regenerates them after a prompt change.
 - The FileViewer modal is gone. Old `/modules/<id>?doc=&page=` and `/modules/files/<docId>?page=` links redirect to the study page; Evidence links point there too.
 - New generator instructions in any Mode should keep `${MATH_NOTATION_RULE}` at the end. `math:backfill` only rewrites `prompts.text/hint/explanation`: options and answers are what matching uses.
+
+## F37 Generating Game card: step-by-step text animation
+Issue #87
+- [x] One line that rolls through five steps: reading files, spotting key ideas, writing prompts, checking answers, picking the best
+- [x] `n/5` counter and progress ticks (ticks hidden on phones); no timer
+- [x] Replaces the old "Writing prompts from your files..." line and seconds counter
+
+Entry points: `GenSteps` in `app/modules/_components/GenSteps.tsx`, used by `GameCard` in `GamesPanel.tsx`
+
+Notes for others:
+- Steps are time-based (0/5/12/30/48 s after `created_at`) because generation reports only `generating`. If the pipeline ever reports a real stage, feed it into `GenSteps` instead of the elapsed time.
