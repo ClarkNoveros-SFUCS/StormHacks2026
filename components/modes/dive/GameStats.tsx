@@ -4,7 +4,7 @@
 import { FoundRows, MasteryStat, StatNumber, StatPanel, type MasteryValue } from "@/components/modes/GameStatKit";
 import { PixelIcon } from "@/components/ui/PixelIcon";
 import type { Tier } from "@/lib/scoring/tiers";
-import { formatDepth, TIER_ORDER, TIER_UI } from "./tiers";
+import { depthForScore, TIER_ORDER, TIER_UI } from "./tiers";
 
 export type DiveGameStatsProps = {
   personalBest: number;
@@ -21,7 +21,8 @@ export function DiveGameStats({ personalBest, mastery, byTier, runs }: DiveGameS
         <StatNumber
           label="Personal best"
           value={personalBest}
-          format={(n) => formatDepth(n).toUpperCase()}
+          format={(n) => (n <= 0 ? "0" : `−${depthForScore(n).toLocaleString("en-US")}`)}
+          unit="M"
           tone="var(--reward)"
           glow={personalBest > 0}
           sub={personalBest > 0 ? `${personalBest.toLocaleString("en-US")} pts · ${runs} ${runs === 1 ? "dive" : "dives"}` : "No dives yet"}

@@ -21,11 +21,14 @@ export function StatNumber({
   tone = "var(--text)",
   glow,
   sub,
+  unit,
   className = "",
 }: {
   label: ReactNode;
   value: number;
   format?: (n: number) => string;
+  /** Shown after the rolling number (kept out of the Odometer, which only rolls digits). */
+  unit?: string;
   tone?: string;
   glow?: boolean;
   sub?: ReactNode;
@@ -39,6 +42,7 @@ export function StatNumber({
         style={{ color: tone, textShadow: glow ? `0 0 14px color-mix(in srgb, ${tone} 55%, transparent)` : undefined }}
       >
         <Odometer value={value} format={format} />
+        {unit && <span className="ml-2">{unit}</span>}
       </div>
       {sub && <div className="mt-1 text-sm text-muted">{sub}</div>}
     </div>

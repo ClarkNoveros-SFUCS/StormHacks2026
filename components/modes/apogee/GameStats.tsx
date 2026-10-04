@@ -16,8 +16,6 @@ export type ApogeeGameStatsProps = {
 const BAND_HEX = ["#8fa3c4", "#8fd3ff", "#c39bff", "#ffe08a"] as const;
 const BAND_ICON: PixelIconName[] = ["bubble", "rocket", "star", "sparkle"];
 
-export const formatKm = (n: number) => `${Math.max(0, Math.round(n)).toLocaleString("en-US")} KM`;
-
 export function ApogeeGameStats({ personalBest, mastery, byTier, runs }: ApogeeGameStatsProps) {
   return (
     <StatPanel mode="apogee">
@@ -25,7 +23,7 @@ export function ApogeeGameStats({ personalBest, mastery, byTier, runs }: ApogeeG
         <StatNumber
           label="Best altitude"
           value={personalBest}
-          format={formatKm}
+          unit="KM"
           tone="var(--reward)"
           glow={personalBest > 0}
           sub={personalBest > 0 ? `${runs} ${runs === 1 ? "launch" : "launches"}` : "Still on the pad"}

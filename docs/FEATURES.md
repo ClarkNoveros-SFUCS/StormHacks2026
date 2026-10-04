@@ -20,7 +20,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F08 | Modules list and Module page UI | Frontend | F01 (mock F03/F04) | #8 | planned |
 | F09 | Run screen and Reveal UI | Frontend | F06 (mock), F10 | #9 | planned |
 | F10 | Visual design system (site + Mode themes) | Frontend | design session | #10 | done |
-| F11 | Game page UI | Frontend | F07 | #11 | planned |
+| F11 | Game page UI | Frontend | F07 | #11 | done |
 | F12 | Deploy and demo prep | Platform | everything | #12 | planned |
 | F13 | Game Modes: `games.mode` and the Mode picker | Platform | F01 | #21 | planned |
 | F14 | Generation scorecard (eval on real decks) | Pipelines | F04 | #24 | planned |
@@ -243,11 +243,20 @@ Notes for others:
 - **Known gaps:** `HintButton` and `ResultList` use Dive's `TIER_UI` labels (add a labels prop before other Modes reuse them). OceanStage animation pauses in hidden tabs (the sinking chip has a 2.5 s timeout fallback). Light mode is deferred (dark only, decision Q5).
 
 ## F11 Game page UI
-Spec: `docs/architecture/ui-map.md`
-- [ ] `/games/[gameId]`: source chips, Personal Best, Mastery percentage, per-Tier found counts, recent Runs, Play
-- [ ] Optional: accuracy-over-time chart (F07's continuous aggregate)
+Spec: `docs/architecture/ui-map.md` (direction: overnight-decisions §2, §14; Mode words: `docs/design/modes/*.md`)
+- [x] `/games/[gameId]`: source chips, Personal Best, Mastery percentage, per-Tier found counts, recent Runs, Play
+- [x] Optional: accuracy-over-time chart (F07's continuous aggregate)
+- [x] Also (latest issue comment): site frame with a themed hero band per Mode, the Mode's own stats panel and Play wording, `ModeBadge`, a sparkline/spread of your Run scores, public Games (Course/Daily) with the Topic lock (403 → "Pass the previous Topic first" + link), 409s, generating (polls) and failed states, Lumen comment, animated counters, Mastery gild, reduced motion, 375 px
 
-Entry points: — · Notes for others: —
+Entry points: `app/games/[gameId]/` (`page.tsx`; `data.ts` `loadGamePage(playerId, gameId)` (server); `model.ts` client-safe `GamePageData`, `MODE_WORDS`/`wordsFor`, `modeRunStats`, `scoreBuckets`, `lumenLine`; `GamePage.tsx`, `GameHero.tsx` + `heroes.module.css`, `PlayButton.tsx`, `RecentRuns.tsx`, `ScoreHistory.tsx`, `AccuracyChart.tsx`), per-Mode stats panels `components/modes/{dive,apogee,leap,pairs,blitz}/GameStats.tsx` on the shared kit `components/modes/GameStatKit.tsx` (`StatPanel`, `StatNumber`, `MasteryStat`, `FoundRows`), tests `app/games/[gameId]/model.test.ts`
+
+Notes for others:
+- **Access:** the page needs sign-in (`requirePlayer`). It shows the Player's own Game in any status, or any `visibility = 'public'` Game; anything else is a 404. Public Games hide source chips; a Course practice Game shows its Course/Topic chip, the pass bar and passed/locked state, and its back link goes to `/explore/[course]/[topic]` (F27 builds those pages).
+- **Play wording** (`MODE_WORDS` in `model.ts`): Dive `▼ BEGIN DESCENT ▼`, Apogee `LAUNCH`, Leap `JUMP IN`, Pairs `START MATCHING`, Blitz `GO`. Score words: Dive depth (`−1,200 m`), Apogee `km` (1 pt = 1 km), others `pts`; Leap/Pairs/Blitz Run endings (SUMMIT/FELL, ALL PAIRS/TIME, TIME/DECK CLEARED) show as chips on recent Runs.
+- **Play** unlocks audio, plays the hero's take-off (camera sinks, rocket lifts, hopper jumps…), `POST /api/games/[id]/runs`, then `router.push('/runs/[runId]')` (F09 / F24 / F25 own that page). 403 shows "Pass the previous Topic first" with a link to the previous Topic; 409 shows the server's message and refreshes; 401 links to sign-in.
+- **Mode screen agents (F24, F25):** refine your Mode's `GameStats.tsx` freely; props are plain numbers (Leap: `bestStreak`, `heartsLeft` on the best Run, `summits`; Pairs: `bestClearMs` = fastest sum of both Boards' `endedAt − startedAt` on cleared Runs, `clears`; Blitz: `bestCombo`, `bestCorrect`). They're folded from `runs.mode_state` in `modeRunStats`. Hero scenes live in `app/games/[gameId]/GameHero.tsx` (SVG + CSS, Dive reuses `OceanStage` at 0 m).
+- **Gotcha:** `Odometer` only rolls digits and is `inline-flex`, so a space in its `format` output collapses and a non-breaking space renders as `0`. Pass units separately (`StatNumber unit="KM"`).
+- Integration fix outside my lane: `components/results/ResultList.tsx` `KIND_LABEL` got `multiple_choice` and `true_false` (F10 + F20 together failed `tsc` without it).
 
 ## F12 Deploy and demo prep
 Spec: `docs/architecture/overview.md` (open questions)

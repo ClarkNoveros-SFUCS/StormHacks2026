@@ -27,7 +27,7 @@ export function LeapGameStats({ personalBest, bestStreak, heartsLeft, summits, m
           sub={runs > 0 ? `${summits} ${summits === 1 ? "summit" : "summits"} · ${runs} ${runs === 1 ? "climb" : "climbs"}` : "No climbs yet"}
         />
         <MasteryStat mastery={mastery} />
-        <StatNumber label="Best streak" value={bestStreak} format={(n) => `${Math.round(n)} IN A ROW`} tone="var(--accent)" />
+        <StatNumber label="Best streak" value={bestStreak} tone="var(--accent)" sub={bestStreak >= 5 ? "in a row · reached ×2" : bestStreak >= 3 ? "in a row · reached ×1.5" : "in a row"} />
         <div>
           <StatLabel>Hearts left</StatLabel>
           <div

@@ -119,10 +119,10 @@ function ApogeeScene() {
 }
 
 const ISLANDS = [
-  { x: 150, y: 96, w: 36 },
-  { x: 212, y: 74, w: 32 },
-  { x: 262, y: 52, w: 30 },
-  { x: 298, y: 30, w: 26 },
+  { x: 196, y: 100, w: 32 },
+  { x: 236, y: 84, w: 30 },
+  { x: 272, y: 68, w: 28 },
+  { x: 302, y: 52, w: 22 },
 ];
 
 function LeapScene() {
@@ -154,11 +154,11 @@ function LeapScene() {
         </g>
       ))}
       <g className={s.hopper}>
-        <rect x="162" y="86" width="10" height="10" fill="#ffd84d" />
-        <rect x="162" y="86" width="10" height="2" fill="#fff3b0" />
-        <rect x="164" y="89" width="2" height="2" fill="#0b0e1d" />
-        <rect x="168" y="89" width="2" height="2" fill="#0b0e1d" />
-        <rect x="165" y="93" width="4" height="1" fill="#c99a1e" />
+        <rect x="207" y="90" width="10" height="10" fill="#ffd84d" />
+        <rect x="207" y="90" width="10" height="2" fill="#fff3b0" />
+        <rect x="209" y="93" width="2" height="2" fill="#0b0e1d" />
+        <rect x="213" y="93" width="2" height="2" fill="#0b0e1d" />
+        <rect x="210" y="97" width="4" height="1" fill="#c99a1e" />
       </g>
     </svg>
   );
@@ -207,7 +207,7 @@ function BlitzScene() {
       <rect y="0" width="320" height="64" fill="#170a2c" />
       {/* sun */}
       {[0, 1, 2, 3, 4].map((i) => (
-        <rect key={i} x={226 - i * 2} y={28 + i * 7} width={48 + i * 4} height="5" fill={["#f6ff3d", "#ffb23d", "#ff7a6a", "#ff3df0", "#b23dff"][i]} />
+        <rect key={i} x={226 - i * 2} y={32 + i * 6} width={48 + i * 4} height="4" fill={["#f6ff3d", "#ffb23d", "#ff7a6a", "#ff3df0", "#b23dff"][i]} />
       ))}
       {/* floor grid */}
       <rect y="64" width="320" height="2" fill="#ff3df0" />
@@ -220,15 +220,15 @@ function BlitzScene() {
         const x = i * 26 - 6;
         return <line key={i} x1={160 + (x - 160) * 0.25} y1="64" x2={x} y2="120" stroke="#ff3df0" strokeOpacity=".4" strokeWidth="1" />;
       })}
-      <rect className={s.beat} x="136" y="10" width="68" height="44" fill="none" stroke="#3dfcff" strokeWidth="2" />
-      <text className={s.flashT} x="152" y="44" fontSize="28" fontFamily="monospace" fontWeight="bold" fill="#3dfcff">
+      <rect className={s.beat} x="136" y="24" width="68" height="36" fill="none" stroke="#3dfcff" strokeWidth="2" />
+      <text className={s.flashT} x="152" y="52" fontSize="28" fontFamily="monospace" fontWeight="bold" fill="#3dfcff">
         T
       </text>
-      <text className={s.flashF} x="174" y="44" fontSize="28" fontFamily="monospace" fontWeight="bold" fill="#ff3df0">
+      <text className={s.flashF} x="174" y="52" fontSize="28" fontFamily="monospace" fontWeight="bold" fill="#ff3df0">
         F
       </text>
       {Array.from({ length: 8 }, (_, i) => (
-        <rect key={i} className={s.eq} style={{ "--d": `${(i * 0.13) % 0.5}s` } as CSSProperties} x={232 + i * 9} y="70" width="6" height="40" fill={i % 2 ? "#3dfcff" : "#ff3df0"} opacity=".85" />
+        <rect key={i} className={s.eq} style={{ "--d": `${(i * 0.13) % 0.5}s` } as CSSProperties} x={232 + i * 9} y="68" width="6" height="28" fill={i % 2 ? "#3dfcff" : "#ff3df0"} opacity=".85" />
       ))}
     </svg>
   );

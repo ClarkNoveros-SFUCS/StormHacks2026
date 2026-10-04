@@ -26,10 +26,9 @@ export function BlitzGameStats({ personalBest, bestCombo, bestCorrect, mastery, 
         <StatNumber
           label="Best combo"
           value={bestCombo}
-          format={(n) => `${Math.round(n)} IN A ROW`}
           tone="var(--accent)"
           glow={bestCombo >= BLITZ_COMBO_AT}
-          sub={bestCombo >= BLITZ_COMBO_AT ? "You reached COMBO ×2" : `${BLITZ_COMBO_AT} in a row starts COMBO ×2`}
+          sub={bestCombo >= BLITZ_COMBO_AT ? "in a row · you hit COMBO ×2" : `in a row · ${BLITZ_COMBO_AT} starts COMBO ×2`}
         />
       </div>
       <div className="mt-5">

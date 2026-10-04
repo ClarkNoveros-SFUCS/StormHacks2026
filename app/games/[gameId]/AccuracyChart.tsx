@@ -78,7 +78,9 @@ export function AccuracyChart({ days }: { days: PageDay[] }) {
         </div>
       )}
       <figcaption className="mt-1 text-sm text-muted">
-        {overall}% of your guesses were right over these {days.length} {days.length === 1 ? "day" : "days"}.
+        {days.length === 1
+          ? `${overall}% of your guesses were right on ${dayLabel(days[0].day)}.`
+          : `${overall}% of your guesses were right over these ${days.length} days.`}
       </figcaption>
       <style>{`@keyframes acc-grow { from { transform: scaleY(0) } }`}</style>
     </figure>

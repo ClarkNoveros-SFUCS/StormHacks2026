@@ -114,7 +114,7 @@
 }
 .launching .hopper {
   animation: none;
-  transform: translate(62px, -22px);
+  transform: translate(40px, -16px);
 }
 
 /* ---------- Pairs: card table ---------- */

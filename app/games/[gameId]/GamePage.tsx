@@ -231,7 +231,7 @@ function NotReady({ data, backHref }: { data: GamePageData; backHref: string }) 
   return (
     <section className="mt-6 grid place-items-center gap-4 rounded-lg border border-border bg-surface px-6 py-10 text-center" aria-live="polite">
       <Mascot size={96} mood={generating ? "wow" : "sad"} say={generating ? "Reading your notes… back in a moment!" : undefined} />
-      <StatusPill status={generating ? "generating" : "failed"} message={game.error ?? undefined} />
+      <StatusPill status={generating ? "generating" : "failed"} />
       {generating ? (
         <p className="max-w-md text-muted">
           We&apos;re writing the Prompts and checking every Answer against your files. This page updates by itself when the Game is ready.

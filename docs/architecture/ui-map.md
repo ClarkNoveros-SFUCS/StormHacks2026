@@ -94,10 +94,17 @@ Two panels side by side; stacked on mobile.
 
 ## `/games/[gameId]`: Game page · F11 (#11)
 
-- Site frame: title, the `ModeBadge`, source file chips, created date, recent Runs (date, score in the Mode's metaphor, link to each Reveal).
-- The Mode's stats block, in the Mode's theme. Dive: **Personal Best** (`−1,200 M`), **Mastery** (percentage + `Meter`), per-Tier found counts.
-- The Mode's **Play** button (Dive: `▼ BEGIN DESCENT ▼`), which creates a Run and navigates to `/runs/[runId]`.
-- Optional: the accuracy-over-time chart from the continuous aggregate (`data-model.md`).
+Signed in. Your own Game (any status) or any public Game (Course practice, Daily); otherwise 404.
+- Site frame: back link (Module, or the Topic page for a Course Game), a **hero band** in the Mode's world (Dive: ocean surface with the boat; Apogee: launch pad at dusk; Leap: sky islands; Pairs: card table; Blitz: neon), the `ModeBadge`, title, tagline, prompt count, created date, and source file chips linking to `/modules/[moduleId]?doc=<id>` (private Games only).
+- The Mode's stats panel, in its theme (`components/modes/<mode>/GameStats.tsx`):
+  - Dive: **Personal Best** (`−1,200 M`), **Mastery** (percentage + `Meter`), `FOUND` per Tier (`SHALLOWS 9/11` …).
+  - Apogee: best altitude in km, Mastery, per-band `REACHED` (Troposphere → Deep Space).
+  - Leap: best score, best streak, Hearts left on the best climb, Mastery. Pairs: best score, best time (both Boards), Mastery. Blitz: best score, best combo, Mastery.
+- Course practice Games: the pass bar, Passed/Locked chips.
+- The Mode's **Play** button (Dive `▼ BEGIN DESCENT ▼`, Apogee `LAUNCH`, Leap `JUMP IN`, Pairs `START MATCHING`, Blitz `GO`): unlocks audio, plays the hero's take-off, creates a Run and navigates to `/runs/[runId]`. 403 (locked Topic): "Pass the previous Topic first" with a link to it. 409: the server's message.
+- Lumen (the mascot) comments on your progress; recent Runs (number, date, score in the Mode's words, the Mode's ending, link to each Reveal).
+- Charts: your scores over time (Personal Best marked) or their spread (your latest marked), and accuracy per Vancouver day from the `player_game_daily` continuous aggregate.
+- Generating: the mascot and a pulsing pill; the page polls `GET /api/games/[id]` and refreshes when it settles. Failed: the error and a link back to the Module.
 
 ## `/runs/[runId]`: Run (Dive) · F09 (#9)
 
