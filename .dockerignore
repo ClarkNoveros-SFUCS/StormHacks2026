@@ -1,0 +1,13 @@
+.git
+.claude
+node_modules
+.next
+.env*
+!.env.example
+eval/decks
+eval/runs
+inspo
+coverage
+*.tsbuildinfo
+Dockerfile
+.dockerignore

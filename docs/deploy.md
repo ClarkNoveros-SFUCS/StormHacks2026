@@ -23,6 +23,17 @@ The app is a normal Node Next.js 16 server (`next build` + `next start`). Two pa
 
 If you have to use Vercel, the smallest safe change is to **lower the upload limit to 4 MB**: `MAX_UPLOAD_BYTES` in `lib/documents/parsed-pages.ts` (the server check, and its test) and the "up to 25 MB" text in `app/modules/_components/FilesPanel.tsx`. Most single-lecture PDFs fit. Direct-to-storage uploads are the proper fix, but too big a change during the hackathon. Either way, keep Fluid Compute on so `after()` gets its 300 s.
 
+### Docker (Render)
+
+The repo has a `Dockerfile` (Node 22, npm 11, `next build` then `next start` on `PORT`, default 3000). On Render: **New → Web Service**, branch `main`, Language **Docker**; no build or start command. Render passes the service's env vars to the build as build args, and the Dockerfile declares only the `NEXT_PUBLIC_*` ones, so set those before the first build. Secrets are read at runtime and never baked into the image. Starter (512 MB) is enough to start: the container idles at about 180 MB.
+
+Test it locally (env values unquoted; `docker run --env-file` keeps quotes literally):
+
+```bash
+docker build -t syllabyss --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_... --build-arg NEXT_PUBLIC_SITE_URL=http://localhost:3000 .
+docker run -p 3000:3000 --env-file prod.env syllabyss   # CLERK_SECRET_KEY, DATABASE_URL, GEMINI_*
+```
+
 Whatever the host, run it in the same cloud region as the Tiger Cloud service, because every page makes several queries.
 
 - [ ] **needs human:** choose the host and create the project.

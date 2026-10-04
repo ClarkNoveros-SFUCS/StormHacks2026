@@ -1,7 +1,7 @@
 # #12 Deploy and demo prep (prep only)
 
-Status: done (prep). Deployment itself: needs human
-Branch: feat/12-deploy-prep (base `chore/overnight-plan`, PR stacked on #43)
+Status: in-progress (prep merged via #68; now deploying to Render)
+Branch: feat/12-dockerfile (from main)
 Updated: 2026-10-04
 
 ## Goal
@@ -12,6 +12,12 @@ Get everything ready to deploy and demo without creating accounts, setting produ
 - `docs/deploy.md`: Vercel vs. container host (4.5 MB body cap, `after()`/`maxDuration`), recommendation (container host; Vercel fallback = 4 MB limit in `MAX_UPLOAD_BYTES` + FilesPanel text), every production env var (incl. `NEXT_PUBLIC_SITE_URL`, `GEMINI_FALLBACK_MODEL`, `GEMINI_VERIFY`, `DEV_PLAYER_ID` never set), Clerk production notes, fresh-DB migrate + seed order, the `assign_daily_puzzle` job and SQL to check it, refilling the Daily pool, a post-deploy checklist.
 - `docs/demo-script.md`: a 3–4 minute path (landing → Daily → Topic 1 Leap pass → profile/leaderboard → upload + generate → Dive descent), with what to say, answer cheat sheets (Topic 1 Leap, Daily #1, the seeded Graph Algorithms Dive Game), and fallbacks (seeded or pre-generated Games when Gemini is slow).
 - `docs/FEATURES.md` F12: README ticked. The other three items are "prep done, needs human". Board Status stays `planned`.
+
+## Dockerfile (feat/12-dockerfile)
+- `Dockerfile` + `.dockerignore`: three stages (deps, build, run), `node:22-slim`, runs as `node`. Only `NEXT_PUBLIC_*` are build args (Render injects env vars as build args); secrets stay runtime-only.
+- Gotcha: `npm ci` with the image's npm 10 fails ("Missing: @emnapi/runtime@1.11.3 from lock file"): the lockfile is written by npm 11, which leaves out some optional wasm deps that npm 10 wants. Fix: the image installs npm 11.6.2 first. Regenerating the lockfile didn't help.
+- Verified locally: image builds (1.36 GB), `/`, `/explore`, `/explore/python-basics`, `/daily`, `/sign-in` return 200, `/home` 307 (signed out), `/styleguide` 404; ~180 MB RAM idle.
+- Host chosen by the user: Render (Starter $7), domain `syllabyss.tech` (.Tech prize track).
 
 ## Next steps (needs human)
 1. Pick the host (recommended: Railway/Render/Fly.io) and create the project.
