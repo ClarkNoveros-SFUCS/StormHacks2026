@@ -41,7 +41,7 @@ describe("bubbleFor: topic", () => {
   it("alerts when the root cause is in this Topic", () => {
     const b = bubbleFor(topic("operators-expressions"), { model: FIXTURE_MODEL });
     expect(b?.tone).toBe("alert");
-    expect(b?.prompt).toMatch(/causing my mistakes/);
+    expect(b?.prompt).toMatch(/caused my mistakes/);
   });
 
   it("nudges a passed Topic Sonar hasn't heard mastered", () => {

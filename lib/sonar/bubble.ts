@@ -64,7 +64,7 @@ function topicBubble(slug: string, model: SonarModel | null | undefined): Bubble
     return bubble(
       `I traced your misses back to ${rootConcept.name.toLowerCase()} here!`,
       "alert",
-      `Why is ${rootConcept.name} causing my mistakes?`,
+      `Why do you think ${rootConcept.name.toLowerCase()} caused my mistakes?`,
     );
   }
   if (topic.coursePassed && topic.sonarMastery < MASTERY_NUDGE) {
