@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Seeds the demo "Graph Algorithms" Module for one Player: a parsed Source Document
 // (one page per slide) and a ready Game built from db/seed/graph-algorithms.json.
+// Needs Node 22.18+ (runs this .mts file directly with built-in type stripping).
 // Usage: npm run db:seed -- <clerkUserId>     (or SEED_PLAYER_ID=<clerkUserId> npm run db:seed)
 //        npm run db:seed -- --check           validate the fixture only, no database
 //
@@ -52,6 +53,7 @@ interface Fixture {
 
 const KINDS: Kind[] = ["open", "cloze", "definition_to_term", "ordered_recall", "odd_one_out"];
 const TYPED: Kind[] = ["open", "cloze", "definition_to_term"];
+const SEED_LOCK_ID = 727_002; // arbitrary; migrate.mjs uses 727_001
 
 const root = path.resolve(import.meta.dirname, "..");
 const fixturePath = path.join(root, "db", "seed", "graph-algorithms.json");
@@ -92,6 +94,8 @@ const sql = postgres(process.env.DATABASE_URL, { max: 1, onnotice: () => {} });
 
 try {
   await sql.begin(async (tx) => {
+    // Two seeds for the same Player run one after the other instead of colliding on the Module id
+    await tx`select pg_advisory_xact_lock(${SEED_LOCK_ID}, hashtext(${playerId}))`;
     await tx`insert into players (id) values (${playerId}) on conflict (id) do nothing`;
 
     // guess_events has no foreign keys, so clear the old demo Game's guesses by hand
@@ -282,6 +286,16 @@ function checkFixture(f: Fixture): string[] {
       }
       const owner = new Map<string, string>();
       for (const a of answers) {
+        const shapeOk =
+          typeof a.canonical === "string" &&
+          Array.isArray(a.aliases) &&
+          a.aliases.every((s) => typeof s === "string") &&
+          typeof a.exact_only === "boolean" &&
+          Number.isInteger(a.evidence_page);
+        if (!shapeOk) {
+          errs.push(`${at}: an Answer needs canonical (string), aliases (string[]), exact_only (boolean), evidence_page (integer)`);
+          continue;
+        }
         const keys = keysOf(a);
         const page = evidencePage(a.evidence_page, a.canonical);
         if (page && !keys.some((k) => containsWords(page, k))) {
@@ -317,7 +331,8 @@ function checkFixture(f: Fixture): string[] {
       if (options.length !== 4 || new Set(options.map(normalize)).size !== 4) {
         errs.push(`${at}: needs exactly 4 distinct options`);
       }
-      if (!options.some((o) => normalize(o) === correct)) errs.push(`${at}: correct_option isn't one of the options`);
+      // Exact, not normalized: one-shot answers are checked by direct comparison (run-and-scoring.md)
+      if (!options.includes(p.correct_option ?? "")) errs.push(`${at}: correct_option isn't exactly one of the options`);
       const page = evidencePage(p.evidence_page, "the Prompt");
       if (page && !containsWords(page, correct)) errs.push(`${at}: page ${p.evidence_page} doesn't mention the correct option`);
       if (p.hint && containsWords(normalize(p.hint), correct)) errs.push(`${at}: hint gives away the correct option`);

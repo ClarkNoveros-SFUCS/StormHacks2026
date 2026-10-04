@@ -12,7 +12,7 @@ export const TIER_POINTS: Record<Tier, number> = { common: 10, solid: 25, deep: 
  * and there's always at least one common.
  */
 export function assignOpenTiers(n: number): Tier[] {
-  if (!Number.isInteger(n) || n < 4) throw new Error(`An Open Prompt needs at least 4 Answers, got ${n}`);
+  if (!Number.isInteger(n) || n < 4 || n > 15) throw new Error(`An Open Prompt needs 4-15 Answers, got ${n}`);
   const m = n - 1;
   const deep = Math.ceil(0.3 * m);
   let solid = Math.round(0.4 * m);

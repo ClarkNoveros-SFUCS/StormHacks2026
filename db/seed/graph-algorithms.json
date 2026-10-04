@@ -62,9 +62,9 @@
         "kind": "open",
         "text": "Name a graph algorithm",
         "answers": [
-          { "canonical": "BFS", "aliases": ["breadth-first search"], "exact_only": true,
+          { "canonical": "BFS", "aliases": ["breadth-first search", "breadth first"], "exact_only": true,
             "evidence_page": 2, "evidence_quote": "BFS visits every neighbor at the current depth before moving one level deeper." },
-          { "canonical": "DFS", "aliases": ["depth-first search"], "exact_only": true,
+          { "canonical": "DFS", "aliases": ["depth-first search", "depth first"], "exact_only": true,
             "evidence_page": 3, "evidence_quote": "DFS explores as far down one branch as possible before backtracking." },
           { "canonical": "Dijkstra", "aliases": ["Dijkstra's algorithm", "dijkstras algorithm"], "exact_only": false,
             "evidence_page": 5, "evidence_quote": "Finds shortest paths from one source in a graph with non-negative edge weights." },
@@ -74,14 +74,18 @@
             "evidence_page": 8, "evidence_quote": "Prim's algorithm grows one tree from a start vertex, always adding the cheapest edge that leaves the tree." },
           { "canonical": "Bellman-Ford", "aliases": ["bellmanford", "Bellman-Ford algorithm"], "exact_only": false,
             "evidence_page": 6, "evidence_quote": "Finds shortest paths from one source, and works with negative edge weights." },
-          { "canonical": "Topological sort", "aliases": ["topo sort", "toposort", "topological ordering"], "exact_only": false,
+          { "canonical": "Topological sort", "aliases": ["topo sort", "toposort", "topological ordering", "topological order"], "exact_only": false,
             "evidence_page": 4, "evidence_quote": "A topological sort is a linear ordering of the vertices of a DAG such that for every edge (u, v), u comes before v." },
-          { "canonical": "Floyd-Warshall", "aliases": ["Floyd's algorithm", "Floyd-Warshall algorithm"], "exact_only": false,
+          { "canonical": "Floyd-Warshall", "aliases": ["Floyd", "Floyd's algorithm", "Floyd-Warshall algorithm"], "exact_only": false,
             "evidence_page": 7, "evidence_quote": "Finds the shortest paths between every pair of vertices (all-pairs shortest paths)." },
           { "canonical": "Kosaraju", "aliases": ["Kosaraju's algorithm", "kosarajus algorithm"], "exact_only": false,
             "evidence_page": 10, "evidence_quote": "Kosaraju's algorithm runs DFS to get finishing times, reverses every edge, then runs DFS again in decreasing finishing time." },
           { "canonical": "Tarjan", "aliases": ["Tarjan's algorithm", "tarjans algorithm", "tarjan scc"], "exact_only": false,
             "evidence_page": 10, "evidence_quote": "Tarjan's algorithm finds every SCC in a single DFS, using low-link values and a stack." },
+          { "canonical": "Borůvka", "aliases": ["Borůvka's algorithm", "boruvkas algorithm"], "exact_only": false,
+            "evidence_page": 8, "evidence_quote": "Borůvka's algorithm: every component adds its cheapest outgoing edge at once, and the rounds repeat until one tree is left." },
+          { "canonical": "Reverse-delete", "aliases": ["reverse-delete algorithm"], "exact_only": false,
+            "evidence_page": 8, "evidence_quote": "Reverse-delete: start with every edge and delete the heaviest edge that does not disconnect the graph." },
           { "canonical": "Hopcroft-Karp", "aliases": ["Hopcroft-Karp algorithm"], "exact_only": false,
             "evidence_page": 11, "evidence_quote": "Hopcroft-Karp finds a maximum matching in a bipartite graph faster than the basic augmenting path method" }
         ]
@@ -108,9 +112,9 @@
             "evidence_page": 5, "evidence_quote": "Finds shortest paths from one source in a graph with non-negative edge weights." },
           { "canonical": "Bellman-Ford", "aliases": ["bellmanford", "Bellman-Ford algorithm"], "exact_only": false,
             "evidence_page": 6, "evidence_quote": "Finds shortest paths from one source, and works with negative edge weights." },
-          { "canonical": "BFS", "aliases": ["breadth-first search"], "exact_only": true,
+          { "canonical": "BFS", "aliases": ["breadth-first search", "breadth first"], "exact_only": true,
             "evidence_page": 2, "evidence_quote": "On an unweighted graph, BFS finds the shortest path (fewest edges) from the source to every vertex." },
-          { "canonical": "Floyd-Warshall", "aliases": ["Floyd's algorithm", "Floyd-Warshall algorithm"], "exact_only": false,
+          { "canonical": "Floyd-Warshall", "aliases": ["Floyd", "Floyd's algorithm", "Floyd-Warshall algorithm"], "exact_only": false,
             "evidence_page": 7, "evidence_quote": "Finds the shortest paths between every pair of vertices (all-pairs shortest paths)." }
         ]
       },
@@ -129,10 +133,10 @@
         "kind": "cloze",
         "text": "BFS uses a ______ to decide which vertex to visit next.",
         "tier": "common",
-        "hint": "First in, first out.",
+        "hint": "Think of the line at a coffee shop.",
         "explanation": "BFS takes vertices from the front of a queue and adds new neighbors to the back, so it finishes each level before the next.",
         "answers": [
-          { "canonical": "queue", "aliases": ["FIFO queue"], "exact_only": false,
+          { "canonical": "queue", "aliases": ["FIFO queue", "FIFO"], "exact_only": false,
             "evidence_page": 2, "evidence_quote": "It uses a queue: take the vertex at the front, then add its unvisited neighbors to the back." }
         ]
       },
@@ -154,7 +158,7 @@
         "hint": "It spreads out level by level, like ripples in a pond.",
         "explanation": "BFS finishes each depth level before going deeper, which is why it finds fewest-edge paths.",
         "answers": [
-          { "canonical": "BFS", "aliases": ["breadth-first search"], "exact_only": true,
+          { "canonical": "BFS", "aliases": ["breadth-first search", "breadth first"], "exact_only": true,
             "evidence_page": 2, "evidence_quote": "BFS visits every neighbor at the current depth before moving one level deeper." }
         ]
       },
@@ -165,7 +169,7 @@
         "hint": "A course planner uses one so that prerequisites come first.",
         "explanation": "A topological sort exists only for graphs with no directed cycle, and DFS finishing times give one.",
         "answers": [
-          { "canonical": "Topological sort", "aliases": ["topo sort", "toposort", "topological ordering"], "exact_only": false,
+          { "canonical": "Topological sort", "aliases": ["topo sort", "toposort", "topological ordering", "topological order"], "exact_only": false,
             "evidence_page": 4, "evidence_quote": "A topological sort is a linear ordering of the vertices of a DAG such that for every edge (u, v), u comes before v." }
         ]
       },
