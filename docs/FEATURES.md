@@ -21,8 +21,8 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F09 | Run screen and Reveal UI | Frontend | F06 (mock), F10 | #9 | done |
 | F10 | Visual design system (site + Mode themes) | Frontend | design session | #10 | done |
 | F11 | Game page UI | Frontend | F07 | #11 | done |
-| F12 | Deploy and demo prep | Platform | everything | #12 | planned |
-| F13 | Game Modes: `games.mode` and the Mode picker | Platform | F01 | #21 | planned |
+| F12 | Deploy and demo prep | Platform | everything | #12 | in-progress |
+| F13 | Game Modes: `games.mode` and the Mode picker | Platform | F01 | #21 | done |
 | F14 | Generation scorecard (eval on real decks) | Pipelines | F04 | #24 | done |
 | F15 | Example Prompts in the generator instructions | Pipelines | F04 (F14 to measure) | #25 | done |
 | F16 | Gemini verification pass for Answers | Pipelines | F04 (F14 to measure) | #26 | done |
@@ -300,7 +300,7 @@ Spec: `docs/architecture/game-modes.md`, ADR-0004
 - [x] `lib/modes/index.ts` (`MODES`, `ModeId`); `POST /api/modules/[moduleId]/games` accepts `mode` (default `'dive'`) and validates it (shipped with F04)
 - [x] Generation and the run engine read `game.mode` (generation since F04; F20 made both dispatch on it for five Modes)
 - [x] New Game dialog: Mode tiles (Dive, Apogee, Leap, Pairs, Blitz + Arena locked "coming soon"); Game cards show the Mode badge (shipped with F08, #8)
-- [ ] The Game page shows the Mode badge (F11, #11)
+- [x] The Game page shows the Mode (F11, #11: a themed hero scene per Mode)
 
 Entry points: — · Notes for others: —
 
