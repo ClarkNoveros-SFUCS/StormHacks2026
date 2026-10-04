@@ -247,6 +247,7 @@ async function buildState(tx: Tx, run: RunRow, now: Date): Promise<DiveRunState>
     prompt: {
       kind: cur.kind,
       text: cur.text,
+      ...(cur.kind !== "open" && cur.tier && { tier: cur.tier }),
       ...(cur.options && { options: seededShuffle(cur.options, seed) }),
       ...(cur.items && { items: shuffleOutOfOrder(cur.items, seed) }),
       hintAvailable,

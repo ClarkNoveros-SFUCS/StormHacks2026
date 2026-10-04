@@ -5,6 +5,10 @@ type Props = {
   max?: number;
   /** e.g. "BETTER THAN 6% OF TODAY'S PLAYERS" or "YOUR LAST 12 DIVES" */
   caption: string;
+  /** Personal Best, marked on the axis in reward. */
+  best?: number | null;
+  /** Below this many values the curve is skipped and only the caption shows (default 3). */
+  minValues?: number;
   className?: string;
 };
 
@@ -29,7 +33,14 @@ export function kde(values: number[], max: number, samples = 100): number[] {
 }
 
 /** Krillion's distribution curve: where your score falls among others. */
-export function DistributionChart({ values, you, max = 700, caption, className = "" }: Props) {
+export function DistributionChart({ values, you, max = 700, caption, best, minValues = 3, className = "" }: Props) {
+  if (values.length < minValues) {
+    return (
+      <figure className={`w-full ${className}`}>
+        <figcaption className="font-hud text-[14px] tracking-[0.25em] text-signal uppercase sm:text-[16px]">{caption}</figcaption>
+      </figure>
+    );
+  }
   const ys = kde(values, max);
   const peak = Math.max(1e-6, ...ys);
   const plotH = H - PAD_B - 8;
@@ -39,6 +50,7 @@ export function DistributionChart({ values, you, max = 700, caption, className =
   const yx = (Math.min(max, Math.max(0, you)) / max) * W;
   const yi = Math.round((Math.min(max, Math.max(0, you)) / max) * (ys.length - 1));
   const yy = values.length ? pts[yi][1] : H - PAD_B;
+  const bx = best == null ? null : (Math.min(max, Math.max(0, best)) / max) * W;
   const ticks = Array.from({ length: Math.floor(max / 100) + 1 }, (_, i) => i * 100);
   return (
     <figure className={`w-full ${className}`}>
@@ -54,6 +66,14 @@ export function DistributionChart({ values, you, max = 700, caption, className =
             </text>
           </g>
         ))}
+        {bx !== null && bx !== yx && (
+          <g>
+            <line x1={bx} x2={bx} y1={8} y2={H - PAD_B} stroke="var(--reward)" strokeWidth="1.5" strokeDasharray="3 3" />
+            <text x={bx} y={6} textAnchor="middle" className="font-hud" fontSize="12" fill="var(--reward)" letterSpacing="2">
+              PB {best}
+            </text>
+          </g>
+        )}
         <line x1={yx} x2={yx} y1={yy} y2={H - PAD_B} stroke="var(--accent)" strokeWidth="2" />
         <rect x={yx - 4} y={yy - 4} width="8" height="8" fill="var(--accent)" style={{ filter: "drop-shadow(0 0 6px var(--accent))" }} />
         <text x={yx} y={H - 2} textAnchor="middle" className="font-hud" fontSize="13" fill="var(--accent)" letterSpacing="2">

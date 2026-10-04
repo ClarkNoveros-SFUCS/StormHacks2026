@@ -111,6 +111,12 @@ Layout and motion: `docs/design/modes/dive.md` §5–6 (Krillion positions, real
 - On a correct answer: the chip sinks past the tier lines, the camera descends 10 m per point, then the **catch screen** (creature, tier, the answer, `+60 PTS · sink 600m`, a verdict) with `DESCEND ▼` (Enter, or auto after ~6 s). The clock is paused: the client calls `start-prompt` for the next Prompt only after DESCEND.
 - On a timeout: "Time!", then the next Prompt.
 - The clock starts only after the Prompt is on screen (the client calls `start-prompt` after the entry transition).
+- Reloading mid-Run resumes from the server state. A finished Run redirects to its Reveal; an abandoned one shows a stop screen.
+- Other Modes dispatch in `app/runs/[runId]/mode-screens.tsx` (placeholders until F24/F25).
+
+## `/runs/new?game=<gameId>`: launch beat · F09 (#9)
+
+The ocean at the surface with the Game's title and the Mode's Play button (`▼ BEGIN DESCENT ▼`). Pressing it unlocks sound, creates the Run and opens `/runs/[runId]`.
 
 ## `/runs/[runId]/reveal`: Reveal (Dive) · F09 (#9)
 

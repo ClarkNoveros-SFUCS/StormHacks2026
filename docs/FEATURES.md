@@ -18,7 +18,7 @@ The single board for **what to build, who can take it, and what's done**. Each f
 | F06 | Run engine and scoring API | Gameplay | F01, F05 | #6 | done |
 | F07 | Progress: Personal Best and Mastery | Gameplay | F01 | #7 | done |
 | F08 | Modules list and Module page UI | Frontend | F01 (mock F03/F04) | #8 | planned |
-| F09 | Run screen and Reveal UI | Frontend | F06 (mock), F10 | #9 | planned |
+| F09 | Run screen and Reveal UI | Frontend | F06 (mock), F10 | #9 | done |
 | F10 | Visual design system (site + Mode themes) | Frontend | design session | #10 | done |
 | F11 | Game page UI | Frontend | F07 | #11 | planned |
 | F12 | Deploy and demo prep | Platform | everything | #12 | planned |
@@ -196,13 +196,29 @@ Spec: `docs/architecture/ui-map.md`
 Entry points: — · Notes for others: —
 
 ## F09 Run screen and Reveal UI (Dive)
-Spec: `docs/architecture/ui-map.md`, `docs/architecture/run-and-scoring.md`, `docs/design/modes/dive.md`
-- [ ] `/runs/[runId]`: countdown driven by the server deadline (clock offset), position and score, input for all five kinds
-- [ ] Wrong-guess feedback (shake, −3 s), correct-answer pop (Tier, points, repeat-answer tag), timeout transition
-- [ ] Hint button: reveal, Tier drop shown, used once
-- [ ] `/runs/[runId]/reveal`: per-Prompt results, all Open Prompt Answers by Tier with page and quote, PB banner, Mastery change
+Spec: `docs/design/modes/dive.md` §5–7, `docs/architecture/ui-map.md`, `docs/architecture/run-and-scoring.md` (direction: `overnight-decisions.md` §3, Q6; issue #9 latest comment)
+- [x] `/runs/[runId]`: Mode dispatcher (`app/runs/[runId]/mode-screens.tsx`; Dive → its screen, Apogee/Leap/Pairs/Blitz → placeholder), owner only, finished → Reveal, abandoned → stop screen
+- [x] Krillion layout: HUD plates (depth / squares / score), menu + mute tiles, depth ruler with `YOU ◀`, prompt card under the waterline, bottom dock (sonar timer, input + fuse, DIVE); real descent (10 m per point)
+- [x] Countdown driven by the server deadline with the clock offset from `serverNow`; `start-prompt` only after the card has entered and after DESCEND (clock paused on the catch screen); `/timeout` at 0
+- [x] Input for all five kinds: typed (open, cloze, definition), odd-one-out (one tap, keys 1–4), put-in-order (drag/▲▼ + LOCK IN, Enter)
+- [x] Wrong typed guess: reject jolt, `−3s` floater, fuse cut, `<guess> · not in your notes`; one-try miss (`MISSED`, right answer lit); timeout (`TIME!`, shake, sad mascot)
+- [x] Correct: the chip sinks past the tier lines with line flashes, camera descends, score slam, depth counts up, bubbles, Trench flash, then the catch screen (creature, tier, answer, `+pts · sink Xm`, verdict, `HINT` / `REPEAT ÷2` tags, `DESCEND ▼`, Enter, auto after ~6 s)
+- [x] Hint button: reveal, Tier drop shown (`REEF → SHALLOWS`), used once; the `THIS PROMPT ▸` line moves up
+- [x] Reconnect: reloading mid-Run resumes from the server state (clock, depth, squares); 409 resyncs; dropped connections retry
+- [x] `/runs/[runId]/reveal` (Dive): results column over the sea at the final depth; `DIVE #N COMPLETE`, counting score + depth, PB banner, distribution of your own dives with YOU and PB (crowd prop for public Games), Dive Log, Mastery before → after (`gild`), The Bearing, The Catch (filters, search, rarest first, ✓ yours, Evidence links to `/modules/[moduleId]?doc=&page=`), `▼ DIVE AGAIN ▼` and `BACK TO GAME`
+- [x] Start a Run: `/runs/new?game=<gameId>` launch beat (unlocks sound, creates the Run, opens it); `runApi.create` for other callers
+- [x] Mobile: dock pinned to the bottom, card text scales, ruler narrows (checked at 375 px)
 
-Entry points: — · Notes for others: —
+Entry points: `app/runs/[runId]/page.tsx`, `app/runs/[runId]/mode-screens.tsx` (`RunScreen`, `RevealScreen`), `app/runs/[runId]/reveal/page.tsx`, `app/runs/new/page.tsx` (`/runs/new?game=<id>`), `app/runs/queries.ts` (`getRunContext`, `getDiveHistory`), `app/runs/RunClosed.tsx`, `components/modes/dive/DiveRunScreen.tsx`, `components/modes/dive/DiveRevealScreen.tsx`, `lib/runs/client.ts` (`runApi`, `RunApiError`, `msUntil`)
+
+Notes for others:
+- **F24/F25:** add your Mode's screens in `app/runs/[runId]/mode-screens.tsx` (one `case` each in `RunScreen` and `RevealScreen`). Each gets the live `RunState` (or `Reveal`) plus `context` (`runId`, `gameId`, `gameTitle`, `moduleId`, `closed` Prompts) and, for Reveals, `history` (`number`, `scores` of your finished Runs on the Game). Use `runApi` from `lib/runs/client.ts`; it keeps the clock offset in a `Clock` object you pass in.
+- **F11:** the Play button can link to `/runs/new?game=<gameId>` (launch beat with `▼ BEGIN DESCENT ▼`) or call `runApi.create(gameId)` then `router.push('/runs/' + runId)`. Recent Runs link to `/runs/<id>/reveal`. The Reveal's `BACK TO GAME` goes to `/games/<gameId>`.
+- **F08:** Evidence links in the Reveal open `/modules/<moduleId>?doc=<documentId>&page=<n>`.
+- **F23/F28:** `DiveRevealScreen` takes `crowd={{ values, caption }}` (replaces the personal curve) and `title` (e.g. `DAILY DIVE #12`). `DiveRunScreen` can be reused for the Daily.
+- **Contract additions (#9 comment):** `Evidence.documentId` (every Mode's Reveal) and `DiveRunState.prompt.tier` (single-answer kinds only).
+- **Component tweaks to F10 blocks:** `EvidenceLine { href? }`, `ResultList { evidenceHref? }`, `DistributionChart { best?, minValues?=3 }` (fewer values: caption only), `CatchScreen { tags?: { hint?, stale? } }`, `DiveReveal { mastery?, evidenceHref?, againPending?, notice? }`.
+- **Known gaps:** the catch screen's auto-continue also counts down in a hidden tab; the menu doesn't pause the clock (it says so). Creating any Run abandons your other in-progress Runs (engine rule), so an open Run tab then shows the abandoned screen.
 
 ## F10 Visual design system (site + Mode themes)
 Spec: `docs/design/design-system.md`, `docs/design/modes/dive.md`, `docs/architecture/ui-map.md` (direction: `docs/worklog/aaf1007/overnight-decisions.md` §1–3, §12–14) · mock: `docs/design/mock/index.html`

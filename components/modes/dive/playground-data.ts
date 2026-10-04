@@ -12,7 +12,7 @@ export type FakePrompt =
   | ({ kind: "odd_one_out"; text: string; options: string[]; answer: string } & Single)
   | ({ kind: "ordered_recall"; text: string; items: string[] } & Single);
 
-const ev = (page: number, quote: string): Evidence => ({ documentTitle: "Playground notes", pageNumber: page, quote });
+const ev = (page: number, quote: string): Evidence => ({ documentId: "playground", documentTitle: "Playground notes", pageNumber: page, quote });
 
 export const PLAYGROUND_PROMPTS: FakePrompt[] = [
   {

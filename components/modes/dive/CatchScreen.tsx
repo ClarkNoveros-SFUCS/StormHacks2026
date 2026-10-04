@@ -12,6 +12,8 @@ type Props = {
   /** How far this catch sinks you (points × 10). */
   sinkMetres: number;
   verdict?: string;
+  /** Caution `HINT` and muted `REPEAT ÷2` tags. */
+  tags?: { hint?: boolean; stale?: boolean };
   onContinue: () => void;
   /** Auto-continue after this many ms (0 = never). */
   autoMs?: number;
@@ -24,7 +26,7 @@ type Props = {
  * Krillion's catch screen after a correct answer: the tier's creature glowing, the tier name big,
  * the answer in quotes, `+60 PTS · sink 600m`, a verdict, and `DESCEND ▼` (Enter, or auto after ~6 s).
  */
-export function CatchScreen({ tier, answer, points, sinkMetres, verdict, onContinue, autoMs = 6000, cta = "DESCEND", className = "" }: Props) {
+export function CatchScreen({ tier, answer, points, sinkMetres, verdict, tags, onContinue, autoMs = 6000, cta = "DESCEND", className = "" }: Props) {
   const ui = TIER_UI[tier];
   const doneRef = useRef(false);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -75,6 +77,16 @@ export function CatchScreen({ tier, answer, points, sinkMetres, verdict, onConti
           <span className="text-text">sink {sinkMetres.toLocaleString("en-US")}m</span>
         </p>
         <p className="mt-3 font-hud text-[17px] tracking-[0.2em] text-muted sm:text-[19px]">{verdict ?? ui.verdict}</p>
+        {(tags?.hint || tags?.stale) && (
+          <div className="mt-3 flex gap-2 font-hud text-[15px] tracking-[0.2em]">
+            {tags.hint && <span className="px-2 py-0.5 text-caution" style={{ boxShadow: "inset 0 0 0 1px var(--caution)" }}>HINT</span>}
+            {tags.stale && (
+              <span className="px-2 py-0.5 text-faint" style={{ boxShadow: "inset 0 0 0 1px var(--faint)" }} title="You found this answer in an earlier dive, so it scores half">
+                REPEAT ÷2
+              </span>
+            )}
+          </div>
+        )}
       </div>
       <div className="flex flex-col items-center gap-2">
         <button

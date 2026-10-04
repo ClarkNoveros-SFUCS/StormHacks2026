@@ -145,14 +145,14 @@ export async function logGuess(tx: Tx, e: GuessEvent) {
 export async function evidenceLookup(tx: Tx, pageIds: (string | null)[]) {
   const ids = [...new Set(pageIds.filter((x): x is string => !!x))];
   const pages = new Map(
-    (await tx<{ id: string; page_number: number; filename: string }[]>`
-      SELECT sp.id, sp.page_number, sd.filename
+    (await tx<{ id: string; page_number: number; filename: string; document_id: string }[]>`
+      SELECT sp.id, sp.page_number, sd.filename, sd.id AS document_id
         FROM source_pages sp JOIN source_documents sd ON sd.id = sp.source_document_id
        WHERE sp.id = ANY(${ids}::uuid[])`).map((p) => [p.id, p]),
   );
   return (pageId: string | null, quote: string | null): Evidence => {
     const page = pageId ? pages.get(pageId) : undefined;
-    return page ? { documentTitle: page.filename, pageNumber: page.page_number, quote } : null;
+    return page ? { documentId: page.document_id, documentTitle: page.filename, pageNumber: page.page_number, quote } : null;
   };
 }
 

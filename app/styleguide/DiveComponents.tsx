@@ -21,7 +21,7 @@ import { DiveLogChart } from "@/components/modes/dive/DiveLogChart";
 import { BEARING, TIER_UI, bearingIndex, formatDepth } from "@/components/modes/dive/tiers";
 import type { RevealPrompt } from "@/lib/runs/types";
 
-const EVIDENCE = { documentTitle: "Week 9 slides", pageNumber: 41, quote: "Hopcroft–Karp finds a maximum matching in O(E√V)." };
+const EVIDENCE = { documentId: "00000000-0000-0000-0000-000000000000", documentTitle: "Week 9 slides", pageNumber: 41, quote: "Hopcroft–Karp finds a maximum matching in O(E√V)." };
 
 const PROMPTS: RevealPrompt[] = [
   {

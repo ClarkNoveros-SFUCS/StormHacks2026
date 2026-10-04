@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import type { PromptKind, RevealPrompt } from "@/lib/runs/types";
+import type { Evidence, PromptKind, RevealPrompt } from "@/lib/runs/types";
 import { TIER_POINTS, type Tier } from "@/lib/scoring/tiers";
 import { sfx } from "@/lib/ui/sfx";
 import { PixelIcon } from "@/components/ui/PixelIcon";
@@ -17,7 +17,15 @@ const KIND_LABEL: Record<PromptKind, string> = {
   true_false: "TRUE OR FALSE",
 };
 
-type Props = { prompts: RevealPrompt[]; title?: string; className?: string };
+type EvidenceHref = (evidence: NonNullable<Evidence>) => string | null;
+
+type Props = {
+  prompts: RevealPrompt[];
+  title?: string;
+  /** Link each Evidence line (the Module's file viewer). */
+  evidenceHref?: EvidenceHref;
+  className?: string;
+};
 
 function TierIcon({ tier, size = 16 }: { tier: TierKey; size?: number }) {
   const ui = TIER_UI[tier];
@@ -25,7 +33,7 @@ function TierIcon({ tier, size = 16 }: { tier: TierKey; size?: number }) {
 }
 
 /** THE CATCH: one row per Prompt, expandable. Open Prompts list every Answer with filters and search. */
-export function ResultList({ prompts, title = "THE CATCH · tap a prompt for every answer", className = "" }: Props) {
+export function ResultList({ prompts, title = "THE CATCH · tap a prompt for every answer", evidenceHref, className = "" }: Props) {
   const [open, setOpen] = useState<number | null>(prompts[0]?.position ?? null);
   return (
     <section className={`w-full ${className}`}>
@@ -66,7 +74,7 @@ export function ResultList({ prompts, title = "THE CATCH · tap a prompt for eve
               </button>
               {isOpen && (
                 <div className="border-t border-white/10 px-3 pt-3 pb-4 sm:px-4" style={{ animation: "rise-in .35s var(--ease-out) both" }}>
-                  {p.kind === "open" && p.answers ? <OpenAnswers answers={p.answers} /> : <SingleAnswer p={p} />}
+                  {p.kind === "open" && p.answers ? <OpenAnswers answers={p.answers} evidenceHref={evidenceHref} /> : <SingleAnswer p={p} evidenceHref={evidenceHref} />}
                 </div>
               )}
             </li>
@@ -77,7 +85,7 @@ export function ResultList({ prompts, title = "THE CATCH · tap a prompt for eve
   );
 }
 
-function OpenAnswers({ answers }: { answers: NonNullable<RevealPrompt["answers"]> }) {
+function OpenAnswers({ answers, evidenceHref }: { answers: NonNullable<RevealPrompt["answers"]>; evidenceHref?: EvidenceHref }) {
   const [filter, setFilter] = useState<Tier | "all">("all");
   const [q, setQ] = useState("");
   const counts = Object.fromEntries(TIER_ORDER.map((t) => [t, answers.filter((a) => a.tier === t).length])) as Record<Tier, number>;
@@ -126,7 +134,7 @@ function OpenAnswers({ answers }: { answers: NonNullable<RevealPrompt["answers"]
                 +{TIER_POINTS[a.tier]}
               </span>
             </div>
-            <EvidenceLine evidence={a.evidence} className="pl-6" />
+            <EvidenceLine evidence={a.evidence} href={a.evidence && evidenceHref?.(a.evidence)} className="pl-6" />
           </li>
         ))}
         {shown.length === 0 && <li className="font-hud text-[17px] text-faint">Nothing matches.</li>}
@@ -135,7 +143,7 @@ function OpenAnswers({ answers }: { answers: NonNullable<RevealPrompt["answers"]
   );
 }
 
-function SingleAnswer({ p }: { p: RevealPrompt }) {
+function SingleAnswer({ p, evidenceHref }: { p: RevealPrompt; evidenceHref?: EvidenceHref }) {
   return (
     <div className="flex flex-col gap-2">
       <p className="font-hud text-[19px] text-text">
@@ -148,7 +156,7 @@ function SingleAnswer({ p }: { p: RevealPrompt }) {
         )}
       </p>
       {p.explanation && <p className="font-sans text-[14px] leading-relaxed text-muted">{p.explanation}</p>}
-      <EvidenceLine evidence={p.evidence ?? null} />
+      <EvidenceLine evidence={p.evidence ?? null} href={p.evidence && evidenceHref?.(p.evidence)} />
     </div>
   );
 }
